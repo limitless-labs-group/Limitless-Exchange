@@ -96,7 +96,8 @@ const removeSmallClobPositions = (positions: ClobPosition[]) => {
     const decimals = position.market.collateralToken.decimals
     const yesAmount = formatUnits(BigInt(position.tokensBalance.yes), decimals)
     const noAmount = formatUnits(BigInt(position.tokensBalance.no), decimals)
-    return !(+yesAmount < 0.01 && +noAmount < 0.01)
+    const ordersPlaced = !!position.orders.liveOrders.length
+    return !(+yesAmount < 0.01 && +noAmount < 0.01 && !ordersPlaced)
   })
 }
 

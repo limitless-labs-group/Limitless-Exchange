@@ -50,8 +50,8 @@ export default function EverythingTab() {
   if (!positionsFiltered || tradesAndPositionsLoading) {
     return (
       <Stack gap={{ sm: 2, md: 2 }} w='full'>
-        {[...Array(4)].map((index) => (
-          <Skeleton height={isMobile ? 206 : 112} key={index} />
+        {[...Array(4)].map(() => (
+          <Skeleton height={isMobile ? 206 : 112} key={uuidv4()} />
         ))}
       </Stack>
     )
