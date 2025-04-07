@@ -8,10 +8,11 @@ import DiscordIcon from '@/resources/icons/discord-icon.svg'
 import { ClickEvent, useAmplitude } from '@/services'
 import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { DISCORD_LINK } from '@/utils/consts'
 
 const LINKS = {
   X: 'https://x.com/trylimitless',
-  DISCORD: 'https://discord.gg/y79BeDVXEM',
+  DISCORD: DISCORD_LINK,
   FARCASTER: 'https://warpcast.com/~/channel/limitless',
   DOCS: 'https://www.notion.so/limitlesslabs/Limitless-Exchange-Docs-0e59399dd44b492f8d494050969a1567?pvs=4',
 }
