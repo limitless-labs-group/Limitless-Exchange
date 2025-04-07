@@ -476,6 +476,30 @@ export default function ClobMarketTradeForm() {
     !isOrderBookLoading &&
     strategy === 'Buy'
 
+  const disableButton = useMemo(() => {
+    if (shouldSignUp) {
+      return false
+    }
+    if (shouldAddFunds) {
+      return false
+    }
+    return (
+      !+price ||
+      isLessThanMinTreshHold ||
+      isBalanceNotEnough ||
+      noOrdersOnDesiredToken ||
+      maxOrderAmountLessThanInput
+    )
+  }, [
+    isBalanceNotEnough,
+    isLessThanMinTreshHold,
+    maxOrderAmountLessThanInput,
+    noOrdersOnDesiredToken,
+    price,
+    shouldAddFunds,
+    shouldSignUp,
+  ])
+
   const handleSubmitButtonClicked = async () => {
     if (shouldSignUp) {
       const currentUrl = window.location
@@ -633,13 +657,7 @@ export default function ClobMarketTradeForm() {
       </VStack>
       <ClobTradeButton
         status={placeMarketOrderMutation.status}
-        isDisabled={
-          !+price ||
-          isLessThanMinTreshHold ||
-          (web3Wallet && !shouldAddFunds
-            ? isBalanceNotEnough || noOrdersOnDesiredToken || maxOrderAmountLessThanInput
-            : false)
-        }
+        isDisabled={disableButton}
         onClick={handleSubmitButtonClicked}
         successText={`${strategy === 'Buy' ? 'Bought' : 'Sold'} ${NumberUtil.toFixed(
           contractsBuying,
