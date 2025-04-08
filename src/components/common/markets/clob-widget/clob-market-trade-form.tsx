@@ -34,7 +34,7 @@ import { PendingTradeData } from '@/services/PendingTradeService'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
-import { TRADING_BLOCKED_MSG } from '@/utils/consts'
+import { BLOCKED_REGION, TRADING_BLOCKED_MSG } from '@/utils/consts'
 import { getOrderErrorText } from '@/utils/orders'
 
 export default function ClobMarketTradeForm() {
@@ -534,7 +534,7 @@ export default function ClobMarketTradeForm() {
       await fundWallet(account as string)
       return
     }
-    if (country === 'VVM=') {
+    if (country === BLOCKED_REGION) {
       setTradingBlocked(true)
       return
     }

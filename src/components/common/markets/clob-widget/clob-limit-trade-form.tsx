@@ -34,7 +34,7 @@ import { PendingTradeData } from '@/services/PendingTradeService'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
-import { TRADING_BLOCKED_MSG } from '@/utils/consts'
+import { BLOCKED_REGION, TRADING_BLOCKED_MSG } from '@/utils/consts'
 import { getOrderErrorText } from '@/utils/orders'
 
 export default function ClobLimitTradeForm() {
@@ -71,10 +71,6 @@ export default function ClobLimitTradeForm() {
   const country = Cookies.get('limitless_geo')
 
   const [tradingBlocked, setTradingBlocked] = useAtom(blockTradeAtom)
-
-  // Todo replace to this logic for better performance
-  // const [price, setPrice] = useState('')
-  // const [sharesAmount, setSharesAmount] = useState('')
 
   const maxSharesAvailable =
     strategy === 'Sell'
@@ -395,7 +391,7 @@ export default function ClobLimitTradeForm() {
       return
     }
 
-    if (country === 'VVM=') {
+    if (country === BLOCKED_REGION) {
       setTradingBlocked(true)
       return
     }

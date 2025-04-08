@@ -28,7 +28,7 @@ import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market, MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
-import { INFO_MSG, TRADING_BLOCKED_MSG } from '@/utils/consts'
+import { BLOCKED_REGION, INFO_MSG, TRADING_BLOCKED_MSG } from '@/utils/consts'
 
 interface ActionButtonProps {
   disabled: boolean
@@ -175,7 +175,7 @@ export default function ActionButton({
       setMarketLocked(true)
       return
     }
-    if (country === 'VVM=') {
+    if (country === BLOCKED_REGION) {
       setTradingBlocked(true)
       return
     }
