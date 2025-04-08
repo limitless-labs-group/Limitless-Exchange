@@ -327,7 +327,7 @@ export default function MarketPage() {
             </HStack>
           )}
           {market?.tradeType === 'amm' && (
-            <HStack w={isMobile ? 'full' : 'full'} gap='4px' justifyContent='space-between'>
+            <HStack w='full' gap='4px' justifyContent='space-between'>
               <HStack gap='4px' color='grey.500'>
                 <VolumeIcon width={16} height={16} />
                 <Text {...paragraphRegular} color='grey.500'>
