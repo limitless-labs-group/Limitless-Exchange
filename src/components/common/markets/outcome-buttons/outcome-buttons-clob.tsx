@@ -15,7 +15,7 @@ import { MarketOrderType } from '@/types'
 export default function OutcomeButtonsClob() {
   const { strategy, market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
   const { trackChanged } = useAmplitude()
-  const { orderType, yesPrice, noPrice } = useClobWidget()
+  const { orderType } = useClobWidget()
   const [, setTradingBlocked] = useAtom(blockTradeAtom)
 
   const getShares = (sharesAmount?: bigint) => {
