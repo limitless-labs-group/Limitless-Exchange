@@ -1,4 +1,5 @@
 import { Box, Button, HStack, Text, VStack } from '@chakra-ui/react'
+import BigNumber from 'bignumber.js'
 import { useAtom } from 'jotai'
 import { formatUnits } from 'viem'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
