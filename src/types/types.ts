@@ -105,7 +105,7 @@ export interface Market {
   marketType: MarketType
   tradeType: MarketTradeType
   isRewardable: boolean
-  markets?: Market[]
+  markets?: (Market & { orderInGroup?: number })[]
 }
 
 export type MarketType = 'single' | 'group'

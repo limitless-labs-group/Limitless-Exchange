@@ -149,6 +149,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
         alignItems='flex-start'
         mb={isMobile ? '84px' : 0}
         ml={!isMobile ? '188px' : 'unset'}
+        mt={!market ? '64px' : '24px'}
       >
         <HStack justifyContent='space-between' mb='24px' px={isMobile ? '16px' : 0}>
           <Button

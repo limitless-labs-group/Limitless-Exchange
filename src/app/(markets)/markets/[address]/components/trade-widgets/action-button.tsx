@@ -28,6 +28,7 @@ import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market, MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
+import { BLOCKED_REGION, INFO_MSG, TRADING_BLOCKED_MSG } from '@/utils/consts'
 
 interface ActionButtonProps {
   disabled: boolean
@@ -88,9 +89,6 @@ export default function ActionButton({
   const { marketFee } = useTradingService()
 
   const [status, setStatus] = useState<ButtonStatus>('initial')
-  const INFO_MSG = 'Market is locked. Trading stopped. Please await for final resolution.'
-  const TRADING_BLOCKED_MSG =
-    'Trading is unavailable to individuals or companies based in the U.S. or restricted territories.'
 
   useOutsideClick({
     ref: ref as MutableRefObject<HTMLElement>,
@@ -177,7 +175,7 @@ export default function ActionButton({
       setMarketLocked(true)
       return
     }
-    if (country === 'VVM=') {
+    if (country === BLOCKED_REGION) {
       setTradingBlocked(true)
       return
     }
