@@ -1,4 +1,3 @@
-import { isNumber } from '@chakra-ui/utils'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
@@ -18,7 +17,6 @@ import { Address, formatUnits, getAddress, getContract, Hash, parseUnits, zeroHa
 import { Toast } from '@/components/common/toast'
 import { conditionalTokensABI, fixedProductMarketMakerABI } from '@/contracts'
 import { useMarketData, useToast } from '@/hooks'
-import useClobMarketShares from '@/hooks/use-clob-market-shares'
 import {
   getConditionalTokenAddress,
   useConditionalTokensAddr,

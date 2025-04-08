@@ -208,9 +208,20 @@ const PriceChart = () => {
   }, [prices, market?.winningOutcomeIndex, resolved])
 
   const marketActivePrice = useMemo(() => {
-    return market?.tradeType === 'clob'
-      ? chartData.at(0)?.[1]?.toFixed(0) ?? ((outcomeTokensPercent?.[0] || 0.5) * 100).toFixed(1)
-      : outcomeTokensPercent?.[0]
+    if (market?.tradeType === 'clob') {
+      if (market?.marketType === 'group') {
+        return (
+          chartData.at(0)?.[1]?.toFixed(0) ?? ((outcomeTokensPercent?.[0] || 0.5) * 100).toFixed(1)
+        )
+      }
+      if (market?.marketType === 'single') {
+        return (
+          chartData.at(0)?.[1]?.toFixed(0) ?? (outcomeTokensPercent?.[0] || 0.5 * 100).toFixed(1)
+        )
+      }
+    }
+
+    return outcomeTokensPercent?.[0]
   }, [chartData, market?.tradeType, outcomeTokensPercent])
 
   return !prices ? (
