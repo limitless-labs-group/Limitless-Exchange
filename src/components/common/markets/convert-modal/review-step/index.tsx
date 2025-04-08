@@ -42,9 +42,14 @@ export default function ReviewStep({ positions, onBack, sharesToConvert }: Revie
   const convertMutation = useMutation({
     mutationKey: ['convert-shares', groupMarket?.slug],
     mutationFn: async () => {
+      const haveOrder = groupMarket?.markets?.every((market) => market.orderInGroup !== undefined)
+      if (!haveOrder || !groupMarket?.markets) {
+        throw new Error('Market order is not set')
+      }
       const indexSet =
-        groupMarket?.markets
-          ?.map((market) =>
+        groupMarket.markets
+          .sort((a, b) => a.orderInGroup! - b.orderInGroup!)
+          .map((market) =>
             positionsToConvert.some((pos) => pos.market.slug === market.slug) ? '1' : '0'
           )
           .reverse()
