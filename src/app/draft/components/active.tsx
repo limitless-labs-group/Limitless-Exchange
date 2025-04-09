@@ -25,8 +25,10 @@ export const ActiveMarkets = () => {
     })
   }, [data?.pages])
 
-  const handleClick = (marketSlug: string, marketType: string) => {
-    router.push(`/draft/?active-market=${marketSlug}&marketType=${marketType}`)
+  const handleClick = (marketSlug: string, tradeType: string, marketType: string) => {
+    const baseUrl = `/draft/?active-market=${marketSlug}&marketType=`
+    const addon = tradeType === 'amm' ? 'amm' : marketType === 'single' ? 'clob' : 'group'
+    router.push(baseUrl + addon)
   }
 
   return (
@@ -45,7 +47,7 @@ export const ActiveMarkets = () => {
               <DraftMarketCard
                 market={market}
                 key={market.id}
-                onClick={() => handleClick(market.slug, market.marketType)}
+                onClick={() => handleClick(market.slug, market.tradeType, market.marketType)}
               />
             )
           })}

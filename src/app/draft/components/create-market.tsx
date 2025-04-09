@@ -17,6 +17,7 @@ import {
 } from '@chakra-ui/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
+import { fromZonedTime, toZonedTime } from 'date-fns-tz'
 import { htmlToText } from 'html-to-text'
 import { useAtom } from 'jotai'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -25,7 +26,11 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { default as MultiSelect } from 'react-select'
 import CreatableSelect from 'react-select/creatable'
-import TimezoneSelect, { ITimezoneOption } from 'react-timezone-select'
+import TimezoneSelect, {
+  allTimezones,
+  ITimezoneOption,
+  useTimezoneSelect,
+} from 'react-timezone-select'
 import TextEditor from '@/components/common/text-editor'
 import { Toast } from '@/components/common/toast'
 import { tokenLimits, selectStyles, defaultFormData } from '@/app/draft/components'
@@ -72,12 +77,9 @@ export const CreateMarket: FC = () => {
   const [marketType, setMarketType] = useAtom(draftMarketTypeAtom)
   const [, setGroupMarkets] = useAtom(groupMarketsAtom)
 
-  const { getParam } = useUrlParams()
-
   const isClob = marketType === 'clob'
   const isAmm = marketType === 'amm'
   const isGroup = marketType === 'group'
-  const isCreatePage = getParam('tab') === 'draft'
 
   const { data: editDraftMarket } = useQuery({
     queryKey: ['editMarket', draftMarketId],
@@ -103,7 +105,7 @@ export const CreateMarket: FC = () => {
       return
     }
     if (editActiveMarket) {
-      setMarketType('group')
+      setMarketType(type as DraftMarketType)
       populateActiveMarketData(editActiveMarket)
       return
     }
@@ -116,6 +118,12 @@ export const CreateMarket: FC = () => {
       render: () => <Toast title={message} id={id} />,
     })
   }
+
+  const { parseTimezone } = useTimezoneSelect({
+    labelStyle: 'original',
+    timezones: allTimezones,
+  })
+
   const { data: tagOptions } = useQuery({
     queryKey: ['tagOptions'],
     queryFn: async () => {
@@ -125,7 +133,6 @@ export const CreateMarket: FC = () => {
         createOption(tag.id, tag.name)
       ) as SelectOption[]
     },
-    enabled: isCreatePage,
   })
   const { data: categoriesOptions } = useQuery({
     queryKey: ['catOptions'],
@@ -136,7 +143,6 @@ export const CreateMarket: FC = () => {
         createOption(tag.id, tag.name)
       ) as SelectOption[]
     },
-    enabled: isCreatePage,
   })
 
   const { data: creators } = useQuery({
@@ -147,7 +153,6 @@ export const CreateMarket: FC = () => {
       )
       return response.data as DraftCreator[]
     },
-    enabled: isCreatePage,
   })
 
   const handleTagCreation = async (tagToCreate: string) => {
@@ -228,11 +233,11 @@ export const CreateMarket: FC = () => {
   const updateActiveMarket = async () => {
     const marketData = prepareMarketData(true)
     if (!marketData) return
-
+    const { id, ...rest } = marketData
     setIsCreating(true)
-    const url = `/markets/${activeMarketId}`
+    const url = isGroup ? `/markets/group/${id}` : `/markets/${activeMarketId}`
     privateClient
-      .put(url, marketData, {
+      .put(url, rest, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -552,60 +557,118 @@ export const CreateMarket: FC = () => {
               </FormField>
 
               <FormField label='Deadline'>
-                {/*// Todo move to a separate component?*/}
-                <DatePicker
-                  id='input'
-                  selected={formData.deadline || null}
-                  onChange={(date: Date | null) => {
-                    if (date) {
-                      handleChange('deadline', new Date(date.getTime()))
-                    }
-                  }}
-                  minDate={new Date()}
-                  showTimeSelect
-                  timeIntervals={60}
-                  dateFormat='Pp'
-                  calendarStartDay={1}
-                  customInput={
-                    <Input
-                      cursor='pointer'
-                      backgroundColor='grey.100'
-                      color='grey.900'
-                      _hover={{ backgroundColor: 'grey.200' }}
-                      _focus={{ backgroundColor: 'gray.300', borderColor: 'gray.500' }}
-                      padding='8px'
-                      mb='5px'
-                      borderRadius='md'
+                <Box position='relative' w='full'>
+                  <HStack w='full' spacing={4} alignItems='flex-start'>
+                    <VStack w='full' alignItems='flex-start'>
+                      <Text fontSize='sm' fontWeight='medium'>
+                        UTC
+                      </Text>
+                      <Box w='full' h='40px'>
+                        <DatePicker
+                          id='utc-input'
+                          selected={formData.deadline ? new Date(formData.deadline) : null}
+                          onChange={(date: Date | null) => {
+                            if (date) {
+                              handleChange('deadline', date)
+                            }
+                          }}
+                          minDate={new Date()}
+                          showTimeSelect
+                          timeIntervals={60}
+                          dateFormat='Pp'
+                          calendarStartDay={1}
+                          popperPlacement='bottom-start'
+                          customInput={
+                            <Input
+                              cursor='pointer'
+                              backgroundColor='grey.100'
+                              color='grey.900'
+                              _hover={{ backgroundColor: 'grey.200' }}
+                              _focus={{ backgroundColor: 'gray.300', borderColor: 'gray.500' }}
+                              padding='8px'
+                              borderRadius='md'
+                              height='40px'
+                            />
+                          }
+                        />
+                      </Box>
+                    </VStack>
+
+                    <VStack w='full' alignItems='flex-start'>
+                      <Text fontSize='sm' fontWeight='medium'>
+                        ET (Eastern Time)
+                      </Text>
+                      <Box w='full' h='40px'>
+                        <DatePicker
+                          id='et-input'
+                          selected={formData.deadline ? new Date(formData.deadline) : null}
+                          onChange={(date: Date | null) => {
+                            if (date) {
+                              const utcDate = fromZonedTime(date, 'America/New_York')
+                              handleChange('deadline', utcDate)
+                            }
+                          }}
+                          minDate={new Date()}
+                          showTimeSelect
+                          timeIntervals={60}
+                          dateFormat='Pp'
+                          calendarStartDay={1}
+                          popperPlacement='bottom-start'
+                          customInput={
+                            <Input
+                              cursor='pointer'
+                              backgroundColor='grey.100'
+                              color='grey.900'
+                              _hover={{ backgroundColor: 'grey.200' }}
+                              _focus={{ backgroundColor: 'gray.300', borderColor: 'gray.500' }}
+                              padding='8px'
+                              borderRadius='md'
+                              height='40px'
+                            />
+                          }
+                        />
+                      </Box>
+                    </VStack>
+                  </HStack>
+
+                  <Box mt={4} h='40px'>
+                    <TimezoneSelect
+                      value={formData.timezone}
+                      onChange={(timezone: ITimezoneOption) => {
+                        handleChange('timezone', timezone.value)
+                      }}
+                      styles={{
+                        option: (provided, state) => ({
+                          ...provided,
+                          backgroundColor: state.isFocused
+                            ? 'var(--chakra-colors-blue-50)'
+                            : 'var(--chakra-colors-grey-300)',
+                          color: state.isFocused
+                            ? 'var(--chakra-colors-blue-900)'
+                            : 'var(--chakra-colors-grey-900)',
+                        }),
+                        menu: (provided) => ({
+                          ...provided,
+                          ...selectStyles.menu,
+                        }),
+                        control: (provided) => ({
+                          ...provided,
+                          ...selectStyles.control,
+                          minHeight: '40px',
+                          height: '40px',
+                        }),
+                        singleValue: (provided) => ({
+                          ...provided,
+                          ...selectStyles.singleValue,
+                        }),
+                        container: (provided) => ({
+                          ...provided,
+                          height: '40px',
+                        }),
+                      }}
                     />
-                  }
-                />
-                <TimezoneSelect
-                  value={formData.timezone}
-                  onChange={(timezone: ITimezoneOption) => handleChange('timezone', timezone.value)}
-                  styles={{
-                    option: (provided, state) => ({
-                      ...provided,
-                      backgroundColor: state.isFocused
-                        ? 'var(--chakra-colors-blue-50)'
-                        : 'var(--chakra-colors-grey-300)',
-                      color: state.isFocused
-                        ? 'var(--chakra-colors-blue-900)'
-                        : 'var(--chakra-colors-grey-900)',
-                    }),
-                    menu: (provided) => ({
-                      ...provided,
-                      ...selectStyles.menu,
-                    }),
-                    control: (provided) => ({
-                      ...provided,
-                      ...selectStyles.control,
-                    }),
-                    singleValue: (provided) => ({
-                      ...provided,
-                      ...selectStyles.singleValue,
-                    }),
-                  }}
-                />
+                  </Box>
+                </Box>
               </FormField>
 
               <ButtonGroup spacing='6' mt={5} w='full'>
