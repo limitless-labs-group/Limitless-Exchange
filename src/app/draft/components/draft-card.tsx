@@ -1,4 +1,5 @@
 import { Box, HStack, Link, Text, Image as ChakraImage, Checkbox, Stack } from '@chakra-ui/react'
+import { format, toZonedTime } from 'date-fns-tz'
 import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Paper from '@/components/common/paper'
@@ -8,7 +9,7 @@ import CategoryIcon from '@/resources/icons/category.svg'
 import FeeIcon from '@/resources/icons/fee.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import DeadlineIcon from '@/resources/icons/sun-watch.svg'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { captionMedium, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { DraftMarket, MarketInput } from '@/types/draft'
 import { NumberUtil } from '@/utils'
@@ -74,31 +75,37 @@ const MarketDataFactory = {
   },
 
   formatDeadline: (market: DraftMarket | Market): string => {
-    if (isMarket(market) && market.expirationTimestamp) {
-      return (
-        new Date(market.expirationTimestamp).toLocaleString('en-US', {
-          timeZone: 'America/New_York',
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-          hour12: true,
-        }) + ' ET'
-      )
+    const dateOptions = {
+      timeZone: 'America/New_York',
     }
 
-    return market.deadline
-      ? new Date(market.deadline).toLocaleString('en-US', {
-          timeZone: 'America/New_York',
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-          hour12: true,
-        }) + ' ET'
-      : 'Invalid date'
+    if (isMarket(market)) {
+      if (!market.expirationTimestamp) return 'Invalid date'
+
+      const date = new Date(market.expirationTimestamp)
+
+      const etDate = format(
+        toZonedTime(date, 'America/New_York'),
+        'MMM d, yyyy h:mm aa',
+        dateOptions
+      )
+
+      const utcDate = format(toZonedTime(date, 'UTC'), 'MMM d, yyyy h:mm aa', {
+        timeZone: 'UTC',
+      })
+
+      return `${etDate} ET / ${utcDate} UTC`
+    }
+
+    if (!market.deadline) return 'Invalid date'
+
+    const date = new Date(market.deadline)
+
+    const etDate = format(toZonedTime(date, 'America/New_York'), 'MMM d, yyyy h:mm aa', dateOptions)
+
+    const utcDate = format(toZonedTime(date, 'UTC'), 'MMM d, yyyy h:mm aa', { timeZone: 'UTC' })
+
+    return `${etDate} ET / ${utcDate} UTC`
   },
 
   renderCreatorAndTags: (market: DraftMarket | Market) => {
@@ -371,7 +378,7 @@ export const DraftMarketCard = ({
                       DL
                     </Text>
                   </HStack>
-                  <Text {...paragraphRegular} color={colors.main}>
+                  <Text {...captionMedium} color={colors.main}>
                     {formattedDeadline}
                   </Text>
                 </HStack>

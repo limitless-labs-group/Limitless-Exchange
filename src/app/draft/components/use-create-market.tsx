@@ -3,6 +3,7 @@ import { toZonedTime } from 'date-fns-tz'
 import { useAtom } from 'jotai'
 import { useCallback, useMemo } from 'react'
 import { MultiValue } from 'react-select'
+import { allTimezones, useTimezoneSelect } from 'react-timezone-select'
 import { Toast } from '@/components/common/toast'
 import {
   tokenLimits,
@@ -49,17 +50,19 @@ export const reverseCalculateMaxSpread = (spread: number | undefined) => {
 }
 
 export const useCreateMarket = () => {
-  const { getParam } = useUrlParams()
   const [formData, setFormData] = useAtom(formDataAtom)
   const [marketType, setMarketType] = useAtom(draftMarketTypeAtom)
   const [markets, setMarkets] = useAtom(groupMarketsAtom)
   const isClob = marketType === 'clob'
   const isAmm = marketType === 'amm'
   const isGroup = marketType === 'group'
-  const isCreatePage = getParam('tab') === 'draft'
+  const { parseTimezone } = useTimezoneSelect({
+    labelStyle: 'original',
+    timezones: allTimezones,
+  })
 
-  const { data: categories } = useCategories(isCreatePage)
-  const { data: tags } = useTags(isCreatePage)
+  const { data: categories } = useCategories()
+  const { data: tags } = useTags()
 
   const toast = useToast()
   const showToast = (message: string) => {
@@ -75,7 +78,7 @@ export const useCreateMarket = () => {
       ...prevFormData,
       title: draftMarket.title ?? '',
       description: draftMarket.description ?? '',
-      deadline: toZonedTime(draftMarket.deadline, 'America/New_York'),
+      deadline: toZonedTime(draftMarket.deadline, 'UTC'),
       token: draftMarket.collateralToken
         ? { symbol: draftMarket.collateralToken.symbol, id: draftMarket.collateralToken.id }
         : prevFormData.token,
@@ -100,6 +103,7 @@ export const useCreateMarket = () => {
         })) ?? [],
       type: draftMarket.type,
       priorityIndex: draftMarket.priorityIndex,
+      timezone: 'Etc/GMT',
       ...(isClob
         ? {
             minSize: reverseCalculateMinSize(draftMarket.settings?.minSize),
@@ -132,9 +136,10 @@ export const useCreateMarket = () => {
 
     setFormData((prevFormData) => ({
       ...prevFormData,
+      id: activeMarket.id,
       title: activeMarket.title ?? '',
       description: activeMarket.description ?? '',
-      deadline: toZonedTime(activeMarket.expirationTimestamp, 'America/New_York'),
+      deadline: toZonedTime(activeMarket.expirationTimestamp, 'UTC'),
       marketFee: 0,
       priorityIndex: activeMarket.priorityIndex,
       isBannered: activeMarket.metadata?.isBannered ?? false,
@@ -160,15 +165,42 @@ export const useCreateMarket = () => {
           }
         }) ?? [],
       slug: activeMarket.slug ?? '',
+      timezone: 'Etc/GMT',
       ...(activeMarket.tradeType === 'clob'
         ? {
             minSize: reverseCalculateMinSize(activeMarket.settings?.minSize),
             maxSpread: reverseCalculateMaxSpread(activeMarket.settings?.maxSpread),
             c: activeMarket.settings?.c,
-            rewardsEpoch: activeMarket.settings?.rewardsEpoch,
+            rewardsEpoch: Number(activeMarket.settings?.rewardsEpoch ?? 0),
+          }
+        : {}),
+      ...(activeMarket.marketType === 'group' && activeMarket.tradeType === 'clob'
+        ? {
+            markets: activeMarket.markets,
           }
         : {}),
     }))
+    if (
+      activeMarket.marketType === 'group' &&
+      activeMarket.tradeType === 'clob' &&
+      activeMarket.markets &&
+      activeMarket.markets.length > 0
+    ) {
+      setMarketType('group')
+      setMarkets(
+        activeMarket.markets.map((market) => ({
+          title: market.title ?? '',
+          description: market.description ?? '',
+          id: market.id,
+          settings: {
+            maxSpread: Number(market.settings?.maxSpread) ?? 0,
+            c: Number(market.settings?.c) ?? 0,
+            rewardsEpoch: Number(market.settings?.rewardsEpoch) ?? 0,
+            minSize: Number(market.settings?.minSize) ?? 0,
+          },
+        }))
+      )
+    }
   }
 
   const handleChange = <K extends keyof IFormData>(
@@ -206,6 +238,14 @@ export const useCreateMarket = () => {
     handleChange('liquidity', tokenLimits[selectedTokenSymbol].min)
   }
 
+  const calculateZonedTime = (deadline: Date, timezone: string): number => {
+    const currentTimezoneOffset =
+      parseTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone).offset ?? 1
+    const formTimezoneOffset = parseTimezone(timezone)?.offset ?? 1
+    const differenceInOffset = currentTimezoneOffset - formTimezoneOffset
+    return new Date(deadline).getTime() + differenceInOffset * 60 * 60 * 1000
+  }
+
   const createOption = (id: string, name: string): SelectOption => ({
     id,
     label: name,
@@ -222,27 +262,35 @@ export const useCreateMarket = () => {
       description,
       token,
       marketFee,
-      deadline,
       isBannered,
       creatorId,
-      categories,
       ogLogo,
-      tag,
+      deadline,
+      timezone,
       priorityIndex,
     } = formData
 
+    const matchedCategoryIds = formData.categories.map((cat) => {
+      const matchedCategory = categories?.find((c) => c.name === cat.value)
+      return matchedCategory ? Number(matchedCategory.id) : Number(cat.id)
+    })
+
+    const matchedTagIds = formData.tag.map((tag) => {
+      const matchedTag = tags?.find((t) => t.label === tag.value)
+      return matchedTag ? Number(matchedTag.id) : Number(tag.id)
+    })
     const tokenId = token.id
 
     const baseData = {
       title: title ?? '',
       tokenId,
       marketFee,
-      deadline: String(new Date(deadline).getTime()),
+      deadline: String(calculateZonedTime(deadline, timezone)),
       isBannered: isBannered,
       creatorId: creatorId ?? '',
-      categoryIds: categories.map((cat) => cat.id).join(','),
+      categoryIds: matchedCategoryIds,
       ogFile: ogLogo as File | null,
-      tagIds: tag.map((t) => t.id).join(','),
+      tagIds: matchedTagIds,
     }
 
     if (isClob) {
@@ -251,7 +299,7 @@ export const useCreateMarket = () => {
         description: description ?? '',
         priorityIndex: priorityIndex ?? undefined,
         minSize: formData.minSize !== undefined ? calculateMinSize(formData.minSize) : undefined,
-        maxSpread: formData.maxSpread,
+        maxSpread: calculateMaxSpread(formData.maxSpread),
         c: formData.c,
         rewardsEpoch: formData.rewardsEpoch,
       }
@@ -285,13 +333,15 @@ export const useCreateMarket = () => {
       const matchedTag = tags?.find((t) => t.label === tag.value)
       return matchedTag ? Number(matchedTag.id) : Number(tag.id)
     })
+    const { id, title, isBannered, deadline, timezone } = formData
 
     const baseData = {
-      title: formData.title ?? '',
-      isBannered: formData.isBannered,
+      id,
+      title,
+      isBannered,
       categoryIds: matchedCategoryIds,
       tagIds: matchedTagIds,
-      deadline: String(new Date(formData.deadline).getTime()),
+      deadline: String(calculateZonedTime(deadline, timezone)),
     }
 
     if (isClob) {

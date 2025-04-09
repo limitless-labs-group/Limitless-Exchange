@@ -32,6 +32,7 @@ export interface Settings {
 
 export interface IFormData {
   deadline: Date
+  id?: number
   timezone: string
   title: string
   token: {
@@ -138,14 +139,15 @@ export interface DraftMarketResponse {
 
 export interface BaseMarketData {
   title: string
+  id?: number
   description?: string
   tokenId?: number
   marketFee?: number
   deadline?: string
   isBannered: boolean
   creatorId?: string
-  categoryIds: string
-  tagIds: string
+  categoryIds: string | number[]
+  tagIds: string | number[]
   slug?: string
   marketsInput?: any
 }

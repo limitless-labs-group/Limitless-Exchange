@@ -155,7 +155,7 @@ const CreateOwnMarketPage = () => {
       <Tabs
         height='100%'
         w='full'
-        maxWidth='1000px'
+        maxWidth='1400px'
         position='relative'
         variant='common'
         index={activeIndex}
@@ -171,7 +171,7 @@ const CreateOwnMarketPage = () => {
           pb='8px'
           px='16px'
           w='full'
-          maxW='1000px'
+          maxW='1400px'
           backdropFilter='blur(8px)'
           borderBottom='1px solid var(--chakra-colors-grey-100)'
         >
@@ -190,7 +190,7 @@ const CreateOwnMarketPage = () => {
           ))}
         </TabList>
         <TabIndicator mt='-2px' height='2px' bg='grey.800' transitionDuration='200ms !important' />
-        <TabPanels mt='100px'>
+        <TabPanels mt='100px' minH='800px'>
           {tabs.map(({ component: Component, marketType }, index) => (
             <TabPanel key={index}>
               {marketType ? (
