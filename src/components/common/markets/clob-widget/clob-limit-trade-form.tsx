@@ -5,6 +5,8 @@ import { useFundWallet } from '@privy-io/react-auth'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import BigNumber from 'bignumber.js'
+import { useAtom } from 'jotai'
+import Cookies from 'js-cookie'
 import React, { useMemo } from 'react'
 import { isMobile, isTablet } from 'react-device-detect'
 import { Address, formatUnits, maxUint256, parseUnits } from 'viem'
@@ -16,6 +18,7 @@ import TradeWidgetSkeleton, {
 } from '@/components/common/skeleton/trade-widget-skeleton'
 import { Toast } from '@/components/common/toast'
 import { AddFundsValidation } from './add-funds-validation'
+import { blockTradeAtom } from '@/atoms/trading'
 import { useToast } from '@/hooks'
 import usePrivySendTransaction from '@/hooks/use-smart-wallet-service'
 import {
@@ -31,6 +34,7 @@ import { PendingTradeData } from '@/services/PendingTradeService'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
+import { BLOCKED_REGION, TRADING_BLOCKED_MSG } from '@/utils/consts'
 import { getOrderErrorText } from '@/utils/orders'
 
 export default function ClobLimitTradeForm() {
@@ -64,10 +68,9 @@ export default function ClobLimitTradeForm() {
 
   const { pushGA4Event } = useGoogleAnalytics()
   const { fundWallet } = useFundWallet()
+  const country = Cookies.get('limitless_geo')
 
-  // Todo replace to this logic for better performance
-  // const [price, setPrice] = useState('')
-  // const [sharesAmount, setSharesAmount] = useState('')
+  const [tradingBlocked, setTradingBlocked] = useAtom(blockTradeAtom)
 
   const maxSharesAvailable =
     strategy === 'Sell'
@@ -349,7 +352,9 @@ export default function ClobLimitTradeForm() {
     if (shouldAddFunds) {
       return false
     }
-    return !+price || isLessThanMinTreshHold || !+sharesAmount || isBalanceNotEnough
+    return (
+      !+price || isLessThanMinTreshHold || !+sharesAmount || isBalanceNotEnough || tradingBlocked
+    )
   }, [
     isBalanceNotEnough,
     shouldSignUp,
@@ -357,6 +362,7 @@ export default function ClobLimitTradeForm() {
     price,
     isLessThanMinTreshHold,
     sharesAmount,
+    tradingBlocked,
   ])
 
   const handleSubmitButtonClicked = async () => {
@@ -382,6 +388,11 @@ export default function ClobLimitTradeForm() {
 
     if (shouldAddFunds) {
       await fundWallet(account as string)
+      return
+    }
+
+    if (country === BLOCKED_REGION) {
+      setTradingBlocked(true)
       return
     }
 
@@ -431,6 +442,9 @@ export default function ClobLimitTradeForm() {
   }
 
   const getButtonText = () => {
+    if (tradingBlocked) {
+      return TRADING_BLOCKED_MSG
+    }
     if (shouldSignUp) {
       return `Sign up to ${strategy}`
     }
@@ -534,6 +548,7 @@ export default function ClobLimitTradeForm() {
       <ClobTradeButton
         status={placeLimitOrderMutation.status}
         isDisabled={disableButton}
+        isBlocked={tradingBlocked}
         onClick={handleSubmitButtonClicked}
         successText={`Submitted`}
         onReset={onResetMutation}
