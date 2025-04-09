@@ -101,8 +101,9 @@ export const CreateMarket: FC = () => {
       setMarketType(editDraftMarket.type)
       populateDraftMarketData(editDraftMarket)
       return
-    } else if (editActiveMarket) {
-      setMarketType(editActiveMarket?.tradeType)
+    }
+    if (editActiveMarket) {
+      setMarketType('group')
       populateActiveMarketData(editActiveMarket)
       return
     }

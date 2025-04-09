@@ -165,10 +165,36 @@ export const useCreateMarket = () => {
             minSize: reverseCalculateMinSize(activeMarket.settings?.minSize),
             maxSpread: reverseCalculateMaxSpread(activeMarket.settings?.maxSpread),
             c: activeMarket.settings?.c,
-            rewardsEpoch: activeMarket.settings?.rewardsEpoch,
+            rewardsEpoch: Number(activeMarket.settings?.rewardsEpoch ?? 0),
+          }
+        : {}),
+      ...(activeMarket.marketType === 'group' && activeMarket.tradeType === 'clob'
+        ? {
+            markets: activeMarket.markets,
           }
         : {}),
     }))
+    if (
+      activeMarket.marketType === 'group' &&
+      activeMarket.tradeType === 'clob' &&
+      activeMarket.markets &&
+      activeMarket.markets.length > 0
+    ) {
+      setMarketType('group')
+      setMarkets(
+        activeMarket.markets.map((market) => ({
+          title: market.title ?? '',
+          description: market.description ?? '',
+          id: market.id,
+          settings: {
+            maxSpread: Number(market.settings?.maxSpread) ?? 0,
+            c: Number(market.settings?.c) ?? 0,
+            rewardsEpoch: Number(market.settings?.rewardsEpoch) ?? 0,
+            minSize: Number(market.settings?.minSize) ?? 0,
+          },
+        }))
+      )
+    }
   }
 
   const handleChange = <K extends keyof IFormData>(
