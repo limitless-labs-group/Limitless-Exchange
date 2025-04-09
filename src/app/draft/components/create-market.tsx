@@ -81,6 +81,14 @@ export const CreateMarket: FC = () => {
   const isAmm = marketType === 'amm'
   const isGroup = marketType === 'group'
 
+  const calculateZonedTime = (deadline: Date, timezone: string): number => {
+    const currentTimezoneOffset =
+      parseTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone).offset ?? 1
+    const formTimezoneOffset = parseTimezone(timezone)?.offset ?? 1
+    const differenceInOffset = currentTimezoneOffset - formTimezoneOffset
+    return new Date(deadline).getTime() + differenceInOffset * 60 * 60 * 1000
+  }
+
   const { data: editDraftMarket } = useQuery({
     queryKey: ['editMarket', draftMarketId],
     queryFn: async () => {
@@ -601,10 +609,16 @@ export const CreateMarket: FC = () => {
                       <Box w='full' h='40px'>
                         <DatePicker
                           id='et-input'
-                          selected={formData.deadline ? new Date(formData.deadline) : null}
+                          selected={toZonedTime(
+                            calculateZonedTime(formData.deadline, 'Gtm/utc'),
+                            'America/New_York'
+                          )}
                           onChange={(date: Date | null) => {
                             if (date) {
-                              const utcDate = fromZonedTime(date, 'America/New_York')
+                              const utcDate = fromZonedTime(
+                                calculateZonedTime(date, 'Europe/Belgrade'),
+                                'America/New_York'
+                              )
                               handleChange('deadline', utcDate)
                             }
                           }}
