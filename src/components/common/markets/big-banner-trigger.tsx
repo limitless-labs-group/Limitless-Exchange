@@ -10,7 +10,6 @@ import OpenInterestTooltip from '@/components/common/markets/open-interest-toolt
 import Paper from '@/components/common/paper'
 import { MarketFeedData, useMarketFeed } from '@/hooks/use-market-feed'
 import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
-import { useThemeProvider } from '@/providers'
 import { ClickEvent, QuickBetClickedMetadata, useAmplitude, useTradingService } from '@/services'
 import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
 import { captionMedium, headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -39,7 +38,6 @@ export const BigBannerTrigger = React.memo(({ market, markets, index }: BigBanne
   const { pushGA4Event } = useGoogleAnalytics()
   const [yesHovered, setYesHovered] = useState(false)
   const [noHovered, setNoHovered] = useState(false)
-  const { mode } = useThemeProvider()
 
   const imageBackgrounds = [
     '/assets/images/banners/background-1.svg',
@@ -233,7 +231,7 @@ export const BigBannerTrigger = React.memo(({ market, markets, index }: BigBanne
                         market.tradeType === 'clob'
                           ? market.volumeFormatted
                           : +market.openInterestFormatted + +market.liquidityFormatted,
-                        6
+                        0
                       )}{' '}
                       {market.collateralToken.symbol}
                     </Text>

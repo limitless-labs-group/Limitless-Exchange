@@ -26,9 +26,18 @@ export const MainLayout = ({
   const { marketPageOpened, market } = useTradingService()
   const pageName = usePageName()
 
-  const desktopPadding = pageName === 'Explore Markets' ? '80px' : '24px'
+  const getPaddingByPage = (page: string): { desktop: string; mobile: string } => {
+    switch (page) {
+      case 'Explore Markets':
+        return { desktop: '80px', mobile: '65px' }
+      case 'Draft':
+        return { desktop: '0px', mobile: '0px' }
+      default:
+        return { desktop: '24px', mobile: '36px' }
+    }
+  }
 
-  const mobilePadding = pageName === 'Explore Markets' ? '65px' : '36px'
+  const { desktop: desktopPadding, mobile: mobilePadding } = getPaddingByPage(pageName)
 
   return (
     <Box

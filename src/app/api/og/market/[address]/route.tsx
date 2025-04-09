@@ -269,7 +269,7 @@ export async function GET(req: Request, { params }: { params: { address: string 
                 fontFamily: 'Inter Thin',
               }}
             >
-              Volume {NumberUtil.convertWithDenomination(market.volumeFormatted, 2)}{' '}
+              Volume {NumberUtil.convertWithDenomination(market.volumeFormatted, 0)}{' '}
               {market.collateralToken.symbol}
             </span>
           </div>
