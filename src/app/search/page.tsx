@@ -17,6 +17,7 @@ import { useInfinitySearch } from '@/hooks/use-search'
 import { usePriceOracle } from '@/providers'
 import EnterIcon from '@/resources/icons/enter-icon.svg'
 import SearchIcon from '@/resources/icons/search.svg'
+import { ChangeEvent, useAmplitude } from '@/services'
 import { useMarkets } from '@/services/MarketsService'
 import { captionMedium, h3Bold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market, Sort, SortStorageName } from '@/types'
@@ -29,6 +30,7 @@ const SearchPage = () => {
   const inputRef = useRef<HTMLInputElement>(null)
   const [sort, setSort] = useAtom(sortAtom)
   const { convertTokenAmountToUsd } = usePriceOracle()
+  const { trackChanged } = useAmplitude()
 
   useEffect(() => {
     if (inputRef.current) {
@@ -57,6 +59,8 @@ const SearchPage = () => {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       setSearchQuery(search)
+      trackChanged(ChangeEvent.SearchPerfomed)
+      trackChanged(ChangeEvent.SearchQuery, { text: searchQuery })
     }
   }
 

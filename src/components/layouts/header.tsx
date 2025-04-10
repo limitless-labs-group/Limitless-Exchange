@@ -95,6 +95,7 @@ export default function Header() {
         document.activeElement?.tagName !== 'TEXTAREA'
       ) {
         event.preventDefault()
+        trackClicked(ClickEvent.SearchHotKeyClicked)
         router.push('/search')
       }
     }
@@ -254,7 +255,10 @@ export default function Header() {
             <PopoverTrigger>
               <HStack
                 color='grey.500'
-                onClick={() => router.push('/search')}
+                onClick={() => {
+                  trackClicked(ClickEvent.SearchButtonClicked)
+                  router.push('/search')
+                }}
                 cursor='pointer'
                 _hover={{ color: 'grey.800' }}
               >

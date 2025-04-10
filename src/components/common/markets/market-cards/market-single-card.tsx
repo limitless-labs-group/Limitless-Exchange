@@ -12,9 +12,11 @@ import { MarketCardLink } from './market-card-link'
 import { MarketProgressBar } from './market-progress-bar'
 import { SpeedometerProgress } from './speedometer-progress'
 import { useMarketFeed } from '@/hooks/use-market-feed'
+import usePageName from '@/hooks/use-page-name'
 import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
 import {
   ClickEvent,
+  PageOpenedPage,
   QuickBetClickedMetadata,
   useAccount,
   useAmplitude,
@@ -61,6 +63,7 @@ export const MarketSingleCard = ({
   const { data: marketFeedData } = useMarketFeed(market)
   const { pushGA4Event } = useGoogleAnalytics()
   const { setWalletPageOpened, setProfilePageOpened } = useAccount()
+  const page = usePageName()
 
   const onClickRedirectToMarket = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.metaKey || e.ctrlKey || e.button === 2) {
@@ -75,6 +78,7 @@ export const MarketSingleCard = ({
       marketAddress: market.slug,
       marketType: 'single',
       marketTags: market.tags,
+      page: page as PageOpenedPage,
       ...analyticParams,
     })
     pushGA4Event(GAEvents.SelectAnyMarket)

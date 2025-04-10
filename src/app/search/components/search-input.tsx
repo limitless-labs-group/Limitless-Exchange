@@ -7,6 +7,7 @@ import {
 } from '@chakra-ui/react'
 import { ReactNode, RefObject } from 'react'
 import CloseIcon from '@/resources/icons/close-icon.svg'
+import { ChangeEvent, useAmplitude } from '@/services'
 
 type SearchInputProps = {
   value: string
@@ -27,6 +28,7 @@ export const SearchInput = ({
   after,
   inputRef,
 }: SearchInputProps) => {
+  const { trackChanged } = useAmplitude()
   return (
     <InputGroup w='full'>
       {before ? (
@@ -64,7 +66,9 @@ export const SearchInput = ({
             aria-label='Clear'
             size='xs'
             icon={<CloseIcon width={16} height={16} color='grey.500' />}
-            onClick={() => onChange('')}
+            onClick={() => {
+              trackChanged(ChangeEvent.SearchInputCleared)
+            }}
             variant='ghost'
           />
         ) : null}

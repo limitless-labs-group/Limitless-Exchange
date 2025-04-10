@@ -19,6 +19,8 @@ function usePageName() {
         return 'My Markets'
       case '/draft':
         return 'Draft'
+      case '/search':
+        return 'Search'
       case '/market-crash':
         return 'Market Crash Dashboard'
       default:
@@ -42,6 +44,7 @@ export type PageName =
   | 'Lumy'
   | 'Leaderboard'
   | 'Draft'
+  | 'Search'
   | 'Market Crash Dashboard'
   | 'My Markets'
 
