@@ -13,7 +13,6 @@ import {
   defaultTokenSymbol,
 } from './const'
 import { draftMarketTypeAtom, formDataAtom, groupMarketsAtom } from '@/atoms/draft'
-import { useUrlParams } from '@/hooks/use-url-param'
 import { useCategories } from '@/services'
 import { useTags } from '@/services/TagService'
 import { Category, Market } from '@/types'
@@ -121,10 +120,10 @@ export const useCreateMarket = () => {
           description: market.description ?? '',
           id: market.id ?? '',
           settings: {
-            maxSpread: Number(market.settings?.maxSpread) ?? 0,
+            maxSpread: reverseCalculateMaxSpread(Number(market.settings?.maxSpread)) ?? 0,
             c: Number(market.settings?.c) ?? 0,
             rewardsEpoch: Number(market.settings?.rewardsEpoch) ?? 0,
-            minSize: Number(market.settings?.minSize) ?? 0,
+            minSize: reverseCalculateMinSize(Number(market.settings?.minSize)) ?? 0,
           },
         }))
       )
@@ -193,10 +192,10 @@ export const useCreateMarket = () => {
           description: market.description ?? '',
           id: market.id,
           settings: {
-            maxSpread: Number(market.settings?.maxSpread) ?? 0,
+            maxSpread: reverseCalculateMaxSpread(Number(market.settings?.maxSpread)) ?? 0,
             c: Number(market.settings?.c) ?? 0,
             rewardsEpoch: Number(market.settings?.rewardsEpoch) ?? 0,
-            minSize: Number(market.settings?.minSize) ?? 0,
+            minSize: reverseCalculateMinSize(Number(market.settings?.minSize)) ?? 0,
           },
         }))
       )
