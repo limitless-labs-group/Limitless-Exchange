@@ -33,7 +33,6 @@ export function useInfinitySearch(query: string) {
         }
       )
 
-      console.log('price', response)
       const ammMarkets = response.markets.filter((market) => market.tradeType === 'amm')
 
       const marketDataForMultiCall = ammMarkets.map((market) => ({
@@ -71,6 +70,7 @@ export function useInfinitySearch(query: string) {
     getNextPageParam: (lastPage) => {
       return lastPage.data.markets.length < LIMIT_PER_PAGE ? null : lastPage.next
     },
+    enabled: !!query,
     refetchOnWindowFocus: false,
     placeholderData: (previousData) => previousData,
   })

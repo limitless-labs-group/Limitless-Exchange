@@ -25,6 +25,7 @@ const desktopStyles = {
 type SortFilterProps = {
   onChange: (option: Sort, storageName: SortStorageName) => void
   sort: Sort
+  withPadding?: boolean
 }
 
 const sortOptions = [
@@ -35,7 +36,7 @@ const sortOptions = [
   Sort.LP_REWARDS,
 ]
 
-export default function SortFilter({ onChange, sort }: SortFilterProps) {
+export default function SortFilter({ onChange, sort, withPadding = true }: SortFilterProps) {
   const { trackClicked } = useAmplitude()
   const { pushGA4Event } = useGoogleAnalytics()
 
@@ -63,7 +64,7 @@ export default function SortFilter({ onChange, sort }: SortFilterProps) {
       w={'auto'}
       maxW={isMobile ? '100%' : 'unset'}
       overflowX='auto'
-      paddingLeft={isMobile ? '16px' : 0}
+      paddingLeft={isMobile && withPadding ? '16px' : 0}
       {...(isMobile ? mobileStyles : desktopStyles)}
     >
       <ButtonGroup variant='outline' gap='2px' p='2px' bg='grey.100' borderRadius='8px'>
