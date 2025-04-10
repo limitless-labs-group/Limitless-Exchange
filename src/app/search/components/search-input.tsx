@@ -67,6 +67,7 @@ export const SearchInput = ({
             size='xs'
             icon={<CloseIcon width={16} height={16} color='grey.500' />}
             onClick={() => {
+              onChange('')
               trackChanged(ChangeEvent.SearchInputCleared)
             }}
             variant='ghost'
