@@ -323,13 +323,13 @@ export const CreateMarket: FC = () => {
                     value={formData.description}
                     readOnly={false}
                     onChange={(e) => {
-                      if (getPlainTextLength(e) <= 1500) {
+                      if (getPlainTextLength(e) <= 3000) {
                         handleChange('description', e)
                       }
                     }}
                   />
                   <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
-                    {getPlainTextLength(formData.description)}/1500 characters
+                    {getPlainTextLength(formData.description)}/3000 characters
                   </FormHelperText>
                 </FormField>
               ) : (

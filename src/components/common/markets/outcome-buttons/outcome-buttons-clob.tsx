@@ -1,7 +1,9 @@
 import { Box, Button, HStack, Text, VStack } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
+import { useAtom } from 'jotai'
 import { formatUnits } from 'viem'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
+import { blockTradeAtom } from '@/atoms/trading'
 import {
   ChangeEvent,
   OrderBookSideChangedMetadata,
@@ -15,6 +17,7 @@ export default function OutcomeButtonsClob() {
   const { strategy, market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
   const { trackChanged } = useAmplitude()
   const { orderType } = useClobWidget()
+  const [, setTradingBlocked] = useAtom(blockTradeAtom)
 
   const getShares = (sharesAmount?: bigint) => {
     if (!sharesAmount) {
@@ -38,6 +41,7 @@ export default function OutcomeButtonsClob() {
       marketAddress: market?.slug as string,
     })
     setOutcome(outcome)
+    setTradingBlocked(false)
     if (orderType === MarketOrderType.LIMIT) {
       const selectedPrice = outcome ? 100 - yesPrice : 100 - noPrice
       // setPrice(selectedPrice === 0 ? '' : String(selectedPrice))

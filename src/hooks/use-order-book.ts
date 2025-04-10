@@ -26,12 +26,9 @@ export function useOrderBook(slug?: string, tradeType?: 'amm' | 'clob') {
       const response: AxiosResponse<OrderBook> = await limitlessApi.get(
         `/markets/${slug}/orderbook`
       )
-      // return {
-      //   ...response.data,
-      //   maxSpread: new BigNumber(response.data.maxSpread).minus('0.005').toString(),
-      // }
       return {
         ...response.data,
+        maxSpread: new BigNumber(response.data.maxSpread).minus('0.005').toString(),
         asks: response.data.asks.filter((ask) => {
           return new BigNumber(formatUnits(BigInt(ask.size.toFixed(0)), 6))
             .multipliedBy(new BigNumber(ask.price))
