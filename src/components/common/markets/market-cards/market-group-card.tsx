@@ -181,7 +181,7 @@ export const MarketGroupCard = ({
               </Text>
               <Text {...paragraphRegular} color='grey.500' whiteSpace='nowrap'>
                 {NumberUtil.convertWithDenomination(market.volumeFormatted || '0', 0)}{' '}
-                {market.collateralToken.symbol}
+                {market.collateralToken?.symbol}
               </Text>
             </>
           </HStack>
