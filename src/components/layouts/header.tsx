@@ -1,9 +1,21 @@
-import { Box, Button, Flex, HStack, Link, Text } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Link,
+  Popover,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
+  Text,
+} from '@chakra-ui/react'
 import { useFundWallet } from '@privy-io/react-auth'
 import { useAtom } from 'jotai/index'
 import Image from 'next/image'
 import NextLink from 'next/link'
-import React, { useMemo } from 'react'
+import { useRouter } from 'next/navigation'
+import React, { useEffect, useMemo } from 'react'
 import { LoginButtons } from '@/components/common/login-button'
 import { CategoryItems } from '@/components/common/markets/sidebar-item'
 import SideBarPage from '@/components/common/side-bar-page'
@@ -16,6 +28,7 @@ import useClient from '@/hooks/use-client'
 import usePageName from '@/hooks/use-page-name'
 import { useThemeProvider } from '@/providers'
 import DepositIcon from '@/resources/icons/deposit-icon.svg'
+import SeacrchIcon from '@/resources/icons/search.svg'
 import FeedIcon from '@/resources/icons/sidebar/Feed.svg'
 import GridIcon from '@/resources/icons/sidebar/Markets.svg'
 import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
@@ -46,6 +59,7 @@ export default function Header() {
   const { data: positions } = usePosition()
   const { marketPageOpened, onCloseMarketPage } = useTradingService()
   const { mode } = useThemeProvider()
+  const router = useRouter()
   const {
     account,
     loginToPlatform,
@@ -72,6 +86,24 @@ export default function Header() {
       onCloseMarketPage()
     }
   }
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (
+        event.key === '/' &&
+        document.activeElement?.tagName !== 'INPUT' &&
+        document.activeElement?.tagName !== 'TEXTAREA'
+      ) {
+        event.preventDefault()
+        router.push('/search')
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [router])
 
   const hasWinningPosition = useMemo(() => {
     return positions?.positions.some((position) => {
@@ -217,62 +249,97 @@ export default function Header() {
             </ReferralLink>
           </HStack>
         </HStack>
-        {isLoggedToPlatform ? (
-          <HStack gap='16px'>
-            <Button variant='contained' onClick={handleBuyCryptoClicked} minW='98px'>
-              <DepositIcon />
-              Deposit
-            </Button>
-            <NextLink href='/portfolio' passHref>
-              <Link
-                onClick={() => {
-                  trackClicked<ProfileBurgerMenuClickedMetadata>(
-                    ClickEvent.ProfileBurgerMenuClicked,
-                    {
-                      option: 'Portfolio',
-                    }
-                  )
-                }}
-                variant='transparent'
-                bg={pageName === 'Portfolio' ? 'grey.100' : 'unset'}
-                rounded='8px'
+        <HStack gap='16px'>
+          <Popover trigger='hover' placement='bottom' gutter={12}>
+            <PopoverTrigger>
+              <HStack
+                color='grey.500'
+                onClick={() => router.push('/search')}
+                cursor='pointer'
+                _hover={{ color: 'grey.800' }}
               >
-                <HStack w='full' gap='0'>
-                  <PortfolioIcon width={16} height={16} />
-                  <Text fontWeight={500} fontSize='14px' marginLeft='8px'>
-                    Portfolio
-                  </Text>
-                  {hasWinningPosition ? (
-                    <Flex
-                      bg='red.500'
-                      h='8px'
-                      w='8px'
-                      borderRadius='10px'
-                      marginLeft='3px'
-                      alignSelf='start'
-                    />
-                  ) : null}
-                </HStack>
-              </Link>
-            </NextLink>
-            <UserMenuDesktop
-              handleOpenWalletPage={handleOpenWalletPage}
-              handleOpenProfile={handleOpenProfile}
-            />
-            {walletPageOpened && (
-              <SideBarPage>
-                <WalletPage />
-              </SideBarPage>
-            )}
-            {profilePageOpened && (
-              <SideBarPage>
-                <Profile />
-              </SideBarPage>
-            )}
-          </HStack>
-        ) : (
-          <LoginButtons login={loginToPlatform} />
-        )}
+                <SeacrchIcon width={16} height={16} />
+                <Text {...paragraphMedium} color='grey.500' _hover={{ color: 'grey.800' }}>
+                  Search
+                </Text>
+              </HStack>
+            </PopoverTrigger>
+            <PopoverContent
+              bg='grey.50'
+              display='flex'
+              flexDirection='row'
+              borderColor='grey.200'
+              w='auto'
+              p='0'
+              borderRadius='8px'
+            >
+              <PopoverBody px='8px' py='4px' w='auto' display='flex' flexDirection='row'>
+                <Text {...paragraphMedium} color='grey.500' p='8px'>
+                  Search for any market
+                </Text>
+                <Box p='8px' border='1px solid' borderRadius='8px' borderColor='grey.200'>
+                  <Text {...paragraphMedium}>/</Text>
+                </Box>
+              </PopoverBody>
+            </PopoverContent>
+          </Popover>
+          {isLoggedToPlatform ? (
+            <HStack gap='16px'>
+              <Button variant='contained' onClick={handleBuyCryptoClicked} minW='98px'>
+                <DepositIcon />
+                Deposit
+              </Button>
+              <NextLink href='/portfolio' passHref>
+                <Link
+                  onClick={() => {
+                    trackClicked<ProfileBurgerMenuClickedMetadata>(
+                      ClickEvent.ProfileBurgerMenuClicked,
+                      {
+                        option: 'Portfolio',
+                      }
+                    )
+                  }}
+                  variant='transparent'
+                  bg={pageName === 'Portfolio' ? 'grey.100' : 'unset'}
+                  rounded='8px'
+                >
+                  <HStack w='full' gap='0'>
+                    <PortfolioIcon width={16} height={16} />
+                    <Text fontWeight={500} fontSize='14px' marginLeft='8px'>
+                      Portfolio
+                    </Text>
+                    {hasWinningPosition ? (
+                      <Flex
+                        bg='red.500'
+                        h='8px'
+                        w='8px'
+                        borderRadius='10px'
+                        marginLeft='3px'
+                        alignSelf='start'
+                      />
+                    ) : null}
+                  </HStack>
+                </Link>
+              </NextLink>
+              <UserMenuDesktop
+                handleOpenWalletPage={handleOpenWalletPage}
+                handleOpenProfile={handleOpenProfile}
+              />
+              {walletPageOpened && (
+                <SideBarPage>
+                  <WalletPage />
+                </SideBarPage>
+              )}
+              {profilePageOpened && (
+                <SideBarPage>
+                  <Profile />
+                </SideBarPage>
+              )}
+            </HStack>
+          ) : (
+            <LoginButtons login={loginToPlatform} />
+          )}
+        </HStack>
       </HStack>
       {pageName === 'Explore Markets' && (
         <HStack py='4px' px='12px' bg='grey.50'>
