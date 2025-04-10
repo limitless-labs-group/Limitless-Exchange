@@ -5,12 +5,7 @@ import debounce from 'lodash/debounce'
 import { useCallback, useState, useMemo, useEffect } from 'react'
 import TextEditor from '@/components/common/text-editor'
 import { AdjustableNumberInput } from './number-inputs'
-import {
-  calculateMaxSpread,
-  calculateMinSize,
-  dailyToEpochRewards,
-  epochToDailyRewards,
-} from './use-create-market'
+import { dailyToEpochRewards, epochToDailyRewards } from './use-create-market'
 import { defaultGroupMarkets, groupMarketsAtom } from '@/atoms/draft'
 import CloseIcon from '@/resources/icons/close-icon.svg'
 
@@ -50,8 +45,6 @@ export const GroupForm = () => {
             settings: {
               ...updatedMarkets[index].settings,
               rewardsEpoch: value ? dailyToEpochRewards(Number(value)) : 0,
-              minSize: value ? calculateMinSize(Number(value)) : 0,
-              maxSpread: value ? calculateMaxSpread(Number(value)) : 0,
             },
           }
         } else {

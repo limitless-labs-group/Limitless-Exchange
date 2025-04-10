@@ -173,11 +173,6 @@ export const useCreateMarket = () => {
             rewardsEpoch: Number(activeMarket.settings?.rewardsEpoch ?? 0),
           }
         : {}),
-      ...(activeMarket.marketType === 'group' && activeMarket.tradeType === 'clob'
-        ? {
-            markets: activeMarket.markets,
-          }
-        : {}),
     }))
     if (
       activeMarket.marketType === 'group' &&
@@ -305,7 +300,16 @@ export const useCreateMarket = () => {
     } else if (isGroup) {
       return {
         ...baseData,
-        marketsInput: markets,
+        marketsInput: markets.map((market) => ({
+          ...market,
+          settings: {
+            ...market.settings,
+            minSize: calculateMinSize(market.settings?.minSize),
+            maxSpread: calculateMaxSpread(market.settings?.maxSpread),
+            c: Number(market.settings?.c),
+            rewardsEpoch: Number(market.settings?.rewardsEpoch),
+          },
+        })),
       }
     } else {
       return {
@@ -356,7 +360,16 @@ export const useCreateMarket = () => {
     } else if (isGroup) {
       return {
         ...baseData,
-        marketsInput: markets,
+        marketsInput: markets.map((market) => ({
+          ...market,
+          settings: {
+            ...market.settings,
+            minSize: calculateMinSize(market.settings?.minSize),
+            maxSpread: calculateMaxSpread(market.settings?.maxSpread),
+            c: Number(market.settings?.c),
+            rewardsEpoch: Number(market.settings?.rewardsEpoch),
+          },
+        })),
       }
     } else {
       return {
