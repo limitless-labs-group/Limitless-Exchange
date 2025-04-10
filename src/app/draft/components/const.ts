@@ -67,7 +67,7 @@ export const tokenLimits: TokenLimits = {
 
 export const defaultFormData = {
   deadline: new Date(),
-  timezone: 'America/New_York',
+  timezone: 'Etc/GMT',
   title: '',
   token: { symbol: 'USDC', id: 7 },
   description: '',
@@ -82,7 +82,7 @@ export const defaultFormData = {
   isBannered: false,
   priorityIndex: 0,
   txHash: '',
-  maxDailyReward: 300,
+  rewardsEpoch: 0.20833,
   maxSpread: 3,
   minSize: 100,
   c: 3,

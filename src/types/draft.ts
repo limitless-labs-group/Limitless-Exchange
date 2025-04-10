@@ -13,7 +13,7 @@ export type DraftMarket = {
   collateralToken: Token
   categories: Category[]
   creator: DraftCreator
-  type: MarketType
+  type: DraftMarketType
   draftMetadata: DraftMetadata
   markets?: MarketInput[]
   metadata: {
@@ -32,6 +32,7 @@ export interface Settings {
 
 export interface IFormData {
   deadline: Date
+  id?: number
   timezone: string
   title: string
   token: {
@@ -51,7 +52,7 @@ export interface IFormData {
   slug: string
   marketInput?: MarketInput[]
   priorityIndex?: number
-  maxDailyReward?: number
+  rewardsEpoch?: number
   maxSpread?: number
   minSize?: number
   c?: number
@@ -60,6 +61,7 @@ export interface IFormData {
 export type MarketInput = {
   title: string
   description: string
+  settings: Settings
   id?: number
 }
 
@@ -137,14 +139,15 @@ export interface DraftMarketResponse {
 
 export interface BaseMarketData {
   title: string
+  id?: number
   description?: string
   tokenId?: number
   marketFee?: number
-  deadline?: number
+  deadline?: string
   isBannered: boolean
   creatorId?: string
-  categoryIds: string
-  tagIds: string
+  categoryIds: string | number[]
+  tagIds: string | number[]
   slug?: string
   marketsInput?: any
 }
@@ -153,7 +156,7 @@ export interface ClobMarketData extends BaseMarketData {
   minSize?: number
   maxSpread?: number
   c?: number
-  maxDailyReward?: number
+  rewardsEpoch?: number
   priorityIndex?: number
 }
 
