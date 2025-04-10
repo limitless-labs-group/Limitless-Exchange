@@ -24,11 +24,12 @@ export interface ChatTextareaProps {
 }
 
 export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading }: ChatTextareaProps) => {
-  const { profileData, account } = useAccount()
+  const { loginToPlatform, profileData, account } = useAccount()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [error, setError] = useState('')
   const { trackClicked, trackChanged } = useAmplitude()
   const { market } = useTradingService()
+  const { isLoggedIn } = useAccount()
 
   const sanitizeInput = (input: string) => {
     const sanitized = DOMPurify.sanitize(input, {
@@ -64,6 +65,9 @@ export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading }: ChatTextareaP
         })
       }, 300)
     }
+  }
+  const login = () => {
+    loginToPlatform()
   }
 
   const submit = async () => {
@@ -135,14 +139,20 @@ export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading }: ChatTextareaP
                 <Text {...captionRegular}>{profileData?.displayName ?? profileData?.username}</Text>
               </HStack>
             ) : null}
-            <Button
-              variant='grey'
-              minW='58px'
-              onClick={submit}
-              isDisabled={isLoading || msg.length === 0}
-            >
-              {isLoading ? <Loader /> : 'Send'}
-            </Button>
+            {isLoggedIn ? (
+              <Button
+                variant='grey'
+                minW='58px'
+                onClick={submit}
+                isDisabled={isLoading || msg.length === 0}
+              >
+                {isLoading ? <Loader /> : 'Send'}
+              </Button>
+            ) : (
+              <Button variant='grey' minW='58px' onClick={login}>
+                Login
+              </Button>
+            )}
           </Flex>
           <Textarea
             value={msg}

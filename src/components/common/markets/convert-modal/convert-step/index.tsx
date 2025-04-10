@@ -1,5 +1,6 @@
-import { Box, Button, Flex, HStack, Spacer, Text, VStack } from '@chakra-ui/react'
+import { Box, Button, Flex, HStack, Link, Spacer, Text, VStack } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
+import NextLink from 'next/link'
 import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { ClobPositionWithTypeAndSelected } from '@/components/common/markets/convert-modal/convert-modal-content'
@@ -93,7 +94,17 @@ export default function ConvertStep({
     <Box>
       <Text {...paragraphRegular} mt='8px'>
         Turn your “No” shares into the opposite “Yes” shares (or USDC). Just pick the outcomes you
-        want to convert and enter the amount—no extra funds needed. Learn more.
+        want to convert and enter the amount—no extra funds needed.{' '}
+        <NextLink
+          href='https://www.notion.so/limitlesslabs/Negrisk-Draft-1ca04e33c4b980cdbe09c4fde858a4c7'
+          target='_blank'
+          rel='noopener'
+          passHref
+        >
+          <Link variant='textLinkSecondary' {...paragraphRegular} isExternal>
+            Learn more.
+          </Link>
+        </NextLink>
       </Text>
       <Flex justifyContent='space-between' alignItems='center' mt='24px'>
         <Text {...paragraphMedium} color={'var(--chakra-colors-text-100)'}>

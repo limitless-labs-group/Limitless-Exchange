@@ -5,6 +5,8 @@ import { useFundWallet } from '@privy-io/react-auth'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import BigNumber from 'bignumber.js'
+import { useAtom } from 'jotai'
+import Cookies from 'js-cookie'
 import React, { useMemo } from 'react'
 import { isMobile, isTablet } from 'react-device-detect'
 import { Address, formatUnits, maxUint256, parseUnits } from 'viem'
@@ -16,6 +18,7 @@ import TradeWidgetSkeleton, {
 } from '@/components/common/skeleton/trade-widget-skeleton'
 import { Toast } from '@/components/common/toast'
 import { AddFundsValidation } from './add-funds-validation'
+import { blockTradeAtom } from '@/atoms/trading'
 import { useToast } from '@/hooks'
 import usePrivySendTransaction from '@/hooks/use-smart-wallet-service'
 import {
@@ -31,6 +34,7 @@ import { PendingTradeData } from '@/services/PendingTradeService'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
+import { BLOCKED_REGION, TRADING_BLOCKED_MSG } from '@/utils/consts'
 import { getOrderErrorText } from '@/utils/orders'
 
 export default function ClobLimitTradeForm() {
@@ -64,6 +68,9 @@ export default function ClobLimitTradeForm() {
 
   const { pushGA4Event } = useGoogleAnalytics()
   const { fundWallet } = useFundWallet()
+  const country = Cookies.get('limitless_geo')
+
+  const [tradingBlocked, setTradingBlocked] = useAtom(blockTradeAtom)
 
   const maxSharesAvailable =
     strategy === 'Sell'
@@ -82,11 +89,11 @@ export default function ClobLimitTradeForm() {
     const sharesAmount = outcome
       ? NumberUtil.formatThousands(
           formatUnits(sharesAvailable['no'], market?.collateralToken.decimals || 6),
-          6
+          2
         )
       : NumberUtil.formatThousands(
           formatUnits(sharesAvailable['yes'], market?.collateralToken.decimals || 6),
-          6
+          2
         )
     if (value === 100) {
       setSharesAmount(sharesAmount)
@@ -94,7 +101,7 @@ export default function ClobLimitTradeForm() {
     }
     const amountByPercent = (Number(sharesAmount) * value) / 100
     setSharesAmount(
-      NumberUtil.toFixed(amountByPercent, market?.collateralToken.symbol === 'USDC' ? 1 : 6)
+      NumberUtil.toFixed(amountByPercent, market?.collateralToken.symbol === 'USDC' ? 2 : 6)
     )
     return
   }
@@ -217,11 +224,11 @@ export default function ClobLimitTradeForm() {
       const balanceToShow = outcome
         ? NumberUtil.formatThousands(
             formatUnits(sharesAvailable['no'], market?.collateralToken.decimals || 6),
-            6
+            2
           )
         : NumberUtil.formatThousands(
             formatUnits(sharesAvailable['yes'], market?.collateralToken.decimals || 6),
-            6
+            2
           )
       return `${balanceToShow}`
     }
@@ -327,12 +334,36 @@ export default function ClobLimitTradeForm() {
       queryClient.refetchQueries({
         queryKey: ['positions'],
       }),
+      queryClient.refetchQueries({
+        queryKey: ['market-page-clob-feed', market?.slug],
+      }),
     ])
   }
 
   const shouldSignUp = !web3Wallet && Boolean(price)
+
   const shouldAddFunds =
     web3Wallet && strategy === 'Buy' && orderCalculations.total > Number(balance)
+
+  const disableButton = useMemo(() => {
+    if (shouldSignUp) {
+      return false
+    }
+    if (shouldAddFunds) {
+      return false
+    }
+    return (
+      !+price || isLessThanMinTreshHold || !+sharesAmount || isBalanceNotEnough || tradingBlocked
+    )
+  }, [
+    isBalanceNotEnough,
+    shouldSignUp,
+    shouldAddFunds,
+    price,
+    isLessThanMinTreshHold,
+    sharesAmount,
+    tradingBlocked,
+  ])
 
   const handleSubmitButtonClicked = async () => {
     if (shouldSignUp) {
@@ -357,6 +388,11 @@ export default function ClobLimitTradeForm() {
 
     if (shouldAddFunds) {
       await fundWallet(account as string)
+      return
+    }
+
+    if (country === BLOCKED_REGION) {
+      setTradingBlocked(true)
       return
     }
 
@@ -399,13 +435,16 @@ export default function ClobLimitTradeForm() {
 
   const handleSetLimitShares = (val: string) => {
     const decimals = val.split('.')[1] || val.split(',')[1]
-    if (decimals && decimals.length > 6) {
+    if (decimals && decimals.length > 2) {
       return
     }
     setSharesAmount(val)
   }
 
   const getButtonText = () => {
+    if (tradingBlocked) {
+      return TRADING_BLOCKED_MSG
+    }
     if (shouldSignUp) {
       return `Sign up to ${strategy}`
     }
@@ -508,12 +547,8 @@ export default function ClobLimitTradeForm() {
       </VStack>
       <ClobTradeButton
         status={placeLimitOrderMutation.status}
-        isDisabled={
-          !+price ||
-          isLessThanMinTreshHold ||
-          !+sharesAmount ||
-          (web3Wallet && !shouldAddFunds ? isBalanceNotEnough : false)
-        }
+        isDisabled={disableButton}
+        isBlocked={tradingBlocked}
         onClick={handleSubmitButtonClicked}
         successText={`Submitted`}
         onReset={onResetMutation}

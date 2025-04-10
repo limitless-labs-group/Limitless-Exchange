@@ -11,11 +11,12 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { useFundWallet, usePrivy } from '@privy-io/react-auth'
+import BigNumber from 'bignumber.js'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useMemo } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { isAddress } from 'viem'
+import { formatUnits, isAddress } from 'viem'
 import Avatar from '@/components/common/avatar'
 import MobileDrawer from '@/components/common/drawer'
 import Loader from '@/components/common/loader'
@@ -33,6 +34,7 @@ import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import KeyIcon from '@/resources/icons/key-icon.svg'
 import MenuIcon from '@/resources/icons/menu-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
+import SearchIcon from '@/resources/icons/search.svg'
 import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
 import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
 import SwapIcon from '@/resources/icons/sidebar/Wrap.svg'
@@ -82,12 +84,11 @@ export default function MobileHeader() {
   } = useDisclosure()
   const { handleDashboard, handleCategory } = useTokenFilter()
 
-  // Todo move this and other duplicated to a proper service
   const balanceInvested = useMemo(() => {
-    const ammPositions = positions?.filter(
+    const ammPositions = positions?.positions.filter(
       (position) => position.type === 'amm'
     ) as HistoryPositionWithType[]
-    const clobPositions = positions?.filter(
+    const clobPositions = positions?.positions.filter(
       (position) => position.type === 'clob'
     ) as ClobPositionWithType[]
     let _balanceInvested = 0
@@ -96,10 +97,27 @@ export default function MobileHeader() {
       const token = supportedTokens?.find(
         (token) => token.symbol === position.market.collateral?.symbol
       )
-      if (!!token) {
+      if (token) {
         positionUsdAmount = convertAssetAmountToUsd(token.priceOracleId, position.collateralAmount)
       }
       _balanceInvested += positionUsdAmount
+    })
+    clobPositions?.forEach((position) => {
+      let positionUsdAmount = 0
+      const token = supportedTokens?.find(
+        (token) => token.symbol === position.market.collateralToken.symbol
+      )
+      if (token) {
+        const investedAmount = new BigNumber(position.positions.yes.cost)
+          .plus(new BigNumber(position.positions.no.cost))
+          .toString()
+        const formattedInvestedAmount = formatUnits(
+          BigInt(investedAmount),
+          position.market.collateralToken.decimals
+        )
+        positionUsdAmount = convertAssetAmountToUsd(token.priceOracleId, formattedInvestedAmount)
+        _balanceInvested += positionUsdAmount
+      }
     })
     return NumberUtil.toFixed(_balanceInvested, 2)
   }, [positions])
@@ -190,6 +208,9 @@ export default function MobileHeader() {
                   ) : (
                     <Avatar account={account as string} avatarUrl={profileData?.pfpUrl} />
                   )}
+                  <Box ml='8px' onClick={() => router.push('/search')}>
+                    <SearchIcon width={16} height={16} />
+                  </Box>
                   <Box ml='8px'>
                     <MenuIcon width={16} height={16} />
                   </Box>

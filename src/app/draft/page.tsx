@@ -123,7 +123,20 @@ const CreateOwnMarketPage = () => {
         index={activeIndex}
         onChange={onTabChange}
       >
-        <TabList justifyContent='center'>
+        <TabList
+          justifyContent='center'
+          position='fixed'
+          top='47px'
+          zIndex='10'
+          bg='var(--chakra-colors-bg-primary)'
+          pt='16px'
+          pb='8px'
+          px='16px'
+          w='full'
+          maxW='1000px'
+          backdropFilter='blur(8px)'
+          borderBottom='1px solid var(--chakra-colors-grey-100)'
+        >
           {tabs.map((tab, index) => (
             <Tab key={tab.title}>
               <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
@@ -134,7 +147,7 @@ const CreateOwnMarketPage = () => {
           ))}
         </TabList>
         <TabIndicator mt='-2px' height='2px' bg='grey.800' transitionDuration='200ms !important' />
-        <TabPanels mt='30px'>
+        <TabPanels mt='100px'>
           {tabs.map(({ component: Component, marketType }, index) => (
             <TabPanel key={index}>
               {marketType ? (

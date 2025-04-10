@@ -85,6 +85,9 @@ const History = () => {
   }
 
   const getHistoryItemToRender = (item: HistoryTrade | HistoryRedeem) => {
+    if (!item) {
+      return <></>
+    }
     // @ts-ignore
     if (item.market) {
       return (

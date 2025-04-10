@@ -1,39 +1,53 @@
 'use client'
 
-import { Box, Divider, Heading, HStack, Spacer, Stack } from '@chakra-ui/react'
-import { useEffect, useMemo, useState } from 'react'
+import { Box, Tab, TabIndicator, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react'
+import React, { useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
-import { PortfolioStats, PortfolioPositions, PortfolioHistory } from '@/app/portfolio/components'
-import { TabButton } from './components/tab-button'
-import HistoryIcon from '@/resources/icons/history-icon.svg'
-import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
+import { PortfolioHistory, PortfolioStats } from '@/app/portfolio/components'
+import EverythingTab from '@/app/portfolio/components/everything-tab'
+import { MainLayout } from '@/components'
 import {
+  ClickEvent,
   OpenEvent,
   PageOpenedMetadata,
-  useAccount,
   useAmplitude,
   useTradingService,
 } from '@/services'
-import { h1Bold } from '@/styles/fonts/fonts.styles'
+import { h1Bold, h2Regular, headline } from '@/styles/fonts/fonts.styles'
 
-const PortfolioPage = () => {
-  const [tab, setTab] = useState<'Investments' | 'History'>('Investments')
+export default function PortfolioPage() {
+  const tabs = ['Everything', 'History']
 
-  const { trackOpened } = useAmplitude()
+  const { trackClicked, trackOpened } = useAmplitude()
   const { onCloseMarketPage } = useTradingService()
-  const { profileData, profileLoading } = useAccount()
 
-  const isLoadingSmartWalletAddress = false
+  const handleTabClicked = (tab: string) => {
+    trackClicked(ClickEvent.PortfolioInvestmentsTabClicked, {
+      value: tab,
+      source: 'Portfolio',
+    })
+  }
 
-  const userMenuLoading = useMemo(() => {
-    if (profileLoading) {
-      return true
+  const tabsList = [
+    <EverythingTab key='everything' />,
+    // <PortfolioPositions key='positions' />,
+    <PortfolioHistory key='history' />,
+  ]
+
+  const getGreeting = (): string => {
+    const hour = new Date().getHours()
+
+    if (hour >= 0 && hour < 6) {
+      return 'Good Night 🌙'
     }
-    if (!profileLoading) {
-      return profileData === undefined || profileLoading || isLoadingSmartWalletAddress
+    if (hour >= 6 && hour < 12) {
+      return 'Good Morning 🌞'
     }
-    return false //#fix for dev env
-  }, [profileLoading, profileLoading, isLoadingSmartWalletAddress, profileData])
+    if (hour >= 12 && hour < 18) {
+      return 'Good Afternoon 🌤'
+    }
+    return 'Good Evening 🌅'
+  }
 
   useEffect(() => {
     trackOpened<PageOpenedMetadata>(OpenEvent.PageOpened, {
@@ -48,39 +62,43 @@ const PortfolioPage = () => {
   }, [])
 
   return (
-    <Box w={isMobile ? 'full' : 'calc(100vw - 720px)'} maxW='1200px'>
-      <Divider orientation='horizontal' h='3px' borderColor='grey.800' bg='grey.800' />
-      <Heading {...h1Bold} gap={2}>
-        Portfolio Overview
-      </Heading>
-      <PortfolioStats mt={'20px'} />
-
-      <Stack w={'full'} spacing={5} overflowX='auto'>
-        <HStack gap={0} borderBottom={'1px solid'} borderColor={'grey.400'} alignItems='flex-end'>
-          <TabButton
-            isActive={tab === 'Investments'}
-            icon={PortfolioIcon}
-            label='Investments'
-            onClick={() => setTab('Investments')}
-          />
-          <TabButton
-            isActive={tab === 'History'}
-            icon={HistoryIcon}
-            label='History'
-            onClick={() => setTab('History')}
-          />
-        </HStack>
-
-        {tab == 'Investments' ? (
-          <PortfolioPositions userMenuLoading={userMenuLoading} />
-        ) : (
-          <PortfolioHistory />
-        )}
-      </Stack>
-
-      <Spacer />
-    </Box>
+    <MainLayout layoutPadding={'0px'}>
+      <Box maxWidth='1294px' w='full'>
+        <Text {...headline}>Portfolio</Text>
+        <Text {...h1Bold} mt='8px'>
+          {getGreeting()},
+        </Text>
+        <Text {...h1Bold}>here is your today’s summary</Text>
+        <PortfolioStats />
+        {/*<RewardsChart />*/}
+        <Box maxWidth='924px' w='full' mt='24px' mb='16px' mx='auto'>
+          <Text {...h2Regular} mb='16px'>
+            Investments
+          </Text>
+          <Tabs position='relative' variant='common' mb='24px'>
+            <TabList>
+              {tabs.map((tab) => (
+                <Tab key={tab} onClick={() => handleTabClicked(tab)}>
+                  {tab}
+                </Tab>
+              ))}
+            </TabList>
+            <TabIndicator
+              mt='-2px'
+              height='2px'
+              bg='grey.800'
+              transitionDuration='200ms !important'
+            />
+            <TabPanels>
+              {tabsList.map((panel, index) => (
+                <TabPanel key={index} mt='16px'>
+                  {panel}
+                </TabPanel>
+              ))}
+            </TabPanels>
+          </Tabs>
+        </Box>
+      </Box>
+    </MainLayout>
   )
 }
-
-export default PortfolioPage

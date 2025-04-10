@@ -43,7 +43,7 @@ export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
 
   const positions = useMemo(
     () =>
-      allMarketsPositions?.filter(
+      allMarketsPositions?.positions.filter(
         (position) => position.market.slug?.toLowerCase() === market?.slug?.toLowerCase()
       ),
     [allMarketsPositions, market]

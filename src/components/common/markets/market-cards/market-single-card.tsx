@@ -185,7 +185,6 @@ export const MarketSingleCard = ({
                     {!isShortCard ? (
                       <HStack gap={0}>
                         {uniqueUsersTrades?.map(({ user }, index) => {
-                          console.log(user)
                           return (
                             <Avatar
                               account={user.account}
@@ -215,7 +214,7 @@ export const MarketSingleCard = ({
                         market.tradeType === 'clob'
                           ? market.volumeFormatted
                           : +market.openInterestFormatted + +market.liquidityFormatted,
-                        6
+                        0
                       )}{' '}
                       {market.collateralToken.symbol}
                     </Text>

@@ -5,6 +5,7 @@ import {
   HStack,
   Image as ChakraImage,
   Link,
+  Spacer,
   Tab,
   TabIndicator,
   TabList,
@@ -246,6 +247,8 @@ export default function MarketPage() {
     setActiveChartTabIndex(0)
   }, [market])
 
+  console.log(groupMarket)
+
   return (
     <SideBarPage>
       {!isMobile && (
@@ -324,19 +327,31 @@ export default function MarketPage() {
             </HStack>
           )}
           {market?.tradeType === 'amm' && (
-            <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
-              <UniqueTraders color='grey.50' />
-              <Text {...paragraphRegular} color='grey.500'>
-                Value
-              </Text>
-              <Text {...paragraphRegular} color='grey.500'>
-                {NumberUtil.convertWithDenomination(
-                  market ? +market.openInterestFormatted + +market.liquidityFormatted : 0,
-                  6
-                )}{' '}
-                {market?.collateralToken.symbol}
-              </Text>
-              <OpenInterestTooltip iconColor='grey.500' />
+            <HStack w='full' gap='4px' justifyContent='space-between'>
+              <HStack gap='4px' color='grey.500'>
+                <VolumeIcon width={16} height={16} />
+                <Text {...paragraphRegular} color='grey.500'>
+                  Volume
+                </Text>
+                <Text {...paragraphRegular} color='grey.500'>
+                  {NumberUtil.convertWithDenomination(market?.volumeFormatted || '0', 0)}{' '}
+                  {market?.collateralToken.symbol}
+                </Text>
+              </HStack>
+              <HStack>
+                <UniqueTraders color='grey.50' />
+                <Text {...paragraphRegular} color='grey.500'>
+                  Value
+                </Text>
+                <Text {...paragraphRegular} color='grey.500'>
+                  {NumberUtil.convertWithDenomination(
+                    market ? +market.openInterestFormatted + +market.liquidityFormatted : 0,
+                    0
+                  )}{' '}
+                  {market?.collateralToken.symbol}
+                </Text>
+                <OpenInterestTooltip iconColor='grey.500' />
+              </HStack>
             </HStack>
           )}
         </HStack>

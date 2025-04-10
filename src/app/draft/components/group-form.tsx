@@ -46,7 +46,7 @@ export const GroupForm = () => {
         <Box key={market.id} borderWidth={1} p={4} borderRadius='md' width='100%'>
           <Flex justify='space-between' align='center' mb={2}>
             <Text fontWeight='bold'>
-              Market #{index + 1} {market.id ? `- id: ${market.id}` : ''}
+              sub-Market #{index + 1} {market.id ? `- id: ${market.id}` : ''}
             </Text>
             {markets.length > 2 ? (
               <Box
@@ -79,13 +79,13 @@ export const GroupForm = () => {
               value={market.description}
               readOnly={false}
               onChange={(value) => {
-                if (getPlainTextLength(value) <= 1500) {
+                if (getPlainTextLength(value) <= 3000) {
                   handleInputChange(index, 'description', value)
                 }
               }}
             />
             <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
-              {getPlainTextLength(market.description)}/1500 characters
+              {getPlainTextLength(market.description)}/3000 characters
             </FormHelperText>
           </FormControl>
         </Box>

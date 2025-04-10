@@ -93,6 +93,8 @@ export interface Market {
     yes: string
     no: string
   }
+  yesPositionId?: string
+  noPositionId?: string
   trends?: {
     [interval in Intervals]?: {
       value: number
@@ -102,7 +104,7 @@ export interface Market {
   marketType: MarketType
   tradeType: MarketTradeType
   isRewardable: boolean
-  markets?: Market[]
+  markets?: (Market & { orderInGroup?: number })[]
 }
 
 export type MarketType = 'single' | 'group'

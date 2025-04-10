@@ -71,6 +71,7 @@ export function useMarketClobInfinityFeed(marketSlug?: string) {
     refetchOnWindowFocus: false,
     keepPreviousData: true,
     enabled: !!marketSlug,
+    refetchInterval: 30000,
   })
 }
 
