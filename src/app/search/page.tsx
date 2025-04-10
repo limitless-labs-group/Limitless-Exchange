@@ -8,6 +8,7 @@ import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Loader from '@/components/common/loader'
 import MarketCard from '@/components/common/markets/market-cards/market-card'
+import MarketCardMobile from '@/components/common/markets/market-cards/market-card-mobile'
 import Skeleton from '@/components/common/skeleton'
 import SortFilter from '@/components/common/sort-filter'
 import { SearchInput } from './components/search-input'
@@ -126,7 +127,14 @@ const SearchPage = () => {
           >
             <VStack w='full' spacing={4}>
               {markets?.map((market: Market, index: number) => {
-                return (
+                return isMobile ? (
+                  <MarketCardMobile
+                    market={market}
+                    analyticParams={{ bannerPosition: 1, bannerPaginationPage: 1 }}
+                    key={index}
+                    variant='row'
+                  />
+                ) : (
                   <MarketCard
                     market={market}
                     analyticParams={{ bannerPosition: 1, bannerPaginationPage: 1 }}
