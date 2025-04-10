@@ -13,7 +13,6 @@ import {
   defaultTokenSymbol,
 } from './const'
 import { draftMarketTypeAtom, formDataAtom, groupMarketsAtom } from '@/atoms/draft'
-import { useUrlParams } from '@/hooks/use-url-param'
 import { useCategories } from '@/services'
 import { useTags } from '@/services/TagService'
 import { Category, Market } from '@/types'
@@ -121,10 +120,10 @@ export const useCreateMarket = () => {
           description: market.description ?? '',
           id: market.id ?? '',
           settings: {
-            maxSpread: Number(market.settings?.maxSpread) ?? 0,
+            maxSpread: reverseCalculateMaxSpread(Number(market.settings?.maxSpread)) ?? 0,
             c: Number(market.settings?.c) ?? 0,
             rewardsEpoch: Number(market.settings?.rewardsEpoch) ?? 0,
-            minSize: Number(market.settings?.minSize) ?? 0,
+            minSize: reverseCalculateMinSize(Number(market.settings?.minSize)) ?? 0,
           },
         }))
       )
@@ -174,11 +173,6 @@ export const useCreateMarket = () => {
             rewardsEpoch: Number(activeMarket.settings?.rewardsEpoch ?? 0),
           }
         : {}),
-      ...(activeMarket.marketType === 'group' && activeMarket.tradeType === 'clob'
-        ? {
-            markets: activeMarket.markets,
-          }
-        : {}),
     }))
     if (
       activeMarket.marketType === 'group' &&
@@ -193,10 +187,10 @@ export const useCreateMarket = () => {
           description: market.description ?? '',
           id: market.id,
           settings: {
-            maxSpread: Number(market.settings?.maxSpread) ?? 0,
+            maxSpread: reverseCalculateMaxSpread(Number(market.settings?.maxSpread)) ?? 0,
             c: Number(market.settings?.c) ?? 0,
             rewardsEpoch: Number(market.settings?.rewardsEpoch) ?? 0,
-            minSize: Number(market.settings?.minSize) ?? 0,
+            minSize: reverseCalculateMinSize(Number(market.settings?.minSize)) ?? 0,
           },
         }))
       )
@@ -306,7 +300,16 @@ export const useCreateMarket = () => {
     } else if (isGroup) {
       return {
         ...baseData,
-        marketsInput: markets,
+        marketsInput: markets.map((market) => ({
+          ...market,
+          settings: {
+            ...market.settings,
+            minSize: calculateMinSize(market.settings?.minSize),
+            maxSpread: calculateMaxSpread(market.settings?.maxSpread),
+            c: Number(market.settings?.c),
+            rewardsEpoch: Number(market.settings?.rewardsEpoch),
+          },
+        })),
       }
     } else {
       return {
@@ -357,7 +360,16 @@ export const useCreateMarket = () => {
     } else if (isGroup) {
       return {
         ...baseData,
-        marketsInput: markets,
+        marketsInput: markets.map((market) => ({
+          ...market,
+          settings: {
+            ...market.settings,
+            minSize: calculateMinSize(market.settings?.minSize),
+            maxSpread: calculateMaxSpread(market.settings?.maxSpread),
+            c: Number(market.settings?.c),
+            rewardsEpoch: Number(market.settings?.rewardsEpoch),
+          },
+        })),
       }
     } else {
       return {
