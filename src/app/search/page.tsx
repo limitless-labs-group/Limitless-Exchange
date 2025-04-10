@@ -8,6 +8,7 @@ import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Loader from '@/components/common/loader'
 import MarketCard from '@/components/common/markets/market-cards/market-card'
+import MarketCardMobile from '@/components/common/markets/market-cards/market-card-mobile'
 import Skeleton from '@/components/common/skeleton'
 import SortFilter from '@/components/common/sort-filter'
 import { SearchInput } from './components/search-input'
@@ -68,14 +69,15 @@ const SearchPage = () => {
 
   const markets = useMemo(() => {
     const data = searchQuery ? searchFetchedMarkets : allFetchedMarkets
-    console.log('sear', searchedMarkets, searchFetchedMarkets)
     return sortMarkets(data, sort?.sort || Sort.DEFAULT, convertTokenAmountToUsd)
-  }, [allFetchedMarkets, searchFetchedMarkets, searchQuery, sort])
+  }, [allFetchedMarkets, searchFetchedMarkets, searchQuery, sort.sort, convertTokenAmountToUsd])
 
   const handleSelectSort = (options: Sort, name: SortStorageName) => {
     window.localStorage.setItem(name, JSON.stringify(options))
     setSort({ sort: options ?? Sort.DEFAULT })
   }
+
+  const isLoading = isAllMarketsLoading || isSearchMarketsLoading
 
   return (
     <VStack mt='24px' w='full' maxW='716px' alignItems='center' justifyContent='center' gap='24px'>
@@ -97,10 +99,10 @@ const SearchPage = () => {
       />
 
       <Flex justifyContent='end' width='100%'>
-        <SortFilter onChange={handleSelectSort} sort={sort.sort} />
+        <SortFilter onChange={handleSelectSort} sort={sort.sort} withPadding={false} />
       </Flex>
 
-      {(isAllMarketsLoading || isSearchMarketsLoading) && markets.length === 0 ? (
+      {isLoading ? (
         <>
           {[...Array(6)].map((_, index) => (
             <Box key={`skeleton-straight-${index}`} w='full'>
@@ -110,7 +112,7 @@ const SearchPage = () => {
         </>
       ) : null}
 
-      {markets.length > 0 ? (
+      {markets.length > 0 && !isLoading ? (
         <Box className='full-container' w='full'>
           <InfiniteScroll
             dataLength={markets.length}
@@ -119,23 +121,32 @@ const SearchPage = () => {
             loader={
               <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
                 <Loader />
-                <Text {...paragraphRegular}>Loading more events</Text>
+                <Text {...paragraphRegular}>Loading more markets</Text>
               </HStack>
             }
           >
-            {markets?.map((market: Market, index: number) => {
-              return (
-                <MarketCard
-                  market={market}
-                  analyticParams={{ bannerPosition: 1, bannerPaginationPage: 1 }}
-                  key={index}
-                  variant='row'
-                />
-              )
-            })}
+            <VStack w='full' spacing={4}>
+              {markets?.map((market: Market, index: number) => {
+                return isMobile ? (
+                  <MarketCardMobile
+                    market={market}
+                    analyticParams={{ bannerPosition: 1, bannerPaginationPage: 1 }}
+                    key={index}
+                    variant='row'
+                  />
+                ) : (
+                  <MarketCard
+                    market={market}
+                    analyticParams={{ bannerPosition: 1, bannerPaginationPage: 1 }}
+                    key={index}
+                    variant='row'
+                  />
+                )
+              })}
+            </VStack>
           </InfiniteScroll>
         </Box>
-      ) : !(isAllMarketsLoading || isSearchMarketsLoading) && searchQuery ? (
+      ) : !isLoading && searchQuery ? (
         <VStack alignItems={isMobile ? 'center' : 'start'} w='full' py='40px' spacing='16px'>
           <Text {...h3Bold} color='grey.800'>
             {`No search results found for "${searchQuery}"`}
