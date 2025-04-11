@@ -96,20 +96,20 @@ export const CategoryItems = () => {
       </ReferralLink>
       {isMobile && (
         <ReferralLink
-          href={`/market-crash`}
+          href={`/market-watch`}
           passHref
           style={{ width: isMobile ? 'fit-content' : '100%' }}
         >
           <Link variant='transparent' px={0}>
             <SideItem
-              isActive={dashboard === 'marketcrash'}
+              isActive={dashboard === 'marketwatch'}
               icon={<DashboardIcon width={16} height={16} />}
               onClick={() => {
-                handleDashboard('marketcrash')
+                handleDashboard('marketwatch')
               }}
               color='orange-500'
             >
-              Market crash
+              Market watch
             </SideItem>
           </Link>
         </ReferralLink>

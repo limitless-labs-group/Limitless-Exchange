@@ -208,9 +208,17 @@ export default function MobileHeader() {
                   ) : (
                     <Avatar account={account as string} avatarUrl={profileData?.pfpUrl} />
                   )}
-                  <Box ml='8px' onClick={() => router.push('/search')}>
+                  <Button
+                    ml='8px'
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      router.push('/search')
+                    }}
+                    aria-label='Search'
+                    variant='unstyled'
+                  >
                     <SearchIcon width={16} height={16} />
-                  </Box>
+                  </Button>
                   <Box ml='8px'>
                     <MenuIcon width={16} height={16} />
                   </Box>

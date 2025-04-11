@@ -152,6 +152,9 @@ export enum ChangeEvent {
   ClobWidgetModeChanged = 'Clob Widget Mode Changed',
   ChartTabChanged = 'Chart View Changed',
   StartTyping = 'Start Typing',
+  SearchPerfomed = 'Search Perfomed',
+  SearchInputCleared = 'Search Input Cleared',
+  SearchQuery = 'Search Query',
   PortfolioClobViewChanged = 'Portfolio/Orders View Changed',
 }
 
@@ -162,6 +165,8 @@ export enum ClickEvent {
   ClickOnInputField = 'Click On Input Field',
   SellTradeClicked = 'Sell Trade Clicked',
   SellApproveClicked = 'Sell Approve Clicked',
+  SearchButtonClicked = 'Search Button Clicked',
+  SearchHotKeyClicked = 'Search Hot Key Clicked',
   CreateMarketClicked = 'Create Market Clicked',
   TopUpClicked = 'Top Up Clicked',
   ShareMenuClicked = 'Share Menu Clicked',
@@ -249,7 +254,7 @@ export enum OpenEvent {
 }
 
 export enum DashboardName {
-  MarketCrash = 'Market Crash',
+  MarketWatch = 'Market Watch',
 }
 
 export enum AuthenticationEvent {
@@ -282,6 +287,9 @@ export interface StrategyChangedMetadata {
   type: StrategyChangedType
   marketAddress: string
   marketMarketType: 'AMM' | 'CLOB'
+}
+export interface SearchMetadata {
+  text: string
 }
 
 export interface OutcomeChangedMetadata {
@@ -460,7 +468,7 @@ export type ProfileBurgerMenuClickedOption =
   | 'Lumy'
   | 'Leaderboard'
   | 'My Markets'
-  | 'Market Crash'
+  | 'Market Watch'
   | 'Feed'
 export interface ProfileBurgerMenuClickedMetadata {
   option: ProfileBurgerMenuClickedOption
@@ -514,6 +522,7 @@ interface WidgetClickedMetadata {
 
 export type ChangedEventMetadata =
   | StrategyChangedMetadata
+  | SearchMetadata
   | OutcomeChangedMetadata
   | ProfilePictureUploadedChangedMetadata
   | ProfileSettingsChangedMetadata

@@ -1,6 +1,7 @@
 import { useToast } from '@chakra-ui/react'
 import { toZonedTime } from 'date-fns-tz'
 import { useAtom } from 'jotai'
+import { useCallback, useMemo } from 'react'
 import { MultiValue } from 'react-select'
 import { allTimezones, useTimezoneSelect } from 'react-timezone-select'
 import { Toast } from '@/components/common/toast'
@@ -23,7 +24,7 @@ export function dailyToEpochRewards(daily: number) {
 }
 
 export function epochToDailyRewards(epoch: number) {
-  return epoch * (24 * 60) // 24 hours, 60 minutes
+  return Math.round(epoch * 24 * 60).toString() // 24 hours, 60 minutes
 }
 
 export const calculateMinSize = (size: number | undefined) => {
@@ -51,8 +52,6 @@ export const useCreateMarket = () => {
   const [formData, setFormData] = useAtom(formDataAtom)
   const [marketType, setMarketType] = useAtom(draftMarketTypeAtom)
   const [markets, setMarkets] = useAtom(groupMarketsAtom)
-  const { data: categories } = useCategories()
-  const { data: tags } = useTags()
   const isClob = marketType === 'clob'
   const isAmm = marketType === 'amm'
   const isGroup = marketType === 'group'
@@ -60,6 +59,10 @@ export const useCreateMarket = () => {
     labelStyle: 'original',
     timezones: allTimezones,
   })
+
+  const { data: categories } = useCategories()
+  const { data: tags } = useTags()
+
   const toast = useToast()
   const showToast = (message: string) => {
     const id = toast({
@@ -74,7 +77,7 @@ export const useCreateMarket = () => {
       ...prevFormData,
       title: draftMarket.title ?? '',
       description: draftMarket.description ?? '',
-      deadline: toZonedTime(draftMarket.deadline, 'America/New_York'),
+      deadline: toZonedTime(draftMarket.deadline, 'UTC'),
       token: draftMarket.collateralToken
         ? { symbol: draftMarket.collateralToken.symbol, id: draftMarket.collateralToken.id }
         : prevFormData.token,
@@ -99,14 +102,13 @@ export const useCreateMarket = () => {
         })) ?? [],
       type: draftMarket.type,
       priorityIndex: draftMarket.priorityIndex,
+      timezone: 'Etc/GMT',
       ...(isClob
         ? {
             minSize: reverseCalculateMinSize(draftMarket.settings?.minSize),
             maxSpread: reverseCalculateMaxSpread(draftMarket.settings?.maxSpread),
             c: draftMarket.settings?.c,
-            maxDailyReward: draftMarket.settings?.rewardsEpoch
-              ? epochToDailyRewards(draftMarket.settings.rewardsEpoch)
-              : undefined,
+            rewardsEpoch: draftMarket.settings?.rewardsEpoch,
           }
         : {}),
     }))
@@ -117,6 +119,12 @@ export const useCreateMarket = () => {
           title: market.title ?? '',
           description: market.description ?? '',
           id: market.id ?? '',
+          settings: {
+            maxSpread: reverseCalculateMaxSpread(Number(market.settings?.maxSpread)) ?? 0,
+            c: Number(market.settings?.c) ?? 0,
+            rewardsEpoch: Number(market.settings?.rewardsEpoch) ?? 0,
+            minSize: reverseCalculateMinSize(Number(market.settings?.minSize)) ?? 0,
+          },
         }))
       )
     }
@@ -127,9 +135,10 @@ export const useCreateMarket = () => {
 
     setFormData((prevFormData) => ({
       ...prevFormData,
+      id: activeMarket.id,
       title: activeMarket.title ?? '',
       description: activeMarket.description ?? '',
-      deadline: toZonedTime(activeMarket.expirationTimestamp, 'America/New_York'),
+      deadline: toZonedTime(activeMarket.expirationTimestamp, 'UTC'),
       marketFee: 0,
       priorityIndex: activeMarket.priorityIndex,
       isBannered: activeMarket.metadata?.isBannered ?? false,
@@ -155,17 +164,37 @@ export const useCreateMarket = () => {
           }
         }) ?? [],
       slug: activeMarket.slug ?? '',
+      timezone: 'Etc/GMT',
       ...(activeMarket.tradeType === 'clob'
         ? {
             minSize: reverseCalculateMinSize(activeMarket.settings?.minSize),
             maxSpread: reverseCalculateMaxSpread(activeMarket.settings?.maxSpread),
             c: activeMarket.settings?.c,
-            maxDailyReward: activeMarket.settings?.rewardsEpoch
-              ? epochToDailyRewards(activeMarket.settings.rewardsEpoch)
-              : undefined,
+            rewardsEpoch: Number(activeMarket.settings?.rewardsEpoch ?? 0),
           }
         : {}),
     }))
+    if (
+      activeMarket.marketType === 'group' &&
+      activeMarket.tradeType === 'clob' &&
+      activeMarket.markets &&
+      activeMarket.markets.length > 0
+    ) {
+      setMarketType('group')
+      setMarkets(
+        activeMarket.markets.map((market) => ({
+          title: market.title ?? '',
+          description: market.description ?? '',
+          id: market.id,
+          settings: {
+            maxSpread: reverseCalculateMaxSpread(Number(market.settings?.maxSpread)) ?? 0,
+            c: Number(market.settings?.c) ?? 0,
+            rewardsEpoch: Number(market.settings?.rewardsEpoch) ?? 0,
+            minSize: reverseCalculateMinSize(Number(market.settings?.minSize)) ?? 0,
+          },
+        }))
+      )
+    }
   }
 
   const handleChange = <K extends keyof IFormData>(
@@ -203,79 +232,99 @@ export const useCreateMarket = () => {
     handleChange('liquidity', tokenLimits[selectedTokenSymbol].min)
   }
 
+  const calculateZonedTime = (deadline: Date, timezone: string): number => {
+    const currentTimezoneOffset =
+      parseTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone).offset ?? 1
+    const formTimezoneOffset = parseTimezone(timezone)?.offset ?? 1
+    const differenceInOffset = currentTimezoneOffset - formTimezoneOffset
+    return new Date(deadline).getTime() + differenceInOffset * 60 * 60 * 1000
+  }
+
   const createOption = (id: string, name: string): SelectOption => ({
     id,
     label: name,
     value: name,
   })
 
-  const prepareDraftMarketData = (formData: FormData): MarketData => {
-    const title = formData.get('title')
-
-    const description = formData.get('description')
-    if (!title) {
-      showToast(`Missing required fields`)
+  const prepareDraftMarketData = (): MarketData | null => {
+    if (!validateData()) {
+      return null
     }
 
-    const tokenId = Number(formData.get('tokenId'))
-    const marketFee = Number(formData.get('marketFee'))
-    const deadline = Number(formData.get('deadline'))
+    const {
+      title,
+      description,
+      token,
+      marketFee,
+      isBannered,
+      creatorId,
+      ogLogo,
+      deadline,
+      timezone,
+      priorityIndex,
+    } = formData
 
-    if (isNaN(tokenId) || isNaN(marketFee) || isNaN(deadline)) {
-      showToast(`Invalid numeric values in form data`)
-    }
+    const matchedCategoryIds = formData.categories.map((cat) => {
+      const matchedCategory = categories?.find((c) => c.name === cat.value)
+      return matchedCategory ? Number(matchedCategory.id) : Number(cat.id)
+    })
+
+    const matchedTagIds = formData.tag.map((tag) => {
+      const matchedTag = tags?.find((t) => t.label === tag.value)
+      return matchedTag ? Number(matchedTag.id) : Number(tag.id)
+    })
+    const tokenId = token.id
 
     const baseData = {
-      title: title?.toString() ?? '',
+      title: title ?? '',
       tokenId,
       marketFee,
-      deadline,
-      isBannered: formData.get('isBannered') === 'true',
-      creatorId: formData.get('creatorId')?.toString() ?? '',
-      categoryIds: formData.get('categoryIds')?.toString() ?? '',
-      ogFile: formData.get('ogFile') as File | null,
-      tagIds: formData.get('tagIds')?.toString() ?? '',
+      deadline: String(calculateZonedTime(deadline, timezone)),
+      isBannered: isBannered,
+      creatorId: creatorId ?? '',
+      categoryIds: matchedCategoryIds,
+      ogFile: ogLogo as File | null,
+      tagIds: matchedTagIds,
     }
 
     if (isClob) {
       return {
         ...baseData,
-        description: description?.toString() ?? '',
-        priorityIndex: formData.get('priorityIndex')
-          ? Number(formData.get('priorityIndex'))
-          : undefined,
-        minSize: formData.get('minSize')
-          ? calculateMinSize(Number(formData.get('minSize')))
-          : undefined,
-        maxSpread: formData.get('maxSpread')
-          ? calculateMaxSpread(Number(formData.get('maxSpread')))
-          : undefined,
-        c: formData.get('c') ? Number(formData.get('c')) : undefined,
-        maxDailyReward: formData.get('maxDailyReward')
-          ? Number(formData.get('maxDailyReward'))
-          : undefined,
+        description: description ?? '',
+        priorityIndex: priorityIndex ?? undefined,
+        minSize: formData.minSize !== undefined ? calculateMinSize(formData.minSize) : undefined,
+        maxSpread: calculateMaxSpread(formData.maxSpread),
+        c: formData.c,
+        rewardsEpoch: formData.rewardsEpoch,
       }
     } else if (isGroup) {
       return {
         ...baseData,
-        marketsInput: JSON.parse(formData.get('marketsInput')?.toString() ?? '[]'),
+        marketsInput: markets.map((market) => ({
+          ...market,
+          settings: {
+            ...market.settings,
+            minSize: calculateMinSize(market.settings?.minSize),
+            maxSpread: calculateMaxSpread(market.settings?.maxSpread),
+            c: Number(market.settings?.c),
+            rewardsEpoch: Number(market.settings?.rewardsEpoch),
+          },
+        })),
       }
     } else {
       return {
         ...baseData,
-        priorityIndex: formData.get('priorityIndex')
-          ? Number(formData.get('priorityIndex'))
-          : undefined,
-        description: description?.toString() ?? '',
-        liquidity: Number(formData.get('liquidity')),
-        initialYesProbability: Number(formData.get('initialYesProbability')),
+        priorityIndex: priorityIndex ?? undefined,
+        description: description ?? '',
+        liquidity: formData.liquidity ?? 0,
+        initialYesProbability: formData.probability ? formData.probability / 100 : 0,
       }
     }
   }
 
   const prepareActiveMarketData = () => {
-    if (!formData.title) {
-      showToast(`Missing required fields`)
+    if (!validateData()) {
+      return null
     }
 
     const matchedCategoryIds = formData.categories.map((cat) => {
@@ -287,13 +336,15 @@ export const useCreateMarket = () => {
       const matchedTag = tags?.find((t) => t.label === tag.value)
       return matchedTag ? Number(matchedTag.id) : Number(tag.id)
     })
+    const { id, title, isBannered, deadline, timezone } = formData
 
     const baseData = {
-      title: formData.title ?? '',
-      isBannered: formData.isBannered,
+      id,
+      title,
+      isBannered,
       categoryIds: matchedCategoryIds,
       tagIds: matchedTagIds,
-      deadline: String(new Date(formData.deadline).getTime()),
+      deadline: String(calculateZonedTime(deadline, timezone)),
     }
 
     if (isClob) {
@@ -304,12 +355,21 @@ export const useCreateMarket = () => {
         minSize: calculateMinSize(Number(formData.minSize)),
         maxSpread: calculateMaxSpread(Number(formData.maxSpread)),
         c: Number(formData.c),
-        maxDailyReward: Number(formData.maxDailyReward),
+        rewardsEpoch: formData.rewardsEpoch,
       }
     } else if (isGroup) {
       return {
         ...baseData,
-        marketsInput: markets,
+        marketsInput: markets.map((market) => ({
+          ...market,
+          settings: {
+            ...market.settings,
+            minSize: calculateMinSize(market.settings?.minSize),
+            maxSpread: calculateMaxSpread(market.settings?.maxSpread),
+            c: Number(market.settings?.c),
+            rewardsEpoch: Number(market.settings?.rewardsEpoch),
+          },
+        })),
       }
     } else {
       return {
@@ -320,12 +380,13 @@ export const useCreateMarket = () => {
     }
   }
 
-  const prepareMarketData = (formData: FormData, isActiveMarket = false) => {
-    return isActiveMarket ? prepareActiveMarketData() : prepareDraftMarketData(formData)
+  const prepareMarketData = (isActiveMarket = false) => {
+    const result = isActiveMarket ? prepareActiveMarketData() : prepareDraftMarketData()
+    return result
   }
 
-  const prepareData = () => {
-    const { title, description, creatorId, tag } = formData
+  const validateData = (): boolean => {
+    const { probability, liquidity, title, description, deadline, creatorId, tag, token } = formData
 
     const missingFields: string[] = []
 
@@ -333,6 +394,12 @@ export const useCreateMarket = () => {
     if (!description && !isGroup) missingFields.push('Description')
     if (!creatorId) missingFields.push('Creator')
     if (tag.length === 0) missingFields.push('Tag')
+    if (isNaN(token.id) || !deadline) {
+      missingFields.push('Token id or Deadline')
+    }
+    if (isAmm && (!probability || !liquidity)) {
+      missingFields.push('Liq or Prob')
+    }
 
     if (isGroup) {
       if (!markets || markets.length < 2) {
@@ -346,7 +413,7 @@ export const useCreateMarket = () => {
 
         if (duplicatedTitles.length) {
           showToast(`All markets in the group must have unique titles.`)
-          return
+          return false
         }
 
         if (invalidMarkets.length > 0) {
@@ -355,85 +422,76 @@ export const useCreateMarket = () => {
               invalidMarkets.length > 1 ? 's' : ''
             } #${markets.findIndex((m) => !m.title?.trim() || !m.description?.trim()) + 1}`
           )
-          return
+          return false
         }
       }
     }
 
     if (missingFields.length > 0) {
       showToast(`${missingFields.join(', ')} ${missingFields.length > 1 ? 'are' : 'is'} required!`)
-      return
+      return false
     }
 
-    const differenceInOffset =
-      (parseTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone).offset ?? 1) -
-      (parseTimezone(formData.timezone)?.offset ?? 1)
-    const zonedTime = new Date(formData.deadline).getTime() + differenceInOffset * 60 * 60 * 1000
-
-    const marketFormData = new FormData()
-    marketFormData?.set('title', formData.title)
-    marketFormData?.set('description', formData.description)
-    marketFormData?.set('tokenId', formData.token.id.toString())
-    if (isAmm) {
-      marketFormData?.set('liquidity', formData.liquidity?.toString() || '')
-      marketFormData?.set('initialYesProbability', (formData.probability / 100).toString())
-    }
-    if (isClob) {
-      if (formData.minSize !== undefined) {
-        marketFormData.set('minSize', formData.minSize.toString())
-      }
-      if (formData.maxSpread !== undefined) {
-        marketFormData.set('maxSpread', formData.maxSpread.toString())
-      }
-      if (formData.c !== undefined) {
-        marketFormData.set('c', formData.c.toString())
-      }
-      if (formData.maxDailyReward !== undefined) {
-        marketFormData.set('maxDailyReward', formData.maxDailyReward.toString())
-      }
-    }
-    marketFormData?.set('marketFee', formData.marketFee.toString())
-    marketFormData?.set('deadline', zonedTime.toString())
-    marketFormData?.set('isBannered', formData.isBannered.toString())
-
-    if (isGroup && markets.length > 0) {
-      marketFormData.set('marketsInput', JSON.stringify(markets))
-    }
-
-    if (formData.creatorId) {
-      marketFormData.set('creatorId', formData.creatorId)
-    }
-
-    if (formData.slug) {
-      marketFormData.set('slug', formData.slug)
-    }
-
-    if (formData.categories.length) {
-      marketFormData.set('categoryIds', formData.categories.map((c) => c.id).join(','))
-    }
-
-    if (formData.ogLogo) {
-      marketFormData.set('ogFile', formData.ogLogo)
-    }
-
-    if (formData.tag.length) {
-      marketFormData.set('tagIds', formData.tag.map((t) => t.id).join(','))
-    }
-
-    if (formData.priorityIndex) {
-      marketFormData.set('priorityIndex', formData.priorityIndex.toString())
-    }
-
-    return marketFormData
+    return true
   }
 
-  return {
-    handleChange,
-    populateDraftMarketData,
-    populateActiveMarketData,
-    handleTokenSelect,
-    createOption,
-    prepareMarketData,
-    prepareData,
-  }
+  const memoizedHandleChange = useCallback(
+    <K extends keyof IFormData>(
+      field: string,
+      value: IFormData[K] | MultiValue<SelectOption> | MarketInput[]
+    ) => {
+      handleChange(field, value)
+    },
+    [setFormData]
+  )
+
+  const memoizedPopulateDraftMarketData = useCallback(
+    (draftMarket: any) => {
+      populateDraftMarketData(draftMarket)
+    },
+    [setFormData, setMarketType, setMarkets, isGroup]
+  )
+
+  const memoizedPopulateActiveMarketData = useCallback(
+    (activeMarket: Market) => {
+      populateActiveMarketData(activeMarket)
+    },
+    [setFormData]
+  )
+
+  const memoizedHandleTokenSelect = useCallback(
+    (option: React.ChangeEvent<HTMLSelectElement>) => {
+      handleTokenSelect(option)
+    },
+    [handleChange]
+  )
+
+  const memoizedCreateOption = useCallback(
+    (id: string, name: string): SelectOption => createOption(id, name),
+    []
+  )
+
+  const memoizedPrepareMarketData = useCallback(
+    (isActiveMarket = false) => prepareMarketData(isActiveMarket),
+    [formData, markets, isClob, isAmm, isGroup, validateData, categories, tags]
+  )
+
+  return useMemo(
+    () => ({
+      handleChange: memoizedHandleChange,
+      populateDraftMarketData: memoizedPopulateDraftMarketData,
+      populateActiveMarketData: memoizedPopulateActiveMarketData,
+      handleTokenSelect: memoizedHandleTokenSelect,
+      createOption: memoizedCreateOption,
+      prepareMarketData: memoizedPrepareMarketData,
+    }),
+    [
+      memoizedHandleChange,
+      memoizedPopulateDraftMarketData,
+      memoizedPopulateActiveMarketData,
+      memoizedHandleTokenSelect,
+      memoizedCreateOption,
+      memoizedPrepareMarketData,
+    ]
+  )
 }
