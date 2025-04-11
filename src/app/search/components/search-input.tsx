@@ -48,7 +48,11 @@ export const SearchInput = ({
         alignItems='center'
         bg='grey.100'
         borderRadius='8px'
+        borderColor='grey.200'
         _placeholder={{ color: 'grey.500' }}
+        _focus={{
+          borderColor: 'grey.800',
+        }}
       />
 
       <InputRightElement
