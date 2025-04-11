@@ -47,6 +47,7 @@ import {
 } from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { MarketStatus, Sort, SortStorageName } from '@/types'
+import { SEARCH_HOTKEY_KEYS } from '@/utils/consts'
 import { ReferralLink } from '../common/referral-link'
 
 export default function Header() {
@@ -89,11 +90,7 @@ export default function Header() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (
-        event.key === '/' &&
-        document.activeElement?.tagName !== 'INPUT' &&
-        document.activeElement?.tagName !== 'TEXTAREA'
-      ) {
+      if (SEARCH_HOTKEY_KEYS.includes(event.key)) {
         event.preventDefault()
         trackClicked(ClickEvent.SearchHotKeyClicked)
         router.push('/search')

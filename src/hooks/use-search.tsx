@@ -50,7 +50,7 @@ export function useInfinitySearch(query: string) {
         return {
           ...market,
           prices:
-            market.tradeType === 'amm'
+            market.tradeType === 'amm' && market.address
               ? _markets.get(market.address as `0x${string}`)?.prices || [50, 50]
               : [
                   calculateMarketPrice(market?.prices?.[0]),
