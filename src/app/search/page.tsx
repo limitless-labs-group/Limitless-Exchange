@@ -2,6 +2,7 @@
 
 import { Box, Button, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { useAtom } from 'jotai'
+import debounce from 'lodash.debounce'
 import NextLink from 'next/link'
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -15,7 +16,6 @@ import { SearchInput } from './components/search-input'
 import { sortAtom } from '@/atoms/market-sort'
 import { useInfinitySearch } from '@/hooks/use-search'
 import { usePriceOracle } from '@/providers'
-import EnterIcon from '@/resources/icons/enter-icon.svg'
 import SearchIcon from '@/resources/icons/search.svg'
 import { ChangeEvent, useAmplitude } from '@/services'
 import { useMarkets } from '@/services/MarketsService'
@@ -38,6 +38,30 @@ const SearchPage = () => {
     }
   }, [])
 
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((value: string) => {
+        if (value.length >= 3) {
+          setSearchQuery(value)
+          trackChanged(ChangeEvent.SearchPerfomed)
+          trackChanged(ChangeEvent.SearchQuery, { text: value })
+        } else if (value.length === 0) {
+          setSearchQuery('')
+        }
+      }, 500),
+    [trackChanged]
+  )
+
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel()
+    }
+  }, [debouncedSearch])
+
+  useEffect(() => {
+    debouncedSearch(search)
+  }, [search, debouncedSearch])
+
   const {
     data: searchedMarkets,
     fetchNextPage: fetchSearch,
@@ -54,14 +78,6 @@ const SearchPage = () => {
 
   const handleSearch = (value: string) => {
     setSearch(value)
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      setSearchQuery(search)
-      trackChanged(ChangeEvent.SearchPerfomed)
-      trackChanged(ChangeEvent.SearchQuery, { text: searchQuery })
-    }
   }
 
   const allFetchedMarkets: Market[] = useMemo(() => {
@@ -87,15 +103,13 @@ const SearchPage = () => {
     <VStack mt='24px' w='full' maxW='716px' alignItems='center' justifyContent='center' gap='24px'>
       <SearchInput
         value={search}
-        onChange={(e) => handleSearch(e)}
-        onKeyDown={handleKeyDown}
+        onChange={handleSearch}
         before={<SearchIcon width={16} height={16} />}
         after={
           <HStack gap='4px' color='grey.500'>
             <Text {...captionMedium} color='grey.500' whiteSpace='nowrap'>
-              {isMobile ? 'Enter to Search' : 'Hit Enter to Search'}
+              {isMobile ? 'Type to Search' : 'Type to Search Markets'}
             </Text>
-            <EnterIcon width={16} height={16} />
           </HStack>
         }
         placeholder={isMobile ? 'Search' : 'Search for any markets'}
