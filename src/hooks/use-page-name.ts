@@ -21,8 +21,8 @@ function usePageName() {
         return 'Draft'
       case '/search':
         return 'Search'
-      case '/market-crash':
-        return 'Market Crash Dashboard'
+      case '/market-watch':
+        return 'Market Watch Dashboard'
       default:
         if (path.startsWith('/markets/')) {
           return 'Market Page'
@@ -45,7 +45,7 @@ export type PageName =
   | 'Leaderboard'
   | 'Draft'
   | 'Search'
-  | 'Market Crash Dashboard'
+  | 'Market Watch Dashboard'
   | 'My Markets'
 
 export default usePageName

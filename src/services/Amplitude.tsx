@@ -254,7 +254,7 @@ export enum OpenEvent {
 }
 
 export enum DashboardName {
-  MarketCrash = 'Market Crash',
+  MarketWatch = 'Market Watch',
 }
 
 export enum AuthenticationEvent {
@@ -468,7 +468,7 @@ export type ProfileBurgerMenuClickedOption =
   | 'Lumy'
   | 'Leaderboard'
   | 'My Markets'
-  | 'Market Crash'
+  | 'Market Watch'
   | 'Feed'
 export interface ProfileBurgerMenuClickedMetadata {
   option: ProfileBurgerMenuClickedOption
