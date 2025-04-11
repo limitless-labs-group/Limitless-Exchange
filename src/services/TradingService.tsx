@@ -242,98 +242,73 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     setBalanceOfCollateralToSellNo('0')
 
     if (!market || !fixedProductMarketMakerContract || strategy != 'Sell') {
+      setSellBalanceLoading(false)
       return
     }
 
-    const balanceOfOutcomeTokenBIYes = await getCTBalance(account, 0)
-    const _balanceOfOutcomeTokenYes = formatUnits(
-      balanceOfOutcomeTokenBIYes,
-      market.collateralToken?.decimals || 18
-    )
-    const balanceOfOutcomeTokenCroppedYes = NumberUtil.toFixed(
-      _balanceOfOutcomeTokenYes.toString(),
-      10
-    )
-    setBalanceOfOutcomeTokenYes(balanceOfOutcomeTokenCroppedYes)
+    try {
+      const [
+        balanceOfOutcomeTokenBIYes,
+        balanceOfOutcomeTokenBINo,
+        marketHoldingYes,
+        marketHoldingNo,
+      ] = await Promise.all([
+        getCTBalance(account, 0),
+        getCTBalance(account, 1),
+        getCTBalance(market.address as Address, 0),
+        getCTBalance(market.address as Address, 1),
+      ])
 
-    const balanceOfOutcomeTokenBINo = await getCTBalance(account, 1)
-    const _balanceOfOutcomeTokenNo = formatUnits(
-      balanceOfOutcomeTokenBINo,
-      market.collateralToken?.decimals || 18
-    )
-    const balanceOfOutcomeTokenCroppedNo = NumberUtil.toFixed(
-      _balanceOfOutcomeTokenNo.toString(),
-      10
-    )
-    setBalanceOfOutcomeTokenNo(balanceOfOutcomeTokenCroppedNo)
+      const decimals = market.collateralToken?.decimals || 18
+      const minAmount = parseUnits('0.00000001', decimals)
 
-    const holdingsYes = await getCTBalance(market.address as Address, 0)
-    const otherHoldingsYes: bigint[] = []
-    for (let index = 0; index < 2; index++) {
-      if (index != 0) {
-        const balance = await getCTBalance(market.address as Address, index)
-        otherHoldingsYes.push(balance)
-      }
+      const _balanceOfOutcomeTokenYes = formatUnits(balanceOfOutcomeTokenBIYes, decimals)
+      const balanceOfOutcomeTokenCroppedYes = NumberUtil.toFixed(
+        _balanceOfOutcomeTokenYes.toString(),
+        10
+      )
+      setBalanceOfOutcomeTokenYes(balanceOfOutcomeTokenCroppedYes)
+
+      const _balanceOfOutcomeTokenNo = formatUnits(balanceOfOutcomeTokenBINo, decimals)
+      const balanceOfOutcomeTokenCroppedNo = NumberUtil.toFixed(
+        _balanceOfOutcomeTokenNo.toString(),
+        10
+      )
+      setBalanceOfOutcomeTokenNo(balanceOfOutcomeTokenCroppedNo)
+
+      let balanceOfCollateralToSellBIYes =
+        calcSellAmountInCollateral(
+          parseUnits(balanceOfOutcomeTokenCroppedYes, decimals),
+          marketHoldingYes,
+          [marketHoldingNo],
+          Number(marketFee)
+        ) ?? 0n
+
+      let balanceOfCollateralToSellBINo =
+        calcSellAmountInCollateral(
+          parseUnits(balanceOfOutcomeTokenCroppedNo, decimals),
+          marketHoldingNo,
+          [marketHoldingYes],
+          Number(marketFee)
+        ) ?? 0n
+
+      if (balanceOfCollateralToSellBIYes < minAmount) balanceOfCollateralToSellBIYes = 0n
+      if (balanceOfCollateralToSellBINo < minAmount) balanceOfCollateralToSellBINo = 0n
+
+      setBalanceOfCollateralToSellYes(formatUnits(balanceOfCollateralToSellBIYes, decimals))
+      setBalanceOfCollateralToSellNo(formatUnits(balanceOfCollateralToSellBINo, decimals))
+    } catch (error) {
+      console.error('Error updating sell balance:', error)
+    } finally {
+      setSellBalanceLoading(false)
     }
-    let balanceOfCollateralToSellBIYes =
-      calcSellAmountInCollateral(
-        parseUnits(balanceOfOutcomeTokenCroppedYes, market.collateralToken?.decimals || 18),
-        holdingsYes,
-        otherHoldingsYes,
-        Number(marketFee)
-      ) ?? 0n
-    // small balance to zero
-    if (
-      balanceOfCollateralToSellBIYes <
-      parseUnits('0.00000001', market.collateralToken?.decimals || 18)
-    ) {
-      balanceOfCollateralToSellBIYes = 0n
-    }
-
-    const _balanceOfCollateralToSellYes = formatUnits(
-      balanceOfCollateralToSellBIYes,
-      market.collateralToken?.decimals || 18
-    )
-
-    setBalanceOfCollateralToSellYes(_balanceOfCollateralToSellYes)
-
-    const holdingsNo = await getCTBalance(market.address as Address, 1)
-    const otherHoldingsNo: bigint[] = []
-    for (let index = 0; index < 2; index++) {
-      if (index != 1) {
-        const balance = await getCTBalance(market.address as Address, index)
-        otherHoldingsNo.push(balance)
-      }
-    }
-
-    let balanceOfCollateralToSellBINo =
-      calcSellAmountInCollateral(
-        parseUnits(balanceOfOutcomeTokenCroppedNo, market.collateralToken?.decimals || 18),
-        holdingsNo,
-        otherHoldingsNo,
-        Number(marketFee)
-      ) ?? 0n
-    // small balance to zero
-    if (
-      balanceOfCollateralToSellBINo <
-      parseUnits('0.00000001', market.collateralToken?.decimals || 18)
-    ) {
-      balanceOfCollateralToSellBINo = 0n
-    }
-
-    const _balanceOfCollateralToSellNo = formatUnits(
-      balanceOfCollateralToSellBINo,
-      market.collateralToken?.decimals || 18
-    )
-
-    setBalanceOfCollateralToSellNo(_balanceOfCollateralToSellNo)
-    setSellBalanceLoading(false)
   }, [
     account,
     market,
     strategy,
     fixedProductMarketMakerContract,
     conditionalTokensContract?.address,
+    marketFee,
   ])
 
   const getMarketFee = async () => {
