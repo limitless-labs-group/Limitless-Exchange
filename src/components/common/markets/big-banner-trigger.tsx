@@ -38,6 +38,7 @@ export const BigBannerTrigger = React.memo(({ market, markets, index }: BigBanne
   const { pushGA4Event } = useGoogleAnalytics()
   const [yesHovered, setYesHovered] = useState(false)
   const [noHovered, setNoHovered] = useState(false)
+  const isGroup = market.marketType === 'group'
 
   const imageBackgrounds = [
     '/assets/images/banners/background-1.svg',
@@ -105,9 +106,14 @@ export const BigBannerTrigger = React.memo(({ market, markets, index }: BigBanne
   }
 
   const handleOutcomeClicked = (e: React.MouseEvent<HTMLButtonElement>, outcome: number) => {
+    const getValue = () => {
+      if (isGroup) return 'predict button'
+      return outcome ? 'small no button' : 'small yes button'
+    }
+
     trackClicked<QuickBetClickedMetadata>(ClickEvent.QuickBetClicked, {
       source: 'Main page' + ' ' + market.tradeType + 'card',
-      value: outcome ? 'small no button' : 'small yes button',
+      value: getValue(),
     })
     if (e.metaKey || e.ctrlKey || e.button === 2) {
       return
@@ -120,7 +126,9 @@ export const BigBannerTrigger = React.memo(({ market, markets, index }: BigBanne
     searchParams.set('market', market.slug)
     router.push(`?${searchParams.toString()}`, { scroll: false })
     setMarket(market)
-    setClobOutcome(outcome)
+    if (!isGroup) {
+      setClobOutcome(outcome)
+    }
     if (!marketPageOpened) {
       setMarketPageOpened(true)
     }
@@ -193,12 +201,14 @@ export const BigBannerTrigger = React.memo(({ market, markets, index }: BigBanne
             </Text>
           </Flex>
           <Box w='full'>
-            <MarketProgressBar
-              isClosed={market.expired}
-              value={market.prices[0]}
-              noColor='whiteAlpha.50'
-              variant='white'
-            />
+            {!isGroup ? (
+              <MarketProgressBar
+                isClosed={market.expired}
+                value={market.prices[0]}
+                noColor='whiteAlpha.50'
+                variant='white'
+              />
+            ) : null}
             <HStack w='full' mt='16px' justifyContent='space-between'>
               <HStack gap='4px'>
                 <HStack gap='4px'>
@@ -240,36 +250,52 @@ export const BigBannerTrigger = React.memo(({ market, markets, index }: BigBanne
                 </HStack>
               </HStack>
               <HStack gap='8px'>
-                <Button
-                  {...captionMedium}
-                  h='20px'
-                  px='4px'
-                  py='2px'
-                  color={yesHovered ? 'white' : 'green.500'}
-                  bg={yesHovered ? 'green.500' : 'greenTransparent.100'}
-                  onMouseEnter={() => setYesHovered(true)}
-                  onMouseLeave={() => setYesHovered(false)}
-                  onClick={(e) => handleOutcomeClicked(e, 0)}
-                >
-                  {yesHovered
-                    ? `${new BigNumber(market.prices[0]).decimalPlaces(0).toString()}%`
-                    : 'YES'}
-                </Button>
-                <Button
-                  {...captionMedium}
-                  h='20px'
-                  px='4px'
-                  py='2px'
-                  color={noHovered ? 'white' : 'red.500'}
-                  bg={noHovered ? 'red.500' : 'redTransparent.100'}
-                  onMouseEnter={() => setNoHovered(true)}
-                  onMouseLeave={() => setNoHovered(false)}
-                  onClick={(e) => handleOutcomeClicked(e, 1)}
-                >
-                  {noHovered
-                    ? `${new BigNumber(market.prices[1]).decimalPlaces(0).toString()}%`
-                    : 'NO'}
-                </Button>
+                {isGroup ? (
+                  <Button
+                    {...captionMedium}
+                    h='20px'
+                    px='8px'
+                    py='4px'
+                    color='white'
+                    bg={'whiteAlpha.20'}
+                    onClick={(e) => handleOutcomeClicked(e, 0)}
+                  >
+                    Predict
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      {...captionMedium}
+                      h='20px'
+                      px='4px'
+                      py='2px'
+                      color={yesHovered ? 'white' : 'green.500'}
+                      bg={yesHovered ? 'green.500' : 'greenTransparent.100'}
+                      onMouseEnter={() => setYesHovered(true)}
+                      onMouseLeave={() => setYesHovered(false)}
+                      onClick={(e) => handleOutcomeClicked(e, 0)}
+                    >
+                      {yesHovered
+                        ? `${new BigNumber(market.prices[0]).decimalPlaces(0).toString()}%`
+                        : 'YES'}
+                    </Button>
+                    <Button
+                      {...captionMedium}
+                      h='20px'
+                      px='4px'
+                      py='2px'
+                      color={noHovered ? 'white' : 'red.500'}
+                      bg={noHovered ? 'red.500' : 'redTransparent.100'}
+                      onMouseEnter={() => setNoHovered(true)}
+                      onMouseLeave={() => setNoHovered(false)}
+                      onClick={(e) => handleOutcomeClicked(e, 1)}
+                    >
+                      {noHovered
+                        ? `${new BigNumber(market.prices[1]).decimalPlaces(0).toString()}%`
+                        : 'NO'}
+                    </Button>
+                  </>
+                )}
               </HStack>
             </HStack>
           </Box>
