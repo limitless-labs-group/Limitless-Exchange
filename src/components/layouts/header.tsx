@@ -90,7 +90,11 @@ export default function Header() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (SEARCH_HOTKEY_KEYS.includes(event.key)) {
+      if (
+        SEARCH_HOTKEY_KEYS.includes(event.key) &&
+        document.activeElement?.tagName !== 'INPUT' &&
+        document.activeElement?.tagName !== 'TEXTAREA'
+      ) {
         event.preventDefault()
         trackClicked(ClickEvent.SearchHotKeyClicked)
         router.push('/search')
