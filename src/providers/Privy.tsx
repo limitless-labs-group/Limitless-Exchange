@@ -12,7 +12,7 @@ export const publicClient = createPublicClient({
   chain: defaultChain,
   transport: fallback(
     [
-      http('https://mainnet.base.org'),
+      // http('https://mainnet.base.org'),
       http('https://base.drpc.org'),
       http('https://base.llamarpc.com'),
       http('https://base-pokt.nodies.app'),
