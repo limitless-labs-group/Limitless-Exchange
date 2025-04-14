@@ -10,20 +10,20 @@ import { QueryProvider } from '@/providers/ReactQuery'
 
 export const publicClient = createPublicClient({
   chain: defaultChain,
-  transport: http(),
-  // transport: fallback(
-  //   [
-  //     http('https://mainnet.base.org'),
-  //     http('https://base.drpc.org'),
-  //     http('https://base.llamarpc.com'),
-  //     http('https://base-pokt.nodies.app'),
-  //     http('https://base.meowrpc.com'),
-  //     http('https://1rpc.io/base'),
-  //   ],
-  //   {
-  //     rank: true,
-  //   }
-  // ),
+  // transport: http(),
+  transport: fallback(
+    [
+      // http('https://mainnet.base.org'),
+      http('https://base.drpc.org'),
+      http('https://base.llamarpc.com'),
+      http('https://base-pokt.nodies.app'),
+      http('https://base.meowrpc.com'),
+      http('https://1rpc.io/base'),
+    ],
+    {
+      rank: true,
+    }
+  ),
 })
 
 export default function PrivyAuthProvider({ children }: PropsWithChildren) {
