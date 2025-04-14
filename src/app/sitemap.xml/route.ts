@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 
 export async function GET() {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://limitless.exchange'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://limitless.exchange'
 
   //todo: add dynamic pages after route optimization (make routes for categories ie. markets/cat/crypto)
   const pages = ['', '/feed', '/leaderboard', '/market-watch', '/portfolio', '/search']
