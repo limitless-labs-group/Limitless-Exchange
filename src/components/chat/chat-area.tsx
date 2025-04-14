@@ -120,6 +120,7 @@ export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading }: ChatTextareaP
     return 'unset'
   }, [error])
 
+  console.log(profileData)
   return (
     <FormControl>
       <VStack w='full' mt='16px'>
@@ -135,8 +136,17 @@ export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading }: ChatTextareaP
           <Flex justifyContent={isMobile ? 'flex-end' : 'space-between'}>
             {!isMobile ? (
               <HStack gap='4px'>
-                <Avatar account={account as string} avatarUrl={profileData?.pfpUrl} />
-                <Text {...captionRegular}>{profileData?.displayName ?? profileData?.username}</Text>
+                <Avatar
+                  account={
+                    (profileData?.displayName ??
+                      profileData?.username ??
+                      profileData?.account) as string
+                  }
+                  avatarUrl={profileData?.pfpUrl}
+                />
+                <Text {...captionRegular}>
+                  {profileData?.displayName ?? profileData?.username ?? profileData?.account}
+                </Text>
               </HStack>
             ) : null}
             {isLoggedIn ? (

@@ -90,7 +90,11 @@ export default function Header() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (SEARCH_HOTKEY_KEYS.includes(event.key)) {
+      if (
+        SEARCH_HOTKEY_KEYS.includes(event.key) &&
+        document.activeElement?.tagName !== 'INPUT' &&
+        document.activeElement?.tagName !== 'TEXTAREA'
+      ) {
         event.preventDefault()
         trackClicked(ClickEvent.SearchHotKeyClicked)
         router.push('/search')
@@ -149,7 +153,7 @@ export default function Header() {
               <Link
                 variant='transparent'
                 bg={
-                  pageName === 'Explore Markets' && dashboard !== 'marketcrash'
+                  pageName === 'Explore Markets' && dashboard !== 'marketwatch'
                     ? 'grey.100'
                     : 'unset'
                 }
@@ -173,16 +177,16 @@ export default function Header() {
                 </HStack>
               </Link>
             </ReferralLink>
-            <ReferralLink href={`/market-crash`} passHref>
+            <ReferralLink href={`/market-watch`} passHref>
               <Link
                 variant='transparent'
-                bg={dashboard === 'marketcrash' ? 'grey.100' : 'unset'}
+                bg={dashboard === 'marketwatch' ? 'grey.100' : 'unset'}
                 rounded='8px'
                 onClick={() => {
                   trackClicked<ProfileBurgerMenuClickedMetadata>(
                     ClickEvent.ProfileBurgerMenuClicked,
                     {
-                      option: 'Market Crash',
+                      option: 'Market Watch',
                     }
                   )
                 }}
@@ -190,7 +194,7 @@ export default function Header() {
                 <HStack w='full' gap='4px'>
                   <DashboardIcon width={16} height={16} color='#FF9200' />
                   <Text fontWeight={500} fontSize='14px'>
-                    Market crash
+                    Market watch
                   </Text>
                 </HStack>
               </Link>
