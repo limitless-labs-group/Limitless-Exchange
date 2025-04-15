@@ -111,6 +111,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const [, setAcc] = useAtom(accountAtom)
   const { handleRedirect } = usePendingTrade()
   const { trackSignIn, trackSignUp } = useAmplitude()
+  const isDev = process.env.NODE_ENV === 'development'
 
   const toast = useToast()
   const router = useRouter()
@@ -129,9 +130,11 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     if (user?.wallet?.address) {
       setAcc({ account: user.wallet.address as string })
-      spindl.attribute(user.wallet.address)
+      if (!isDev) {
+        spindl.attribute(user.wallet.address)
+      }
     }
-  }, [user])
+  }, [user, isDev])
 
   const userMenuLoading = useMemo(() => {
     if (isLogged || authenticated) {
@@ -244,7 +247,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
             smartWallet: client.account?.address,
             web3Wallet: walletClient,
           })
-          spindl.attribute(client.account?.address)
+          if (!isDev) {
+            spindl.attribute(client.account?.address)
+          }
           pushGA4Event(GAEvents.WalletConnected)
           if (isNewUser) {
             trackSignUp(SignInEvent.SignedUp, {
@@ -264,7 +269,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
           account: connectedWallet.address as Address,
           web3Wallet: walletClient,
         })
-        spindl.attribute(connectedWallet.address)
+        if (!isDev) {
+          spindl.attribute(connectedWallet.address)
+        }
         pushGA4Event(GAEvents.WalletConnected)
         await handleRedirect()
         setAcc({ account: connectedWallet.address ?? '' })

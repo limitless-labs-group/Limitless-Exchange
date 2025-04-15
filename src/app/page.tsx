@@ -166,6 +166,7 @@ const MainPage = () => {
       onCloseMarketPage()
     }
   }, [])
+  console.log('banneredMarkets', banneredMarkets)
 
   const headerContent = useMemo(() => {
     if (selectedCategory?.name === 'Crypto') return

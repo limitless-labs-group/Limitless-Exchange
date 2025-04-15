@@ -89,7 +89,6 @@ export function useMarketsByCategory(id: number, enabled = true) {
 }
 
 export function useMarkets(topic: Category | null, enabled = true) {
-  const pathname = usePathname()
   return useInfiniteQuery<MarketPage, Error>({
     queryKey: ['markets', topic?.id],
     queryFn: async ({ pageParam = 1 }) => {
@@ -155,7 +154,7 @@ export function useBanneredMarkets(topic: Category | null) {
 
       const { data: response }: AxiosResponse<Market[]> = await axios.get(marketBaseUrl)
 
-      const slicedMarkets = response.slice(response.length - 12)
+      const slicedMarkets = response.length <= 12 ? response : response.slice(response.length - 12)
 
       const ammMarkets = slicedMarkets.filter((market) => market.tradeType === 'amm')
 
