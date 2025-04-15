@@ -237,7 +237,7 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
     position.tokensBalance.no,
     position.tokensBalance.yes,
   ])
-  console.log('amountsToNegriskClaim', amountsToNegriskClaim)
+
   const content = (
     <Box
       p='16px'
