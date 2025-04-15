@@ -1,6 +1,6 @@
 'use client'
 
-import { HStack, Text, VStack, Box } from '@chakra-ui/react'
+import { HStack, Text, VStack, Box, Heading, Flex } from '@chakra-ui/react'
 import { useAtom } from 'jotai'
 import { useEffect, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -13,15 +13,16 @@ import { useUrlParams } from '@/hooks/use-url-param'
 import { usePriceOracle } from '@/providers'
 import { useTradingService } from '@/services'
 import { useMarket, useMarketsByCategory } from '@/services/MarketsService'
-import { paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { h2Bold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market, MarketType, Sort, SortStorageName } from '@/types'
 import { sortMarkets } from '@/utils/market-sorting'
 
 export interface CategoryMarketsPageProps {
   categoryId: number
+  categoryName?: string
 }
 
-const CategoryMarketsPage = ({ categoryId }: CategoryMarketsPageProps) => {
+const CategoryMarketsPage = ({ categoryId, categoryName }: CategoryMarketsPageProps) => {
   const { getParam } = useUrlParams()
   const market = getParam('market')
 
@@ -96,8 +97,12 @@ const CategoryMarketsPage = ({ categoryId }: CategoryMarketsPageProps) => {
 
   return (
     <MainLayout layoutPadding={'0px'}>
-      <VStack w='full' spacing={0}>
-        {categoryId}
+      <VStack w='full' mt='100px' spacing={0}>
+        <Flex justifyContent='start' w='full' maxW='664px'>
+          <Heading as='h1' {...h2Bold}>
+            {categoryName}
+          </Heading>
+        </Flex>
         <Box className='full-container' w={isMobile ? 'full' : 'unset'}>
           <InfiniteScroll
             className='scroll'
