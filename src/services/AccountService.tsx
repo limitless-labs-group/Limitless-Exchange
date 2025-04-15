@@ -346,8 +346,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       web3Client === 'etherspot'
         ? wallets.find((wallet) => wallet.walletClientType === 'privy')
         : wallets[0]
-    console.log(`wallets ${wallets}`)
-    console.log(`web3Client ${web3Client}`)
     if (wallet) {
       const provider = await wallet.getEthereumProvider()
       const walletClient = createWalletClient({
