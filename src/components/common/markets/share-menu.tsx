@@ -34,7 +34,10 @@ export default function ShareMenu() {
   const { trackClicked } = useAmplitude()
   const { referralCode } = useAccount()
   const toast = useToast()
-  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.slug}`
+  const marketURI =
+    market?.marketType === 'group'
+      ? `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${groupMarket?.slug}`
+      : `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.slug}`
   const { tweetURI, castURI } = createMarketShareUrls(
     market?.marketType === 'group' ? groupMarket : market,
     market?.prices,
