@@ -115,7 +115,10 @@ export const CategoryItems = () => {
         </ReferralLink>
       )}
       {categoriesWithMarkets.map((category) => (
-        <ReferralLink key={category.id} href={`/?${createQueryString(category.name)}`}>
+        <ReferralLink
+          key={category.id}
+          href={`/cat/${category.name.toLowerCase().replace(/\s+/g, '-')}`}
+        >
           <Link variant='transparent' px={0}>
             <SideItem
               isActive={selectedCategory?.name.toLowerCase() === category.name.toLowerCase()}

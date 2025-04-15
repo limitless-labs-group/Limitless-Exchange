@@ -1,16 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { useMemo } from 'react'
-import { Category } from '@/types'
+import { Category, CategoryCountResponse } from '@/types'
 
 const CATEGORIES_API_URL = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}`
-
-export interface CategoryCountResponse {
-  category: {
-    [key: string]: number
-  }
-  totalCount: number
-}
 
 export const fetchCategories = async (): Promise<Category[]> => {
   const response = await axios.get(`${CATEGORIES_API_URL}/categories`)

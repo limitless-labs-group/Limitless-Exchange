@@ -13,6 +13,81 @@ import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { ApiResponse, Category, Market, MarketPage, MarketRewardsResponse, OddsData } from '@/types'
 import { calculateMarketPrice, getPrices } from '@/utils/market'
 
+export function useMarketsByCategory(id: number, enabled = true) {
+  return useInfiniteQuery<MarketPage, Error>({
+    queryKey: [`markets-${id}`, id],
+    queryFn: async ({ pageParam = 1 }) => {
+      try {
+        const url = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/active/${id}`
+        const res: AxiosResponse<ApiResponse> = await axios.get(url, {
+          params: {
+            page: pageParam,
+            limit: LIMIT_PER_PAGE,
+          },
+        })
+
+        const response = res?.data || { data: [], totalMarketsCount: 0 }
+        const responseData = response?.data || []
+        const ammMarkets = responseData.filter((market) => market?.tradeType === 'amm') || []
+
+        const marketDataForMultiCall =
+          ammMarkets.length > 0
+            ? ammMarkets.map((market) => ({
+                address: market.address as Address,
+                decimals: market.collateralToken?.decimals || 18,
+              }))
+            : []
+
+        const pricesResult =
+          marketDataForMultiCall.length > 0 ? await getPrices(marketDataForMultiCall) : []
+
+        const _markets = new Map<`0x${string}`, OddsData>(
+          pricesResult.map((item) => [item.address, { prices: item.prices }])
+        )
+
+        const result = response.data.map((market) => {
+          return {
+            ...market,
+            prices:
+              market?.tradeType === 'amm'
+                ? _markets.get(market.address as `0x${string}`)?.prices || [50, 50]
+                : [
+                    calculateMarketPrice(market?.prices?.[0]),
+                    calculateMarketPrice(market?.prices?.[1]),
+                  ],
+          }
+        })
+
+        return {
+          data: {
+            markets: result,
+            totalAmount: response.totalMarketsCount || 0,
+          },
+          next: (pageParam as number) + 1,
+        }
+      } catch (error) {
+        console.error('Error fetching markets by category:', error)
+        return {
+          data: {
+            markets: [],
+            totalAmount: 0,
+          },
+          next: (pageParam as number) + 1,
+        }
+      }
+    },
+    initialPageParam: 1, //default page number
+    getNextPageParam: (lastPage) => {
+      return lastPage.data.totalAmount < LIMIT_PER_PAGE ? null : lastPage.next
+    },
+    staleTime: 5 * 60 * 1000, // Data stays fresh for 5 minutes
+    gcTime: 10 * 60 * 1000, // Keep unused data in cache for 10 minutes
+    refetchOnWindowFocus: false,
+    enabled,
+    placeholderData: (previousData) => previousData,
+  })
+}
+
 export function useMarkets(topic: Category | null, enabled = true) {
   const pathname = usePathname()
   return useInfiniteQuery<MarketPage, Error>({
