@@ -1,6 +1,16 @@
 'use client'
 
-import { Box, Tab, TabIndicator, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react'
+import {
+  Box,
+  Heading,
+  Tab,
+  TabIndicator,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Text,
+} from '@chakra-ui/react'
 import React, { useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { PortfolioHistory, PortfolioStats } from '@/app/portfolio/components'
@@ -71,11 +81,13 @@ export default function PortfolioPage() {
   return (
     <MainLayout layoutPadding={'0px'}>
       <Box maxWidth='1294px' w='full'>
-        <Text {...headline}>Portfolio</Text>
+        <Heading as='h1' {...headline}>
+          Portfolio
+        </Heading>
         <Text {...h1Bold} mt='8px'>
           {getGreeting()},
         </Text>
-        <Text {...h1Bold}>here is your today’s summary</Text>
+        <Text {...h1Bold}>Here is your today’s summary</Text>
         <PortfolioStats />
         {/*<RewardsChart />*/}
         <Box maxWidth='924px' w='full' mt='24px' mb='16px' mx='auto'>

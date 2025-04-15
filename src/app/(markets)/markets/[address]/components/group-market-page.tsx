@@ -49,9 +49,6 @@ import { h1Regular, h2Medium, paragraphRegular } from '@/styles/fonts/fonts.styl
 import { NumberUtil } from '@/utils'
 
 export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps) {
-  /**
-   * ANALYTICS
-   */
   const { trackClicked, trackOpened } = useAmplitude()
   const router = useRouter()
   const { setMarket, resetQuotes, market, groupMarket } = useTradingService()
@@ -211,6 +208,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                   </VStack>
                 ) : (
                   <Heading
+                    as='h1'
                     {...(isMobile ? { ...h1Regular } : {})}
                     fontSize='32px'
                     userSelect='text'
