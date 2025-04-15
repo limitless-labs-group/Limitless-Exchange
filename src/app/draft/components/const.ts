@@ -158,6 +158,9 @@ export const LUMY_TOKENS = [
   'XAG',
   'ZK',
   'ZRO',
+  'QQQ',
+  'META',
+  'GOOG',
 ]
 
 export const PRICES_IDS = {
@@ -213,6 +216,9 @@ export const PRICES_IDS = {
   XAG: '0xf2fb02c32b055c805e7238d628e5e9dadef274376114eb1f012337cabe93871e',
   ZK: '0xcc03dc09298fb447e0bf9afdb760d5b24340fd2167fd33d8967dd8f9a141a2e8',
   ZRO: '0x3bd860bea28bf982fa06bcf358118064bb114086cc03993bd76197eaab0b8018',
+  QQQ: '0x9695e2b96ea7b3859da9ed25b7a46a920a776e2fdae19a7bcfdf2b219230452d',
+  META: '0x78a3e3b8e676a8f73c439f5d749737034b139bbbe899ba5775216fba596607fe',
+  GOOG: '0xe65ff435be42630439c96396653a342829e877e2aafaeaf1a10d0ee5fd2cf3f2',
 }
 
 export const CHART_SYMBOLS = {
@@ -267,4 +273,7 @@ export const CHART_SYMBOLS = {
   NVDA: 'Equity.US.NVDA/USD',
   TSLA: 'Equity.US.TSLA/USD',
   COIN: 'Equity.US.COIN/USD',
+  QQQ: 'Equity.US.QQQ/USD',
+  META: 'Equity.US.META/USD',
+  GOOG: 'Equity.US.GOOG/USD',
 }
