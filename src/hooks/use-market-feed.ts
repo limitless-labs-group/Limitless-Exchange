@@ -42,7 +42,7 @@ export function useMarketFeed(market: Market | null) {
       return client.get(url)
     },
     refetchInterval: pathname === '/' ? 10000 : false,
-    enabled: !!market,
+    enabled: !!market && process.env.NODE_ENV !== 'development',
   }) as UseQueryResult<AxiosResponse<MarketFeedData[]>>
 }
 
@@ -70,7 +70,7 @@ export function useMarketClobInfinityFeed(marketSlug?: string) {
     },
     refetchOnWindowFocus: false,
     keepPreviousData: true,
-    enabled: !!marketSlug,
+    enabled: !!marketSlug && process.env.NODE_ENV !== 'development',
     refetchInterval: 30000,
   })
 }
@@ -99,6 +99,6 @@ export function useMarketInfinityFeed(marketAddress?: string | null, isActive = 
     },
     refetchOnWindowFocus: false,
     placeholderData: (placeholder) => placeholder,
-    enabled: !!marketAddress && isActive,
+    enabled: !!marketAddress && isActive && process.env.NODE_ENV !== 'development',
   })
 }
