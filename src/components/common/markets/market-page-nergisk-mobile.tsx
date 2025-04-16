@@ -387,7 +387,6 @@ export default function MarketPageNergiskMobile() {
           ))}
         </TabPanels>
       </Tabs>
-      <ConvertModal />
     </Box>
   )
 }

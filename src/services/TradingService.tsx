@@ -14,6 +14,7 @@ import {
 } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address, formatUnits, getAddress, getContract, Hash, parseUnits, zeroHash } from 'viem'
+import ConvertModal from '@/components/common/markets/convert-modal'
 import { Toast } from '@/components/common/toast'
 import { conditionalTokensABI, fixedProductMarketMakerABI } from '@/contracts'
 import { useMarketData, useToast } from '@/hooks'
@@ -892,7 +893,10 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
   return (
     <TradingServiceContext.Provider value={contextProviderValue}>
-      {children}
+      <>
+        {children}
+        <ConvertModal />
+      </>
     </TradingServiceContext.Provider>
   )
 }
