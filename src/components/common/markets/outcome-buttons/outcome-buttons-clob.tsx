@@ -26,13 +26,13 @@ export default function OutcomeButtonsClob() {
     return formatUnits(sharesAmount, market?.collateralToken.decimals || 6)
   }
 
-  const yesPrice = market?.negRiskMarketId
+  const yesPrice = market?.negRiskRequestId
     ? new BigNumber(market?.prices?.[0] || 0.5)
         .multipliedBy(market?.marketType === 'group' ? 100 : 1)
         .decimalPlaces(1)
         .toNumber()
     : singleYesPriceClob
-  const noPrice = market?.negRiskMarketId
+  const noPrice = market?.negRiskRequestId
     ? new BigNumber(market?.prices?.[1] || 0.5)
         .multipliedBy(market?.marketType === 'group' ? 100 : 1)
         .decimalPlaces(1)
