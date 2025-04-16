@@ -1,4 +1,4 @@
-import { Stack, VStack } from '@chakra-ui/react'
+import { Stack, VStack, Text } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
@@ -12,6 +12,7 @@ import {
   usePosition,
 } from '@/services'
 import { usePrices } from '@/services/MarketsService'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketStatus } from '@/types'
 
 export default function EverythingTab() {
@@ -61,6 +62,10 @@ export default function EverythingTab() {
         ))}
       </Stack>
     )
+  }
+
+  if (!positionsFiltered.length) {
+    return <Text {...paragraphRegular}>No market positions were found.</Text>
   }
 
   return (
