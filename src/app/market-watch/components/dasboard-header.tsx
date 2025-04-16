@@ -1,4 +1,4 @@
-import { VStack, Text } from '@chakra-ui/react'
+import { VStack, Text, Heading } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
 import { h1Bold } from '@/styles/fonts/fonts.styles'
 
@@ -15,9 +15,9 @@ export const DashboardHeader = () => {
           month: 'short',
         })}
       </Text>
-      <Text fontSize=' 60px' fontStyle='normal' fontWeight='900' lineHeight='0.2'>
+      <Heading as='h1' fontSize=' 60px' fontStyle='normal' fontWeight='900' lineHeight='0.2'>
         Market watch {new Date().getFullYear()}
-      </Text>
+      </Heading>
     </VStack>
   )
 }
