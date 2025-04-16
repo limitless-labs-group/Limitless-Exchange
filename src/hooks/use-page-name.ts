@@ -27,6 +27,9 @@ function usePageName() {
         if (path.startsWith('/markets/')) {
           return 'Market Page'
         }
+        if (path.startsWith('/cat/')) {
+          return 'Categories'
+        }
         return 'Unknown Page' // Fallback for unknown paths
     }
   }
@@ -40,6 +43,7 @@ export type PageName =
   | 'Market Page'
   | 'Unknown Page'
   | 'Home'
+  | 'Categories'
   | 'Feed'
   | 'Lumy'
   | 'Leaderboard'

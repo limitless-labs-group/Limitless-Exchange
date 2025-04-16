@@ -31,6 +31,7 @@ export const MainLayout = ({
       case 'Explore Markets':
         return { desktop: '80px', mobile: '65px' }
       case 'Draft':
+      case 'Categories':
         return { desktop: '0px', mobile: '0px' }
       default:
         return { desktop: '24px', mobile: '36px' }
