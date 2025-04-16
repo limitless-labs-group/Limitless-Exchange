@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         ],
       },
       alternates: {
-        canonical: `${baseUrl}/${params.address}`,
+        canonical: `${baseUrl}/markets/${params.address}`,
       },
       // other: frameMetadata,
     }
