@@ -23,7 +23,6 @@ import MarketPage from '@/components/common/markets/market-page'
 import FullOrdersTab from '@/app/portfolio/components/full-orders-tab'
 import FullPositionsTab from '@/app/portfolio/components/full-positions-tab'
 import RewardsSection from '@/app/portfolio/components/rewards-section'
-import { useUrlParams } from '@/hooks/use-url-param'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import GemWhiteIcon from '@/resources/icons/gem-white-icon.svg'
 import PieChartIcon from '@/resources/icons/pie-chart-icon.svg'
@@ -47,7 +46,6 @@ interface FullPositionCardProps {
 export default function FullPositionCard({ position }: FullPositionCardProps) {
   const [activeTab, setActiveTab] = useState(0)
   const date = new Date(position.market.deadline)
-  const { params } = useUrlParams()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { onOpenMarketPage, setMarket } = useTradingService()
   const marketClosed = position.market.status === MarketStatus.RESOLVED
@@ -200,22 +198,28 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
   const handleOpenMarketPage = async () => {
     if (!oneMarket) {
       const { data: fetchedMarket } = await refetchMarket()
+      const targetMarket = fetchedMarket?.markets?.find(
+        (market) => market.slug === position.market.slug
+      )
       if (fetchedMarket) {
         onOpenMarketPage(fetchedMarket)
+        setMarket(targetMarket || null)
         trackClicked(ClickEvent.PortfolioMarketClicked, {
           marketCategory: fetchedMarket.categories,
           marketAddress: fetchedMarket.slug,
-          marketType: 'single',
+          marketType: position.market.negRiskMarketId ? 'group' : 'single',
           marketTags: fetchedMarket.tags,
           type: 'Portolio',
         })
       }
     } else {
+      const targetMarket = oneMarket.markets?.find((market) => market.slug === position.market.slug)
+      setMarket(targetMarket || null)
       onOpenMarketPage(oneMarket)
       trackClicked(ClickEvent.PortfolioMarketClicked, {
         marketCategory: oneMarket.categories,
         marketAddress: oneMarket.slug,
-        marketType: 'single',
+        marketType: position.market.negRiskMarketId ? 'group' : 'single',
         marketTags: oneMarket.tags,
         type: 'Portolio',
       })
