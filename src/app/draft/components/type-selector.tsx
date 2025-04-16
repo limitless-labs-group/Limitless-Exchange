@@ -53,7 +53,7 @@ export const MarketTypeSelector: FC<MarketTypeSelectorProps> = ({ value, onChang
   const group = getRootProps()
 
   return (
-    <Box>
+    <Box maxW='1200px' w='full' justifySelf='center'>
       <Text mb={2}>Market type</Text>
       <HStack {...group} spacing={2}>
         {(isEdit ? options.filter((option) => option === value) : options).map((option) => {

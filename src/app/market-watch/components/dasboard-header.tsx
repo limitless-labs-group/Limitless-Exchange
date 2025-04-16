@@ -16,7 +16,7 @@ export const DashboardHeader = () => {
         })}
       </Text>
       <Text fontSize=' 60px' fontStyle='normal' fontWeight='900' lineHeight='0.2'>
-        Market crash {new Date().getFullYear()}
+        Market watch {new Date().getFullYear()}
       </Text>
     </VStack>
   )

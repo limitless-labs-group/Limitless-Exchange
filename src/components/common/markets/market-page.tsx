@@ -247,8 +247,6 @@ export default function MarketPage() {
     setActiveChartTabIndex(0)
   }, [market])
 
-  console.log(groupMarket)
-
   return (
     <SideBarPage>
       {!isMobile && (
@@ -432,7 +430,6 @@ export default function MarketPage() {
           ))}
         </TabPanels>
       </Tabs>
-      <ConvertModal />
     </SideBarPage>
   )
 }

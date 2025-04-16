@@ -9,7 +9,7 @@ const createOption = (id: string, name: string): SelectOption => ({
   value: name,
 })
 
-export const useTags = () => {
+export const useTags = (enabled = true) => {
   const fetchTags = useMemo(
     () => async () => {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/tags`)
@@ -23,5 +23,6 @@ export const useTags = () => {
   return useQuery({
     queryKey: ['tags'],
     queryFn: fetchTags,
+    enabled,
   })
 }
