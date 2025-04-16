@@ -16,7 +16,7 @@ import { MarketOrderType } from '@/types'
 export default function OutcomeButtonsClob() {
   const { strategy, market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
   const { trackChanged } = useAmplitude()
-  const { orderType } = useClobWidget()
+  const { orderType, yesPrice: singleYesPriceClob, noPrice: singleNoPriceClob } = useClobWidget()
   const [, setTradingBlocked] = useAtom(blockTradeAtom)
 
   const getShares = (sharesAmount?: bigint) => {
@@ -26,14 +26,18 @@ export default function OutcomeButtonsClob() {
     return formatUnits(sharesAmount, market?.collateralToken.decimals || 6)
   }
 
-  const yesPrice = new BigNumber(market?.prices?.[0] || 0.5)
-    .multipliedBy(market?.marketType === 'group' ? 100 : 1)
-    .decimalPlaces(1)
-    .toNumber()
-  const noPrice = new BigNumber(market?.prices?.[1] || 0.5)
-    .multipliedBy(market?.marketType === 'group' ? 100 : 1)
-    .decimalPlaces(1)
-    .toNumber()
+  const yesPrice = market?.negRiskMarketId
+    ? new BigNumber(market?.prices?.[0] || 0.5)
+        .multipliedBy(market?.marketType === 'group' ? 100 : 1)
+        .decimalPlaces(1)
+        .toNumber()
+    : singleYesPriceClob
+  const noPrice = market?.negRiskMarketId
+    ? new BigNumber(market?.prices?.[1] || 0.5)
+        .multipliedBy(market?.marketType === 'group' ? 100 : 1)
+        .decimalPlaces(1)
+        .toNumber()
+    : singleNoPriceClob
 
   const handleOutcomeChanged = (outcome: number) => {
     trackChanged<OrderBookSideChangedMetadata>(ChangeEvent.OrderBookSideChanged, {
@@ -108,7 +112,6 @@ export default function OutcomeButtonsClob() {
               {getPrice(0)}
             </Text>
             <Text {...paragraphRegular} color={!outcome ? 'white' : 'green.500'}>
-              {/* {NumberUtil.toFixed(getShares(sharesAvailable['yes']), 6)} Contracts */}
               {/*{NumberUtil.toFixed(getShares(sharesAvailable['yes']), 2)} Contracts*/}
             </Text>
           </VStack>
@@ -128,7 +131,6 @@ export default function OutcomeButtonsClob() {
               {getPrice(1)}
             </Text>
             <Text {...paragraphRegular} color={outcome ? 'white' : 'red.500'}>
-              {/* {NumberUtil.toFixed(getShares(sharesAvailable['no']), 6)} Contracts */}
               {/*{NumberUtil.toFixed(getShares(sharesAvailable['no']), 2)} Contracts*/}
             </Text>
           </VStack>
