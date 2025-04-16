@@ -14,10 +14,9 @@ export const viewport = {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets`
   try {
-    const response = await axios.get<Market>(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/${params.address}`
-    )
+    const response = await axios.get<Market>(`${baseUrl}/markets/${params.address}`)
     // const frameMetadata = await getFrameMetadata(
     //   `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/frames/initial/${params.address}`
     // )
@@ -35,6 +34,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             height: 630,
           },
         ],
+      },
+      alternates: {
+        canonical: `${baseUrl}/${params.address}`,
       },
       // other: frameMetadata,
     }
