@@ -191,7 +191,7 @@ export const useInfinityHistory = () => {
         {
           params: {
             page: pageParam,
-            limit: 30,
+            limit: 100,
           },
         }
       )

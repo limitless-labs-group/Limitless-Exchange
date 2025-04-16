@@ -19,15 +19,21 @@ export default function EverythingTab() {
 
   const getPrices = (id: string) => prices?.find((price) => price.address === id)
   const positionsFiltered = useMemo(() => {
-    return positions?.positions.sort((a, b) => {
-      const isClosedA =
-        //@ts-ignore
-        a.type === 'amm' ? a.market.closed : a.market.status === MarketStatus.RESOLVED
-      const isClosedB =
-        //@ts-ignore
-        b.type === 'amm' ? b.market.closed : b.market.status === MarketStatus.RESOLVED
-      return isClosedA === isClosedB ? 0 : isClosedA ? -1 : 1
-    })
+    return positions?.positions
+      .sort((a, b) => {
+        const deadlineA = a.type === 'amm' ? a.market.expirationDate : a.market.deadline
+        const deadlineB = b.type === 'amm' ? b.market.expirationDate : b.market.deadline
+        return new Date(deadlineA).getTime() - new Date(deadlineB).getTime()
+      })
+      .sort((a, b) => {
+        const isClosedA =
+          //@ts-ignore
+          a.type === 'amm' ? a.market.closed : a.market.status === MarketStatus.RESOLVED
+        const isClosedB =
+          //@ts-ignore
+          b.type === 'amm' ? b.market.closed : b.market.status === MarketStatus.RESOLVED
+        return isClosedA === isClosedB ? 0 : isClosedA ? -1 : 1
+      })
   }, [positions])
   const positionsForPrices = useMemo(() => {
     if (!positionsFiltered) return []
