@@ -346,11 +346,11 @@ export default function Header() {
           )}
         </HStack>
       </HStack>
-      {/* {pageName === 'Explore Markets' && ( */}
-      <HStack py='4px' px='12px' bg='grey.50'>
-        <CategoryItems />
-      </HStack>
-      {/* )} */}
+      {(pageName === 'Explore Markets' || pageName === 'Categories') && (
+        <HStack py='4px' px='12px' bg='grey.50'>
+          <CategoryItems />
+        </HStack>
+      )}
     </Box>
   )
 }

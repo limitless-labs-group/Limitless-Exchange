@@ -1,5 +1,7 @@
 import axios from 'axios'
 import { notFound } from 'next/navigation'
+import { Suspense } from 'react'
+import CategoryLoader from './components/category-loader'
 import CategoryMarketsPage from './components/markets'
 import { Category, CategoryCountResponse } from '@/types'
 
@@ -22,8 +24,40 @@ async function fetchData() {
   }
 }
 
+function CategoryContent({
+  matchedCategory,
+  hasMarkets,
+}: {
+  matchedCategory: Category & { count: number }
+  hasMarkets: boolean
+}) {
+  return (
+    <div>
+      {hasMarkets ? (
+        <CategoryMarketsPage categoryId={matchedCategory.id} categoryName={matchedCategory.name} />
+      ) : (
+        <div className='container mx-auto py-10 text-center'>
+          <h1 className='text-2xl font-bold mb-4'>
+            No markets available in {matchedCategory.name}
+          </h1>
+          <p>Check back later for new prediction markets in this category.</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default async function CategoryPage({ params }: { params: { category: string } }) {
   const { category } = params
+
+  return (
+    <Suspense fallback={<CategoryLoader />}>
+      <CategoryPageContent category={category} />
+    </Suspense>
+  )
+}
+
+async function CategoryPageContent({ category }: { category: string }) {
   const { categories, count } = await fetchData()
 
   const categoriesWithCount = categories.map((cat: Category) => ({
@@ -39,18 +73,5 @@ export default async function CategoryPage({ params }: { params: { category: str
 
   const hasMarkets = matchedCategory.count > 0
 
-  return (
-    <div>
-      {hasMarkets ? (
-        <CategoryMarketsPage categoryId={matchedCategory.id} categoryName={matchedCategory.name} />
-      ) : (
-        <div className='container mx-auto py-10 text-center'>
-          <h1 className='text-2xl font-bold mb-4'>
-            No markets available in {matchedCategory.name}
-          </h1>
-          <p>Check back later for new prediction markets in this category.</p>
-        </div>
-      )}
-    </div>
-  )
+  return <CategoryContent matchedCategory={matchedCategory} hasMarkets={hasMarkets} />
 }

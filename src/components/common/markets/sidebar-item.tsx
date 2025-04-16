@@ -123,10 +123,10 @@ export const CategoryItems = () => {
             <SideItem
               isActive={selectedCategory?.name.toLowerCase() === category.name.toLowerCase()}
               onClick={() => {
-                handleCategory({
-                  id: category.id,
-                  name: category.name,
-                })
+                // handleCategory({
+                //   id: category.id,
+                //   name: category.name,
+                // })
                 handleDashboard(undefined)
               }}
             >
