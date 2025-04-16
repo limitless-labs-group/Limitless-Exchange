@@ -203,7 +203,9 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
       )
       if (fetchedMarket) {
         onOpenMarketPage(fetchedMarket)
-        setMarket(targetMarket || null)
+        if (fetchedMarket.negRiskMarketId) {
+          setMarket(targetMarket || null)
+        }
         trackClicked(ClickEvent.PortfolioMarketClicked, {
           marketCategory: fetchedMarket.categories,
           marketAddress: fetchedMarket.slug,
@@ -214,7 +216,9 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
       }
     } else {
       const targetMarket = oneMarket.markets?.find((market) => market.slug === position.market.slug)
-      setMarket(targetMarket || null)
+      if (oneMarket.negRiskMarketId) {
+        setMarket(targetMarket || null)
+      }
       onOpenMarketPage(oneMarket)
       trackClicked(ClickEvent.PortfolioMarketClicked, {
         marketCategory: oneMarket.categories,

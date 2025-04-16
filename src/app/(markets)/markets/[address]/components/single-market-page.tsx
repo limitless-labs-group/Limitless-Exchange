@@ -58,9 +58,6 @@ export interface MarketPageProps {
 }
 
 export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps) {
-  /**
-   * ANALYTICS
-   */
   const { trackClicked, trackOpened, trackChanged } = useAmplitude()
   const router = useRouter()
   const { setMarket, resetQuotes, market } = useTradingService()
@@ -321,6 +318,7 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
               </VStack>
             ) : (
               <Heading
+                as='h1'
                 {...(isMobile ? { ...h1Regular } : {})}
                 fontSize='32px'
                 userSelect='text'
