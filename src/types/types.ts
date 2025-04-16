@@ -73,10 +73,8 @@ export interface Market {
   winningOutcomeIndex: number | null
   prices: number[]
   slug: string
-  group?: {
+  group?: Market & {
     id: number
-    slug: string
-    title: string
   }
   openInterest: string
   openInterestFormatted: string
