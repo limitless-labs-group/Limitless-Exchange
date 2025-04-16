@@ -10,6 +10,7 @@ import {
   ClickEvent,
   OpenEvent,
   PageOpenedMetadata,
+  useAccount,
   useAmplitude,
   useTradingService,
 } from '@/services'
@@ -20,6 +21,7 @@ export default function PortfolioPage() {
 
   const { trackClicked, trackOpened } = useAmplitude()
   const { onCloseMarketPage } = useTradingService()
+  const { displayName } = useAccount()
 
   const handleTabClicked = (tab: string) => {
     trackClicked(ClickEvent.PortfolioInvestmentsTabClicked, {
@@ -37,16 +39,21 @@ export default function PortfolioPage() {
   const getGreeting = (): string => {
     const hour = new Date().getHours()
 
+    const isEthAddress = displayName && /^0x[a-fA-F0-9]{40}$/.test(displayName)
+    const name = displayName && !isEthAddress ? displayName : ''
+
+    const greeting = name ? `, ${name}` : ''
+
     if (hour >= 0 && hour < 6) {
-      return 'Good Night 🌙'
+      return `🌙 Good Night${greeting}`
     }
     if (hour >= 6 && hour < 12) {
-      return 'Good Morning 🌞'
+      return `🌞 Good Morning${greeting}`
     }
     if (hour >= 12 && hour < 18) {
-      return 'Good Afternoon 🌤'
+      return `🌤 Good Afternoon${greeting}`
     }
-    return 'Good Evening 🌅'
+    return `🌅 Good Evening${greeting}`
   }
 
   useEffect(() => {

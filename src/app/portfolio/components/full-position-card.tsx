@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
-import React, { SyntheticEvent, useState } from 'react'
+import React, { SyntheticEvent, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address, formatUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
@@ -222,6 +222,22 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
     }
   }
 
+  const amountsToNegriskClaim = useMemo(() => {
+    if (!position.market.negRiskRequestId) {
+      return
+    }
+    const yesTokensToClaim =
+      position.market.winningOutcomeIndex === 0 ? BigInt(position.tokensBalance.yes) : 0n
+    const noTokensToClaim =
+      position.market.winningOutcomeIndex === 1 ? BigInt(position.tokensBalance.no) : 0n
+    return [yesTokensToClaim, noTokensToClaim]
+  }, [
+    position.market.negRiskRequestId,
+    position.market.winningOutcomeIndex,
+    position.tokensBalance.no,
+    position.tokensBalance.yes,
+  ])
+
   const content = (
     <Box
       p='16px'
@@ -262,7 +278,9 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
               }
               outcomeIndex={position.market.winningOutcomeIndex as number}
               marketType={position.market.tradeType}
+              amounts={amountsToNegriskClaim}
               amountToClaim={getAmountToClaim()}
+              negRiskRequestId={position.market.negRiskRequestId}
               symbol={position.market.collateralToken.symbol}
               mb='8px'
             />
@@ -326,6 +344,8 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
                     : (process.env.NEXT_PUBLIC_CTF_CONTRACT as Address)
                 }
                 outcomeIndex={position.market.winningOutcomeIndex as number}
+                negRiskRequestId={position.market.negRiskRequestId}
+                amounts={amountsToNegriskClaim}
                 marketType={position.market.tradeType}
                 amountToClaim={getAmountToClaim()}
                 symbol={position.market.collateralToken.symbol}

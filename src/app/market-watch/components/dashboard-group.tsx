@@ -29,7 +29,7 @@ export const DashboardGroup = ({
   marketIndex,
   categoryName,
 }: DashboardGroupProps) => {
-  const dashboard = { fromDashboard: 'Market Crash' }
+  const dashboard = { fromDashboard: 'Market Watch' }
 
   const { trackClicked } = useAmplitude()
   const pageName = usePageName()
@@ -166,73 +166,120 @@ export const DashboardGroup = ({
 
       case DashboardGroupType.Compact:
         const gapSizeCompact = 12
+        const totalGapWidth = 2 * gapSizeCompact
+        const columnWidth = `calc((100% - ${totalGapWidth}px) / 3)`
+
+        // Generate rows in the pattern: chart, 3-col grid, row, 3-col grid, repeat
+        const generateCompactRows = () => {
+          const rows = []
+          let currentIndex = 0
+
+          while (currentIndex < markets.length) {
+            // 1. Chart row
+            if (currentIndex < markets.length) {
+              rows.push(
+                <Box key={`chart-${currentIndex}`} width='full'>
+                  <MarketCard
+                    variant='chart'
+                    market={markets[currentIndex]}
+                    analyticParams={getAnalyticsParams(marketIndex, currentIndex, dashboard)}
+                  />
+                </Box>
+              )
+              currentIndex++
+            }
+
+            // 2. 3-column grid
+            if (currentIndex < markets.length) {
+              const gridItems = []
+              for (let i = 0; i < 3 && currentIndex < markets.length; i++) {
+                gridItems.push(
+                  <Box
+                    key={markets[currentIndex].slug || markets[currentIndex].address}
+                    width={columnWidth}
+                    flexShrink={0}
+                    flexGrow={0}
+                  >
+                    <MarketCard
+                      variant='grid'
+                      market={markets[currentIndex]}
+                      analyticParams={getAnalyticsParams(marketIndex, currentIndex, dashboard)}
+                    />
+                  </Box>
+                )
+                currentIndex++
+              }
+
+              if (gridItems.length > 0) {
+                rows.push(
+                  <Flex
+                    key={`grid-1-${currentIndex}`}
+                    w='full'
+                    gap={`${gapSizeCompact}px`}
+                    justifyContent='space-between'
+                  >
+                    {gridItems}
+                  </Flex>
+                )
+              }
+            }
+
+            // 3. Row
+            if (currentIndex < markets.length) {
+              rows.push(
+                <Box key={`row-${currentIndex}`} width='full'>
+                  <MarketCard
+                    variant='row'
+                    market={markets[currentIndex]}
+                    analyticParams={getAnalyticsParams(marketIndex, currentIndex, dashboard)}
+                  />
+                </Box>
+              )
+              currentIndex++
+            }
+
+            // 4. 3-column grid again
+            if (currentIndex < markets.length) {
+              const gridItems = []
+              for (let i = 0; i < 3 && currentIndex < markets.length; i++) {
+                gridItems.push(
+                  <Box
+                    key={markets[currentIndex].slug || markets[currentIndex].address}
+                    width={columnWidth}
+                    flexShrink={0}
+                    flexGrow={0}
+                  >
+                    <MarketCard
+                      variant='grid'
+                      market={markets[currentIndex]}
+                      analyticParams={getAnalyticsParams(marketIndex, currentIndex, dashboard)}
+                    />
+                  </Box>
+                )
+                currentIndex++
+              }
+
+              if (gridItems.length > 0) {
+                rows.push(
+                  <Flex
+                    key={`grid-2-${currentIndex}`}
+                    w='full'
+                    gap={`${gapSizeCompact}px`}
+                    justifyContent='space-between'
+                  >
+                    {gridItems}
+                  </Flex>
+                )
+              }
+            }
+          }
+
+          return rows
+        }
 
         return (
           <VStack spacing={4} w='full'>
-            <Box width='full'>
-              <MarketCard
-                variant='chart'
-                market={markets[0]}
-                analyticParams={getAnalyticsParams(marketIndex, 0, dashboard)}
-              />
-            </Box>
-
-            {markets.length > 1 && (
-              <Flex w='full' gap={`${gapSizeCompact}px`} justifyContent='space-between'>
-                {markets.slice(1, 4).map((market, index) => {
-                  const totalGapWidth = 2 * gapSizeCompact
-                  const columnWidth = `calc((100% - ${totalGapWidth}px) / 3)`
-
-                  return (
-                    <Box
-                      key={market.slug || market.address}
-                      width={columnWidth}
-                      flexShrink={0}
-                      flexGrow={0}
-                    >
-                      <MarketCard
-                        variant='grid'
-                        market={market}
-                        analyticParams={getAnalyticsParams(marketIndex, 0, dashboard)}
-                      />
-                    </Box>
-                  )
-                })}
-              </Flex>
-            )}
-
-            {markets.length > 4 && (
-              <Box width='full'>
-                <MarketCard
-                  variant='row'
-                  market={markets[4]}
-                  analyticParams={getAnalyticsParams(marketIndex, 0, dashboard)}
-                />
-              </Box>
-            )}
-            {markets.length > 5 && (
-              <Flex w='full' gap={`${gapSizeCompact}px`} justifyContent='space-between'>
-                {markets.slice(5, markets.length).map((market, index) => {
-                  const totalGapWidth = 2 * gapSizeCompact
-                  const columnWidth = `calc((100% - ${totalGapWidth}px) / 3)`
-
-                  return (
-                    <Box
-                      key={market.slug || market.address}
-                      width={columnWidth}
-                      flexShrink={0}
-                      flexGrow={0}
-                    >
-                      <MarketCard
-                        variant='grid'
-                        market={market}
-                        analyticParams={getAnalyticsParams(marketIndex, 0, dashboard)}
-                      />
-                    </Box>
-                  )
-                })}
-              </Flex>
-            )}
+            {generateCompactRows()}
           </VStack>
         )
 

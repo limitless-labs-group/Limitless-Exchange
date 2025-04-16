@@ -5,6 +5,7 @@ import {
   HStack,
   Image as ChakraImage,
   Link,
+  Spacer,
   Tab,
   TabIndicator,
   TabList,
@@ -306,7 +307,7 @@ export default function MarketPage() {
         )}
         <HStack gap='8px' mt={isMobile ? 0 : '8px'} flexWrap='wrap'>
           {market?.tradeType !== 'amm' && (
-            <HStack gap='12px' w='full' justifyContent='space-between' mt={isMobile ? '12px' : 0}>
+            <HStack gap='12px' w='full' justifyContent='space-between'>
               {groupMarket?.negRiskMarketId && <WinnerTakeAllTooltip />}
               <HStack gap='4px' color='grey.500'>
                 <VolumeIcon width={16} height={16} />
@@ -316,7 +317,7 @@ export default function MarketPage() {
                 <Text {...paragraphRegular} color='grey.500'>
                   {NumberUtil.convertWithDenomination(
                     groupMarket ? groupMarket.volumeFormatted : market?.volumeFormatted || '0',
-                    0
+                    6
                   )}{' '}
                   {market?.collateralToken.symbol}
                 </Text>
@@ -324,19 +325,31 @@ export default function MarketPage() {
             </HStack>
           )}
           {market?.tradeType === 'amm' && (
-            <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
-              <UniqueTraders color='grey.50' />
-              <Text {...paragraphRegular} color='grey.500'>
-                Value
-              </Text>
-              <Text {...paragraphRegular} color='grey.500'>
-                {NumberUtil.convertWithDenomination(
-                  market ? +market.openInterestFormatted + +market.liquidityFormatted : 0,
-                  0
-                )}{' '}
-                {market?.collateralToken.symbol}
-              </Text>
-              <OpenInterestTooltip iconColor='grey.500' />
+            <HStack w='full' gap='4px' justifyContent='space-between'>
+              <HStack gap='4px' color='grey.500'>
+                <VolumeIcon width={16} height={16} />
+                <Text {...paragraphRegular} color='grey.500'>
+                  Volume
+                </Text>
+                <Text {...paragraphRegular} color='grey.500'>
+                  {NumberUtil.convertWithDenomination(market?.volumeFormatted || '0', 0)}{' '}
+                  {market?.collateralToken.symbol}
+                </Text>
+              </HStack>
+              <HStack>
+                <UniqueTraders color='grey.50' />
+                <Text {...paragraphRegular} color='grey.500'>
+                  Value
+                </Text>
+                <Text {...paragraphRegular} color='grey.500'>
+                  {NumberUtil.convertWithDenomination(
+                    market ? +market.openInterestFormatted + +market.liquidityFormatted : 0,
+                    0
+                  )}{' '}
+                  {market?.collateralToken.symbol}
+                </Text>
+                <OpenInterestTooltip iconColor='grey.500' />
+              </HStack>
             </HStack>
           )}
         </HStack>
@@ -417,7 +430,6 @@ export default function MarketPage() {
           ))}
         </TabPanels>
       </Tabs>
-      <ConvertModal />
     </SideBarPage>
   )
 }

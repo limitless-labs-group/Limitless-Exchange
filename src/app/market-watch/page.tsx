@@ -7,8 +7,8 @@ import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Loader from '@/components/common/loader'
 import SortFilter from '@/components/common/sort-filter'
-import { DashboardHeader } from '@/app/market-crash/components/dasboard-header'
-import { DashboardGroup, DashboardGroupType } from '@/app/market-crash/components/dashboard-group'
+import { DashboardHeader } from '@/app/market-watch/components/dasboard-header'
+import { DashboardGroup, DashboardGroupType } from '@/app/market-watch/components/dashboard-group'
 import { sortAtom } from '@/atoms/market-sort'
 import { MainLayout } from '@/components'
 import { usePriceOracle } from '@/providers'
@@ -26,7 +26,7 @@ const dashboardConfig: Array<{ name: string; type: DashboardGroupType }> = [
   { name: 'Gold', type: DashboardGroupType.Row },
 ]
 
-export default function MarketCrashPage() {
+export default function MarketWatchPage() {
   const { convertTokenAmountToUsd } = usePriceOracle()
   const [selectedSort, setSelectedSort] = useAtom(sortAtom)
 
@@ -35,7 +35,7 @@ export default function MarketCrashPage() {
     fetchNextPage,
     hasNextPage,
     isLoading,
-  } = useInfinityDashboard(DashboardTagId.MARKET_CRASH)
+  } = useInfinityDashboard(DashboardTagId.MARKET_WATCH)
 
   const dashboard = dashboardData?.pages.flatMap((page) => page.data.markets)
 

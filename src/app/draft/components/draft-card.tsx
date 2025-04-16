@@ -1,13 +1,15 @@
 import { Box, HStack, Link, Text, Image as ChakraImage, Checkbox, Stack } from '@chakra-ui/react'
+import { format, toZonedTime } from 'date-fns-tz'
 import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Paper from '@/components/common/paper'
 import TextEditor from '@/components/common/text-editor'
+import { epochToDailyRewards } from './use-create-market'
 import CategoryIcon from '@/resources/icons/category.svg'
 import FeeIcon from '@/resources/icons/fee.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import DeadlineIcon from '@/resources/icons/sun-watch.svg'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { captionMedium, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { DraftMarket, MarketInput } from '@/types/draft'
 import { NumberUtil } from '@/utils'
@@ -32,11 +34,6 @@ const colors = {
   secondary: 'var(--chakra-colors-grey-500)',
   chartBg: 'var(--chakra-colors-grey-300)',
 }
-const badgeBg = {
-  amm: 'blue.100',
-  clob: 'green.100',
-  group: 'lime.100',
-}
 
 const MarketDataFactory = {
   getMarketType: (market: DraftMarket | Market): string => {
@@ -51,7 +48,14 @@ const MarketDataFactory = {
 
   getTypeColor: (market: DraftMarket | Market): string => {
     const type = MarketDataFactory.getMarketType(market)
-    return type === 'amm' ? 'blue.100' : 'green.200'
+    switch (type) {
+      case 'clob':
+        return 'green.100'
+      case 'group':
+        return 'purple.100'
+      default:
+        return 'blue.100'
+    }
   },
 
   getCategoryNames: (market: DraftMarket | Market): string => {
@@ -71,31 +75,37 @@ const MarketDataFactory = {
   },
 
   formatDeadline: (market: DraftMarket | Market): string => {
-    if (isMarket(market) && market.expirationTimestamp) {
-      return (
-        new Date(market.expirationTimestamp).toLocaleString('en-US', {
-          timeZone: 'America/New_York',
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-          hour12: true,
-        }) + ' ET'
-      )
+    const dateOptions = {
+      timeZone: 'America/New_York',
     }
 
-    return market.deadline
-      ? new Date(market.deadline).toLocaleString('en-US', {
-          timeZone: 'America/New_York',
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-          hour12: true,
-        }) + ' ET'
-      : 'Invalid date'
+    if (isMarket(market)) {
+      if (!market.expirationTimestamp) return 'Invalid date'
+
+      const date = new Date(market.expirationTimestamp)
+
+      const etDate = format(
+        toZonedTime(date, 'America/New_York'),
+        'MMM d, yyyy h:mm aa',
+        dateOptions
+      )
+
+      const utcDate = format(toZonedTime(date, 'UTC'), 'MMM d, yyyy h:mm aa', {
+        timeZone: 'UTC',
+      })
+
+      return `${etDate} ET / ${utcDate} UTC`
+    }
+
+    if (!market.deadline) return 'Invalid date'
+
+    const date = new Date(market.deadline)
+
+    const etDate = format(toZonedTime(date, 'America/New_York'), 'MMM d, yyyy h:mm aa', dateOptions)
+
+    const utcDate = format(toZonedTime(date, 'UTC'), 'MMM d, yyyy h:mm aa', { timeZone: 'UTC' })
+
+    return `${etDate} ET / ${utcDate} UTC`
   },
 
   renderCreatorAndTags: (market: DraftMarket | Market) => {
@@ -192,18 +202,6 @@ const DraftMarketSpecificInfo = ({ market }: { market: DraftMarket }) => (
         )
       : null}
 
-    <HStack w={'unset'} justifyContent={'unset'}>
-      <HStack color={colors.secondary} gap='4px'>
-        <FeeIcon width={16} height={16} />
-        <Text {...paragraphMedium} color={colors.secondary}>
-          Fee
-        </Text>
-      </HStack>
-      <Text {...paragraphRegular} color={colors.main}>
-        {market.draftMetadata.fee}%
-      </Text>
-    </HStack>
-
     <HStack gap={1} color={colors.main}>
       {market.draftMetadata.initialProbability && (
         <>
@@ -296,6 +294,7 @@ export const DraftMarketCard = ({
   return (
     <Paper
       w={'full'}
+      minW={!isMobile ? '868px' : 'unset'}
       id={String(market.id)}
       scrollMarginTop='50px'
       justifyContent={'space-between'}
@@ -341,7 +340,12 @@ export const DraftMarketCard = ({
               ) : (
                 <HStack gap={1}>
                   <Box px='2' py='1' borderRadius='md' bg={typeColor}>
-                    <Text {...paragraphMedium} textTransform='uppercase' fontSize='xs'>
+                    <Text
+                      {...paragraphMedium}
+                      color='white'
+                      textTransform='uppercase'
+                      fontSize='xs'
+                    >
                       {marketType}
                     </Text>
                   </Box>
@@ -364,16 +368,17 @@ export const DraftMarketCard = ({
             {MarketDataFactory.renderGroupMarkets(market)}
 
             {MarketDataFactory.renderCreatorAndTags(market)}
+
             <HStack justifyContent='space-between' alignItems='flex-end' flexDirection={'row'}>
               <HStack gap={'16px'} flexDirection={'row'} w='full'>
                 <HStack w={'unset'} justifyContent={'unset'}>
                   <HStack color={colors.secondary} gap='4px'>
-                    <DeadlineIcon width={16} height={16} />
+                    <DeadlineIcon width={14} height={14} />
                     <Text {...paragraphMedium} color={colors.secondary}>
-                      Deadline
+                      DL
                     </Text>
                   </HStack>
-                  <Text {...paragraphRegular} color={colors.main}>
+                  <Text {...captionMedium} color={colors.main}>
                     {formattedDeadline}
                   </Text>
                 </HStack>
@@ -396,6 +401,22 @@ export const DraftMarketCard = ({
                     {categoryNames}
                   </Text>
                 </HStack>
+                {market.settings ? (
+                  <HStack w={'unset'} justifyContent={'unset'}>
+                    <HStack color={colors.secondary} gap='4px'>
+                      <FeeIcon width={16} height={16} />
+                      <Text {...paragraphMedium} color={colors.secondary}>
+                        Rewards
+                      </Text>
+                    </HStack>
+                    <Text {...paragraphRegular} color={colors.main}>
+                      {market.settings?.rewardsEpoch
+                        ? epochToDailyRewards(market.settings.rewardsEpoch)
+                        : 'NA'}
+                    </Text>
+                  </HStack>
+                ) : null}
+
                 {isDraftMarket(market) && <DraftMarketSpecificInfo market={market} />}
                 {isMarket(market) && <MarketSpecificInfo market={market} />}
               </HStack>
