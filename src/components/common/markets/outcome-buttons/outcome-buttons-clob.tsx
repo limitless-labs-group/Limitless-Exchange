@@ -14,7 +14,13 @@ import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketOrderType } from '@/types'
 
 export default function OutcomeButtonsClob() {
-  const { strategy, market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
+  const {
+    strategy,
+    market,
+    clobOutcome: outcome,
+    setClobOutcome: setOutcome,
+    groupMarket,
+  } = useTradingService()
   const { trackChanged } = useAmplitude()
   const { orderType, yesPrice: singleYesPriceClob, noPrice: singleNoPriceClob } = useClobWidget()
   const [, setTradingBlocked] = useAtom(blockTradeAtom)
@@ -26,13 +32,13 @@ export default function OutcomeButtonsClob() {
     return formatUnits(sharesAmount, market?.collateralToken.decimals || 6)
   }
 
-  const yesPrice = market?.negRiskRequestId
+  const yesPrice = groupMarket
     ? new BigNumber(market?.prices?.[0] || 0.5)
         .multipliedBy(market?.marketType === 'group' ? 100 : 1)
         .decimalPlaces(1)
         .toNumber()
     : singleYesPriceClob
-  const noPrice = market?.negRiskRequestId
+  const noPrice = groupMarket
     ? new BigNumber(market?.prices?.[1] || 0.5)
         .multipliedBy(market?.marketType === 'group' ? 100 : 1)
         .decimalPlaces(1)
