@@ -14,7 +14,8 @@ export const CanonicalLink = () => {
       setCanonicalUrl(baseUrl)
     } else {
       const normalizedPathname = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname
-      setCanonicalUrl(`${baseUrl}${normalizedPathname}`)
+      const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl
+      setCanonicalUrl(`${normalizedBaseUrl}${normalizedPathname}`)
     }
   }, [pathname])
 
