@@ -150,7 +150,7 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
                 Volume
               </Text>
               <Text {...paragraphRegular} color='grey.500'>
-                {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
+                {NumberUtil.convertWithDenomination(market.volumeFormatted, 2)}{' '}
                 {market?.collateralToken.symbol}
               </Text>
             </HStack>
