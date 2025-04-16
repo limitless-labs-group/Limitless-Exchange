@@ -14,7 +14,7 @@ export const viewport = {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const baseApiUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets`
+  const baseApiUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}`
   const baseUrl = `${process.env.NEXT_PUBLIC_APP_URL}`
 
   try {
