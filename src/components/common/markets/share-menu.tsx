@@ -30,12 +30,19 @@ import { appendReferralCode } from '@/utils/market'
 
 export default function ShareMenu() {
   const { isOpen: isShareMenuOpen, onToggle: toggleShareMenu } = useDisclosure()
-  const { market } = useTradingService()
+  const { market, groupMarket } = useTradingService()
   const { trackClicked } = useAmplitude()
   const { referralCode } = useAccount()
   const toast = useToast()
-  const marketURI = `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.slug}`
-  const { tweetURI, castURI } = createMarketShareUrls(market, market?.prices, market?.creator.name)
+  const marketURI =
+    market?.marketType === 'group'
+      ? `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${groupMarket?.slug}`
+      : `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.slug}`
+  const { tweetURI, castURI } = createMarketShareUrls(
+    market?.marketType === 'group' ? groupMarket : market,
+    market?.prices,
+    market?.creator.name
+  )
 
   const getUrl = (referralCode: string) => {
     return referralCode ? appendReferralCode(marketURI, referralCode) : marketURI

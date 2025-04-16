@@ -4,6 +4,8 @@ import { useFundWallet } from '@privy-io/react-auth'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import BigNumber from 'bignumber.js'
+import { useAtom } from 'jotai'
+import Cookies from 'js-cookie'
 import React, { useMemo, useRef, useState } from 'react'
 import { isMobile, isTablet } from 'react-device-detect'
 import { Address, formatUnits, maxUint256, parseUnits } from 'viem'
@@ -15,6 +17,7 @@ import TradeWidgetSkeleton, {
 } from '@/components/common/skeleton/trade-widget-skeleton'
 import { Toast } from '@/components/common/toast'
 import { AddFundsValidation } from './add-funds-validation'
+import { blockTradeAtom } from '@/atoms/trading'
 import { useToast } from '@/hooks'
 import { useOrderBook } from '@/hooks/use-order-book'
 import usePrivySendTransaction from '@/hooks/use-smart-wallet-service'
@@ -31,6 +34,7 @@ import { PendingTradeData } from '@/services/PendingTradeService'
 import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
+import { BLOCKED_REGION, TRADING_BLOCKED_MSG } from '@/utils/consts'
 import { getOrderErrorText } from '@/utils/orders'
 
 export default function ClobMarketTradeForm() {
@@ -65,6 +69,9 @@ export default function ClobMarketTradeForm() {
   const { pushPuchaseEvent, pushGA4Event } = useGoogleAnalytics()
   const [contractsBuying, setContractsBuying] = useState('')
   const { fundWallet } = useFundWallet()
+
+  const [tradingBlocked, setTradingBlocked] = useAtom(blockTradeAtom)
+  const country = Cookies.get('limitless_geo')
 
   const inputRef = useRef<HTMLInputElement | null>(null)
 
@@ -413,6 +420,9 @@ export default function ClobMarketTradeForm() {
       queryClient.refetchQueries({
         queryKey: ['positions'],
       }),
+      queryClient.refetchQueries({
+        queryKey: ['market-page-clob-feed', market?.slug],
+      }),
     ])
   }
 
@@ -474,6 +484,32 @@ export default function ClobMarketTradeForm() {
     !isOrderBookLoading &&
     strategy === 'Buy'
 
+  const disableButton = useMemo(() => {
+    if (shouldSignUp) {
+      return false
+    }
+    if (shouldAddFunds) {
+      return false
+    }
+    return (
+      !+price ||
+      isLessThanMinTreshHold ||
+      isBalanceNotEnough ||
+      noOrdersOnDesiredToken ||
+      maxOrderAmountLessThanInput ||
+      tradingBlocked
+    )
+  }, [
+    isBalanceNotEnough,
+    isLessThanMinTreshHold,
+    maxOrderAmountLessThanInput,
+    noOrdersOnDesiredToken,
+    price,
+    shouldAddFunds,
+    shouldSignUp,
+    tradingBlocked,
+  ])
+
   const handleSubmitButtonClicked = async () => {
     if (shouldSignUp) {
       const currentUrl = window.location
@@ -496,6 +532,10 @@ export default function ClobMarketTradeForm() {
 
     if (shouldAddFunds) {
       await fundWallet(account as string)
+      return
+    }
+    if (country === BLOCKED_REGION) {
+      setTradingBlocked(true)
       return
     }
     if (strategy === 'Buy') {
@@ -527,6 +567,9 @@ export default function ClobMarketTradeForm() {
   }
 
   const getButtonText = () => {
+    if (tradingBlocked) {
+      return TRADING_BLOCKED_MSG
+    }
     if (shouldSignUp) {
       return `Sign up to ${strategy}`
     }
@@ -631,13 +674,8 @@ export default function ClobMarketTradeForm() {
       </VStack>
       <ClobTradeButton
         status={placeMarketOrderMutation.status}
-        isDisabled={
-          !+price ||
-          isLessThanMinTreshHold ||
-          (web3Wallet && !shouldAddFunds
-            ? isBalanceNotEnough || noOrdersOnDesiredToken || maxOrderAmountLessThanInput
-            : false)
-        }
+        isDisabled={disableButton}
+        isBlocked={tradingBlocked}
         onClick={handleSubmitButtonClicked}
         successText={`${strategy === 'Buy' ? 'Bought' : 'Sold'} ${NumberUtil.toFixed(
           contractsBuying,

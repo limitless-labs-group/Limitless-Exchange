@@ -21,7 +21,7 @@ export type ClaimButtonProps = ButtonProps & {
   marketAddress: Address
   outcomeIndex: number
   marketType: 'amm' | 'clob'
-  amountToClaim: string
+  amountToClaim?: string
   symbol: string
   negRiskRequestId?: string
   amounts?: bigint[]

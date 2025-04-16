@@ -188,7 +188,6 @@ export function SellForm({ setOutcomeIndex }: SellFormProps) {
       return
     }
     const _collateralAmount = _transformSellValue(value)
-    console.log('_collateralAmount', _collateralAmount)
     setDisplayAmount(_collateralAmount)
     setCollateralAmount(_collateralAmount)
     return

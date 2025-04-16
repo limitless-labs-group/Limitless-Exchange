@@ -62,7 +62,6 @@ export default function WalletPage() {
   }
 
   const handleOpenWithdrawModal = () => {
-    setWalletPageOpened(false)
     onOpenWithdraw()
   }
 

@@ -29,7 +29,7 @@ export const DashboardGroup = ({
   marketIndex,
   categoryName,
 }: DashboardGroupProps) => {
-  const dashboard = { fromDashboard: 'Market Crash' }
+  const dashboard = { fromDashboard: 'Market Watch' }
 
   const { trackClicked } = useAmplitude()
   const pageName = usePageName()

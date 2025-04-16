@@ -6,7 +6,7 @@ import MarketCardMobile from '@/components/common/markets/market-cards/market-ca
 import VolumeCard from '@/components/common/markets/volume-card'
 import Skeleton from '@/components/common/skeleton'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
-import { headlineRegular } from '@/styles/fonts/fonts.styles'
+import { h3Medium, headlineRegular } from '@/styles/fonts/fonts.styles'
 import { Market, Sort, SortStorageName } from '@/types'
 import { getAnalyticsParams } from '@/utils/market'
 import SortFilter from '../sort-filter'
@@ -40,23 +40,33 @@ export default function MarketsSection({
       mt='24px'
       mb={isMobile ? '36px' : '40px'}
       w={isMobile ? 'full' : withChat ? '100%' : '664px'}
-      maxW={withChat ? '664px' : 'unset'}
       justifyContent='center'
     >
       <Box>
-        <Divider orientation='horizontal' borderColor='grey.100' mx={isMobile ? '16px' : 0} />
+        {!withChat ? (
+          <Divider orientation='horizontal' borderColor='grey.100' mx={isMobile ? '16px' : 0} />
+        ) : null}
 
         <Flex
           alignItems={withChat ? 'start' : 'center'}
           justifyContent='space-between'
-          flexDirection={isMobile || withChat ? 'column' : 'row'}
+          flexDirection={isMobile ? 'column' : 'row'}
           overflow='scroll'
         >
-          <Text {...headlineRegular} mt={isMobile ? '8px' : '0px'} ml={withChat ? '16px' : 'unset'}>
-            All Markets
-          </Text>
+          {withChat ? (
+            <Text {...h3Medium} mt={isMobile ? '8px' : '0px'} ml='16px'>
+              {selectedCategory?.name}
+            </Text>
+          ) : (
+            <Text {...headlineRegular} mt={isMobile ? '8px' : '0px'}>
+              All Markets
+            </Text>
+          )}
           <SortFilter onChange={handleSelectSort} sort={sort} />
         </Flex>
+        {withChat ? (
+          <Divider orientation='horizontal' borderColor='grey.100' mx={isMobile ? '16px' : 0} />
+        ) : null}
       </Box>
       {isMobile ? (
         <VStack gap={2} w='full' px='16px' mt='16px'>
@@ -116,15 +126,83 @@ export default function MarketsSection({
               <>
                 {withChat ? (
                   <>
-                    {markets?.map((market, index) => (
-                      <Box key={market.slug || market.address} w='full' mb={2}>
-                        <MarketCard
-                          variant='row'
-                          market={market}
-                          analyticParams={getAnalyticsParams(index, 0, category)}
-                        />
-                      </Box>
-                    ))}
+                    {markets?.map((market, index) => {
+                      const cyclePosition = index % 5 // 5 = 3 (for 3-col) + 2 (for 2-col)
+
+                      // First 3 markets in cycle - 3-column grid with row variant
+                      if (cyclePosition <= 3) {
+                        const isGridStart = cyclePosition === 0
+                        if (isGridStart) {
+                          const gridCards = markets.slice(index, index + 3)
+                          return (
+                            <Flex
+                              key={`grid-3col-${market.slug || market.address}`}
+                              flexWrap='wrap'
+                              gap={4}
+                              w='full'
+                              mb={4}
+                            >
+                              {gridCards.map((gridMarket, gridIndex) => (
+                                <Box
+                                  key={gridMarket.slug || gridMarket.address}
+                                  flex='1 1 calc(33.33% - 8px)'
+                                  minW='calc(33.33% - 8px)'
+                                >
+                                  <MarketCard
+                                    variant='row'
+                                    market={gridMarket}
+                                    analyticParams={getAnalyticsParams(
+                                      index + gridIndex,
+                                      gridIndex,
+                                      category
+                                    )}
+                                  />
+                                </Box>
+                              ))}
+                            </Flex>
+                          )
+                        }
+                        return null
+                      }
+
+                      // Next 2 markets - 2-column grid with speedometer variant
+                      if (cyclePosition >= 3 && cyclePosition < 5) {
+                        const isGridStart = cyclePosition === 3
+                        if (isGridStart) {
+                          const gridCards = markets.slice(index, index + 2)
+                          return (
+                            <Flex
+                              key={`grid-2col-${market.slug || market.address}`}
+                              flexWrap='wrap'
+                              gap={4}
+                              w='full'
+                              mb={4}
+                            >
+                              {gridCards.map((gridMarket, gridIndex) => (
+                                <Box
+                                  key={gridMarket.slug || gridMarket.address}
+                                  flex='1 1 calc(50% - 8px)'
+                                  minW='calc(50% - 8px)'
+                                >
+                                  <MarketCard
+                                    variant='speedometer'
+                                    market={gridMarket}
+                                    analyticParams={getAnalyticsParams(
+                                      index + gridIndex,
+                                      gridIndex,
+                                      category
+                                    )}
+                                  />
+                                </Box>
+                              ))}
+                            </Flex>
+                          )
+                        }
+                        return null
+                      }
+
+                      return null
+                    })}
                     <Box w='full' mt={2}>
                       <VolumeCard />
                     </Box>
