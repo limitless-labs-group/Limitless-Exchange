@@ -14,9 +14,11 @@ export const viewport = {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets`
+  const baseApiUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets`
+  const baseUrl = `${process.env.NEXT_PUBLIC_APP_URL}`
+
   try {
-    const response = await axios.get<Market>(`${baseUrl}/markets/${params.address}`)
+    const response = await axios.get<Market>(`${baseApiUrl}/markets/${params.address}`)
     // const frameMetadata = await getFrameMetadata(
     //   `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/frames/initial/${params.address}`
     // )

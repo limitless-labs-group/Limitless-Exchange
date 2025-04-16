@@ -8,9 +8,14 @@ export const CanonicalLink = () => {
   const [canonicalUrl, setCanonicalUrl] = useState('')
 
   useEffect(() => {
-    const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}`
+    const baseUrl = `${process.env.NEXT_PUBLIC_APP_URL}`
 
-    setCanonicalUrl(`${baseUrl}${pathname}`)
+    if (pathname === '/') {
+      setCanonicalUrl(baseUrl)
+    } else {
+      const normalizedPathname = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname
+      setCanonicalUrl(`${baseUrl}${normalizedPathname}`)
+    }
   }, [pathname])
 
   if (!canonicalUrl) return null
