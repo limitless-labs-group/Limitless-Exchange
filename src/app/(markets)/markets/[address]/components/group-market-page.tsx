@@ -341,7 +341,6 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
           )}
         </HStack>
       </Box>
-      <ConvertModal />
     </>
   )
 }
