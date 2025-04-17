@@ -37,13 +37,15 @@ import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useMarket } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketStatus } from '@/types'
+import { PortfolioTab } from '@/types/portfolio'
 import { NumberUtil } from '@/utils'
 
 interface FullPositionCardProps {
   position: ClobPositionWithType
+  type: PortfolioTab
 }
 
-export default function FullPositionCard({ position }: FullPositionCardProps) {
+export default function FullPositionCard({ position, type }: FullPositionCardProps) {
   const [activeTab, setActiveTab] = useState(0)
   const date = new Date(position.market.deadline)
   const { balanceOfSmartWallet } = useBalanceQuery()
@@ -165,35 +167,83 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
     })
   }
 
-  const tabs = [
-    {
-      title: 'Positions',
-      show: true,
-    },
-    {
-      title: 'Open Orders',
-      show: showOrders,
-    },
-  ]
+  const getTabs = () => {
+    if (type === 'positions-only') {
+      return [
+        {
+          title: 'Positions',
+          show: true,
+        },
+      ]
+    }
+    if (type === 'orders-only') {
+      return [
+        {
+          title: 'Open Orders',
+          show: showOrders,
+        },
+      ]
+    }
+    return [
+      {
+        title: 'Positions',
+        show: true,
+      },
+      {
+        title: 'Open Orders',
+        show: showOrders,
+      },
+    ]
+  }
 
-  const tabList = [
-    <FullPositionsTab
-      key='full-positions'
-      position={position.positions}
-      contracts={position.tokensBalance}
-      decimals={position.market.collateralToken.decimals}
-      symbol={position.market.collateralToken.symbol}
-      marketClosed={marketClosed}
-      winSide={position.market.winningOutcomeIndex}
-    />,
-    <FullOrdersTab
-      key='full-orders-tab'
-      orders={position.orders.liveOrders}
-      yesPositionId={position.market.yesPositionId as string}
-      decimals={position.market.collateralToken.decimals}
-      symbol={position.market.collateralToken.symbol}
-    />,
-  ]
+  const tabs = getTabs()
+
+  const getTabList = () => {
+    if (type === 'positions-only') {
+      return [
+        <FullPositionsTab
+          key='full-positions'
+          position={position.positions}
+          contracts={position.tokensBalance}
+          decimals={position.market.collateralToken.decimals}
+          symbol={position.market.collateralToken.symbol}
+          marketClosed={marketClosed}
+          winSide={position.market.winningOutcomeIndex}
+        />,
+      ]
+    }
+    if (type === 'orders-only') {
+      return [
+        <FullOrdersTab
+          key='full-orders-tab'
+          orders={position.orders.liveOrders}
+          yesPositionId={position.market.yesPositionId as string}
+          decimals={position.market.collateralToken.decimals}
+          symbol={position.market.collateralToken.symbol}
+        />,
+      ]
+    }
+    return [
+      <FullPositionsTab
+        key='full-positions'
+        position={position.positions}
+        contracts={position.tokensBalance}
+        decimals={position.market.collateralToken.decimals}
+        symbol={position.market.collateralToken.symbol}
+        marketClosed={marketClosed}
+        winSide={position.market.winningOutcomeIndex}
+      />,
+      <FullOrdersTab
+        key='full-orders-tab'
+        orders={position.orders.liveOrders}
+        yesPositionId={position.market.yesPositionId as string}
+        decimals={position.market.collateralToken.decimals}
+        symbol={position.market.collateralToken.symbol}
+      />,
+    ]
+  }
+
+  const tabList = getTabList()
 
   const handleOpenMarketPage = async () => {
     if (!oneMarket) {
