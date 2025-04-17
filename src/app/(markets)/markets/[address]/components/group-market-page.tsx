@@ -190,12 +190,12 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                     <ChakraImage
                       width={6}
                       height={6}
-                      src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
+                      src={groupMarket?.creator.imageURI ?? '/assets/images/logo.svg'}
                       alt='creator'
                       borderRadius={'2px'}
                     />
-                    <Link href={market?.creator.link || ''}>
-                      <Text color='grey.500'>{market?.creator.name}</Text>
+                    <Link href={groupMarket?.creator.link || ''}>
+                      <Text color='grey.500'>{groupMarket?.creator.name}</Text>
                     </Link>
                   </HStack>
                 )}
