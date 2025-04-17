@@ -25,7 +25,7 @@ export const useHistory = () => useContext(HistoryServiceContext)
 export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   const { convertAssetAmountToUsd } = usePriceOracle()
   const { supportedTokens } = useLimitlessApi()
-  const { data: positions, isPending: isPositionsLoading } = usePosition()
+  const { data: positions, isLoading: isPositionsLoading } = usePosition()
 
   /**
    * BALANCES
@@ -124,7 +124,7 @@ export const usePosition = () => {
   const privateClient = useAxiosPrivateClient()
 
   return useQuery({
-    queryKey: ['positions', web3Wallet?.account?.address],
+    queryKey: ['positions'],
     queryFn: async () => {
       try {
         const response = await privateClient.get<PositionsResponse>(`/portfolio/positions`)
