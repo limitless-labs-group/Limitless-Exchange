@@ -15,6 +15,8 @@ import React, { useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { PortfolioHistory, PortfolioStats } from '@/app/portfolio/components'
 import EverythingTab from '@/app/portfolio/components/everything-tab'
+import OpenOrdersTab from '@/app/portfolio/components/open-orders-tab'
+import PositionsTab from '@/app/portfolio/components/positions-tab'
 import { MainLayout } from '@/components'
 import {
   ClickEvent,
@@ -27,7 +29,7 @@ import {
 import { h1Bold, h2Regular, headline } from '@/styles/fonts/fonts.styles'
 
 export default function PortfolioPage() {
-  const tabs = ['Everything', 'History']
+  const tabs = ['Everything', 'Positions', 'Open orders', 'History']
 
   const { trackClicked, trackOpened } = useAmplitude()
   const { onCloseMarketPage } = useTradingService()
@@ -42,7 +44,8 @@ export default function PortfolioPage() {
 
   const tabsList = [
     <EverythingTab key='everything' />,
-    // <PortfolioPositions key='positions' />,
+    <PositionsTab key='positions' />,
+    <OpenOrdersTab key='open-orders' />,
     <PortfolioHistory key='history' />,
   ]
 
