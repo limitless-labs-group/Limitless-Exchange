@@ -198,12 +198,12 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
   const handleOpenMarketPage = async () => {
     if (!oneMarket) {
       const { data: fetchedMarket } = await refetchMarket()
-      const targetMarket = fetchedMarket?.markets?.find(
-        (market) => market.slug === position.market.slug
-      )
       if (fetchedMarket) {
         onOpenMarketPage(fetchedMarket)
         if (fetchedMarket.negRiskMarketId) {
+          const targetMarket = fetchedMarket?.markets?.find(
+            (market) => market.slug === position.market.slug
+          )
           setMarket(targetMarket || null)
         }
         trackClicked(ClickEvent.PortfolioMarketClicked, {
@@ -215,11 +215,13 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
         })
       }
     } else {
-      const targetMarket = oneMarket.markets?.find((market) => market.slug === position.market.slug)
+      onOpenMarketPage(oneMarket)
       if (oneMarket.negRiskMarketId) {
+        const targetMarket = oneMarket.markets?.find(
+          (market) => market.slug === position.market.slug
+        )
         setMarket(targetMarket || null)
       }
-      onOpenMarketPage(oneMarket)
       trackClicked(ClickEvent.PortfolioMarketClicked, {
         marketCategory: oneMarket.categories,
         marketAddress: oneMarket.slug,
