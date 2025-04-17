@@ -138,9 +138,6 @@ export const GroupForm = () => {
                   handleInputChange(index, 'description', value)
                 }
               }}
-              style={{
-                wordBreak: 'break-all',
-              }}
             />
           </FormControl>
           <Flex w='full' direction='row' gap={2} flexWrap='wrap' alignItems='start'>
