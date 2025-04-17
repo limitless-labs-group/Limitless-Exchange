@@ -29,7 +29,7 @@ export const MainLayout = ({
   const getPaddingByPage = (page: string): { desktop: string; mobile: string } => {
     switch (page) {
       case 'Explore Markets':
-        return { desktop: '80px', mobile: '65px' }
+        return { desktop: '112px', mobile: '65px' }
       case 'Draft':
         return { desktop: '0px', mobile: '0px' }
       default:
