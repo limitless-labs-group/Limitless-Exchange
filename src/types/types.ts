@@ -70,6 +70,16 @@ export interface Market {
   group?: Market & {
     id: number
   }
+  tradePrices?: {
+    buy: {
+      market: number[]
+      limit: number[]
+    }
+    sell: {
+      market: number[]
+      limit: number[]
+    }
+  }
   openInterest: string
   openInterestFormatted: string
   metadata: {
