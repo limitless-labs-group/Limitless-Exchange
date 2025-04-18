@@ -12,6 +12,7 @@ import { Address, formatUnits, maxUint256, parseUnits } from 'viem'
 import ClobTradeButton from '@/components/common/markets/clob-widget/clob-trade-button'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import NumberInputWithButtons from '@/components/common/number-input-with-buttons'
+import Skeleton from '@/components/common/skeleton'
 import TradeWidgetSkeleton, {
   SkeletonType,
 } from '@/components/common/skeleton/trade-widget-skeleton'
@@ -46,7 +47,8 @@ export default function ClobMarketTradeForm() {
     market?.tradeType
   )
   const queryClient = useQueryClient()
-  const { web3Client, profileData, web3Wallet, loginToPlatform, account } = useAccount()
+  const { web3Client, profileData, web3Wallet, loginToPlatform, account, profileLoading } =
+    useAccount()
   const {
     balance,
     allowance,
@@ -476,7 +478,7 @@ export default function ClobMarketTradeForm() {
     return false
   }, [price, strategy, orderBook, outcome, market])
 
-  const shouldSignUp = !web3Wallet && Boolean(price)
+  const shouldSignUp = !web3Wallet
   const shouldAddFunds =
     web3Wallet &&
     isBalanceNotEnough &&
@@ -672,19 +674,26 @@ export default function ClobMarketTradeForm() {
           </Text>
         </HStack>
       </VStack>
-      <ClobTradeButton
-        status={placeMarketOrderMutation.status}
-        isDisabled={disableButton}
-        isBlocked={tradingBlocked}
-        onClick={handleSubmitButtonClicked}
-        successText={`${strategy === 'Buy' ? 'Bought' : 'Sold'} ${NumberUtil.toFixed(
-          contractsBuying,
-          6
-        )} contracts`}
-        onReset={onResetMutation}
-      >
-        {getButtonText()}
-      </ClobTradeButton>
+      {profileLoading ? (
+        <Box w='full'>
+          <Skeleton height={64} />
+        </Box>
+      ) : (
+        <ClobTradeButton
+          status={placeMarketOrderMutation.status}
+          isDisabled={disableButton}
+          isBlocked={tradingBlocked}
+          onClick={handleSubmitButtonClicked}
+          successText={`${strategy === 'Buy' ? 'Bought' : 'Sold'} ${NumberUtil.toFixed(
+            contractsBuying,
+            6
+          )} contracts`}
+          onReset={onResetMutation}
+        >
+          {getButtonText()}
+        </ClobTradeButton>
+      )}
+
       {!+price && (
         <Text {...paragraphRegular} mt='8px' color='grey.500' textAlign='center'>
           Enter amount to {strategy === 'Buy' ? 'buy' : 'sell'}
