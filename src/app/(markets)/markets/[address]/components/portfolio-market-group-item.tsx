@@ -40,7 +40,7 @@ export default function PortfolioMarketGroupItem({
   return (
     <Tr>
       <Td>{outcome ? 'No' : 'Yes'}</Td>
-      <Td>{NumberUtil.formatThousands(totalShares)}</Td>
+      <Td>{NumberUtil.convertWithDenomination(totalShares, 2)}</Td>
       <Td>{outcome && !marketEnded ? <ConvertPositionsButton /> : null}</Td>
       <Td>
         {!marketEnded ? (
