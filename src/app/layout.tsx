@@ -3,6 +3,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Metadata } from 'next'
 import Script from 'next/script'
 import { PropsWithChildren } from 'react'
+import { CanonicalLink } from '@/components/common/canonical-link'
 import { Providers } from '@/app/providers'
 import { ReferralProvider } from '@/providers/Referral'
 import { SpindlProvider } from '@/providers/Spindl'
@@ -43,6 +44,7 @@ const RootLayout = ({ children }: PropsWithChildren) => {
           name='description'
           content='Forecast the future on Limitless, financial prediction market'
         />
+        <CanonicalLink />
       </head>
       <body>
         <noscript>

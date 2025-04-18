@@ -73,10 +73,18 @@ export interface Market {
   winningOutcomeIndex: number | null
   prices: number[]
   slug: string
-  group?: {
+  group?: Market & {
     id: number
-    slug: string
-    title: string
+  }
+  tradePrices?: {
+    buy: {
+      market: number[]
+      limit: number[]
+    }
+    sell: {
+      market: number[]
+      limit: number[]
+    }
   }
   openInterest: string
   openInterestFormatted: string

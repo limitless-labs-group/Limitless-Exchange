@@ -1,10 +1,22 @@
 'use client'
 
-import { Box, Tab, TabIndicator, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react'
+import {
+  Box,
+  Heading,
+  Tab,
+  TabIndicator,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Text,
+} from '@chakra-ui/react'
 import React, { useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { PortfolioHistory, PortfolioStats } from '@/app/portfolio/components'
 import EverythingTab from '@/app/portfolio/components/everything-tab'
+import OpenOrdersTab from '@/app/portfolio/components/open-orders-tab'
+import PositionsTab from '@/app/portfolio/components/positions-tab'
 import { MainLayout } from '@/components'
 import {
   ClickEvent,
@@ -17,7 +29,7 @@ import {
 import { h1Bold, h2Regular, headline } from '@/styles/fonts/fonts.styles'
 
 export default function PortfolioPage() {
-  const tabs = ['Everything', 'History']
+  const tabs = ['Everything', 'Positions', 'Open orders', 'History']
 
   const { trackClicked, trackOpened } = useAmplitude()
   const { onCloseMarketPage } = useTradingService()
@@ -32,7 +44,8 @@ export default function PortfolioPage() {
 
   const tabsList = [
     <EverythingTab key='everything' />,
-    // <PortfolioPositions key='positions' />,
+    <PositionsTab key='positions' />,
+    <OpenOrdersTab key='open-orders' />,
     <PortfolioHistory key='history' />,
   ]
 
@@ -71,11 +84,13 @@ export default function PortfolioPage() {
   return (
     <MainLayout layoutPadding={'0px'}>
       <Box maxWidth='1294px' w='full'>
-        <Text {...headline}>Portfolio</Text>
+        <Heading as='h1' {...headline}>
+          Portfolio
+        </Heading>
         <Text {...h1Bold} mt='8px'>
           {getGreeting()},
         </Text>
-        <Text {...h1Bold}>here is your today’s summary</Text>
+        <Text {...h1Bold}>Here is your today’s summary</Text>
         <PortfolioStats />
         {/*<RewardsChart />*/}
         <Box maxWidth='924px' w='full' mt='24px' mb='16px' mx='auto'>

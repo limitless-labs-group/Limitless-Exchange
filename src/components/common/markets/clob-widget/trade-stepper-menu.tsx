@@ -75,16 +75,7 @@ export default function TradeStepperMenu() {
           totalPrice,
           2
         )} ${collateral}`
-  }, [
-    noPrice,
-    orderType,
-    outcome,
-    price,
-    sharesAmount,
-    strategy,
-    yesPrice,
-    market?.collateralToken.symbol,
-  ])
+  }, [orderType, outcome, price, sharesAmount, strategy, market?.collateralToken.symbol])
 
   const secondStepMessage = useMemo(() => {
     return strategy === 'Buy'
