@@ -448,7 +448,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     setSmartAccountClient(smartAccountClient)
   }
 
-  console.log(wallets)
+  console.log('wallets', wallets)
 
   useEffect(() => {
     ;(async () => {
