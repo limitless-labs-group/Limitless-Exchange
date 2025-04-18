@@ -448,7 +448,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     setSmartAccountClient(smartAccountClient)
   }
 
-  console.log(wallets)
+  console.log('wallets', wallets)
 
   useEffect(() => {
     ;(async () => {
@@ -460,7 +460,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       ) {
         const embeddedWallet = wallets.find((wallet) => wallet.walletClientType === 'privy')
 
-        console.log(`embedded wallet address ${embeddedWallet}`)
+        console.log(`embedded wallet address ${embeddedWallet?.address}`)
 
         if (embeddedWallet) {
           getAndStoreSmartAccountClient(embeddedWallet)
