@@ -104,7 +104,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const privateClient = useAxiosPrivateClient()
   const { mutateAsync: login } = useLogin()
   const web3Client = user?.wallet?.walletClientType === 'privy' ? 'etherspot' : 'eoa'
-  const { wallets, ready: walletsReady } = useWallets()
+  const { wallets } = useWallets()
   const { isLogged } = useClient()
   const { refetchSession } = useRefetchSession()
   const { pushGA4Event } = useGoogleAnalytics()
@@ -360,10 +360,14 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }
 
   useEffect(() => {
-    if (walletsReady && !web3Wallet && authenticated) {
+    if (!authenticated) {
+      setWeb3Wallet(null)
+      return
+    }
+    if (!web3Wallet && authenticated) {
       getWallet()
     }
-  }, [walletsReady, web3Wallet, authenticated])
+  }, [web3Wallet, authenticated, wallets])
 
   const { mutateAsync: logout } = useMutation({
     mutationKey: ['logout'],
@@ -447,8 +451,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     ;(async () => {
       if (
         authenticated &&
-        wallets.length &&
-        walletsReady &&
+        wallets.some((wallet) => wallet.walletClientType === 'privy') &&
         web3Client === 'etherspot' &&
         !smartAccountClient
       ) {
@@ -459,7 +462,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         }
       }
     })()
-  }, [authenticated, wallets, publicClient, web3Client, smartAccountClient, walletsReady])
+  }, [authenticated, wallets, publicClient, web3Client, smartAccountClient])
 
   const displayUsername = useMemo(() => {
     if (profileData?.username) {
