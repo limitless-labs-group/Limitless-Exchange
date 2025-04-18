@@ -142,7 +142,6 @@ export const LUMY_TOKENS = [
   'PLTR',
   'PYPL',
   'PYTH',
-  'QQQ',
   'RENDER',
   'S',
   'SMCI',

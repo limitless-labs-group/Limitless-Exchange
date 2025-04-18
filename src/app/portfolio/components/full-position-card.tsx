@@ -23,7 +23,6 @@ import MarketPage from '@/components/common/markets/market-page'
 import FullOrdersTab from '@/app/portfolio/components/full-orders-tab'
 import FullPositionsTab from '@/app/portfolio/components/full-positions-tab'
 import RewardsSection from '@/app/portfolio/components/rewards-section'
-import { useUrlParams } from '@/hooks/use-url-param'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import GemWhiteIcon from '@/resources/icons/gem-white-icon.svg'
 import PieChartIcon from '@/resources/icons/pie-chart-icon.svg'
@@ -38,16 +37,17 @@ import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useMarket } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketStatus } from '@/types'
+import { PortfolioTab } from '@/types/portfolio'
 import { NumberUtil } from '@/utils'
 
 interface FullPositionCardProps {
   position: ClobPositionWithType
+  type: PortfolioTab
 }
 
-export default function FullPositionCard({ position }: FullPositionCardProps) {
+export default function FullPositionCard({ position, type }: FullPositionCardProps) {
   const [activeTab, setActiveTab] = useState(0)
   const date = new Date(position.market.deadline)
-  const { params } = useUrlParams()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { onOpenMarketPage, setMarket } = useTradingService()
   const marketClosed = position.market.status === MarketStatus.RESOLVED
@@ -167,55 +167,115 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
     })
   }
 
-  const tabs = [
-    {
-      title: 'Positions',
-      show: true,
-    },
-    {
-      title: 'Open Orders',
-      show: showOrders,
-    },
-  ]
+  const getTabs = () => {
+    if (type === 'positions-only') {
+      return [
+        {
+          title: 'Positions',
+          show: true,
+        },
+      ]
+    }
+    if (type === 'orders-only') {
+      return [
+        {
+          title: 'Open Orders',
+          show: showOrders,
+        },
+      ]
+    }
+    return [
+      {
+        title: 'Positions',
+        show: true,
+      },
+      {
+        title: 'Open Orders',
+        show: showOrders,
+      },
+    ]
+  }
 
-  const tabList = [
-    <FullPositionsTab
-      key='full-positions'
-      position={position.positions}
-      contracts={position.tokensBalance}
-      decimals={position.market.collateralToken.decimals}
-      symbol={position.market.collateralToken.symbol}
-      marketClosed={marketClosed}
-      winSide={position.market.winningOutcomeIndex}
-    />,
-    <FullOrdersTab
-      key='full-orders-tab'
-      orders={position.orders.liveOrders}
-      yesPositionId={position.market.yesPositionId as string}
-      decimals={position.market.collateralToken.decimals}
-      symbol={position.market.collateralToken.symbol}
-    />,
-  ]
+  const tabs = getTabs()
+
+  const getTabList = () => {
+    if (type === 'positions-only') {
+      return [
+        <FullPositionsTab
+          key='full-positions'
+          position={position.positions}
+          contracts={position.tokensBalance}
+          decimals={position.market.collateralToken.decimals}
+          symbol={position.market.collateralToken.symbol}
+          marketClosed={marketClosed}
+          winSide={position.market.winningOutcomeIndex}
+        />,
+      ]
+    }
+    if (type === 'orders-only') {
+      return [
+        <FullOrdersTab
+          key='full-orders-tab'
+          orders={position.orders.liveOrders}
+          yesPositionId={position.market.yesPositionId as string}
+          decimals={position.market.collateralToken.decimals}
+          symbol={position.market.collateralToken.symbol}
+        />,
+      ]
+    }
+    return [
+      <FullPositionsTab
+        key='full-positions'
+        position={position.positions}
+        contracts={position.tokensBalance}
+        decimals={position.market.collateralToken.decimals}
+        symbol={position.market.collateralToken.symbol}
+        marketClosed={marketClosed}
+        winSide={position.market.winningOutcomeIndex}
+      />,
+      <FullOrdersTab
+        key='full-orders-tab'
+        orders={position.orders.liveOrders}
+        yesPositionId={position.market.yesPositionId as string}
+        decimals={position.market.collateralToken.decimals}
+        symbol={position.market.collateralToken.symbol}
+      />,
+    ]
+  }
+
+  const tabList = getTabList()
 
   const handleOpenMarketPage = async () => {
     if (!oneMarket) {
       const { data: fetchedMarket } = await refetchMarket()
       if (fetchedMarket) {
         onOpenMarketPage(fetchedMarket)
+        if (fetchedMarket.negRiskMarketId) {
+          const targetMarket = fetchedMarket?.markets?.find(
+            (market) => market.slug === position.market.slug
+          )
+          setMarket(targetMarket || null)
+        }
         trackClicked(ClickEvent.PortfolioMarketClicked, {
           marketCategory: fetchedMarket.categories,
           marketAddress: fetchedMarket.slug,
-          marketType: 'single',
+          marketType: position.market.negRiskMarketId ? 'group' : 'single',
           marketTags: fetchedMarket.tags,
           type: 'Portolio',
         })
       }
     } else {
       onOpenMarketPage(oneMarket)
+      if (oneMarket.negRiskMarketId) {
+        const targetMarket = oneMarket.markets?.find(
+          (market) => market.slug === position.market.slug
+        )
+        setMarket(targetMarket || null)
+      }
       trackClicked(ClickEvent.PortfolioMarketClicked, {
         marketCategory: oneMarket.categories,
         marketAddress: oneMarket.slug,
-        marketType: 'single',
+        marketType: position.market.negRiskMarketId ? 'group' : 'single',
         marketTags: oneMarket.tags,
         type: 'Portolio',
       })
