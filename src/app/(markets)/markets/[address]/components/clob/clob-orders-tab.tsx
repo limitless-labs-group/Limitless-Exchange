@@ -44,15 +44,20 @@ export default function ClobOrdersTab({ marketType }: ClobOrdersTabProps) {
   })
 
   const onResetMutation = async () => {
-    await queryClient.refetchQueries({
-      queryKey: ['user-orders', market?.slug],
-    })
-    await queryClient.refetchQueries({
-      queryKey: ['market-shares', market?.slug],
-    })
-    await queryClient.refetchQueries({
-      queryKey: ['order-book', market?.slug],
-    })
+    await Promise.allSettled([
+      queryClient.refetchQueries({
+        queryKey: ['user-orders', market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['market-shares', market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['order-book', market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['positions'],
+      }),
+    ])
     cancelAllOrdersMutation.reset()
   }
 
