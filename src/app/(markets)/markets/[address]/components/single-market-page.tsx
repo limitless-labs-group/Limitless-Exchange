@@ -29,6 +29,7 @@ import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-
 import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import { MarketProgressBar } from '@/components/common/markets/market-cards/market-progress-bar'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
+import MarketPositionsAmm from '@/components/common/markets/positions/market-positions-amm'
 import ShareMenu from '@/components/common/markets/share-menu'
 import MarketClosedWidget from '@/components/common/markets/trading-widgets/market-closed-widget'
 import TradingWidgetSimple from '@/components/common/markets/trading-widgets/trading-widget-simple'
@@ -383,7 +384,11 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
           ) : (
             charts
           )}
-          {market?.tradeType === 'clob' && <ClobPositions />}
+          {market?.tradeType === 'clob' ? (
+            <ClobPositions marketType='sidebar' />
+          ) : (
+            <MarketPositionsAmm />
+          )}
         </Box>
         {fetchMarketLoading ? (
           <Box px={isMobile ? '16px' : 0}>
