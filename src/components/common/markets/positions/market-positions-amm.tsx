@@ -3,9 +3,5 @@ import { useTradingService } from '@/services'
 
 export default function MarketPositionsAmm() {
   const { market } = useTradingService()
-  return (
-    <>
-      <MarketPositions market={market ? market : undefined} isSideMarketPage />
-    </>
-  )
+  return <MarketPositions market={market ? market : undefined} isSideMarketPage />
 }
