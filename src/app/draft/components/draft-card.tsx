@@ -1,4 +1,13 @@
-import { Box, HStack, Link, Text, Image as ChakraImage, Checkbox, Stack } from '@chakra-ui/react'
+import {
+  Box,
+  HStack,
+  Link,
+  Text,
+  Image as ChakraImage,
+  Checkbox,
+  Stack,
+  VStack,
+} from '@chakra-ui/react'
 import { format, toZonedTime } from 'date-fns-tz'
 import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -9,7 +18,13 @@ import CategoryIcon from '@/resources/icons/category.svg'
 import FeeIcon from '@/resources/icons/fee.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import DeadlineIcon from '@/resources/icons/sun-watch.svg'
-import { captionMedium, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import {
+  captionMedium,
+  captionRegular,
+  paragraphBold,
+  paragraphMedium,
+  paragraphRegular,
+} from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { DraftMarket, MarketInput } from '@/types/draft'
 import { NumberUtil } from '@/utils'
@@ -38,6 +53,7 @@ const colors = {
 
 const MarketDataFactory = {
   getMarketType: (market: DraftMarket | Market): string => {
+    if ('type' in market) return market.type
     if (isDraftMarket(market)) {
       return market.type
     }
@@ -147,39 +163,65 @@ const MarketDataFactory = {
     )
   },
 
-  renderGroupMarkets: (market: DraftMarket | Market) => {
-    if (isMarket(market)) return
-    if (market.type === 'group' && market?.markets && market.markets?.length > 0) {
+  renderDescription: (market: DraftMarket | Market, hover?: boolean, isChecked?: boolean) => {
+    const type = (market: DraftMarket | Market) => {
+      if (isMarket(market)) return market.marketType
+      return market.type
+    }
+
+    if (type(market) === 'group' && market?.markets && market.markets?.length > 0) {
       return (
-        <Box pl={2} mb={2}>
-          <Text {...paragraphMedium} color={colors.secondary} mb={1}>
+        <Box>
+          <Text {...paragraphMedium} color={colors.secondary} mb={2}>
             Markets in group:
           </Text>
-          <Stack spacing={1}>
+          <Stack gap='15px'>
             {[...market.markets]
               .sort((a, b) => (a.id ?? 0) - (b.id ?? 0))
-              .map((subMarket: MarketInput, index: number) => (
-                <Text
-                  key={market.id ?? index}
-                  {...paragraphRegular}
-                  color={colors.main}
-                  pl={4}
-                  position='relative'
-                  _before={{
-                    content: '"•"',
-                    position: 'absolute',
-                    left: 1,
-                    color: colors.secondary,
-                  }}
-                >
-                  {subMarket.title}
-                </Text>
-              ))}
+              .map((subMarket: MarketInput, index: number) => {
+                const { title, description, settings, id } = subMarket
+                return (
+                  <Stack gap='2px' key='index'>
+                    <HStack justifyContent='space-between' alignItems='end'>
+                      <Text key={id ?? index} {...paragraphBold} color={colors.main}>
+                        {`Submarket ${id}: ${title}`}
+                      </Text>
+                      <HStack>
+                        <Text {...captionRegular}>rewards:</Text>
+                        <Text {...captionMedium} fontWeight='700'>
+                          {epochToDailyRewards(settings?.rewardsEpoch ?? 0)}
+                        </Text>
+                        <Text {...captionRegular}>spread:</Text>
+                        <Text {...captionRegular} fontWeight='700'>
+                          {settings?.maxSpread}
+                        </Text>
+                      </HStack>
+                    </HStack>
+                    <Text {...captionRegular} color={colors.secondary} overflow='hidden'>
+                      <TextEditor
+                        value={description ?? ''}
+                        readOnly
+                        className={`draft ${hover ? 'hover' : ''} ${isChecked ? 'checked' : ''}`}
+                      />
+                    </Text>
+                  </Stack>
+                )
+              })}
           </Stack>
         </Box>
       )
     }
-    return null
+    return market.description ? (
+      <HStack alignItems='flex-start'>
+        <Text {...paragraphMedium} color={colors.main} overflow='hidden'>
+          <TextEditor
+            value={market?.description ?? ''}
+            readOnly
+            className={`draft ${hover ? 'hover' : ''} ${isChecked ? 'checked' : ''}`}
+          />
+        </Text>
+      </HStack>
+    ) : null
   },
 }
 
@@ -358,19 +400,7 @@ export const DraftMarketCard = ({
               </HStack>
             </HStack>
 
-            {market.description ? (
-              <HStack alignItems='flex-start'>
-                <Text {...paragraphMedium} color={colors.main} overflow='hidden'>
-                  <TextEditor
-                    value={market?.description ?? ''}
-                    readOnly
-                    className={`draft ${hover ? 'hover' : ''} ${isChecked ? 'checked' : ''}`}
-                  />
-                </Text>
-              </HStack>
-            ) : null}
-
-            {MarketDataFactory.renderGroupMarkets(market)}
+            {MarketDataFactory.renderDescription(market, hover, isChecked)}
 
             {MarketDataFactory.renderCreatorAndTags(market)}
 

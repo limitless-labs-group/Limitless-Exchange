@@ -1,15 +1,17 @@
 'use client'
 
-import { Box, Button, Flex, Spinner, VStack } from '@chakra-ui/react'
+import { Box, Button, Flex, Spinner, Text, VStack } from '@chakra-ui/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
+import Loader from '@/components/common/loader'
 import { Toast } from '@/components/common/toast'
 import { DraftMarketCard } from '@/app/draft/components/draft-card'
 import { SelectedMarkets } from './selected-markets'
 import { useToast } from '@/hooks/ui/useToast'
 import { useUrlParams } from '@/hooks/use-url-param'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { DraftMarket } from '@/types/draft'
 
 export const RecentMarkets = () => {
@@ -21,7 +23,7 @@ export const RecentMarkets = () => {
   const [isCreating, setIsCreating] = useState<boolean>(false)
 
   const privateClient = useAxiosPrivateClient()
-  const { data: recentMarkets } = useQuery({
+  const { data: recentMarkets, isLoading } = useQuery({
     queryKey: ['recentMarkets'],
     queryFn: async () => {
       const response = await privateClient.get(`/markets/drafts/recent`)
@@ -78,7 +80,12 @@ export const RecentMarkets = () => {
       })
   }
 
-  return (
+  return isLoading ? (
+    <VStack h='calc(100vh - 350px)' w='full' alignItems='center' justifyContent='center'>
+      <Text {...paragraphMedium}>Fetching recent markets just for you!</Text>
+      <Loader />
+    </VStack>
+  ) : (
     <Flex justifyContent={'center'} position='relative'>
       <VStack w='868px' spacing={4} mb='66px'>
         {recentMarkets?.map((market: DraftMarket) => {
