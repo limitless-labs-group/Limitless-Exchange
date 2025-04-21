@@ -6,6 +6,7 @@ import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
 import MarketPageNergiskMobile from '@/components/common/markets/market-page-nergisk-mobile'
+import { RewardTooltipContent } from '@/app/(markets)/markets/[address]/components/clob/reward-tooltip-content'
 import { useMarketOrders } from '@/hooks/use-market-orders'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
@@ -140,21 +141,25 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
     >
       <HStack w='full'>
         <HStack w='full' justifyContent='space-between'>
-          <Box>
-            <Text textAlign='left' {...headline}>
-              {market.proxyTitle || market.title}
-            </Text>
-            <HStack w={isMobile ? 'full' : 'unset'} gap='4px' color='grey.500'>
-              <VolumeIcon width={16} height={16} />
-              <Text {...paragraphRegular} color='grey.500'>
-                Volume
+          <HStack gap='8px'>
+            <RewardTooltipContent variant='small' placement='top-start' />
+            <Box>
+              <Text textAlign='left' {...headline}>
+                {market.proxyTitle || market.title}
               </Text>
-              <Text {...paragraphRegular} color='grey.500'>
-                {NumberUtil.convertWithDenomination(market.volumeFormatted, 2)}{' '}
-                {market?.collateralToken.symbol}
-              </Text>
-            </HStack>
-          </Box>
+              <HStack w={isMobile ? 'full' : 'unset'} gap='4px' color='grey.500'>
+                <VolumeIcon width={16} height={16} />
+                <Text {...paragraphRegular} color='grey.500'>
+                  Volume
+                </Text>
+                <Text {...paragraphRegular} color='grey.500'>
+                  {NumberUtil.convertWithDenomination(market.volumeFormatted, 2)}{' '}
+                  {market?.collateralToken.symbol}
+                </Text>
+              </HStack>
+            </Box>
+          </HStack>
+
           <HStack gap='16px'>
             <Text {...h3Medium}>
               {new BigNumber(market.prices[0]).multipliedBy(100).toFixed(0)}%

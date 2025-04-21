@@ -5,7 +5,6 @@ import {
   HStack,
   Image as ChakraImage,
   Link,
-  Spacer,
   Tab,
   TabIndicator,
   TabList,
@@ -15,13 +14,12 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react'
-import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import { Address } from 'viem'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
 import ClobWidget from '@/components/common/markets/clob-widget/clob-widget'
-import ConvertModal from '@/components/common/markets/convert-modal'
 import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-price-chart'
 import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import MarketPageOverviewTab from '@/components/common/markets/market-page-overview-tab'
@@ -69,7 +67,6 @@ import { ReferralLink } from '../referral-link'
 export default function MarketPage() {
   const [activeChartTabIndex, setActiveChartTabIndex] = useState(0)
   const [activeActionsTabIndex, setActiveActionsTabIndex] = useState(0)
-  const pageName = usePageName()
 
   const {
     setMarket,

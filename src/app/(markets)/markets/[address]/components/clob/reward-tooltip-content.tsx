@@ -10,6 +10,7 @@ import {
   PopoverTrigger,
   useDisclosure,
   useOutsideClick,
+  PlacementWithLogical,
 } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
 import Image from 'next/image'
@@ -25,13 +26,17 @@ import { NumberUtil } from '@/utils'
 import { calculateDisplayRange } from '@/utils/market'
 
 interface RewardTooltipContentProps {
-  contentHoverCallback: (arg: boolean) => void
-  linkHoverCallback: (arg: boolean) => void
+  variant: 'small' | 'large'
+  contentHoverCallback?: (arg: boolean) => void
+  linkHoverCallback?: (arg: boolean) => void
+  placement?: PlacementWithLogical
 }
 
 export const RewardTooltipContent = ({
   linkHoverCallback,
   contentHoverCallback,
+  variant,
+  placement = 'top-end',
 }: RewardTooltipContentProps) => {
   const { market, clobOutcome } = useTradingService()
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -63,7 +68,7 @@ export const RewardTooltipContent = ({
   })
 
   useEffect(() => {
-    contentHoverCallback(isOpen || isClickOpen)
+    contentHoverCallback && contentHoverCallback(isOpen || isClickOpen)
   }, [isOpen, isClickOpen, contentHoverCallback])
 
   useEffect(() => {
@@ -114,7 +119,7 @@ export const RewardTooltipContent = ({
           onClose()
         }
       }}
-      placement='top'
+      placement={placement}
       closeOnBlur={false}
       closeOnEsc={false}
       initialFocusRef={initialFocusRef}
@@ -131,20 +136,22 @@ export const RewardTooltipContent = ({
           borderRadius='8px'
           py='4px'
           px='8px'
-          bg={isOpen ? 'blue.500' : 'blueTransparent.100'}
-          cursor='pointer'
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
+          bg={isClickOpen || isOpen ? 'blue.500' : 'blueTransparent.100'}
+          cursor={variant === 'small' ? 'default' : 'pointer'}
+          onMouseEnter={variant === 'large' ? handleMouseEnter : undefined}
+          onMouseLeave={variant === 'large' ? handleMouseLeave : undefined}
           onClick={handleClick}
         >
           <Image src='/assets/images/gem-icon.svg' width={16} height={16} alt='rewards' />
-          <Text {...paragraphMedium} color={isOpen ? 'white' : 'blue.500'}>
-            {marketRewards && Boolean(marketRewards?.length)
-              ? `Earnings ${NumberUtil.toFixed(marketRewards[0].totalUnpaidReward, 6)} ${
-                  market?.collateralToken.symbol
-                }`
-              : 'Earn Rewards'}
-          </Text>
+          {variant === 'large' && (
+            <Text {...paragraphMedium} color={isClickOpen || isOpen ? 'white' : 'blue.500'}>
+              {marketRewards && Boolean(marketRewards?.length)
+                ? `Earnings ${NumberUtil.toFixed(marketRewards[0].totalUnpaidReward, 6)} ${
+                    market?.collateralToken.symbol
+                  }`
+                : 'Earn Rewards'}
+            </Text>
+          )}
         </HStack>
       </PopoverTrigger>
       <Portal>
@@ -188,8 +195,8 @@ export const RewardTooltipContent = ({
                   {...paragraphRegular}
                   isExternal
                   color='grey.500'
-                  onMouseEnter={() => linkHoverCallback(true)}
-                  onMouseLeave={() => linkHoverCallback(false)}
+                  onMouseEnter={() => linkHoverCallback && linkHoverCallback(true)}
+                  onMouseLeave={() => linkHoverCallback && linkHoverCallback(false)}
                 >
                   {' '}
                   Learn more

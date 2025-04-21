@@ -12,6 +12,7 @@ import BigNumber from 'bignumber.js'
 import React, { SyntheticEvent, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
+import { RewardTooltipContent } from '@/app/(markets)/markets/[address]/components/clob/reward-tooltip-content'
 import GroupMarketSectionTabs from '@/app/(markets)/markets/[address]/components/group-market-section-tabs'
 import { useMarketOrders } from '@/hooks/use-market-orders'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
@@ -100,21 +101,24 @@ export default function GroupMarketSectionSmall({ market }: GroupMarketSectionSm
       <AccordionButton gap='4px' display='block' onClick={handleAccordionChange}>
         <HStack w='full'>
           <HStack w='full' justifyContent='space-between'>
-            <Box>
-              <Text textAlign='left' {...headline}>
-                {market.proxyTitle || market.title}
-              </Text>
-              <HStack w={isMobile ? 'full' : 'unset'} gap='4px' color='grey.500'>
-                <VolumeIcon width={16} height={16} />
-                <Text {...paragraphRegular} color='grey.500'>
-                  Volume
+            <HStack gap='8px'>
+              <RewardTooltipContent variant='small' placement='top-start' />
+              <Box>
+                <Text textAlign='left' {...headline}>
+                  {market.proxyTitle || market.title}
                 </Text>
-                <Text {...paragraphRegular} color='grey.500'>
-                  {NumberUtil.convertWithDenomination(market?.volumeFormatted || '0', 2)}{' '}
-                  {market?.collateralToken.symbol}
-                </Text>
-              </HStack>
-            </Box>
+                <HStack w={isMobile ? 'full' : 'unset'} gap='4px' color='grey.500'>
+                  <VolumeIcon width={16} height={16} />
+                  <Text {...paragraphRegular} color='grey.500'>
+                    Volume
+                  </Text>
+                  <Text {...paragraphRegular} color='grey.500'>
+                    {NumberUtil.convertWithDenomination(market?.volumeFormatted || '0', 2)}{' '}
+                    {market?.collateralToken.symbol}
+                  </Text>
+                </HStack>
+              </Box>
+            </HStack>
             <HStack gap='16px'>
               <Text {...h3Medium}>
                 {new BigNumber(market.prices[0]).multipliedBy(100).toFixed(0)}%

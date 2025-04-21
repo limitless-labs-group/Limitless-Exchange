@@ -64,7 +64,7 @@ export default function OrderbookTableLarge({
     market?.tradeType
   )
   const { data: userOrders } = useMarketOrders(market?.slug)
-  const { trackChanged, trackClicked } = useAmplitude()
+  const { trackChanged } = useAmplitude()
   const ref = useRef<HTMLElement>()
 
   const [rewardsButtonClicked, setRewardButtonClicked] = useState(false)
@@ -138,6 +138,7 @@ export default function OrderbookTableLarge({
               <RewardTooltipContent
                 linkHoverCallback={setLinkHovered}
                 contentHoverCallback={setRewardButtonHovered}
+                variant='large'
               />
             </Box>
           )}

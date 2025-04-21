@@ -119,6 +119,7 @@ export default function OrderBookTableSmall({
             <RewardTooltipContent
               linkHoverCallback={setLinkHovered}
               contentHoverCallback={setRewardButtonHovered}
+              variant='large'
             />
           </Box>
         )}
