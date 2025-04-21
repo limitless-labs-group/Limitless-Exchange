@@ -1,3 +1,3 @@
 export enum DashboardTagId {
-  MARKET_CRASH = 234,
+  MARKET_WATCH = 234,
 }

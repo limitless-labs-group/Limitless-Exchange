@@ -34,6 +34,7 @@ import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import KeyIcon from '@/resources/icons/key-icon.svg'
 import MenuIcon from '@/resources/icons/menu-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
+import SearchIcon from '@/resources/icons/search.svg'
 import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
 import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
 import SwapIcon from '@/resources/icons/sidebar/Wrap.svg'
@@ -207,6 +208,17 @@ export default function MobileHeader() {
                   ) : (
                     <Avatar account={account as string} avatarUrl={profileData?.pfpUrl} />
                   )}
+                  <Button
+                    ml='8px'
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      router.push('/search')
+                    }}
+                    aria-label='Search'
+                    variant='unstyled'
+                  >
+                    <SearchIcon width={16} height={16} />
+                  </Button>
                   <Box ml='8px'>
                     <MenuIcon width={16} height={16} />
                   </Box>

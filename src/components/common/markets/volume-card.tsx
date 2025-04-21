@@ -38,7 +38,7 @@ export default function VolumeCard() {
           <HStack color='blue.500' gap='8px' py='4px' mb='16px'>
             <VolumeIcon width={24} height={24} />
             <Text {...paragraphMedium} fontSize='16px' color='grey.800'>
-              {NumberUtil.convertWithDenomination(data, 0)}
+              ${NumberUtil.convertWithDenomination(data, 0)}
             </Text>
           </HStack>
           <Text {...paragraphRegular} color='grey.500'>

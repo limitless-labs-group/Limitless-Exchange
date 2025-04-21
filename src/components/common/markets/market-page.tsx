@@ -247,8 +247,6 @@ export default function MarketPage() {
     setActiveChartTabIndex(0)
   }, [market])
 
-  console.log(groupMarket)
-
   return (
     <SideBarPage>
       {!isMobile && (
@@ -290,12 +288,18 @@ export default function MarketPage() {
           <ChakraImage
             width={6}
             height={6}
-            src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
+            src={
+              groupMarket?.creator.imageURI || market?.creator.imageURI || '/assets/images/logo.svg'
+            }
             alt='creator'
             borderRadius={'2px'}
           />
-          <Link href={market?.creator.link || ''} variant='textLinkSecondary' fontWeight={400}>
-            {market?.creator.name}
+          <Link
+            href={groupMarket?.creator.link || market?.creator.link || ''}
+            variant='textLinkSecondary'
+            fontWeight={400}
+          >
+            {groupMarket?.creator.name || market?.creator.name}
           </Link>
         </HStack>
       </HStack>
@@ -432,7 +436,6 @@ export default function MarketPage() {
           ))}
         </TabPanels>
       </Tabs>
-      <ConvertModal />
     </SideBarPage>
   )
 }

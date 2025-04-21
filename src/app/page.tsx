@@ -35,7 +35,7 @@ import {
   useTradingService,
 } from '@/services'
 import { useBanneredMarkets, useMarket, useMarkets } from '@/services/MarketsService'
-import { paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { h3Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Dashboard, Market, MarketType, Sort, SortStorageName } from '@/types'
 import { sortMarkets } from '@/utils/market-sorting'
 
@@ -83,7 +83,7 @@ const MainPage = () => {
 
   useEffect(() => {
     const dashboardNameMapping: Record<string, string> = {
-      marketcrash: DashboardName.MarketCrash,
+      marketwatch: DashboardName.MarketWatch,
     }
 
     const analyticData: PageOpenedMetadata = {
@@ -168,6 +168,7 @@ const MainPage = () => {
   }, [])
 
   const headerContent = useMemo(() => {
+    if (selectedCategory?.name === 'Crypto') return
     if (selectedCategory) {
       return (
         <Box
@@ -199,7 +200,7 @@ const MainPage = () => {
 
         {selectedCategory?.name === 'Crypto' && !isMobile ? (
           false ? (
-            <Box w='full' maxW='1400px' h='calc(100vh - 250px)'>
+            <Box w='full' maxW='2100px' h='calc(100vh - 250px)'>
               <Tabs position='relative' variant='common'>
                 <TabList>
                   <Tab>Chat</Tab>
@@ -266,20 +267,7 @@ const MainPage = () => {
               spacing={4}
               h='calc(100vh - 250px)'
             >
-              <Box w='60%' h='full' position='relative' p={4}>
-                <Box
-                  w='full'
-                  borderRadius='md'
-                  h='full'
-                  overflow='hidden'
-                  display='flex'
-                  flexDirection='column'
-                >
-                  <Chat />
-                </Box>
-              </Box>
-
-              <Box className='full-container' w='40%' h='full' overflowY='auto'>
+              <Box className='full-container' w='65%' h='full' overflowY='auto'>
                 <InfiniteScroll
                   className='scroll'
                   dataLength={markets?.length ?? 0}
@@ -303,6 +291,21 @@ const MainPage = () => {
                     withChat
                   />
                 </InfiniteScroll>
+              </Box>
+              <Box w='35%' h='full' position='relative'>
+                <Box mt='24px'>
+                  <Text {...h3Medium}>Chat</Text>
+                </Box>
+                <Box
+                  w='full'
+                  borderRadius='md'
+                  h='full'
+                  overflow='hidden'
+                  display='flex'
+                  flexDirection='column'
+                >
+                  <Chat />
+                </Box>
               </Box>
             </HStack>
           )
