@@ -13,7 +13,7 @@ import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { ApiResponse, Category, Market, MarketPage, MarketRewardsResponse, OddsData } from '@/types'
 import { calculateMarketPrice, getPrices } from '@/utils/market'
 
-export function useMarkets(topic: Category | null, enabled = true) {
+export function useMarkets(topic: Category | null, enabled = true, limit = LIMIT_PER_PAGE) {
   const pathname = usePathname()
   return useInfiniteQuery<MarketPage, Error>({
     queryKey: ['markets', topic?.id],
@@ -23,7 +23,7 @@ export function useMarkets(topic: Category | null, enabled = true) {
       const { data: response }: AxiosResponse<ApiResponse> = await axios.get(marketBaseUrl, {
         params: {
           page: pageParam,
-          limit: LIMIT_PER_PAGE,
+          limit,
         },
       })
 
@@ -63,7 +63,7 @@ export function useMarkets(topic: Category | null, enabled = true) {
     },
     initialPageParam: 1, //default page number
     getNextPageParam: (lastPage) => {
-      return lastPage.data.totalAmount < LIMIT_PER_PAGE ? null : lastPage.next
+      return lastPage.data.totalAmount < limit ? null : lastPage.next
     },
     refetchOnWindowFocus: false,
     enabled,

@@ -14,7 +14,7 @@ export const ActiveMarkets = () => {
   const { getParam } = useUrlParams()
   const isEnabled = getParam('tab') === 'active'
 
-  const { data, fetchNextPage, hasNextPage } = useMarkets(null, isEnabled)
+  const { data, fetchNextPage, hasNextPage } = useMarkets(null, isEnabled, 65)
 
   const markets: Market[] = useMemo(() => {
     const allMarkets = data?.pages.flatMap((page) => page.data.markets) || []
@@ -48,6 +48,7 @@ export const ActiveMarkets = () => {
                 market={market}
                 key={market.id}
                 onClick={() => handleClick(market.slug, market.tradeType, market.marketType)}
+                withBadge
               />
             )
           })}

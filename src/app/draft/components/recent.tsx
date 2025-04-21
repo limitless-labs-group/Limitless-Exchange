@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, Button, Flex, Spinner, VStack } from '@chakra-ui/react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
 import { Toast } from '@/components/common/toast'
@@ -16,6 +16,7 @@ export const RecentMarkets = () => {
   const router = useRouter()
   const toast = useToast()
   const { getParam } = useUrlParams()
+  const queryClient = useQueryClient()
 
   const [isCreating, setIsCreating] = useState<boolean>(false)
 
@@ -53,7 +54,7 @@ export const RecentMarkets = () => {
       .post(`/markets/drafts/duplicate`, {
         marketsIds: selectedMarketIds,
       })
-      .then((res) => {
+      .then(async (res) => {
         const id = toast({
           render: () => <Toast title={`Markets are duplicated`} id={id} />,
         })
@@ -65,6 +66,7 @@ export const RecentMarkets = () => {
         const hasAmm = selectedMarketsTypes.includes('amm')
         const type = hasAmm ? 'amm' : 'clob'
         router.push(`/draft?tab=queue-${type}`)
+        await queryClient.invalidateQueries({ queryKey: ['allDraftMarkets'] })
       })
       .catch((res) => {
         const id = toast({
@@ -86,6 +88,7 @@ export const RecentMarkets = () => {
               key={market.id}
               isChecked={selectedMarketIds.includes(market.id)}
               onToggle={() => handleToggle(market.id)}
+              withBadge
             />
           )
         })}
@@ -110,7 +113,7 @@ export const RecentMarkets = () => {
       <Box
         position='fixed'
         right='24px'
-        top='80px'
+        top='100px'
         maxWidth='350px'
         w='full'
         display={selectedMarket.length > 0 ? 'block' : 'none'}

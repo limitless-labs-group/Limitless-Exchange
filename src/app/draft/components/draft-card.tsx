@@ -19,6 +19,7 @@ interface DraftMarketSingleCardProps {
   isChecked?: boolean
   onToggle?: () => void
   onClick?: () => void
+  withBadge?: boolean
 }
 
 function isDraftMarket(market: DraftMarket | Market): market is DraftMarket {
@@ -41,7 +42,7 @@ const MarketDataFactory = {
       return market.type
     }
     if (isMarket(market)) {
-      return market.tradeType
+      return market.marketType === 'group' ? 'group' : market.tradeType
     }
     return ''
   },
@@ -282,6 +283,7 @@ export const DraftMarketCard = ({
   market,
   isChecked,
   onToggle,
+  withBadge,
   onClick,
 }: DraftMarketSingleCardProps) => {
   const [hover, setHover] = useState(false)
@@ -325,32 +327,35 @@ export const DraftMarketCard = ({
               <Text {...paragraphMedium} color={colors.main}>
                 {market.title}
               </Text>
-              {onClick ? (
-                <HStack
-                  gap={1}
-                  color={colors.main}
-                  onClick={onClick}
-                  cursor='pointer'
-                  _hover={{ textDecoration: 'underline' }}
-                >
-                  <Text {...paragraphMedium} color={colors.main}>
-                    Edit
-                  </Text>
-                </HStack>
-              ) : (
-                <HStack gap={1}>
-                  <Box px='2' py='1' borderRadius='md' bg={typeColor}>
-                    <Text
-                      {...paragraphMedium}
-                      color='white'
-                      textTransform='uppercase'
-                      fontSize='xs'
-                    >
-                      {marketType}
+              <HStack gap='20px'>
+                {withBadge ? (
+                  <HStack gap={1}>
+                    <Box px='2' py='1' borderRadius='md' bg={typeColor}>
+                      <Text
+                        {...paragraphMedium}
+                        color='white'
+                        textTransform='uppercase'
+                        fontSize='xs'
+                      >
+                        {marketType}
+                      </Text>
+                    </Box>
+                  </HStack>
+                ) : null}
+                {onClick ? (
+                  <HStack
+                    gap={1}
+                    color={colors.main}
+                    onClick={onClick}
+                    cursor='pointer'
+                    _hover={{ textDecoration: 'underline' }}
+                  >
+                    <Text {...paragraphMedium} color={colors.main}>
+                      Edit
                     </Text>
-                  </Box>
-                </HStack>
-              )}
+                  </HStack>
+                ) : null}
+              </HStack>
             </HStack>
 
             {market.description ? (
