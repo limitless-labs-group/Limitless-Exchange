@@ -149,7 +149,7 @@ export default function MarketPage() {
       tabPanels.push(
         <MarketAssetPriceChart
           key={uuidv4()}
-          id={LUMY_TOKENS.filter((token) => market?.title.includes(`${token} `))[0]}
+          id={LUMY_TOKENS.filter((token) => market?.title.includes(`${token}`))[0]}
         />
       )
     }
