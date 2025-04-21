@@ -1,13 +1,4 @@
-import {
-  Box,
-  HStack,
-  Link,
-  Text,
-  Image as ChakraImage,
-  Checkbox,
-  Stack,
-  VStack,
-} from '@chakra-ui/react'
+import { Box, HStack, Link, Text, Image as ChakraImage, Checkbox, Stack } from '@chakra-ui/react'
 import { format, toZonedTime } from 'date-fns-tz'
 import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -35,6 +26,7 @@ interface DraftMarketSingleCardProps {
   onToggle?: () => void
   onClick?: () => void
   withBadge?: boolean
+  param?: string
 }
 
 function isDraftMarket(market: DraftMarket | Market): market is DraftMarket {
@@ -127,7 +119,7 @@ const MarketDataFactory = {
 
   renderCreatorAndTags: (market: DraftMarket | Market) => {
     return isMarket(market) ? (
-      <HStack gap='8px' flexWrap='wrap'>
+      <HStack mt='20px' gap='8px' flexWrap='wrap'>
         <ChakraImage
           width={6}
           height={6}
@@ -145,7 +137,7 @@ const MarketDataFactory = {
         ))}
       </HStack>
     ) : (
-      <HStack gap='8px' flexWrap='wrap'>
+      <HStack mt='20px' gap='8px' flexWrap='wrap'>
         <ChakraImage
           width={6}
           height={6}
@@ -163,7 +155,12 @@ const MarketDataFactory = {
     )
   },
 
-  renderDescription: (market: DraftMarket | Market, hover?: boolean, isChecked?: boolean) => {
+  renderDescription: (
+    market: DraftMarket | Market,
+    hover?: boolean,
+    isChecked?: boolean,
+    param?: string
+  ) => {
     const type = (market: DraftMarket | Market) => {
       if (isMarket(market)) return market.marketType
       return market.type
@@ -181,29 +178,32 @@ const MarketDataFactory = {
               .map((subMarket: MarketInput, index: number) => {
                 const { title, description, settings, id } = subMarket
                 return (
-                  <Stack gap='2px' key='index'>
+                  <Stack gap='10px' key='index'>
                     <HStack justifyContent='space-between' alignItems='end'>
-                      <Text key={id ?? index} {...paragraphBold} color={colors.main}>
-                        {`Submarket ${id}: ${title}`}
+                      <Text
+                        key={id ?? index}
+                        {...paragraphMedium}
+                        fontWeight='500'
+                        color={colors.main}
+                      >
+                        {`->`} {title}
                       </Text>
                       <HStack>
                         <Text {...captionRegular}>rewards:</Text>
                         <Text {...captionMedium} fontWeight='700'>
                           {epochToDailyRewards(settings?.rewardsEpoch ?? 0)}
                         </Text>
-                        <Text {...captionRegular}>spread:</Text>
-                        <Text {...captionRegular} fontWeight='700'>
-                          {settings?.maxSpread}
-                        </Text>
                       </HStack>
                     </HStack>
-                    <Text {...captionRegular} color={colors.secondary} overflow='hidden'>
-                      <TextEditor
-                        value={description ?? ''}
-                        readOnly
-                        className={`draft ${hover ? 'hover' : ''} ${isChecked ? 'checked' : ''}`}
-                      />
-                    </Text>
+                    {param === 'queue' ? (
+                      <Text {...captionRegular} color={colors.secondary} overflow='hidden'>
+                        <TextEditor
+                          value={description ?? ''}
+                          readOnly
+                          className={`draft ${hover ? 'hover' : ''} ${isChecked ? 'checked' : ''}`}
+                        />
+                      </Text>
+                    ) : null}
                   </Stack>
                 )
               })}
@@ -327,6 +327,7 @@ export const DraftMarketCard = ({
   onToggle,
   withBadge,
   onClick,
+  param,
 }: DraftMarketSingleCardProps) => {
   const [hover, setHover] = useState(false)
 
@@ -349,7 +350,7 @@ export const DraftMarketCard = ({
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      <HStack align='start' spacing={4}>
+      <HStack align='start' spacing={2}>
         <Checkbox
           isChecked={isChecked}
           onChange={(e) => {
@@ -366,7 +367,7 @@ export const DraftMarketCard = ({
         <Box as='a' width='95%'>
           <Stack gap='5px' width='100%'>
             <HStack justifyContent='space-between' mb='5px' alignItems='flex-start'>
-              <Text {...paragraphMedium} color={colors.main}>
+              <Text {...paragraphBold} fontWeight='600' color={colors.main}>
                 {market.title}
               </Text>
               <HStack gap='20px'>
@@ -400,7 +401,7 @@ export const DraftMarketCard = ({
               </HStack>
             </HStack>
 
-            {MarketDataFactory.renderDescription(market, hover, isChecked)}
+            {MarketDataFactory.renderDescription(market, hover, isChecked, param)}
 
             {MarketDataFactory.renderCreatorAndTags(market)}
 
