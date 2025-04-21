@@ -80,7 +80,7 @@ export function useBanneredMarkets(topic: Category | null) {
 
       const { data: response }: AxiosResponse<Market[]> = await axios.get(marketBaseUrl)
 
-      const slicedMarkets = response.length <= 12 ? response : response.slice(response.length - 12)
+      const slicedMarkets = response.length <= 12 ? response : response.slice(0, 12)
 
       const ammMarkets = slicedMarkets.filter((market) => market.tradeType === 'amm')
 
