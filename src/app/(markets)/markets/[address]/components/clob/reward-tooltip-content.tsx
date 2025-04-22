@@ -1,16 +1,16 @@
 import {
-  Text,
   Box,
+  Divider,
   HStack,
   Link,
-  Portal,
   Popover,
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
+  Portal,
+  Text,
   useDisclosure,
   useOutsideClick,
-  Divider,
 } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
 import Image from 'next/image'
@@ -79,6 +79,9 @@ export const RewardTooltipContent = ({
     'https://limitlesslabs.notion.site/Limitless-Docs-0e59399dd44b492f8d494050969a1567#19304e33c4b9808498d9ea69e68a0cb4'
 
   const handleMouseEnter = () => {
+    trackClicked(ClickEvent.RewardsButtonHovered, {
+      marketAddress: market?.slug,
+    })
     if (closeTimeoutRef.current) {
       clearTimeout(closeTimeoutRef.current)
       closeTimeoutRef.current = null
@@ -86,6 +89,12 @@ export const RewardTooltipContent = ({
     if (!isClickOpen) {
       onOpen()
     }
+  }
+
+  const handleLearnMoreClicked = () => {
+    trackClicked(ClickEvent.RewardsLearnMoreClicked, {
+      marketAddress: market?.slug,
+    })
   }
 
   const handleMouseLeave = () => {
@@ -223,6 +232,7 @@ export const RewardTooltipContent = ({
                     {...paragraphRegular}
                     isExternal
                     color='grey.500'
+                    onClick={handleLearnMoreClicked}
                   >
                     Learn more.
                   </Link>
