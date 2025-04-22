@@ -87,6 +87,8 @@ export const RewardTooltipContent = ({
       trackClicked(ClickEvent.RewardsButtonHovered, {
         marketAddress: market?.slug,
       })
+    }
+    if (!isClickOpen) {
       onOpen()
     }
   }
