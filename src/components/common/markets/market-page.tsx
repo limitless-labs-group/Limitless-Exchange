@@ -323,7 +323,7 @@ export default function MarketPage() {
                 <Text {...paragraphRegular} color='grey.500'>
                   {NumberUtil.convertWithDenomination(
                     groupMarket ? groupMarket.volumeFormatted : market?.volumeFormatted || '0',
-                    6
+                    0
                   )}{' '}
                   {market?.collateralToken.symbol}
                 </Text>
