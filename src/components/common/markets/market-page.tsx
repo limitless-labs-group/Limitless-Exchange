@@ -219,12 +219,33 @@ export default function MarketPage() {
     return market?.tradeType === 'clob' ? <ClobWidget /> : <TradingWidgetSimple />
   }, [market])
 
+  const actionChart = useMemo(() => {
+    if (!market) {
+      return <Skeleton height={240} />
+    }
+    if (market.negRiskMarketId) {
+      return null
+    }
+    return market.tradeType === 'amm' ? (
+      <MarketAssetPriceChart
+        key={uuidv4()}
+        id={LUMY_TOKENS.filter((token) => market?.title.includes(`${token} `))[0]}
+      />
+    ) : (
+      <Box my='24px'>
+        <Orderbook />
+      </Box>
+    )
+  }, [market])
+
   const chart = useMemo(() => {
     return groupMarket?.negRiskMarketId ? (
       <Box mb='24px'>
         <PriceChartContainer />
       </Box>
-    ) : null
+    ) : (
+      <MarketPriceChart key={uuidv4()} />
+    )
   }, [groupMarket?.negRiskMarketId])
 
   const page = usePageName()
@@ -375,35 +396,7 @@ export default function MarketPage() {
           </VStack>
         </>
       ) : (
-        <Tabs
-          position='relative'
-          variant='common'
-          my='20px'
-          onChange={(index) => setActiveChartTabIndex(index)}
-          index={activeChartTabIndex}
-        >
-          <TabList>
-            {chartTabs.map((tab) => (
-              <Tab key={tab.title} onClick={() => handleChartTabClicked(tab.title)}>
-                <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
-                  {tab.icon}
-                  <>{tab.title}</>
-                </HStack>
-              </Tab>
-            ))}
-          </TabList>
-          <TabIndicator
-            mt='-2px'
-            height='2px'
-            bg='grey.800'
-            transitionDuration='200ms !important'
-          />
-          <TabPanels>
-            {chartsTabPanels.map((panel, index) => (
-              <TabPanel key={index}>{panel}</TabPanel>
-            ))}
-          </TabPanels>
-        </Tabs>
+        actionChart
       )}
 
       {market?.marketType !== 'group' && (
