@@ -11,11 +11,12 @@ import {
 } from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketOrderType } from '@/types'
+import { NumberUtil } from '@/utils'
 
 export default function OutcomeButtonsClob() {
-  const { strategy, market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
+  const { market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
   const { trackChanged } = useAmplitude()
-  const { orderType, yesPrice, noPrice } = useClobWidget()
+  const { orderType, yesPrice, noPrice, sharesAvailable } = useClobWidget()
   const [, setTradingBlocked] = useAtom(blockTradeAtom)
 
   const getShares = (sharesAmount?: bigint) => {
@@ -38,8 +39,6 @@ export default function OutcomeButtonsClob() {
     }
   }
 
-  console.log(noPrice)
-
   return (
     <Box mb='24px'>
       <Text {...paragraphMedium} mb='8px'>
@@ -61,7 +60,7 @@ export default function OutcomeButtonsClob() {
               Yes {yesPrice}¢
             </Text>
             <Text {...paragraphRegular} color={!outcome ? 'white' : 'green.500'}>
-              {/*{NumberUtil.toFixed(getShares(sharesAvailable['yes']), 2)} Contracts*/}
+              {NumberUtil.toFixed(getShares(sharesAvailable['yes']), 2)} Contracts
             </Text>
           </VStack>
         </Button>
@@ -80,7 +79,7 @@ export default function OutcomeButtonsClob() {
               No {noPrice}¢
             </Text>
             <Text {...paragraphRegular} color={outcome ? 'white' : 'red.500'}>
-              {/*{NumberUtil.toFixed(getShares(sharesAvailable['no']), 2)} Contracts*/}
+              {NumberUtil.toFixed(getShares(sharesAvailable['no']), 2)} Contracts
             </Text>
           </VStack>
         </Button>
