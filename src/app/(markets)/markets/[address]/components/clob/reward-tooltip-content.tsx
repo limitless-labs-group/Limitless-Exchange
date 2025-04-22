@@ -83,10 +83,12 @@ export const RewardTooltipContent = ({
       clearTimeout(closeTimeoutRef.current)
       closeTimeoutRef.current = null
     }
-    if (!isClickOpen) {
+    if (!isOpen) {
       trackClicked(ClickEvent.RewardsButtonHovered, {
         marketAddress: market?.slug,
       })
+    }
+    if (!isClickOpen) {
       onOpen()
     }
   }
