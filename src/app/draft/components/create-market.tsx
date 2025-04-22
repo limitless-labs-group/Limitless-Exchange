@@ -17,6 +17,7 @@ import {
 } from '@chakra-ui/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
+import { fromZonedTime, toZonedTime } from 'date-fns-tz'
 import { htmlToText } from 'html-to-text'
 import { useAtom } from 'jotai'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -25,14 +26,18 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { default as MultiSelect } from 'react-select'
 import CreatableSelect from 'react-select/creatable'
-import TimezoneSelect, { ITimezoneOption } from 'react-timezone-select'
+import TimezoneSelect, {
+  allTimezones,
+  ITimezoneOption,
+  useTimezoneSelect,
+} from 'react-timezone-select'
 import TextEditor from '@/components/common/text-editor'
 import { Toast } from '@/components/common/toast'
 import { tokenLimits, selectStyles, defaultFormData } from '@/app/draft/components'
 import { GroupForm } from './group-form'
 import { AdjustableNumberInput } from './number-inputs'
 import { MarketTypeSelector } from './type-selector'
-import { useCreateMarket } from './use-create-market'
+import { dailyToEpochRewards, epochToDailyRewards, useCreateMarket } from './use-create-market'
 import {
   defaultGroupMarkets,
   draftMarketTypeAtom,
@@ -40,6 +45,7 @@ import {
   groupMarketsAtom,
 } from '@/atoms/draft'
 import { useToast } from '@/hooks'
+import { useUrlParams } from '@/hooks/use-url-param'
 import { useLimitlessApi } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useMarket } from '@/services/MarketsService'
@@ -65,7 +71,6 @@ export const CreateMarket: FC = () => {
     populateActiveMarketData,
     createOption,
     handleTokenSelect,
-    prepareData,
     prepareMarketData,
   } = useCreateMarket()
 
@@ -75,6 +80,14 @@ export const CreateMarket: FC = () => {
   const isClob = marketType === 'clob'
   const isAmm = marketType === 'amm'
   const isGroup = marketType === 'group'
+
+  const calculateZonedTime = (deadline: Date, timezone: string): number => {
+    const currentTimezoneOffset =
+      parseTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone).offset ?? 1
+    const formTimezoneOffset = parseTimezone(timezone)?.offset ?? 1
+    const differenceInOffset = currentTimezoneOffset - formTimezoneOffset
+    return new Date(deadline).getTime() + differenceInOffset * 60 * 60 * 1000
+  }
 
   const { data: editDraftMarket } = useQuery({
     queryKey: ['editMarket', draftMarketId],
@@ -98,8 +111,9 @@ export const CreateMarket: FC = () => {
       setMarketType(editDraftMarket.type)
       populateDraftMarketData(editDraftMarket)
       return
-    } else if (editActiveMarket) {
-      setMarketType(editActiveMarket?.tradeType)
+    }
+    if (editActiveMarket) {
+      setMarketType(type as DraftMarketType)
       populateActiveMarketData(editActiveMarket)
       return
     }
@@ -112,6 +126,12 @@ export const CreateMarket: FC = () => {
       render: () => <Toast title={message} id={id} />,
     })
   }
+
+  const { parseTimezone } = useTimezoneSelect({
+    labelStyle: 'original',
+    timezones: allTimezones,
+  })
+
   const { data: tagOptions } = useQuery({
     queryKey: ['tagOptions'],
     queryFn: async () => {
@@ -155,10 +175,10 @@ export const CreateMarket: FC = () => {
   }
 
   const draftMarket = async () => {
-    const data = await prepareData()
-    if (!data) return
+    const marketData = prepareMarketData()
+    if (!marketData) return
+
     setIsCreating(true)
-    const marketData = prepareMarketData(data)
     const url = () => {
       if (isClob) return '/markets/clob/drafts'
       if (isGroup) return '/markets/drafts/group'
@@ -167,10 +187,11 @@ export const CreateMarket: FC = () => {
     privateClient
       .post(url(), marketData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
         },
       })
-      .then((res) => {
+      .then(() => {
+        queryClient.invalidateQueries({ queryKey: ['allDraftMarkets'] })
         showToast(`Market is drafted`)
         router.push(`/draft?tab=queue-${marketType}`)
       })
@@ -187,20 +208,21 @@ export const CreateMarket: FC = () => {
   }
 
   const updateMarket = async () => {
-    const data = await prepareData()
-    if (!data) return
+    const marketData = prepareMarketData()
+    if (!marketData) return
+
     setIsCreating(true)
-    const marketData = prepareMarketData(data)
     const url = isGroup
       ? `/markets/drafts/group/${draftMarketId}`
       : `/markets/drafts/${draftMarketId}`
     privateClient
       .put(url, marketData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
         },
       })
-      .then((res) => {
+      .then(() => {
+        queryClient.invalidateQueries({ queryKey: ['allDraftMarkets'] })
         showToast(`Market ${draftMarketId} is updated`)
         router.push(`/draft?tab=queue-${marketType}`)
       })
@@ -217,19 +239,19 @@ export const CreateMarket: FC = () => {
   }
 
   const updateActiveMarket = async () => {
-    const data = await prepareData()
-    if (!data) return
+    const marketData = prepareMarketData(true)
+    if (!marketData) return
+    const { id, ...rest } = marketData
     setIsCreating(true)
-    const marketData = prepareMarketData(data, true)
-
-    const url = `/markets/${activeMarketId}`
+    const url = isGroup ? `/markets/group/${id}` : `/markets/${activeMarketId}`
     privateClient
-      .put(url, marketData, {
+      .put(url, rest, {
         headers: {
           'Content-Type': 'application/json',
         },
       })
-      .then((res) => {
+      .then(() => {
+        queryClient.invalidateQueries({ queryKey: ['markets'] })
         showToast(`Market is updated`)
         router.push(`/draft?tab=active`)
       })
@@ -264,7 +286,7 @@ export const CreateMarket: FC = () => {
   }, [])
 
   const submit = async () => {
-    playSound()
+    // playSound()
     if (draftMarketId) {
       await updateMarket()
       return
@@ -274,21 +296,6 @@ export const CreateMarket: FC = () => {
       return
     }
     await draftMarket()
-  }
-
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const value = e.target.value
-    if (value.trim() || value === '') {
-      handleChange('title', value)
-    }
-  }
-
-  const handleTitleBlur = (
-    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
-    isUpdateOg?: boolean
-  ) => {
-    const trimmedValue = e.target.value.trim()
-    handleChange('title', trimmedValue)
   }
 
   const getButtonText = () => {
@@ -324,8 +331,7 @@ export const CreateMarket: FC = () => {
                   height='auto'
                   onInput={resizeTextareaHeight}
                   value={formData.title}
-                  onChange={(e) => handleTitleChange(e)}
-                  onBlur={(e) => handleTitleBlur(e, true)}
+                  onChange={(e) => handleChange('title', e.target.value)}
                   maxLength={70}
                 />
                 <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
@@ -339,20 +345,21 @@ export const CreateMarket: FC = () => {
                     value={formData.description}
                     readOnly={false}
                     onChange={(e) => {
-                      if (getPlainTextLength(e) <= 1500) {
+                      if (getPlainTextLength(e) <= 3000) {
                         handleChange('description', e)
                       }
                     }}
+                    style={{ wordBreak: 'break-word' }}
                   />
                   <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
-                    {getPlainTextLength(formData.description)}/1500 characters
+                    {getPlainTextLength(formData.description)}/3000 characters
                   </FormHelperText>
                 </FormField>
               ) : (
                 <GroupForm />
               )}
 
-              {!activeMarketId && !isClob ? (
+              {!activeMarketId && isAmm ? (
                 <FormField label='Token'>
                   <HStack>
                     <Select value={formData.token.id} onChange={handleTokenSelect}>
@@ -399,8 +406,8 @@ export const CreateMarket: FC = () => {
 
                     <AdjustableNumberInput
                       label='Rewards per day'
-                      value={formData.maxDailyReward}
-                      onChange={(value) => handleChange('maxDailyReward', value)}
+                      value={Number(epochToDailyRewards(formData.rewardsEpoch ?? 0))}
+                      onChange={(value) => handleChange('rewardsEpoch', dailyToEpochRewards(value))}
                       min={0}
                       max={1000}
                       step={0.1}
@@ -409,9 +416,7 @@ export const CreateMarket: FC = () => {
                         <HStack>
                           <Text {...paragraphBold}>Per Epoch:</Text>
                           <Text>
-                            {formData.maxDailyReward
-                              ? Number(formData?.maxDailyReward / 1440).toFixed(5)
-                              : ''}
+                            {formData.rewardsEpoch ? Number(formData?.rewardsEpoch).toFixed(5) : ''}
                           </Text>
                         </HStack>
                       }
@@ -446,25 +451,23 @@ export const CreateMarket: FC = () => {
             <VStack w={'full'} flex='0.8' h='full'>
               <HStack w='full' spacing='6' alignItems='start' justifyContent='start'>
                 <VStack>
-                  {!isGroup && (
-                    <FormField label='Is Bannered'>
-                      <HStack gap='8px'>
-                        <Box
-                          w='16px'
-                          h='16px'
-                          borderColor='grey.500'
-                          border='1px solid'
-                          borderRadius='2px'
-                          cursor='pointer'
-                          bg={formData.isBannered ? 'grey.800' : 'unset'}
-                          onClick={() => {
-                            handleChange('isBannered', !formData.isBannered)
-                          }}
-                        />
-                        <Text {...paragraphRegular}>Add market to big banner</Text>
-                      </HStack>
-                    </FormField>
-                  )}
+                  <FormField label='Is Bannered'>
+                    <HStack gap='8px'>
+                      <Box
+                        w='16px'
+                        h='16px'
+                        borderColor='grey.500'
+                        border='1px solid'
+                        borderRadius='2px'
+                        cursor='pointer'
+                        bg={formData.isBannered ? 'grey.800' : 'unset'}
+                        onClick={() => {
+                          handleChange('isBannered', !formData.isBannered)
+                        }}
+                      />
+                      <Text {...paragraphRegular}>Add market to big banner</Text>
+                    </HStack>
+                  </FormField>
                 </VStack>
                 <VStack>
                   <AdjustableNumberInput
@@ -563,60 +566,124 @@ export const CreateMarket: FC = () => {
               </FormField>
 
               <FormField label='Deadline'>
-                {/*// Todo move to a separate component?*/}
-                <DatePicker
-                  id='input'
-                  selected={formData.deadline || null}
-                  onChange={(date: Date | null) => {
-                    if (date) {
-                      handleChange('deadline', new Date(date.getTime()))
-                    }
-                  }}
-                  minDate={new Date()}
-                  showTimeSelect
-                  timeIntervals={60}
-                  dateFormat='Pp'
-                  calendarStartDay={1}
-                  customInput={
-                    <Input
-                      cursor='pointer'
-                      backgroundColor='grey.100'
-                      color='grey.900'
-                      _hover={{ backgroundColor: 'grey.200' }}
-                      _focus={{ backgroundColor: 'gray.300', borderColor: 'gray.500' }}
-                      padding='8px'
-                      mb='5px'
-                      borderRadius='md'
+                <Box position='relative' w='full'>
+                  <HStack w='full' spacing={4} alignItems='flex-start'>
+                    <VStack w='full' alignItems='flex-start'>
+                      <Text fontSize='sm' fontWeight='medium'>
+                        UTC
+                      </Text>
+                      <Box w='full' h='40px'>
+                        <DatePicker
+                          id='utc-input'
+                          selected={formData.deadline ? new Date(formData.deadline) : null}
+                          onChange={(date: Date | null) => {
+                            if (date) {
+                              handleChange('deadline', date)
+                            }
+                          }}
+                          minDate={new Date()}
+                          showTimeSelect
+                          timeIntervals={60}
+                          dateFormat='Pp'
+                          calendarStartDay={1}
+                          popperPlacement='bottom-start'
+                          customInput={
+                            <Input
+                              cursor='pointer'
+                              backgroundColor='grey.100'
+                              color='grey.900'
+                              _hover={{ backgroundColor: 'grey.200' }}
+                              _focus={{ backgroundColor: 'gray.300', borderColor: 'gray.500' }}
+                              padding='8px'
+                              borderRadius='md'
+                              height='40px'
+                            />
+                          }
+                        />
+                      </Box>
+                    </VStack>
+
+                    <VStack w='full' alignItems='flex-start'>
+                      <Text fontSize='sm' fontWeight='medium'>
+                        ET (Eastern Time)
+                      </Text>
+                      <Box w='full' h='40px'>
+                        <DatePicker
+                          id='et-input'
+                          selected={toZonedTime(
+                            calculateZonedTime(formData.deadline, 'Gtm/utc'),
+                            'America/New_York'
+                          )}
+                          onChange={(date: Date | null) => {
+                            if (date) {
+                              const utcDate = fromZonedTime(
+                                calculateZonedTime(date, 'Europe/Belgrade'),
+                                'America/New_York'
+                              )
+                              handleChange('deadline', utcDate)
+                            }
+                          }}
+                          minDate={new Date()}
+                          showTimeSelect
+                          timeIntervals={60}
+                          dateFormat='Pp'
+                          calendarStartDay={1}
+                          popperPlacement='bottom-start'
+                          customInput={
+                            <Input
+                              cursor='pointer'
+                              backgroundColor='grey.100'
+                              color='grey.900'
+                              _hover={{ backgroundColor: 'grey.200' }}
+                              _focus={{ backgroundColor: 'gray.300', borderColor: 'gray.500' }}
+                              padding='8px'
+                              borderRadius='md'
+                              height='40px'
+                            />
+                          }
+                        />
+                      </Box>
+                    </VStack>
+                  </HStack>
+
+                  <Box mt={4} h='40px'>
+                    <TimezoneSelect
+                      value={formData.timezone}
+                      onChange={(timezone: ITimezoneOption) => {
+                        handleChange('timezone', timezone.value)
+                      }}
+                      styles={{
+                        option: (provided, state) => ({
+                          ...provided,
+                          backgroundColor: state.isFocused
+                            ? 'var(--chakra-colors-blue-50)'
+                            : 'var(--chakra-colors-grey-300)',
+                          color: state.isFocused
+                            ? 'var(--chakra-colors-blue-900)'
+                            : 'var(--chakra-colors-grey-900)',
+                        }),
+                        menu: (provided) => ({
+                          ...provided,
+                          ...selectStyles.menu,
+                        }),
+                        control: (provided) => ({
+                          ...provided,
+                          ...selectStyles.control,
+                          minHeight: '40px',
+                          height: '40px',
+                        }),
+                        singleValue: (provided) => ({
+                          ...provided,
+                          ...selectStyles.singleValue,
+                        }),
+                        container: (provided) => ({
+                          ...provided,
+                          height: '40px',
+                        }),
+                      }}
                     />
-                  }
-                />
-                <TimezoneSelect
-                  value={formData.timezone}
-                  onChange={(timezone: ITimezoneOption) => handleChange('timezone', timezone.value)}
-                  styles={{
-                    option: (provided, state) => ({
-                      ...provided,
-                      backgroundColor: state.isFocused
-                        ? 'var(--chakra-colors-blue-50)'
-                        : 'var(--chakra-colors-grey-300)',
-                      color: state.isFocused
-                        ? 'var(--chakra-colors-blue-900)'
-                        : 'var(--chakra-colors-grey-900)',
-                    }),
-                    menu: (provided) => ({
-                      ...provided,
-                      ...selectStyles.menu,
-                    }),
-                    control: (provided) => ({
-                      ...provided,
-                      ...selectStyles.control,
-                    }),
-                    singleValue: (provided) => ({
-                      ...provided,
-                      ...selectStyles.singleValue,
-                    }),
-                  }}
-                />
+                  </Box>
+                </Box>
               </FormField>
 
               <ButtonGroup spacing='6' mt={5} w='full'>
@@ -630,7 +697,7 @@ export const CreateMarket: FC = () => {
                     w='full'
                     height='52px'
                     onClick={submit}
-                    // isDisabled={!isReady && !editDraftMarketMarket}
+                    isDisabled={isCreating}
                   >
                     {getButtonText()}
                   </Button>

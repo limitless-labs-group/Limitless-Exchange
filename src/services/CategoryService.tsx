@@ -22,12 +22,13 @@ export const fetchCategoryCounts = async (): Promise<CategoryCountResponse> => {
   return response.data as CategoryCountResponse
 }
 
-export const useCategories = () => {
+export const useCategories = (enabled = true) => {
   const fetchCategoriesMemo = useMemo(() => fetchCategories, [])
 
   return useQuery({
     queryKey: ['categories'],
     queryFn: fetchCategoriesMemo,
+    enabled,
   })
 }
 

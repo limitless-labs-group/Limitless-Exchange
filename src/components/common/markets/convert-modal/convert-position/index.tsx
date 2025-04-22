@@ -19,7 +19,7 @@ export default function ConvertPosition({
   const handleButtonClicked = () => {
     setPositions(
       positions.map((pos) => {
-        return position.latestTrade[0].tradeId === pos.latestTrade[0].tradeId
+        return position.market.slug === pos.market.slug
           ? {
               ...pos,
               selected: !pos.selected,
@@ -39,7 +39,7 @@ export default function ConvertPosition({
       px='16px'
       py='10px'
       border='3px solid'
-      borderColor={position.selected ? 'green.500' : 'grey.100'}
+      borderColor={position.selected ? 'green.500' : 'grey.200'}
       borderRadius='12px'
     >
       <VStack gap='8px' w='full' alignItems='flex-start'>

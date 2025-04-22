@@ -105,6 +105,8 @@ export const useMarketInfinityComments = (
     refetchOnWindowFocus: false,
     keepPreviousData: true,
     enabled: !!marketAddress,
+    staleTime: Infinity,
+    refetchInterval: 10000,
   })
   return useMemo(() => {
     return {

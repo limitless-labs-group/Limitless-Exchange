@@ -11,6 +11,7 @@ const MotionBox = motion(Box)
 
 export type ButtonWithStatesProps = ButtonProps & {
   status: MutationStatus
+  isBlocked?: boolean
   onReset?: () => Promise<void>
   successText?: string
 }

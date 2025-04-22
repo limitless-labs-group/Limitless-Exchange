@@ -1,6 +1,9 @@
 import { Box, Button, HStack, Text, VStack } from '@chakra-ui/react'
+import BigNumber from 'bignumber.js'
+import { useAtom } from 'jotai'
 import { formatUnits } from 'viem'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
+import { blockTradeAtom } from '@/atoms/trading'
 import {
   ChangeEvent,
   OrderBookSideChangedMetadata,
@@ -9,12 +12,18 @@ import {
 } from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketOrderType } from '@/types'
-import { NumberUtil } from '@/utils'
 
 export default function OutcomeButtonsClob() {
-  const { strategy, market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
+  const {
+    strategy,
+    market,
+    clobOutcome: outcome,
+    setClobOutcome: setOutcome,
+    groupMarket,
+  } = useTradingService()
   const { trackChanged } = useAmplitude()
-  const { orderType, yesPrice, noPrice } = useClobWidget()
+  const { orderType, yesPrice: singleYesPriceClob, noPrice: singleNoPriceClob } = useClobWidget()
+  const [, setTradingBlocked] = useAtom(blockTradeAtom)
 
   const getShares = (sharesAmount?: bigint) => {
     if (!sharesAmount) {
@@ -23,12 +32,26 @@ export default function OutcomeButtonsClob() {
     return formatUnits(sharesAmount, market?.collateralToken.decimals || 6)
   }
 
+  const yesPrice = groupMarket
+    ? new BigNumber(market?.prices?.[0] || 0.5)
+        .multipliedBy(market?.marketType === 'group' ? 100 : 1)
+        .decimalPlaces(1)
+        .toNumber()
+    : singleYesPriceClob
+  const noPrice = groupMarket
+    ? new BigNumber(market?.prices?.[1] || 0.5)
+        .multipliedBy(market?.marketType === 'group' ? 100 : 1)
+        .decimalPlaces(1)
+        .toNumber()
+    : singleNoPriceClob
+
   const handleOutcomeChanged = (outcome: number) => {
     trackChanged<OrderBookSideChangedMetadata>(ChangeEvent.OrderBookSideChanged, {
       type: outcome ? 'No selected' : 'Yes selected',
       marketAddress: market?.slug as string,
     })
     setOutcome(outcome)
+    setTradingBlocked(false)
     if (orderType === MarketOrderType.LIMIT) {
       const selectedPrice = outcome ? 100 - yesPrice : 100 - noPrice
       // setPrice(selectedPrice === 0 ? '' : String(selectedPrice))
@@ -95,7 +118,7 @@ export default function OutcomeButtonsClob() {
               {getPrice(0)}
             </Text>
             <Text {...paragraphRegular} color={!outcome ? 'white' : 'green.500'}>
-              {/* {NumberUtil.toFixed(getShares(sharesAvailable['yes']), 6)} Contracts */}
+              {/*{NumberUtil.toFixed(getShares(sharesAvailable['yes']), 2)} Contracts*/}
             </Text>
           </VStack>
         </Button>
@@ -114,7 +137,7 @@ export default function OutcomeButtonsClob() {
               {getPrice(1)}
             </Text>
             <Text {...paragraphRegular} color={outcome ? 'white' : 'red.500'}>
-              {/* {NumberUtil.toFixed(getShares(sharesAvailable['no']), 6)} Contracts */}
+              {/*{NumberUtil.toFixed(getShares(sharesAvailable['no']), 2)} Contracts*/}
             </Text>
           </VStack>
         </Button>

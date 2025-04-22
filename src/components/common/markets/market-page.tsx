@@ -247,8 +247,6 @@ export default function MarketPage() {
     setActiveChartTabIndex(0)
   }, [market])
 
-  console.log(groupMarket)
-
   return (
     <SideBarPage>
       {!isMobile && (
@@ -290,12 +288,18 @@ export default function MarketPage() {
           <ChakraImage
             width={6}
             height={6}
-            src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
+            src={
+              groupMarket?.creator.imageURI || market?.creator.imageURI || '/assets/images/logo.svg'
+            }
             alt='creator'
             borderRadius={'2px'}
           />
-          <Link href={market?.creator.link || ''} variant='textLinkSecondary' fontWeight={400}>
-            {market?.creator.name}
+          <Link
+            href={groupMarket?.creator.link || market?.creator.link || ''}
+            variant='textLinkSecondary'
+            fontWeight={400}
+          >
+            {groupMarket?.creator.name || market?.creator.name}
           </Link>
         </HStack>
       </HStack>
@@ -327,19 +331,31 @@ export default function MarketPage() {
             </HStack>
           )}
           {market?.tradeType === 'amm' && (
-            <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
-              <UniqueTraders color='grey.50' />
-              <Text {...paragraphRegular} color='grey.500'>
-                Value
-              </Text>
-              <Text {...paragraphRegular} color='grey.500'>
-                {NumberUtil.convertWithDenomination(
-                  market ? +market.openInterestFormatted + +market.liquidityFormatted : 0,
-                  6
-                )}{' '}
-                {market?.collateralToken.symbol}
-              </Text>
-              <OpenInterestTooltip iconColor='grey.500' />
+            <HStack w='full' gap='4px' justifyContent='space-between'>
+              <HStack gap='4px' color='grey.500'>
+                <VolumeIcon width={16} height={16} />
+                <Text {...paragraphRegular} color='grey.500'>
+                  Volume
+                </Text>
+                <Text {...paragraphRegular} color='grey.500'>
+                  {NumberUtil.convertWithDenomination(market?.volumeFormatted || '0', 0)}{' '}
+                  {market?.collateralToken.symbol}
+                </Text>
+              </HStack>
+              <HStack>
+                <UniqueTraders color='grey.50' />
+                <Text {...paragraphRegular} color='grey.500'>
+                  Value
+                </Text>
+                <Text {...paragraphRegular} color='grey.500'>
+                  {NumberUtil.convertWithDenomination(
+                    market ? +market.openInterestFormatted + +market.liquidityFormatted : 0,
+                    0
+                  )}{' '}
+                  {market?.collateralToken.symbol}
+                </Text>
+                <OpenInterestTooltip iconColor='grey.500' />
+              </HStack>
             </HStack>
           )}
         </HStack>
@@ -420,7 +436,6 @@ export default function MarketPage() {
           ))}
         </TabPanels>
       </Tabs>
-      <ConvertModal />
     </SideBarPage>
   )
 }

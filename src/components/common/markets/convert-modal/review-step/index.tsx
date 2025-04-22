@@ -2,7 +2,7 @@ import { Box, Button, HStack, Text, VStack } from '@chakra-ui/react'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Address, parseUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
 import { ClobPositionWithTypeAndSelected } from '@/components/common/markets/convert-modal/convert-modal-content'
@@ -14,37 +14,37 @@ interface ReviewStepProps {
   positions: ClobPositionWithTypeAndSelected[]
   onBack: () => void
   sharesToConvert: string
+  checkConvertAllowance: () => Promise<void>
+  isApproved: boolean
 }
 
-export default function ReviewStep({ positions, onBack, sharesToConvert }: ReviewStepProps) {
+export default function ReviewStep({
+  positions,
+  onBack,
+  sharesToConvert,
+  checkConvertAllowance,
+  isApproved,
+}: ReviewStepProps) {
   const { groupMarket, market } = useTradingService()
-  const { checkAllowanceForAll, approveAllowanceForAll, convertShares } = useWeb3Service()
+  const { approveAllowanceForAll, convertShares } = useWeb3Service()
   const { web3Wallet, web3Client } = useAccount()
-  const [isApproved, setIsApproved] = useState(false)
   const queryClient = useQueryClient()
   const positionsToConvert = positions.filter((pos) => pos.selected)
   const remainMarkets = groupMarket?.markets?.filter(
     (market) => !positionsToConvert.some((pos) => pos.market.slug === market.slug)
   )
 
-  const checkConvertAllowance = async () => {
-    const isApproved = await checkAllowanceForAll(
-      process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address,
-      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
-    )
-    setIsApproved(isApproved)
-  }
-
-  useEffect(() => {
-    checkConvertAllowance()
-  }, [])
-
   const convertMutation = useMutation({
     mutationKey: ['convert-shares', groupMarket?.slug],
     mutationFn: async () => {
+      const haveOrder = groupMarket?.markets?.every((market) => market.orderInGroup !== undefined)
+      if (!haveOrder || !groupMarket?.markets) {
+        throw new Error('Market order is not set')
+      }
       const indexSet =
-        groupMarket?.markets
-          ?.map((market) =>
+        groupMarket.markets
+          .sort((a, b) => a.orderInGroup! - b.orderInGroup!)
+          .map((market) =>
             positionsToConvert.some((pos) => pos.market.slug === market.slug) ? '1' : '0'
           )
           .reverse()

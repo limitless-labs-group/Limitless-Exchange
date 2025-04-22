@@ -93,14 +93,14 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
     }
   }, [lockedBalance, sharesOwned])
 
-  const { data: orderBook } = useOrderBook(market?.slug)
+  const { data: orderBook } = useOrderBook(market?.slug, market?.tradeType)
   const { checkAllowance, checkAllowanceForAll } = useWeb3Service()
   const { isOpen: tradeStepperOpen, onToggle: onToggleTradeStepper } = useDisclosure()
 
   const checkMarketAllowance = async () => {
     const contractAddress = market?.negRiskRequestId
       ? process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE
-      : process.env.NEXT_PUBLIC_CTF_CONTRACT
+      : process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR
     const allowance = await checkAllowance(
       contractAddress as Address,
       market?.collateralToken.address as Address
@@ -180,16 +180,16 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
         const yesPrice = orderBook?.asks.sort((a, b) => a.price - b.price)[0]?.price * 100
         const noPrice = (1 - orderBook?.bids.sort((a, b) => b.price - a.price)[0]?.price) * 100
         return {
-          yesPrice: isNaN(yesPrice) ? 0 : +yesPrice.toFixed(),
-          noPrice: isNaN(noPrice) ? 0 : +noPrice.toFixed(),
+          yesPrice: isNaN(yesPrice) ? 0 : +yesPrice.toFixed(1),
+          noPrice: isNaN(noPrice) ? 0 : +noPrice.toFixed(1),
         }
       }
       const yesPrice = orderBook?.bids.sort((a, b) => b.price - a.price)[0]?.price * 100
       const noPrice =
         (1 - orderBook?.asks.sort((a, b) => b.price - a.price).reverse()[0]?.price) * 100
       return {
-        yesPrice: isNaN(yesPrice) ? 0 : +yesPrice.toFixed(),
-        noPrice: isNaN(noPrice) ? 0 : +noPrice.toFixed(),
+        yesPrice: isNaN(yesPrice) ? 0 : +yesPrice.toFixed(1),
+        noPrice: isNaN(noPrice) ? 0 : +noPrice.toFixed(1),
       }
     }
     return {

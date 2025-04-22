@@ -1,17 +1,18 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { AxiosResponse } from 'axios'
 import { createContext, PropsWithChildren, useContext, useMemo } from 'react'
-import { Hash } from 'viem'
+import { formatUnits, Hash } from 'viem'
 import useClient from '@/hooks/use-client'
 import { usePriceOracle } from '@/providers'
 import { useAccount } from '@/services/AccountService'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useLimitlessApi } from '@/services/LimitlessApi'
+import { positionsMock } from '@/services/positions-mock'
 import { Address, Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
 interface IHistoryService {
-  positions: (HistoryPositionWithType | ClobPositionWithType)[] | undefined
+  positions?: PortfolioPositions
   balanceInvested: string
   balanceToWin: string
   tradesAndPositionsLoading: boolean
@@ -24,16 +25,16 @@ export const useHistory = () => useContext(HistoryServiceContext)
 export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   const { convertAssetAmountToUsd } = usePriceOracle()
   const { supportedTokens } = useLimitlessApi()
-  const { data: positions, isPending: isPositionsLoading } = usePosition()
+  const { data: positions, isLoading: isPositionsLoading } = usePosition()
 
   /**
    * BALANCES
    */
   const balanceInvested = useMemo(() => {
-    const ammPositions = positions?.filter(
+    const ammPositions = positions?.positions.filter(
       (position) => position.type === 'amm'
     ) as HistoryPositionWithType[]
-    const clobPositions = positions?.filter(
+    const clobPositions = positions?.positions.filter(
       (position) => position.type === 'clob'
     ) as ClobPositionWithType[]
     let _balanceInvested = 0
@@ -52,10 +53,10 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
 
   const balanceToWin = useMemo(() => {
     let _balanceToWin = 0
-    const ammPositions = positions?.filter(
+    const ammPositions = positions?.positions.filter(
       (position) => position.type === 'amm'
     ) as HistoryPositionWithType[]
-    const clobPositions = positions?.filter(
+    const clobPositions = positions?.positions.filter(
       (position) => position.type === 'clob'
     ) as ClobPositionWithType[]
     ammPositions?.forEach((position) => {
@@ -90,29 +91,71 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   )
 }
 
+const removeSmallClobPositions = (positions: ClobPosition[]) => {
+  return positions.filter((position) => {
+    const decimals = position.market.collateralToken.decimals
+    const yesAmount = formatUnits(BigInt(position.tokensBalance.yes), decimals)
+    const noAmount = formatUnits(BigInt(position.tokensBalance.no), decimals)
+    const ordersPlaced = !!position.orders.liveOrders.length
+    return !(+yesAmount < 0.01 && +noAmount < 0.01 && !ordersPlaced)
+  })
+}
+
+const prepareClobPositions = (positions: ClobPosition[]) => {
+  const filtered = removeSmallClobPositions(positions)
+  return filtered.map((position) => {
+    const decimals = position.market.collateralToken.decimals
+    const yesAmount = formatUnits(BigInt(position.tokensBalance.yes), decimals)
+    const noAmount = formatUnits(BigInt(position.tokensBalance.no), decimals)
+    return {
+      ...position,
+      tokensBalance: {
+        yes: +yesAmount < 0.01 ? '0' : position.tokensBalance.yes,
+        no: +noAmount < 0.01 ? '0' : position.tokensBalance.no,
+      },
+      type: 'clob',
+    }
+  })
+}
+
 export const usePosition = () => {
-  const { profileData, web3Wallet } = useAccount()
+  const { web3Wallet } = useAccount()
   const { isLogged } = useClient()
   const privateClient = useAxiosPrivateClient()
 
   return useQuery({
-    queryKey: ['positions', web3Wallet?.account?.address],
+    queryKey: ['positions'],
     queryFn: async () => {
       try {
         const response = await privateClient.get<PositionsResponse>(`/portfolio/positions`)
-        return [
-          ...response.data.amm.map((position) => ({ ...position, type: 'amm' })),
-          ...response.data.clob.map((position) => ({ ...position, type: 'clob' })),
-        ] as (HistoryPositionWithType | ClobPositionWithType)[]
+        // const response = positionsMock
+        const ammPositions = response.data.amm.map((position) => ({ ...position, type: 'amm' }))
+        const filteredClobPositions = prepareClobPositions(response.data.clob)
+        return {
+          ...response.data,
+          positions: [...ammPositions, ...filteredClobPositions],
+        } as PortfolioPositions
 
         // return response.data
       } catch (error) {
         console.error('Error fetching positions:', error)
-        return []
+        return {
+          rewards: {
+            totalUserRewardsLastEpoch: '0',
+            totalUnpaidRewards: '0',
+            rewardsByEpoch: [],
+          },
+          positions: [],
+        }
       }
     },
     enabled: !!isLogged,
-    refetchInterval: !!profileData?.id ? 60000 : false, // 1 minute. needs to show red dot in portfolio tab when user won
+    refetchInterval: () => {
+      if (!web3Wallet) {
+        return false
+      }
+      return 60000
+    },
   })
 }
 
@@ -148,7 +191,7 @@ export const useInfinityHistory = () => {
         {
           params: {
             page: pageParam,
-            limit: 30,
+            limit: 100,
           },
         }
       )
@@ -193,6 +236,9 @@ export type HistoryMarket = {
   expirationDate: string
   title: string
   slug: string | null
+  group?: {
+    slug: string
+  }
 }
 
 export type HistoryRedeem = {
@@ -230,33 +276,75 @@ export type HistoryPosition = {
   strategy?: 'Buy' | 'Sell'
 }
 
+interface RewardEpoch {
+  epochId: number
+  timestamp: string
+  userRewards: string
+  totalRewards: string
+  earnedPercent: number
+}
+
 type PositionsResponse = {
+  rewards: {
+    totalUnpaidRewards: string
+    totalUserRewardsLastEpoch: string
+    rewardsByEpoch: RewardEpoch[]
+  }
   amm: HistoryPositionWithType[]
   clob: ClobPositionWithType[]
 }
 
-type ClobTokenPosition = {
+type PortfolioPositions = {
+  rewards: {
+    totalUnpaidRewards: string
+    totalUserRewardsLastEpoch: string
+    rewardsByEpoch: RewardEpoch[]
+  }
+  positions: (HistoryPositionWithType | ClobPositionWithType)[]
+}
+
+export interface ClobPositionContracts {
   cost: string
-  expectedBalance: string
   fillPrice: string
+  realisedPnl: string
+  unrealizedPnl: string
+  marketValue: string
+}
+
+export interface ClobContractsInMarket {
+  yes: ClobPositionContracts
+  no: ClobPositionContracts
+}
+
+export interface LiveOrder {
+  createdAt: string
+  id: string
+  ownerId: number
+  marketId: string
+  token: string
+  type: string
+  status: string
+  side: 'BUY' | 'SELL'
+  makerAmount: string
+  takerAmount: string
+  price: string
+  originalSize: string
+  remainingSize: string
+  isEarning: boolean
 }
 
 export type ClobPosition = {
-  latestTrade: {
-    tradeId: string
-    marketId: string
-    ownerId: number
-    createdAt: string
-    role: string
-  }[]
   market: Market
-  tokensBalance: {
-    yes: string
-    no: string
+  tokensBalance: { yes: string; no: string }
+  positions: ClobContractsInMarket
+  latestTrade: { latestYesPrice: number; latestNoPrice: number } | null
+  orders: {
+    totalCollateralLocked: string
+    liveOrders: LiveOrder[]
   }
-  positions: {
-    yes: ClobTokenPosition
-    no: ClobTokenPosition
+  rewards: {
+    isEarning?: true
+    epochs: RewardEpoch[]
   }
 }
 

@@ -1,13 +1,13 @@
 import { Table, TableContainer, Tbody, Th, Thead, Tr } from '@chakra-ui/react'
 import React from 'react'
 import PortfolioMarketGroupItem from '@/app/(markets)/markets/[address]/components/portfolio-market-group-item'
-import { usePosition, useTradingService } from '@/services'
+import { ClobPositionWithType, usePosition, useTradingService } from '@/services'
 
 export default function PortfolioMarketGroup() {
   const { data: allPositions } = usePosition()
   const { market } = useTradingService()
 
-  const currentPosition = allPositions
+  const currentPosition = allPositions?.positions
     ?.filter((position) => position.type === 'clob')
     .find((position) => position.market.slug === market?.slug)
 
@@ -23,12 +23,20 @@ export default function PortfolioMarketGroup() {
           </Tr>
         </Thead>
         <Tbody>
-          {currentPosition && Boolean(+currentPosition.tokensBalance.yes) && (
-            <PortfolioMarketGroupItem outcome={0} quantity={currentPosition.tokensBalance.yes} />
-          )}
-          {currentPosition && Boolean(+currentPosition.tokensBalance.no) && (
-            <PortfolioMarketGroupItem outcome={1} quantity={currentPosition.tokensBalance.no} />
-          )}
+          {currentPosition &&
+            Boolean(+(currentPosition as ClobPositionWithType).tokensBalance.yes) && (
+              <PortfolioMarketGroupItem
+                outcome={0}
+                quantity={(currentPosition as ClobPositionWithType).tokensBalance.yes}
+              />
+            )}
+          {currentPosition &&
+            Boolean(+(currentPosition as ClobPositionWithType).tokensBalance.no) && (
+              <PortfolioMarketGroupItem
+                outcome={1}
+                quantity={(currentPosition as ClobPositionWithType).tokensBalance.no}
+              />
+            )}
         </Tbody>
       </Table>
     </TableContainer>

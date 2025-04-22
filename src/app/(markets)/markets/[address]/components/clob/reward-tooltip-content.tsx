@@ -12,12 +12,12 @@ import {
   useOutsideClick,
 } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
+import Image from 'next/image'
 import NextLink from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { formatUnits, maxUint256 } from 'viem'
 import useMarketRewardsIncentive from '@/hooks/use-market-rewards'
 import { useOrderBook } from '@/hooks/use-order-book'
-import GemIcon from '@/resources/icons/gem-icon.svg'
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import { useMarketRewards } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -35,7 +35,7 @@ export const RewardTooltipContent = ({
 }: RewardTooltipContentProps) => {
   const { market, clobOutcome } = useTradingService()
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const { data: orderbook } = useOrderBook(market?.slug)
+  const { data: orderbook } = useOrderBook(market?.slug, market?.tradeType)
   const { data: marketRewardsTotal } = useMarketRewardsIncentive(market?.slug, market?.tradeType)
   const minRewardsSize = orderbook?.minSize ? orderbook.minSize : maxUint256.toString()
   const range = calculateDisplayRange(
@@ -137,7 +137,7 @@ export const RewardTooltipContent = ({
           onMouseLeave={handleMouseLeave}
           onClick={handleClick}
         >
-          <GemIcon />
+          <Image src='/assets/images/gem-icon.svg' width={16} height={16} alt='rewards' />
           <Text {...paragraphMedium} color={isOpen ? 'white' : 'blue.500'}>
             {marketRewards && Boolean(marketRewards?.length)
               ? `Earnings ${NumberUtil.toFixed(marketRewards[0].totalUnpaidReward, 6)} ${
