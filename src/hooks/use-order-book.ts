@@ -23,37 +23,9 @@ export function useOrderBook(slug?: string, tradeType?: 'amm' | 'clob') {
   return useQuery({
     queryKey: ['order-book', slug],
     queryFn: async () => {
-      // const response: AxiosResponse<OrderBook> = await limitlessApi.get(
-      //   `/markets/${slug}/orderbook`
-      // )
-      const response = {
-        data: {
-          bids: [
-            {
-              price: 0.95,
-              size: 701000000,
-              side: 'BUY',
-            },
-            {
-              price: 0.64,
-              size: 800000000,
-              side: 'BUY',
-            },
-          ],
-          asks: [
-            {
-              price: 0.999,
-              size: 200000000,
-              side: 'SELL',
-            },
-          ],
-          tokenId: '29938812796996214758481416833721685895876020125273868499444364630866947959224',
-          lastTradePrice: 0.7,
-          adjustedMidpoint: 0.9744999999999999,
-          maxSpread: '0.035',
-          minSize: '100000000',
-        },
-      }
+      const response: AxiosResponse<OrderBook> = await limitlessApi.get(
+        `/markets/${slug}/orderbook`
+      )
       return {
         ...response.data,
         maxSpread: new BigNumber(response.data.maxSpread).minus('0.005').toString(),
