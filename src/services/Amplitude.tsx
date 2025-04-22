@@ -223,6 +223,8 @@ export enum ClickEvent {
   UserMarketClicked = 'User Market Clicked',
   UpgradeWalletClicked = 'Upgrade Wallet Clicked',
   RewardsButtonClicked = 'Rewards Button Clicked',
+  RewardsButtonHovered = 'Rewards Button Hovered',
+  RewardsLearnMoreClicked = 'Rewards Learn More Clicked',
   SplitContractsModalClicked = 'Split Contracts Modal Clicked',
   MergeContractsModalClicked = 'Merge Contracts Modal Clicked',
   SplitSharesConfirmed = 'Split Contracts Confirmed',
