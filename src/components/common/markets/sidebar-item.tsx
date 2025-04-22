@@ -74,26 +74,6 @@ export const CategoryItems = () => {
 
   return (
     <>
-      <ReferralLink href={'/'}>
-        <Link variant='transparent' px={0} minW='122px'>
-          <HStack
-            gap='4px'
-            cursor='pointer'
-            bg={!selectedCategory && !dashboard ? 'grey.100' : 'unset'}
-            onClick={() => {
-              handleCategory(undefined)
-              handleDashboard(undefined)
-            }}
-            px={'8px'}
-            rounded='8px'
-          >
-            <GrinIcon width={16} height={16} />
-            <Text {...paragraphRegular} whiteSpace='nowrap'>{`All Markets ${
-              categoriesWithCount.totalCount ? '(' + categoriesWithCount.totalCount + ')' : ''
-            }`}</Text>
-          </HStack>
-        </Link>
-      </ReferralLink>
       {isMobile && (
         <ReferralLink
           href={`/market-watch`}

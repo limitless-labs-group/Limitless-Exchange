@@ -83,7 +83,7 @@ export default function PortfolioPage() {
 
   return (
     <MainLayout layoutPadding={'0px'}>
-      <Box maxWidth='1294px' w='full'>
+      <Box maxWidth='1294px' w='full' px={isMobile ? '16px' : 0}>
         <Heading as='h1' {...headline}>
           Portfolio
         </Heading>

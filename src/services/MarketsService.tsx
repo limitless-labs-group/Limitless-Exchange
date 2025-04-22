@@ -9,7 +9,15 @@ import { fixedProductMarketMakerABI } from '@/contracts'
 import { publicClient } from '@/providers/Privy'
 import { useAccount } from '@/services/AccountService'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
-import { ApiResponse, Category, Market, MarketPage, MarketRewardsResponse, OddsData } from '@/types'
+import {
+  ApiResponse,
+  Category,
+  Market,
+  MarketPage,
+  MarketRewardsResponse,
+  MarketSortOption,
+  OddsData,
+} from '@/types'
 import { calculateMarketPrice, getPrices } from '@/utils/market'
 
 export function useMarkets(topic: Category | null, enabled = true, customHeaders = {}) {
@@ -73,6 +81,71 @@ export function useMarkets(topic: Category | null, enabled = true, customHeaders
       }
       return lastPage.data.totalAmount < LIMIT_PER_PAGE ? null : lastPage.next
     },
+    refetchOnWindowFocus: false,
+    enabled,
+    placeholderData: (previousData) => previousData,
+  })
+}
+export type UseSortedArgs = {
+  categoryId?: number | null
+  enabled?: boolean
+  sortBy?: MarketSortOption | null
+}
+export function useSortedMarkets(args: UseSortedArgs) {
+  const { categoryId, enabled, sortBy } = args
+  return useInfiniteQuery<MarketPage, Error>({
+    queryKey: ['sorted-markets', categoryId, sortBy],
+    queryFn: async ({ pageParam = 1 }) => {
+      const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/active`
+      const marketBaseUrl = categoryId ? `${baseUrl}/${categoryId}` : baseUrl
+      const { data: response }: AxiosResponse<ApiResponse> = await axios.get(marketBaseUrl, {
+        params: {
+          page: pageParam,
+          limit: LIMIT_PER_PAGE,
+          ...(sortBy ? { sortBy } : {}),
+        },
+      })
+
+      const ammMarkets = response.data.filter((market) => market.tradeType === 'amm')
+
+      const marketDataForMultiCall = ammMarkets.map((market) => ({
+        address: market.address as Address,
+        decimals: market.collateralToken.decimals,
+      }))
+
+      const pricesResult = ammMarkets.length > 0 ? await getPrices(marketDataForMultiCall) : []
+
+      const _markets = new Map<`0x${string}`, OddsData>(
+        pricesResult.map((item) => [item.address, { prices: item.prices }])
+      )
+
+      const result = response.data.map((market) => {
+        return {
+          ...market,
+          prices:
+            market.tradeType === 'amm'
+              ? _markets.get(market.address as `0x${string}`)?.prices || [50, 50]
+              : [
+                  calculateMarketPrice(market?.prices?.[0]),
+                  calculateMarketPrice(market?.prices?.[1]),
+                ],
+        }
+      })
+
+      return {
+        data: {
+          markets: result,
+          totalAmount: response.totalMarketsCount,
+        },
+        next: (pageParam as number) + 1,
+      }
+    },
+    initialPageParam: 1, //default page number
+    getNextPageParam: (lastPage) => {
+      return lastPage.data.totalAmount < LIMIT_PER_PAGE ? null : lastPage.next
+    },
+    staleTime: 5 * 60 * 1000, // Data stays fresh for 5 minutes
+    gcTime: 10 * 60 * 1000, // Keep unused data in cache for 10 minutes
     refetchOnWindowFocus: false,
     enabled,
     placeholderData: (previousData) => previousData,

@@ -242,14 +242,20 @@ export enum MarketTokensIds {
 }
 
 export enum Sort {
-  BASE = '',
   DEFAULT = '🔥 Trending',
   NEWEST = 'Newest',
   ENDING_SOON = 'Ending Soon',
-  HIGHEST_LIQUIDITY = 'High Liquidity',
   HIGHEST_VALUE = 'High Value',
   TRENDING = '🔥 Trending',
   LP_REWARDS = '💎 LP Rewards',
+}
+export enum MarketSortOption {
+  DEFAULT = 'trending',
+  TRENDING = 'trending',
+  ENDING_SOON = 'ending_soon',
+  HIGH_VALUE = 'high_value',
+  NEWEST = 'newest',
+  LP_REWARDS = 'lp_rewards',
 }
 
 export enum SortStorageName {

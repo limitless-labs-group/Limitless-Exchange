@@ -349,6 +349,7 @@ export const CreateMarket: FC = () => {
                         handleChange('description', e)
                       }
                     }}
+                    style={{ wordBreak: 'break-word' }}
                   />
                   <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
                     {getPlainTextLength(formData.description)}/3000 characters
