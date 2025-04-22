@@ -79,14 +79,14 @@ export const RewardTooltipContent = ({
     'https://limitlesslabs.notion.site/Limitless-Docs-0e59399dd44b492f8d494050969a1567#19304e33c4b9808498d9ea69e68a0cb4'
 
   const handleMouseEnter = () => {
-    trackClicked(ClickEvent.RewardsButtonHovered, {
-      marketAddress: market?.slug,
-    })
     if (closeTimeoutRef.current) {
       clearTimeout(closeTimeoutRef.current)
       closeTimeoutRef.current = null
     }
     if (!isClickOpen) {
+      trackClicked(ClickEvent.RewardsButtonHovered, {
+        marketAddress: market?.slug,
+      })
       onOpen()
     }
   }
