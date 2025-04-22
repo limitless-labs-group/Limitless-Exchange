@@ -72,7 +72,6 @@ export default function ScrollableCategories() {
               }}
               px={'8px'}
               rounded='8px'
-              height='32px'
             >
               <GrinIcon width={16} height={16} />
               <Text {...paragraphRegular} whiteSpace='nowrap'>
