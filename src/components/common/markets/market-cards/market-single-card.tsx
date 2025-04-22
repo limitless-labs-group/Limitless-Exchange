@@ -29,7 +29,7 @@ import { NumberUtil } from '@/utils'
 
 export const MIN_CARD_HEIGHT = {
   row: '144px',
-  grid: '164px',
+  grid: '184px',
   speedometer: '137px',
   chart: '144px',
   groupRow: '196px',
