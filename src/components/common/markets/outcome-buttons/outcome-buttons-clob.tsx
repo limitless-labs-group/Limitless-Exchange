@@ -62,7 +62,9 @@ export default function OutcomeButtonsClob() {
     if (orderType === MarketOrderType.MARKET) {
       return outcome ? `No ${noPrice}¢` : `Yes ${yesPrice}¢`
     }
-    return outcome ? `No ${100 - yesPrice}¢` : `Yes ${100 - noPrice}¢`
+    return outcome
+      ? `No ${new BigNumber(100).minus(yesPrice).decimalPlaces(1).toString()}¢`
+      : `Yes ${new BigNumber(100).minus(noPrice).decimalPlaces(1).toString()}¢`
   }
 
   if (strategy === 'Buy') {
