@@ -112,7 +112,13 @@ export default function MarketPage() {
     isLumy && LUMY_TOKENS.some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
 
   const chartTabs = useMemo(() => {
-    const tabs = []
+    const tabs = [
+      {
+        title: 'Chart',
+        icon: <LineChartIcon width={16} height={16} />,
+        analyticEvent: '',
+      },
+    ]
     if (market?.tradeType === 'clob') {
       tabs.push({
         title: 'Order book',
@@ -120,14 +126,11 @@ export default function MarketPage() {
         analyticEvent: ClickEvent.OrderBookOpened,
       })
     }
-    tabs.push({
-      title: 'Chart',
-      icon: <LineChartIcon width={16} height={16} />,
-    })
     if (isLivePriceSupportedMarket) {
       tabs.push({
         title: 'Assets price',
         icon: <CandlestickIcon width={16} height={16} />,
+        analyticEvent: '',
       })
     }
     return tabs
@@ -138,11 +141,10 @@ export default function MarketPage() {
   }, [])
 
   const chartsTabPanels = useMemo(() => {
-    const tabPanels = []
+    const tabPanels = [priceChart]
     if (market?.tradeType === 'clob') {
       tabPanels.push(<Orderbook key={uuidv4()} variant='small' />)
     }
-    tabPanels.push(priceChart)
     if (isLivePriceSupportedMarket) {
       tabPanels.push(
         <MarketAssetPriceChart
