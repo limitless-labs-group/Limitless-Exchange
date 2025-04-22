@@ -17,8 +17,8 @@ import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useMemo } from 'react'
 import { LoginButtons } from '@/components/common/login-button'
-import { CategoryItems } from '@/components/common/markets/sidebar-item'
 import SideBarPage from '@/components/common/side-bar-page'
+import CategoriesDesktop from '@/components/layouts/categories-desktop'
 import UserMenuDesktop from '@/components/layouts/user-menu-desktop'
 import WalletPage from '@/components/layouts/wallet-page'
 import { sortAtom } from '@/atoms/market-sort'
@@ -347,8 +347,8 @@ export default function Header() {
         </HStack>
       </HStack>
       {pageName === 'Explore Markets' && (
-        <HStack py='4px' px='12px' bg='grey.50' flexWrap='wrap'>
-          <CategoryItems />
+        <HStack py='4px' px='12px' bg='grey.50' gap={0}>
+          <CategoriesDesktop />
         </HStack>
       )}
     </Box>
