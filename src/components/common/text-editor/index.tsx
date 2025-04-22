@@ -60,7 +60,7 @@ export default function TextEditor({
         readOnly={readOnly}
         onChange={onChange}
         modules={{ toolbar: !readOnly }} // Disable toolbar in read mode
-        style={{ ...style, wordBreak: 'break-all' }}
+        style={style}
       />
     </Box>
   )
