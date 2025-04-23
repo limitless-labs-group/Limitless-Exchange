@@ -8,12 +8,14 @@ import { Toast } from '@/components/common/toast'
 import { DraftMarketCard } from '@/app/draft/components/draft-card'
 import { SelectedMarkets } from './selected-markets'
 import { useToast } from '@/hooks/ui/useToast'
+import { useUrlParams } from '@/hooks/use-url-param'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { DraftMarket } from '@/types/draft'
 
 export const RecentMarkets = () => {
   const router = useRouter()
   const toast = useToast()
+  const { getParam } = useUrlParams()
 
   const [isCreating, setIsCreating] = useState<boolean>(false)
 
@@ -24,6 +26,7 @@ export const RecentMarkets = () => {
       const response = await privateClient.get(`/markets/drafts/recent`)
       return response.data
     },
+    enabled: getParam('tab') === 'recent',
   })
 
   const [selectedMarketIds, setSelectedMarketIds] = useState<number[]>([])

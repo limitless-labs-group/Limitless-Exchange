@@ -22,11 +22,6 @@ module.exports = withBundleAnalyzer({
         destination: '/',
         permanent: false,
       },
-      {
-        source: '/marketcrash',
-        destination: '/?dashboard=marketcrash',
-        permanent: false,
-      },
     ]
   },
   async rewrites() {

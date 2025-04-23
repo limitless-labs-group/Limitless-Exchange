@@ -1,20 +1,47 @@
-import { Market, Sort } from '@/types'
+import { Market, MarketSortOption, Sort } from '@/types'
 
-const getVolumeForMarket = (market: Market): number => {
-  return Number((market as Market).volumeFormatted)
+type MarketOrGroup = Market
+
+export const getSortValue = (sortName: Sort): MarketSortOption => {
+  switch (sortName) {
+    case Sort.DEFAULT:
+    case Sort.TRENDING:
+      return MarketSortOption.TRENDING
+    case Sort.NEWEST:
+      return MarketSortOption.NEWEST
+    case Sort.ENDING_SOON:
+      return MarketSortOption.ENDING_SOON
+    case Sort.HIGHEST_VALUE:
+      return MarketSortOption.HIGH_VALUE
+    case Sort.LP_REWARDS:
+      return MarketSortOption.LP_REWARDS
+    default:
+      return MarketSortOption.DEFAULT
+  }
 }
 
-const getLiquidityForMarket = (market: Market): number => {
-  return Number((market as Market).liquidityFormatted)
+const getVolumeForMarket = (market: MarketOrGroup): number => {
+  return Number(market.volumeFormatted)
+}
+
+const getLiquidityForMarket = (market: MarketOrGroup): number => {
+  return Number(market.liquidityFormatted)
 }
 
 const getValueForMarket = (market: Market): number => {
-  return (
-    Number((market as Market).liquidityFormatted) + Number((market as Market).openInterestFormatted)
-  )
+  return Number(market.liquidityFormatted) + Number(market.openInterestFormatted) || 0
 }
 
-const getMarketTradeType = (market: Market): string => {
+const getAggregatedMarketValue = (market: MarketOrGroup): number => {
+  const volume = getVolumeForMarket(market)
+  const value = getValueForMarket(market)
+  if (value > volume) {
+    return value
+  }
+  return volume
+}
+
+const getMarketTradeType = (market: MarketOrGroup): string => {
   return (market as Market).tradeType
 }
 
@@ -55,17 +82,6 @@ export function sortMarkets<T extends Market[]>(
         return trendingRankA - trendingRankB
       }) as T
 
-    case Sort.HIGHEST_LIQUIDITY:
-      return marketsCopy.sort((a, b) => {
-        const liquidityA = getLiquidityForMarket(a)
-        const liquidityB = getLiquidityForMarket(b)
-
-        return (
-          convertTokenAmountToUsd(b.collateralToken.symbol, liquidityB) -
-          convertTokenAmountToUsd(a.collateralToken.symbol, liquidityA)
-        )
-      }) as T
-
     case Sort.ENDING_SOON:
       return marketsCopy.sort(
         (a, b) =>
@@ -74,12 +90,12 @@ export function sortMarkets<T extends Market[]>(
 
     case Sort.HIGHEST_VALUE:
       return marketsCopy.sort((a, b) => {
-        const valueA = getValueForMarket(a)
-        const valueB = getValueForMarket(b)
+        const aggregatedValueA = getAggregatedMarketValue(a)
+        const aggregatedValueB = getAggregatedMarketValue(b)
 
         return (
-          convertTokenAmountToUsd(b.collateralToken.symbol, valueB) -
-          convertTokenAmountToUsd(a.collateralToken.symbol, valueA)
+          convertTokenAmountToUsd(b.collateralToken.symbol, aggregatedValueB) -
+          convertTokenAmountToUsd(a.collateralToken.symbol, aggregatedValueA)
         )
       }) as T
 

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { formatUnits } from 'viem'
+import { Address, formatUnits } from 'viem'
 import ConvertStep from '@/components/common/markets/convert-modal/convert-step'
 import ReviewStep from '@/components/common/markets/convert-modal/review-step'
 import { ClobPositionWithType, usePosition, useTradingService } from '@/services'
+import { useWeb3Service } from '@/services/Web3Service'
 
 interface ConvertModalContentProps {
   step: number
@@ -16,15 +17,19 @@ export type ClobPositionWithTypeAndSelected = ClobPositionWithType & {
 export default function ConvertModalContent({ step, setStep }: ConvertModalContentProps) {
   const { data: allPositions } = usePosition()
   const { groupMarket, market } = useTradingService()
+  const { checkAllowanceForAll } = useWeb3Service()
   const [convertPositions, setConvertPositions] = useState<ClobPositionWithTypeAndSelected[]>([])
   const [sharesToConvert, setSharesToConvert] = useState('')
+  const [isApproved, setIsApproved] = useState(false)
 
   const prepareInitialPositions = () => {
-    const currentPositions = allPositions
+    const currentPositions = allPositions?.positions
       ?.filter((position) => position.type === 'clob')
       .filter((position) =>
         groupMarket?.markets?.some(
-          (market) => position.market.slug === market?.slug && !!+position.tokensBalance.no
+          (market) =>
+            position.market.slug === market?.slug &&
+            !!+(position as ClobPositionWithType).tokensBalance.no
         )
       )
       .map((position) => ({
@@ -33,7 +38,7 @@ export default function ConvertModalContent({ step, setStep }: ConvertModalConte
         amount: '',
       }))
     if (currentPositions?.length) {
-      setConvertPositions(currentPositions)
+      setConvertPositions(currentPositions as ClobPositionWithTypeAndSelected[])
     }
   }
 
@@ -47,6 +52,19 @@ export default function ConvertModalContent({ step, setStep }: ConvertModalConte
         +formatUnits(BigInt(position.tokensBalance.no), market?.collateralToken.decimals || 6)
     )
   )
+
+  const checkConvertAllowance = async () => {
+    const isApproved = await checkAllowanceForAll(
+      process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address,
+      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+    )
+    setIsApproved(isApproved)
+  }
+
+  useEffect(() => {
+    checkConvertAllowance()
+  }, [])
+
   return step === 1 ? (
     <ConvertStep
       positions={convertPositions as ClobPositionWithTypeAndSelected[]}
@@ -61,6 +79,8 @@ export default function ConvertModalContent({ step, setStep }: ConvertModalConte
       positions={convertPositions as ClobPositionWithTypeAndSelected[]}
       onBack={() => setStep(1)}
       sharesToConvert={sharesToConvert}
+      checkConvertAllowance={checkConvertAllowance}
+      isApproved={isApproved}
     />
   )
 }

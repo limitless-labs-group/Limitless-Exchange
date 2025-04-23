@@ -49,9 +49,6 @@ import { h1Regular, h2Medium, paragraphRegular } from '@/styles/fonts/fonts.styl
 import { NumberUtil } from '@/utils'
 
 export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps) {
-  /**
-   * ANALYTICS
-   */
   const { trackClicked, trackOpened } = useAmplitude()
   const router = useRouter()
   const { setMarket, resetQuotes, market, groupMarket } = useTradingService()
@@ -149,6 +146,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
         alignItems='flex-start'
         mb={isMobile ? '84px' : 0}
         ml={!isMobile ? '188px' : 'unset'}
+        mt={!market ? '64px' : '24px'}
       >
         <HStack justifyContent='space-between' mb='24px' px={isMobile ? '16px' : 0}>
           <Button
@@ -192,12 +190,12 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                     <ChakraImage
                       width={6}
                       height={6}
-                      src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
+                      src={groupMarket?.creator.imageURI ?? '/assets/images/logo.svg'}
                       alt='creator'
                       borderRadius={'2px'}
                     />
-                    <Link href={market?.creator.link || ''}>
-                      <Text color='grey.500'>{market?.creator.name}</Text>
+                    <Link href={groupMarket?.creator.link || ''}>
+                      <Text color='grey.500'>{groupMarket?.creator.name}</Text>
                     </Link>
                   </HStack>
                 )}
@@ -210,6 +208,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                   </VStack>
                 ) : (
                   <Heading
+                    as='h1'
                     {...(isMobile ? { ...h1Regular } : {})}
                     fontSize='32px'
                     userSelect='text'
@@ -253,7 +252,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                           Volume{' '}
                           {NumberUtil.convertWithDenomination(
                             groupMarket?.volumeFormatted || '0',
-                            6
+                            0
                           )}{' '}
                           {market.collateralToken.symbol}
                         </Text>
@@ -274,7 +273,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                               Value{' '}
                               {NumberUtil.convertWithDenomination(
                                 +market.openInterestFormatted + +market.liquidityFormatted,
-                                6
+                                0
                               )}{' '}
                               {market.collateralToken.symbol}
                             </Text>
@@ -340,7 +339,6 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
           )}
         </HStack>
       </Box>
-      <ConvertModal />
     </>
   )
 }

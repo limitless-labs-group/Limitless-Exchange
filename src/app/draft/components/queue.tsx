@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, Button, Flex, Spinner, VStack } from '@chakra-ui/react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import React, { useMemo, useState } from 'react'
 import { Toast } from '@/components/common/toast'
@@ -9,28 +9,21 @@ import { DraftMarketCard } from '@/app/draft/components/draft-card'
 import { SelectedMarkets } from './selected-markets'
 import { useToast } from '@/hooks'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
-import { DraftMarket, DraftMarketResponse, DraftMarketType } from '@/types/draft'
+import { DraftMarket, DraftMarketType } from '@/types/draft'
 
 export type DraftMarketsQueueProps = {
   marketType?: DraftMarketType
+  markets?: DraftMarket[]
 }
 
-export const DraftMarketsQueue = ({ marketType = 'amm' }: DraftMarketsQueueProps) => {
+export const DraftMarketsQueue = ({ marketType = 'amm', markets = [] }: DraftMarketsQueueProps) => {
   const [isCreating, setIsCreating] = useState<boolean>(false)
   const queryClient = useQueryClient()
   const privateClient = useAxiosPrivateClient()
 
   const router = useRouter()
-  const { data: draftMarkets } = useQuery({
-    queryKey: [`draftMarkets-${marketType}`],
-    queryFn: async () => {
-      const response = await privateClient.get(`/markets/drafts`)
 
-      return response.data.filter(
-        (market: DraftMarketResponse) => !market.type || market?.type === marketType
-      )
-    },
-  })
+  const draftMarkets = markets
 
   const [selectedMarketIds, setSelectedMarketIds] = useState<number[]>([])
 
@@ -100,7 +93,7 @@ export const DraftMarketsQueue = ({ marketType = 'amm' }: DraftMarketsQueueProps
       })
       .finally(async () => {
         await queryClient.refetchQueries({
-          queryKey: [`draftMarkets-${marketType}`],
+          queryKey: ['allDraftMarkets'],
         })
         setSelectedMarketIds([])
         setIsCreating(false)
@@ -135,7 +128,7 @@ export const DraftMarketsQueue = ({ marketType = 'amm' }: DraftMarketsQueueProps
       <Box
         position='fixed'
         right='24px'
-        top='80px'
+        top='100px'
         maxWidth='350px'
         w='full'
         display={selectedMarket.length > 0 ? 'block' : 'none'}

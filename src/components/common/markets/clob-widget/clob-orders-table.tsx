@@ -39,23 +39,23 @@ export default function ClobOrdersTable({ marketType }: ClobOrdersTableProps) {
   const { data: userOrders, isLoading: userOrdersLoading } = useMarketOrders(market?.slug)
   const privateClient = useAxiosPrivateClient()
   const queryClient = useQueryClient()
-  const { data: orderBook } = useOrderBook(market?.slug)
+  const { data: orderBook } = useOrderBook(market?.slug, market?.tradeType)
   const getOrderOutcome = (order: ClobPosition) => {
     return order.token === market?.tokens.yes ? 0 : 1
   }
 
   const getContractSizeFormatted = (contracts: string) => {
-    return NumberUtil.formatThousands(
+    return NumberUtil.convertWithDenomination(
       formatUnits(BigInt(contracts), market?.collateralToken.decimals || 6),
-      6
+      2
     )
   }
 
   const getRemainingContractsSize = (originalSize: string, remainingSize: string) => {
     const leftToFill = new BigNumber(originalSize).minus(new BigNumber(remainingSize)).toString()
-    return NumberUtil.formatThousands(
+    return NumberUtil.convertWithDenomination(
       formatUnits(BigInt(leftToFill), market?.collateralToken.decimals || 6),
-      6
+      2
     )
   }
 
@@ -77,7 +77,7 @@ export default function ClobOrdersTable({ marketType }: ClobOrdersTableProps) {
       .multipliedBy(order.price)
       .decimalPlaces(0)
       .toString()
-    return NumberUtil.formatThousands(
+    return NumberUtil.convertWithDenomination(
       formatUnits(BigInt(totalAmountRaw), market?.collateralToken.decimals || 6),
       2
     )

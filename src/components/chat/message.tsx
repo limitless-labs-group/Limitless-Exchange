@@ -4,15 +4,27 @@ import { paragraphRegular, captionRegular } from '@/styles/fonts/fonts.styles'
 import { ChatMsg } from '.'
 import Avatar from '../common/avatar'
 
+export const trimAcc = (str: string): string => {
+  if (!str || str.length <= 33) return str
+  return `${str.substring(0, 15)}...${str.substring(str.length - 15)}`
+}
+
 export const Message = ({ comment }: { comment: ChatMsg }) => {
   return (
     <>
       <VStack w='full' gap='10px' align='start'>
         <HStack w='full' justifyContent='space-between'>
           <HStack>
-            <Avatar account={comment.sender?.account ?? ''} avatarUrl={comment.sender?.pfpUrl} />
+            <Avatar
+              account={trimAcc(
+                comment.sender?.displayName ?? comment.sender.username ?? comment.sender?.account
+              )}
+              avatarUrl={comment.sender?.pfpUrl}
+            />
             <Text {...captionRegular}>
-              {comment.sender?.displayName ?? comment.sender?.account ?? ''}
+              {trimAcc(
+                comment.sender?.displayName ?? comment.sender.username ?? comment.sender?.account
+              )}
             </Text>
             <Text {...captionRegular} color='grey.500'>
               {useTimeAgo(comment.createdAt)}

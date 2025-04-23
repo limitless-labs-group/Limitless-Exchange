@@ -1,4 +1,3 @@
-import { isNumber } from '@chakra-ui/utils'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
@@ -15,14 +14,15 @@ import {
 } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address, formatUnits, getAddress, getContract, Hash, parseUnits, zeroHash } from 'viem'
+import ConvertModal from '@/components/common/markets/convert-modal'
 import { Toast } from '@/components/common/toast'
 import { conditionalTokensABI, fixedProductMarketMakerABI } from '@/contracts'
 import { useMarketData, useToast } from '@/hooks'
-import useClobMarketShares from '@/hooks/use-clob-market-shares'
 import {
   getConditionalTokenAddress,
   useConditionalTokensAddr,
 } from '@/hooks/use-conditional-tokens-addr'
+import { useNegriskClaimApprove } from '@/hooks/use-negrisk-claim-approve'
 import { useUrlParams } from '@/hooks/use-url-param'
 import { publicClient } from '@/providers/Privy'
 import { useAccount } from '@/services/AccountService'
@@ -81,6 +81,7 @@ interface ITradingServiceContext {
   redeemMutation: UseMutationResult<string | undefined, Error, RedeemParams, unknown>
   negriskApproved: boolean
   setNegRiskApproved: (val: boolean) => void
+  negriskApproveStatusLoading: boolean
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
@@ -98,24 +99,17 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
   const [marketFee, setMarketFee] = useState(0)
   const [marketPageOpened, setMarketPageOpened] = useState(false)
 
+  const {
+    negriskApproved,
+    setNegRiskApproved,
+    isLoading: negriskApproveStatusLoading,
+  } = useNegriskClaimApprove()
+
   /**
    * CLOB
    */
   const [clobOutcome, setClobOutcome] = useState(0)
   const [convertModalOpened, setConvertModalOpened] = useState(false)
-  const [negriskApproved, setNegRiskApproved] = useState(false)
-
-  const checkNegRiskClaimApprove = async () => {
-    const isApproved = await checkAllowanceForAll(
-      process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address,
-      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
-    )
-    setNegRiskApproved(isApproved)
-  }
-
-  useEffect(() => {
-    checkNegRiskClaimApprove()
-  }, [])
 
   const { updateParams } = useUrlParams()
   const onCloseMarketPage = () => {
@@ -890,11 +884,15 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     setConvertModalOpened,
     negriskApproved,
     setNegRiskApproved,
+    negriskApproveStatusLoading,
   }
 
   return (
     <TradingServiceContext.Provider value={contextProviderValue}>
-      {children}
+      <>
+        {children}
+        <ConvertModal />
+      </>
     </TradingServiceContext.Provider>
   )
 }

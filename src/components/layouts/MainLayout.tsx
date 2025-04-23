@@ -26,13 +26,26 @@ export const MainLayout = ({
   const { marketPageOpened, market } = useTradingService()
   const pageName = usePageName()
 
+  const getPaddingByPage = (page: string): { desktop: string; mobile: string } => {
+    switch (page) {
+      case 'Explore Markets':
+        return { desktop: '96px', mobile: '65px' }
+      case 'Draft':
+        return { desktop: '0px', mobile: '0px' }
+      default:
+        return { desktop: '64px', mobile: '78px' }
+    }
+  }
+
+  const { desktop: desktopPadding, mobile: mobilePadding } = getPaddingByPage(pageName)
+
   return (
     <Box
       className={inter.className}
       id='main'
       flexDir={'column'}
       w={'full'}
-      // minH={'100vh'}
+      minH={'100vh'}
       margin={'0 auto'}
       alignItems={'center'}
       justifyContent={'space-between'}
@@ -40,16 +53,17 @@ export const MainLayout = ({
       {...props}
     >
       {isMobile ? <MobileHeader /> : <Header />}
-      <Box mb={isMobile ? '60px' : 0} mt={isMobile ? '65px' : '80px'} overflow='hidden'>
+      <Box
+        mb={isMobile ? '60px' : 0}
+        overflow='hidden'
+        mt={isMobile ? mobilePadding : desktopPadding}
+      >
         {isMobile && pageName === 'Explore Markets' && (
           <HStack py='4px' px='12px' bg='grey.50' maxW='100%' overflowX='auto'>
             <CategoryItems />
           </HStack>
         )}
-        <HStack
-          // minH={'calc(100vh - 20px)'}
-          alignItems='flex-start'
-        >
+        <HStack minH={'100vh'} alignItems='flex-start'>
           {isLoading ? (
             <Flex w={'full'} h={'80vh'} alignItems={'center'} justifyContent={'center'}>
               <Spinner />

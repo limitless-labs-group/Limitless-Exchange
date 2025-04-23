@@ -112,7 +112,13 @@ export default function MarketPage() {
     isLumy && LUMY_TOKENS.some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
 
   const chartTabs = useMemo(() => {
-    const tabs = []
+    const tabs = [
+      {
+        title: 'Chart',
+        icon: <LineChartIcon width={16} height={16} />,
+        analyticEvent: '',
+      },
+    ]
     if (market?.tradeType === 'clob') {
       tabs.push({
         title: 'Order book',
@@ -120,14 +126,11 @@ export default function MarketPage() {
         analyticEvent: ClickEvent.OrderBookOpened,
       })
     }
-    tabs.push({
-      title: 'Chart',
-      icon: <LineChartIcon width={16} height={16} />,
-    })
     if (isLivePriceSupportedMarket) {
       tabs.push({
         title: 'Assets price',
         icon: <CandlestickIcon width={16} height={16} />,
+        analyticEvent: '',
       })
     }
     return tabs
@@ -138,11 +141,10 @@ export default function MarketPage() {
   }, [])
 
   const chartsTabPanels = useMemo(() => {
-    const tabPanels = []
+    const tabPanels = [priceChart]
     if (market?.tradeType === 'clob') {
       tabPanels.push(<Orderbook key={uuidv4()} variant='small' />)
     }
-    tabPanels.push(priceChart)
     if (isLivePriceSupportedMarket) {
       tabPanels.push(
         <MarketAssetPriceChart
@@ -247,8 +249,6 @@ export default function MarketPage() {
     setActiveChartTabIndex(0)
   }, [market])
 
-  console.log(groupMarket)
-
   return (
     <SideBarPage>
       {!isMobile && (
@@ -290,12 +290,18 @@ export default function MarketPage() {
           <ChakraImage
             width={6}
             height={6}
-            src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
+            src={
+              groupMarket?.creator.imageURI || market?.creator.imageURI || '/assets/images/logo.svg'
+            }
             alt='creator'
             borderRadius={'2px'}
           />
-          <Link href={market?.creator.link || ''} variant='textLinkSecondary' fontWeight={400}>
-            {market?.creator.name}
+          <Link
+            href={groupMarket?.creator.link || market?.creator.link || ''}
+            variant='textLinkSecondary'
+            fontWeight={400}
+          >
+            {groupMarket?.creator.name || market?.creator.name}
           </Link>
         </HStack>
       </HStack>
@@ -319,7 +325,7 @@ export default function MarketPage() {
                 <Text {...paragraphRegular} color='grey.500'>
                   {NumberUtil.convertWithDenomination(
                     groupMarket ? groupMarket.volumeFormatted : market?.volumeFormatted || '0',
-                    6
+                    0
                   )}{' '}
                   {market?.collateralToken.symbol}
                 </Text>
@@ -327,19 +333,31 @@ export default function MarketPage() {
             </HStack>
           )}
           {market?.tradeType === 'amm' && (
-            <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
-              <UniqueTraders color='grey.50' />
-              <Text {...paragraphRegular} color='grey.500'>
-                Value
-              </Text>
-              <Text {...paragraphRegular} color='grey.500'>
-                {NumberUtil.convertWithDenomination(
-                  market ? +market.openInterestFormatted + +market.liquidityFormatted : 0,
-                  6
-                )}{' '}
-                {market?.collateralToken.symbol}
-              </Text>
-              <OpenInterestTooltip iconColor='grey.500' />
+            <HStack w='full' gap='4px' justifyContent='space-between'>
+              <HStack gap='4px' color='grey.500'>
+                <VolumeIcon width={16} height={16} />
+                <Text {...paragraphRegular} color='grey.500'>
+                  Volume
+                </Text>
+                <Text {...paragraphRegular} color='grey.500'>
+                  {NumberUtil.convertWithDenomination(market?.volumeFormatted || '0', 0)}{' '}
+                  {market?.collateralToken.symbol}
+                </Text>
+              </HStack>
+              <HStack>
+                <UniqueTraders color='grey.50' />
+                <Text {...paragraphRegular} color='grey.500'>
+                  Value
+                </Text>
+                <Text {...paragraphRegular} color='grey.500'>
+                  {NumberUtil.convertWithDenomination(
+                    market ? +market.openInterestFormatted + +market.liquidityFormatted : 0,
+                    0
+                  )}{' '}
+                  {market?.collateralToken.symbol}
+                </Text>
+                <OpenInterestTooltip iconColor='grey.500' />
+              </HStack>
             </HStack>
           )}
         </HStack>
@@ -420,7 +438,6 @@ export default function MarketPage() {
           ))}
         </TabPanels>
       </Tabs>
-      <ConvertModal />
     </SideBarPage>
   )
 }

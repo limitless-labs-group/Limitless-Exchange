@@ -90,10 +90,10 @@ export default function MarketCardTriggerSingle({
                     </Text>
                     <Text {...paragraphRegular} color='grey.500' whiteSpace='nowrap'>
                       {market.tradeType === 'clob'
-                        ? NumberUtil.convertWithDenomination(market.volumeFormatted, 6)
+                        ? NumberUtil.convertWithDenomination(market.volumeFormatted, 0)
                         : NumberUtil.convertWithDenomination(
                             +market.openInterestFormatted + +market.liquidityFormatted,
-                            6
+                            0
                           )}{' '}
                       {market.collateralToken.symbol}
                     </Text>
