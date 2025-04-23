@@ -1,6 +1,6 @@
 import { atom } from 'jotai'
 import { defaultFormData } from '@/app/draft/components'
-import { Market, MarketType } from '@/types'
+import { Market } from '@/types'
 import { DraftMarket, DraftMarketType, IFormData, MarketInput } from '@/types/draft'
 
 const def = {
@@ -11,6 +11,7 @@ const def = {
 
 export type CreateMarketModalMarket = {
   market: DraftMarket | Market
+  id: number | string
   type: 'active' | 'draft'
   marketType: DraftMarketType
   mode: 'create' | 'edit'
@@ -25,5 +26,4 @@ export const groupMarketsAtom = atom<MarketInput[]>(defaultGroupMarkets)
 
 export const modalMarketAtom = atom<CreateMarketModalMarket | null>(null)
 
-// Atom for create market modal state
 export const createMarketModalAtom = atom<boolean>(false)

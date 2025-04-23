@@ -1,9 +1,8 @@
 'use client'
 
-import { Box, Button, HStack, Text, useDisclosure } from '@chakra-ui/react'
-import { useQuery } from '@tanstack/react-query'
+import { Box, Button, HStack, Text } from '@chakra-ui/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { Modal } from '@/components/common/modals/modal'
 import { AdminActiveMarkets } from './components/active'
@@ -12,7 +11,6 @@ import { AdminDraftMarkets } from './components/drafts'
 import { useCreateMarketModal } from '@/hooks/use-create-market-modal'
 import LoadingIcon from '@/resources/icons/loader-icon.svg'
 import ActiveIcon from '@/resources/icons/partially-filled-circle.svg'
-import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { DraftMarketType, DraftMarket } from '@/types/draft'
 
 type DraftMarketsQueueProps = {
@@ -58,14 +56,7 @@ const useTabLogic = (tabs: Tab[]) => {
 }
 
 export default function AdminPage() {
-  // const { isOpen: isCreateOpen, onToggle: onCreateToggle } = useDisclosure()
-  const {
-    isOpen: isCreateOpen,
-    open,
-    close,
-    toggle: onCreateToggle,
-    setMarket,
-  } = useCreateMarketModal()
+  const { isOpen: isCreateOpen, toggle: onCreateToggle } = useCreateMarketModal()
 
   const tabs = [
     {

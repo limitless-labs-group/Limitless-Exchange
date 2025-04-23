@@ -1,20 +1,16 @@
 'use client'
 
 import { Flex, VStack } from '@chakra-ui/react'
-import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { AdminMarketCard } from './market-card'
-import { useUrlParams } from '@/hooks/use-url-param'
+import { useCreateMarketModal } from '@/hooks/use-create-market-modal'
 import { useMarkets } from '@/services/MarketsService'
 import { Market } from '@/types'
 
 export const AdminActiveMarkets = () => {
-  const router = useRouter()
-  const { getParam } = useUrlParams()
-  const isEnabled = getParam('tab') === 'active'
-
-  const { data, fetchNextPage, hasNextPage } = useMarkets(null, isEnabled)
+  const { data, fetchNextPage, hasNextPage } = useMarkets(null)
+  const { setMarket, open } = useCreateMarketModal()
 
   const markets: Market[] = useMemo(() => {
     const allMarkets = data?.pages.flatMap((page) => page.data.markets) || []
@@ -25,10 +21,15 @@ export const AdminActiveMarkets = () => {
     })
   }, [data?.pages])
 
-  const handleClick = (marketSlug: string, tradeType: string, marketType: string) => {
-    const baseUrl = `/draft/?active-market=${marketSlug}&marketType=`
-    const addon = tradeType === 'amm' ? 'amm' : marketType === 'single' ? 'clob' : 'group'
-    router.push(baseUrl + addon)
+  const handleClick = (market: Market) => {
+    setMarket({
+      id: market.slug,
+      market,
+      type: 'active',
+      mode: 'edit',
+      marketType: market.tradeType,
+    })
+    open()
   }
 
   return (
@@ -47,7 +48,7 @@ export const AdminActiveMarkets = () => {
               <AdminMarketCard
                 market={market}
                 key={market.id}
-                onClick={() => handleClick(market.slug, market.tradeType, market.marketType)}
+                onClick={() => handleClick(market)}
               />
             )
           })}

@@ -2,12 +2,9 @@
 
 import { Box, Button, Flex, Spinner, VStack } from '@chakra-ui/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useAtom } from 'jotai'
-import { useRouter } from 'next/navigation'
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import { Toast } from '@/components/common/toast'
 import { AdminMarketCard } from '@/app/admin/components/market-card'
-import { modalMarketAtom } from '@/atoms/draft'
 import { useToast } from '@/hooks'
 import { useCreateMarketModal } from '@/hooks/use-create-market-modal'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
@@ -19,8 +16,7 @@ export const AdminDraftMarkets = () => {
   const privateClient = useAxiosPrivateClient()
   const queryClient = useQueryClient()
   const toast = useToast()
-  const router = useRouter()
-  const { isOpen, open, close, toggle, setMarket } = useCreateMarketModal()
+  const { open, setMarket } = useCreateMarketModal()
 
   const { data: draftMarkets = [] } = useQuery({
     queryKey: ['allDraftMarkets'],
@@ -39,13 +35,13 @@ export const AdminDraftMarkets = () => {
 
   const handleClick = (market: DraftMarket) => {
     setMarket({
+      id: market.id,
       market,
       type: 'draft',
       mode: 'edit',
       marketType: market.type,
     })
     open()
-    // router.push(`/draft/?draft-market=${market.id}&marketType=${market.type}`)
   }
 
   const createMarketsBatch = async () => {
@@ -143,9 +139,7 @@ export const AdminDraftMarkets = () => {
         maxWidth='350px'
         w='full'
         display={selectedMarkets.length > 0 ? 'block' : 'none'}
-      >
-        {/* <SelectedMarkets market={selectedMarkets} /> */}
-      </Box>
+      ></Box>
     </Flex>
   )
 }

@@ -20,8 +20,7 @@ import axios from 'axios'
 import { fromZonedTime, toZonedTime } from 'date-fns-tz'
 import { htmlToText } from 'html-to-text'
 import { useAtom } from 'jotai'
-import { useRouter, useSearchParams } from 'next/navigation'
-import React, { FC, useCallback, useEffect, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { default as MultiSelect } from 'react-select'
@@ -50,7 +49,7 @@ import {
   groupMarketsAtom,
 } from '@/atoms/draft'
 import { useToast } from '@/hooks'
-import { useUrlParams } from '@/hooks/use-url-param'
+import { useCreateMarketModal } from '@/hooks/use-create-market-modal'
 import { useLimitlessApi } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useMarket } from '@/services/MarketsService'
@@ -63,11 +62,6 @@ export const DraftMarketModal: FC = () => {
   const { supportedTokens } = useLimitlessApi()
   const toast = useToast()
   const queryClient = useQueryClient()
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const draftMarketId = searchParams.get('draft-market')
-  const activeMarketId = searchParams.get('active-market')
-  const type = searchParams.get('marketType')
   const privateClient = useAxiosPrivateClient()
   const {
     handleChange,
@@ -80,6 +74,9 @@ export const DraftMarketModal: FC = () => {
 
   const [marketType, setMarketType] = useAtom(draftMarketTypeAtom)
   const [, setGroupMarkets] = useAtom(groupMarketsAtom)
+  const { id, type, marketType: modalMarketType, close, reset } = useCreateMarketModal()
+  const draftMarketId = id && type === 'draft' ? id : null
+  const activeMarketId = id && type === 'active' ? String(id) : null
 
   const isClob = marketType === 'clob'
   const isAmm = marketType === 'amm'
@@ -121,6 +118,8 @@ export const DraftMarketModal: FC = () => {
       populateActiveMarketData(editActiveMarket)
       return
     }
+    console.log('actime maker', editActiveMarket)
+
     setFormData(defaultFormData)
     setGroupMarkets(defaultGroupMarkets)
   }, [editDraftMarket, editActiveMarket])
@@ -197,7 +196,7 @@ export const DraftMarketModal: FC = () => {
       .then(() => {
         queryClient.invalidateQueries({ queryKey: ['allDraftMarkets'] })
         showToast(`Market is drafted`)
-        router.push(`/draft?tab=queue-${marketType}`)
+        close()
       })
       .catch((res) => {
         if (res?.response?.status === 413) {
@@ -228,7 +227,7 @@ export const DraftMarketModal: FC = () => {
       .then(() => {
         queryClient.invalidateQueries({ queryKey: ['allDraftMarkets'] })
         showToast(`Market ${draftMarketId} is updated`)
-        router.push(`/draft?tab=queue-${marketType}`)
+        close()
       })
       .catch((res) => {
         if (res?.response?.status === 413) {
@@ -257,7 +256,7 @@ export const DraftMarketModal: FC = () => {
       .then(() => {
         queryClient.invalidateQueries({ queryKey: ['markets'] })
         showToast(`Market is updated`)
-        router.push(`/draft?tab=active`)
+        close()
       })
       .catch((res) => {
         showToast(`Error: ${res.message}`)
@@ -284,13 +283,7 @@ export const DraftMarketModal: FC = () => {
     }).length
   }
 
-  const playSound = useCallback(() => {
-    const audio = new Audio('/audio.mp3')
-    audio.play()
-  }, [])
-
   const submit = async () => {
-    // playSound()
     if (draftMarketId) {
       await updateMarket()
       return
@@ -314,7 +307,7 @@ export const DraftMarketModal: FC = () => {
         <FormControl>
           {!activeMarketId ? (
             <MarketTypeSelector
-              value={marketType ?? 'amm'}
+              value={modalMarketType ?? 'amm'}
               onChange={(value) => setMarketType(value as DraftMarketType)}
             />
           ) : null}
