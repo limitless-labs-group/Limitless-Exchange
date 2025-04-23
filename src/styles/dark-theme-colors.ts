@@ -185,6 +185,7 @@ export const darkThemeColors: ColorScheme = {
     widgetBgGrey: '#52525b',
   },
   draftCard: {
+    background: 'black',
     bg: '#03190c',
     border: '#bbf7d0',
     selectedBg: '#03190c',

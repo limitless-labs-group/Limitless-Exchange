@@ -185,6 +185,7 @@ export const lightThemeColors: ColorScheme = {
     widgetBgGrey: '#52525b',
   },
   draftCard: {
+    background: 'white',
     bg: '#dcfce7',
     border: '#bbf7d0',
     selectedBg: '#f0fdf4',
