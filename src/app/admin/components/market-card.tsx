@@ -1,15 +1,31 @@
-import { Box, HStack, Link, Text, Image as ChakraImage, Checkbox, Stack } from '@chakra-ui/react'
+import {
+  Box,
+  HStack,
+  Link,
+  Text,
+  Image as ChakraImage,
+  Checkbox,
+  Stack,
+  Flex,
+  Switch,
+} from '@chakra-ui/react'
 import { format, toZonedTime } from 'date-fns-tz'
 import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Paper from '@/components/common/paper'
 import TextEditor from '@/components/common/text-editor'
-import { epochToDailyRewards } from './use-create-market'
+import { epochToDailyRewards } from '@/app/draft/components/use-create-market'
 import CategoryIcon from '@/resources/icons/category.svg'
 import FeeIcon from '@/resources/icons/fee.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import DeadlineIcon from '@/resources/icons/sun-watch.svg'
-import { captionMedium, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import {
+  captionMedium,
+  captionRegular,
+  h3Medium,
+  paragraphMedium,
+  paragraphRegular,
+} from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { DraftMarket, MarketInput } from '@/types/draft'
 import { NumberUtil } from '@/utils'
@@ -19,6 +35,14 @@ interface DraftMarketSingleCardProps {
   isChecked?: boolean
   onToggle?: () => void
   onClick?: () => void
+}
+
+interface DescArgs {
+  market: DraftMarket | Market
+  hover?: boolean
+  isChecked?: boolean
+  isDescShown: boolean
+  setIsDescShown: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 function isDraftMarket(market: DraftMarket | Market): market is DraftMarket {
@@ -37,11 +61,12 @@ const colors = {
 
 const MarketDataFactory = {
   getMarketType: (market: DraftMarket | Market): string => {
+    if ('type' in market) return market.type
     if (isDraftMarket(market)) {
       return market.type
     }
     if (isMarket(market)) {
-      return market.tradeType
+      return market.marketType === 'group' ? 'group' : market.tradeType
     }
     return ''
   },
@@ -50,11 +75,11 @@ const MarketDataFactory = {
     const type = MarketDataFactory.getMarketType(market)
     switch (type) {
       case 'clob':
-        return 'green.100'
-      case 'group':
         return 'purple.100'
-      default:
+      case 'group':
         return 'blue.100'
+      default:
+        return 'green.100'
     }
   },
 
@@ -108,19 +133,39 @@ const MarketDataFactory = {
     return `${etDate} ET / ${utcDate} UTC`
   },
 
-  renderCreatorAndTags: (market: DraftMarket | Market) => {
+  renderCreator: (market: DraftMarket | Market) => {
     return isMarket(market) ? (
-      <HStack gap='8px' flexWrap='wrap'>
+      <HStack>
         <ChakraImage
           width={6}
           height={6}
           src={market?.creator.imageUrl ?? '/assets/images/logo.svg'}
           alt='creator'
-          borderRadius={'2px'}
+          borderRadius={'99px'}
         />
-        <Link href={market?.creator.link || ''} isExternal>
-          <Text color='grey.500'>{market?.creator.name}</Text>
-        </Link>
+        {/* <Link href={market?.creator.link || ''} isExternal> */}
+        {/*   <Text color='grey.500'>{market?.creator.name}</Text> */}
+        {/* </Link> */}
+      </HStack>
+    ) : (
+      <HStack>
+        <ChakraImage
+          width={6}
+          height={6}
+          src={market?.creator.pfpUrl ?? '/assets/images/logo.svg'}
+          alt='creator'
+          borderRadius={'99px'}
+        />
+        {/* <Text color='grey.500'> */}
+        {/*   {market?.creator?.displayName ?? market?.creator.username ?? ''} */}
+        {/* </Text> */}
+      </HStack>
+    )
+  },
+
+  renderTags: (market: DraftMarket | Market) => {
+    return isMarket(market) ? (
+      <HStack gap='8px' flexWrap='wrap'>
         {market?.tags?.map((tag: string, index) => (
           <Text color='grey.500' key={index}>
             #{tag}
@@ -129,14 +174,6 @@ const MarketDataFactory = {
       </HStack>
     ) : (
       <HStack gap='8px' flexWrap='wrap'>
-        <ChakraImage
-          width={6}
-          height={6}
-          src={market?.creator.username ?? '/assets/images/logo.svg'}
-          alt='creator'
-          borderRadius={'2px'}
-        />
-        <Text color='grey.500'>{market?.creator.username ?? ''}</Text>
         {market?.tags?.map((tag: any) => (
           <Text color='grey.500' key={tag.id}>
             #{tag.name}
@@ -146,39 +183,82 @@ const MarketDataFactory = {
     )
   },
 
-  renderGroupMarkets: (market: DraftMarket | Market) => {
-    if (isMarket(market)) return
-    if (market.type === 'group' && market?.markets && market.markets?.length > 0) {
+  renderAttributes: (market: DraftMarket | Market) => {
+    return isMarket(market) ? (
+      <MarketSpecificInfo market={market} />
+    ) : (
+      <DraftMarketSpecificInfo market={market} />
+    )
+  },
+
+  renderDescription: (descArgs: DescArgs) => {
+    const { market, isChecked, isDescShown, setIsDescShown, hover } = descArgs
+    const type = (market: DraftMarket | Market) => {
+      if (isMarket(market)) return market.marketType
+      return market.type
+    }
+
+    if (type(market) === 'group' && market?.markets && market.markets?.length > 0) {
       return (
-        <Box pl={2} mb={2}>
-          <Text {...paragraphMedium} color={colors.secondary} mb={1}>
-            Markets in group:
-          </Text>
-          <Stack spacing={1}>
+        <Box>
+          <HStack justifyContent='space-between' mb='16px'>
+            <Text {...paragraphMedium} color={colors.secondary} mb={2}>
+              Markets in group:
+            </Text>
+            <Switch isChecked={isDescShown} onChange={() => setIsDescShown(!isDescShown)}>
+              Show description
+            </Switch>
+          </HStack>
+          <Stack gap='15px'>
             {[...market.markets]
               .sort((a, b) => (a.id ?? 0) - (b.id ?? 0))
-              .map((subMarket: MarketInput, index: number) => (
-                <Text
-                  key={market.id ?? index}
-                  {...paragraphRegular}
-                  color={colors.main}
-                  pl={4}
-                  position='relative'
-                  _before={{
-                    content: '"•"',
-                    position: 'absolute',
-                    left: 1,
-                    color: colors.secondary,
-                  }}
-                >
-                  {subMarket.title}
-                </Text>
-              ))}
+              .map((subMarket: MarketInput, index: number) => {
+                const { title, description, settings, id } = subMarket
+                return (
+                  <Stack gap='10px' key='index'>
+                    <HStack justifyContent='space-between' alignItems='end'>
+                      <Text
+                        key={id ?? index}
+                        {...paragraphMedium}
+                        fontWeight='500'
+                        color={colors.main}
+                      >
+                        {`->`} {title}
+                      </Text>
+                      <HStack>
+                        <Text {...captionRegular}>rewards:</Text>
+                        <Text {...captionMedium} fontWeight='700'>
+                          {epochToDailyRewards(settings?.rewardsEpoch ?? 0)}
+                        </Text>
+                      </HStack>
+                    </HStack>
+                    {isDescShown ? (
+                      <Text {...captionRegular} color={colors.secondary} overflow='hidden'>
+                        <TextEditor
+                          value={description ?? ''}
+                          readOnly
+                          className={`draft ${hover ? 'hover' : ''} ${isChecked ? 'checked' : ''}`}
+                        />
+                      </Text>
+                    ) : null}
+                  </Stack>
+                )
+              })}
           </Stack>
         </Box>
       )
     }
-    return null
+    return market.description ? (
+      <HStack alignItems='flex-start'>
+        <Text {...paragraphMedium} color={colors.main} overflow='hidden'>
+          <TextEditor
+            value={market?.description ?? ''}
+            readOnly
+            className={`draft ${hover ? 'hover' : ''} ${isChecked ? 'checked' : ''}`}
+          />
+        </Text>
+      </HStack>
+    ) : null
   },
 }
 
@@ -279,13 +359,14 @@ const MarketSpecificInfo = ({ market }: { market: Market }) => (
   </>
 )
 
-export const DraftMarketCard = ({
+export const AdminMarketCard = ({
   market,
   isChecked,
   onToggle,
   onClick,
 }: DraftMarketSingleCardProps) => {
   const [hover, setHover] = useState(false)
+  const [isDescShown, setIsDescShown] = useState(false)
 
   const marketType = MarketDataFactory.getMarketType(market)
   const typeColor = MarketDataFactory.getTypeColor(market)
@@ -294,51 +375,54 @@ export const DraftMarketCard = ({
 
   return (
     <Paper
+      p='16px'
       w={'full'}
       minW={!isMobile ? '868px' : 'unset'}
       id={String(market.id)}
       scrollMarginTop='50px'
       justifyContent={'space-between'}
       _hover={{ ...(!isMobile ? { bg: 'var(--chakra-colors-grey-200)' } : {}) }}
-      border={`3px solid ${isChecked ? 'var(--chakra-colors-draftCard-border)' : 'transparent'}`}
-      bg={` ${isChecked ? 'var(--chakra-colors-draftCard-bg)' : 'var(--chakra-colors-grey-100)'}`}
+      border={`3px solid ${
+        isChecked || hover ? 'var(--chakra-colors-grey-500)' : 'var(--chakra-colors-grey-200)'
+      }`}
+      bg={` ${isChecked ? 'var(--chakra-colors-grey-200)' : 'white'}`}
       position='relative'
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
+      {hover || isChecked ? (
+        <Flex
+          position='absolute'
+          bg={'var(--chakra-colors-white)'}
+          top='-10px'
+          left='-10px'
+          w='24px'
+          h='24px'
+          borderRadius='2px'
+          alignItems='center'
+          justifyContent='center'
+        >
+          <Checkbox
+            isChecked={isChecked}
+            onChange={(e) => {
+              e.stopPropagation()
+              if (onToggle) {
+                onToggle()
+              }
+            }}
+            onClick={(e) => e.stopPropagation()}
+            transform='scale(1.5)'
+          />
+        </Flex>
+      ) : null}
+
       <HStack align='start' spacing={4}>
-        <Checkbox
-          isChecked={isChecked}
-          onChange={(e) => {
-            e.stopPropagation()
-            if (onToggle) {
-              onToggle()
-            }
-          }}
-          onClick={(e) => e.stopPropagation()}
-          transform='scale(1.5)'
-          marginRight='8px'
-          marginTop='4px'
-        />
-        <Box as='a' width='95%'>
-          <Stack gap='5px' width='100%'>
-            <HStack justifyContent='space-between' mb='5px' alignItems='flex-start'>
-              <Text {...paragraphMedium} color={colors.main}>
-                {market.title}
-              </Text>
-              {onClick ? (
-                <HStack
-                  gap={1}
-                  color={colors.main}
-                  onClick={onClick}
-                  cursor='pointer'
-                  _hover={{ textDecoration: 'underline' }}
-                >
-                  <Text {...paragraphMedium} color={colors.main}>
-                    Edit
-                  </Text>
-                </HStack>
-              ) : (
+        <Box as='a' w='full'>
+          <Stack gap='16px' width='100%'>
+            <HStack justifyContent='space-between'>
+              <HStack>
+                {MarketDataFactory.renderCreator(market)}
+
                 <HStack gap={1}>
                   <Box px='2' py='1' borderRadius='md' bg={typeColor}>
                     <Text
@@ -351,28 +435,8 @@ export const DraftMarketCard = ({
                     </Text>
                   </Box>
                 </HStack>
-              )}
-            </HStack>
 
-            {market.description ? (
-              <HStack alignItems='flex-start'>
-                <Text {...paragraphMedium} color={colors.main} overflow='hidden'>
-                  <TextEditor
-                    value={market?.description ?? ''}
-                    readOnly
-                    className={`draft ${hover ? 'hover' : ''} ${isChecked ? 'checked' : ''}`}
-                  />
-                </Text>
-              </HStack>
-            ) : null}
-
-            {MarketDataFactory.renderGroupMarkets(market)}
-
-            {MarketDataFactory.renderCreatorAndTags(market)}
-
-            <HStack justifyContent='space-between' alignItems='flex-end' flexDirection={'row'}>
-              <HStack gap={'16px'} flexDirection={'row'} w='full'>
-                <HStack w={'unset'} justifyContent={'unset'}>
+                <HStack w={'unset'}>
                   <HStack color={colors.secondary} gap='4px'>
                     <DeadlineIcon width={14} height={14} />
                     <Text {...paragraphMedium} color={colors.secondary}>
@@ -383,7 +447,31 @@ export const DraftMarketCard = ({
                     {formattedDeadline}
                   </Text>
                 </HStack>
+                {MarketDataFactory.renderTags(market)}
+              </HStack>
 
+              {onClick ? (
+                <HStack
+                  gap={1}
+                  color={colors.main}
+                  onClick={onClick}
+                  cursor='pointer'
+                  _hover={{ textDecoration: 'underline' }}
+                >
+                  <Text {...paragraphMedium} color={colors.main}>
+                    Edit
+                  </Text>
+                </HStack>
+              ) : null}
+            </HStack>
+            <HStack justifyContent='space-between' mb='5px' alignItems='flex-start'>
+              <Text {...h3Medium} color={colors.main}>
+                {market.title}
+              </Text>
+            </HStack>
+
+            <HStack justifyContent='space-between' alignItems='flex-end' flexDirection={'row'}>
+              <HStack gap={'16px'} flexDirection={'row'} w='full'>
                 <HStack w={'unset'} justifyContent={'unset'}>
                   <HStack color={colors.secondary} gap='4px'>
                     <CategoryIcon width={16} height={16} />
@@ -418,10 +506,17 @@ export const DraftMarketCard = ({
                   </HStack>
                 ) : null}
 
-                {isDraftMarket(market) && <DraftMarketSpecificInfo market={market} />}
-                {isMarket(market) && <MarketSpecificInfo market={market} />}
+                {MarketDataFactory.renderAttributes(market)}
               </HStack>
             </HStack>
+
+            {MarketDataFactory.renderDescription({
+              market,
+              isChecked,
+              hover,
+              isDescShown,
+              setIsDescShown,
+            })}
           </Stack>
         </Box>
       </HStack>

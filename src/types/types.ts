@@ -36,6 +36,16 @@ export interface Creator {
   address?: string
 }
 
+export interface Settings {
+  priorityIndex?: number
+  rewardsEpoch?: number
+  maxSpread?: number
+  minSize?: number
+  c?: number
+  createdAt?: string
+  updatedAt?: string
+}
+
 export type DraftMetadata = {
   fee: number
   liquidity: number
@@ -81,12 +91,7 @@ export interface Market {
   metadata: {
     isBannered: boolean
   }
-  settings?: {
-    minSize?: number
-    maxSpread?: number
-    c?: number
-    rewardsEpoch?: number
-  } | null
+  settings?: Settings
   priorityIndex: number
   tokens: {
     yes: string

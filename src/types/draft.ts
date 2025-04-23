@@ -1,4 +1,4 @@
-import { Category, DraftMetadata, Market, MarketType } from './types'
+import { Category, DraftMetadata, Settings, Market, MarketType } from './types'
 
 export interface FormFieldProps {
   label: string
@@ -12,22 +12,14 @@ export type DraftMarket = {
   tags: any
   collateralToken: Token
   categories: Category[]
-  creator: DraftCreator
+  creator: Creator
   type: DraftMarketType
   draftMetadata: DraftMetadata
   markets?: MarketInput[]
   metadata: {
     isBannered: false
   }
-  settings: Settings
-}
-
-export interface Settings {
-  priorityIndex?: number
-  rewardsEpoch?: number
-  maxSpread?: number
-  minSize?: number
-  c?: number
+  settings?: Settings
 }
 
 export interface IFormData {
@@ -61,7 +53,7 @@ export interface IFormData {
 export type MarketInput = {
   title: string
   description: string
-  settings: Settings
+  settings?: Settings
   id?: number
 }
 
