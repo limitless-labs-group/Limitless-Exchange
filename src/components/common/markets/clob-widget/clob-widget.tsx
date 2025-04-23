@@ -145,7 +145,7 @@ export default function ClobWidget() {
           {orderType === MarketOrderType.MARKET ? <ClobMarketTradeForm /> : <ClobLimitTradeForm />}
           {isBalanceNotEnough && (
             <Text my='8px' {...paragraphRegular} color='grey.500' textAlign={'center'}>
-              Not enough funds
+              Not enough {strategy === 'Buy' ? 'funds' : 'shares'}
             </Text>
           )}
         </Paper>
