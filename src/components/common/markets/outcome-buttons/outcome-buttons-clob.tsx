@@ -14,7 +14,7 @@ import { MarketOrderType } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export default function OutcomeButtonsClob() {
-  const { market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
+  const { market, clobOutcome: outcome, setClobOutcome: setOutcome, strategy } = useTradingService()
   const { trackChanged } = useAmplitude()
   const { orderType, yesPrice, noPrice, sharesAvailable } = useClobWidget()
   const [, setTradingBlocked] = useAtom(blockTradeAtom)
@@ -59,9 +59,11 @@ export default function OutcomeButtonsClob() {
             <Text color={!outcome ? 'white' : 'green.500'} fontSize='16px' fontWeight={700}>
               Yes {yesPrice}¢
             </Text>
-            <Text {...paragraphRegular} color={!outcome ? 'white' : 'green.500'}>
-              {NumberUtil.convertWithDenomination(getShares(sharesAvailable['yes']), 2)} Contracts
-            </Text>
+            {strategy === 'Sell' && (
+              <Text {...paragraphRegular} color={!outcome ? 'white' : 'green.500'}>
+                {NumberUtil.convertWithDenomination(getShares(sharesAvailable['yes']), 2)} Contracts
+              </Text>
+            )}
           </VStack>
         </Button>
         <Button
@@ -78,9 +80,11 @@ export default function OutcomeButtonsClob() {
             <Text color={outcome ? 'white' : 'red.500'} fontSize='16px' fontWeight={700}>
               No {noPrice}¢
             </Text>
-            <Text {...paragraphRegular} color={outcome ? 'white' : 'red.500'}>
-              {NumberUtil.convertWithDenomination(getShares(sharesAvailable['no']), 2)} Contracts
-            </Text>
+            {strategy === 'Sell' && (
+              <Text {...paragraphRegular} color={outcome ? 'white' : 'red.500'}>
+                {NumberUtil.convertWithDenomination(getShares(sharesAvailable['no']), 2)} Contracts
+              </Text>
+            )}
           </VStack>
         </Button>
       </HStack>
