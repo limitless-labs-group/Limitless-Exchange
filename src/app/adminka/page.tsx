@@ -49,7 +49,7 @@ const useTabLogic = (tabs: Tab[]) => {
 
   const onTabChange = (index: number) => {
     setActiveIndex(index)
-    router.push(`/admin?tab=${tabs[index].param}`)
+    router.push(`/adminka?tab=${tabs[index].param}`)
   }
 
   return { activeIndex, onTabChange }
