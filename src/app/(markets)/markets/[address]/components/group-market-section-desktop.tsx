@@ -12,7 +12,7 @@ import BigNumber from 'bignumber.js'
 import React, { SyntheticEvent, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
-import { useClobWidget } from '@/components/common/markets/clob-widget/context'
+import RewardTooltipSmall from '@/app/(markets)/markets/[address]/components/clob/reward-tooltip-small'
 import GroupMarketSectionTabs from '@/app/(markets)/markets/[address]/components/group-market-section-tabs'
 import { useMarketOrders } from '@/hooks/use-market-orders'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
@@ -165,15 +165,18 @@ export default function GroupMarketSectionDesktop({ market }: GroupMarketSection
               <Text textAlign='left' {...headline}>
                 {market.proxyTitle || market.title}
               </Text>
-              <HStack w={isMobile ? 'full' : 'unset'} gap='4px' color='grey.500'>
-                <VolumeIcon width={16} height={16} />
-                <Text {...paragraphRegular} color='grey.500'>
-                  Volume
-                </Text>
-                <Text {...paragraphRegular} color='grey.500'>
-                  {NumberUtil.convertWithDenomination(market.volumeFormatted, 2)}{' '}
-                  {market?.collateralToken.symbol}
-                </Text>
+              <HStack gap='8px' mt='4px'>
+                {market.isRewardable && <RewardTooltipSmall market={market} />}
+                <HStack w={isMobile ? 'full' : 'unset'} gap='4px' color='grey.500'>
+                  <VolumeIcon width={16} height={16} />
+                  <Text {...paragraphRegular} color='grey.500'>
+                    Volume
+                  </Text>
+                  <Text {...paragraphRegular} color='grey.500'>
+                    {NumberUtil.convertWithDenomination(market.volumeFormatted, 2)}{' '}
+                    {market?.collateralToken.symbol}
+                  </Text>
+                </HStack>
               </HStack>
             </Box>
             <HStack gap='16px'>

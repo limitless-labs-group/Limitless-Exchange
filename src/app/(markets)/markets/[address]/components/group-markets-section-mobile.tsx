@@ -6,6 +6,7 @@ import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
 import MarketPageNergiskMobile from '@/components/common/markets/market-page-nergisk-mobile'
+import RewardTooltipSmall from '@/app/(markets)/markets/[address]/components/clob/reward-tooltip-small'
 import { useMarketOrders } from '@/hooks/use-market-orders'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
@@ -144,15 +145,18 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
             <Text textAlign='left' {...headline}>
               {market.proxyTitle || market.title}
             </Text>
-            <HStack w={isMobile ? 'full' : 'unset'} gap='4px' color='grey.500'>
-              <VolumeIcon width={16} height={16} />
-              <Text {...paragraphRegular} color='grey.500'>
-                Volume
-              </Text>
-              <Text {...paragraphRegular} color='grey.500'>
-                {NumberUtil.convertWithDenomination(market.volumeFormatted, 2)}{' '}
-                {market?.collateralToken.symbol}
-              </Text>
+            <HStack gap='8px' mt='4px'>
+              {market.isRewardable && <RewardTooltipSmall market={market} />}
+              <HStack w={isMobile ? 'full' : 'unset'} gap='4px' color='grey.500'>
+                <VolumeIcon width={16} height={16} />
+                <Text {...paragraphRegular} color='grey.500'>
+                  Volume
+                </Text>
+                <Text {...paragraphRegular} color='grey.500'>
+                  {NumberUtil.convertWithDenomination(market.volumeFormatted, 2)}{' '}
+                  {market?.collateralToken.symbol}
+                </Text>
+              </HStack>
             </HStack>
           </Box>
           <HStack gap='16px'>

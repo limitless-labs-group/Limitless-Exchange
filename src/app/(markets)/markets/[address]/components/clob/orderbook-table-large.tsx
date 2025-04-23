@@ -64,12 +64,11 @@ export default function OrderbookTableLarge({
     market?.tradeType
   )
   const { data: userOrders } = useMarketOrders(market?.slug)
-  const { trackChanged, trackClicked } = useAmplitude()
+  const { trackChanged } = useAmplitude()
   const ref = useRef<HTMLElement>()
 
   const [rewardsButtonClicked, setRewardButtonClicked] = useState(false)
   const [rewardButtonHovered, setRewardButtonHovered] = useState(false)
-  const [linkHovered, setLinkHovered] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -80,13 +79,7 @@ export default function OrderbookTableLarge({
 
   useOutsideClick({
     ref: ref as MutableRefObject<HTMLElement>,
-    handler: () => {
-      if (!linkHovered) {
-        setRewardButtonClicked(false)
-        return
-      }
-      return
-    },
+    handler: () => setRewardButtonClicked(false),
   })
 
   const orderBookPriceRange = orderbook
@@ -135,10 +128,7 @@ export default function OrderbookTableLarge({
         <HStack gap='16px'>
           {market?.isRewardable && (
             <Box position='relative'>
-              <RewardTooltipContent
-                linkHoverCallback={setLinkHovered}
-                contentHoverCallback={setRewardButtonHovered}
-              />
+              <RewardTooltipContent contentHoverCallback={setRewardButtonHovered} />
             </Box>
           )}
           <HStack w={'152px'} bg='grey.200' borderRadius='8px' py='2px' px={'2px'}>
