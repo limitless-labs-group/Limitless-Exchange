@@ -17,7 +17,6 @@ import Image from 'next/image'
 import NextLink from 'next/link'
 import React, { useEffect, useRef, useState } from 'react'
 import { formatUnits } from 'viem'
-import useMarketRewardsIncentive from '@/hooks/use-market-rewards'
 import { ClickEvent, useAmplitude } from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
@@ -28,7 +27,6 @@ interface RewardTooltipSmallProps {
 
 export default function RewardTooltipSmall({ market }: RewardTooltipSmallProps) {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const { data: marketRewardsTotal } = useMarketRewardsIncentive(market?.slug, market?.tradeType)
   const { trackClicked } = useAmplitude()
 
   const initialFocusRef = useRef(null)
