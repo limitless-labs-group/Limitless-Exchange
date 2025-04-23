@@ -159,9 +159,7 @@ export default function RewardTooltipSmall({ market }: RewardTooltipSmallProps) 
               <HStack w='full' mt='12px' justifyContent='space-between'>
                 <Text {...paragraphRegular}>Daily reward:</Text>
                 <Text {...paragraphMedium}>
-                  {marketRewardsTotal?.totalRewards
-                    ? marketRewardsTotal.totalRewards.toFixed(0)
-                    : '0'}{' '}
+                  {market.settings?.rewardsEpoch ? market.settings.rewardsEpoch : '0'}{' '}
                   {market?.collateralToken.symbol}
                 </Text>
               </HStack>
