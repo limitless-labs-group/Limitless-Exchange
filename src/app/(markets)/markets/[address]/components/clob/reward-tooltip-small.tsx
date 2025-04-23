@@ -16,31 +16,19 @@ import BigNumber from 'bignumber.js'
 import Image from 'next/image'
 import NextLink from 'next/link'
 import React, { useEffect, useRef, useState } from 'react'
-import { formatUnits, maxUint256 } from 'viem'
+import { formatUnits } from 'viem'
 import useMarketRewardsIncentive from '@/hooks/use-market-rewards'
-import { useOrderBook } from '@/hooks/use-order-book'
-import { ClickEvent, useAmplitude, useTradingService } from '@/services'
-import { useMarketRewards } from '@/services/MarketsService'
+import { ClickEvent, useAmplitude } from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { NumberUtil } from '@/utils'
-import { calculateDisplayRange } from '@/utils/market'
+import { Market } from '@/types'
 
-interface RewardTooltipContentProps {
-  contentHoverCallback: (arg: boolean) => void
+interface RewardTooltipSmallProps {
+  market: Market
 }
 
-export const RewardTooltipContent = ({ contentHoverCallback }: RewardTooltipContentProps) => {
-  const { market, clobOutcome } = useTradingService()
+export default function RewardTooltipSmall({ market }: RewardTooltipSmallProps) {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const { data: orderbook } = useOrderBook(market?.slug, market?.tradeType)
   const { data: marketRewardsTotal } = useMarketRewardsIncentive(market?.slug, market?.tradeType)
-  const minRewardsSize = orderbook?.minSize ? orderbook.minSize : maxUint256.toString()
-  const range = calculateDisplayRange(
-    clobOutcome,
-    orderbook?.adjustedMidpoint,
-    orderbook?.maxSpread
-  )
-  const { data: marketRewards } = useMarketRewards(market?.slug, market?.isRewardable)
   const { trackClicked } = useAmplitude()
 
   const initialFocusRef = useRef(null)
@@ -58,10 +46,6 @@ export const RewardTooltipContent = ({ contentHoverCallback }: RewardTooltipCont
     ref: popoverContentRef,
     handler: handleClickOutside,
   })
-
-  useEffect(() => {
-    contentHoverCallback(isOpen || isClickOpen)
-  }, [isOpen, isClickOpen, contentHoverCallback])
 
   useEffect(() => {
     return () => {
@@ -103,16 +87,6 @@ export const RewardTooltipContent = ({ contentHoverCallback }: RewardTooltipCont
     }
   }
 
-  const handleClick = () => {
-    trackClicked(ClickEvent.RewardsButtonClicked, {
-      visible: isClickOpen ? 'off' : 'on',
-    })
-    setIsClickOpen(!isClickOpen)
-    if (!isClickOpen) {
-      onOpen()
-    }
-  }
-
   return (
     <Popover
       isOpen={isOpen || isClickOpen}
@@ -122,7 +96,7 @@ export const RewardTooltipContent = ({ contentHoverCallback }: RewardTooltipCont
           onClose()
         }
       }}
-      placement='top-end'
+      placement='top-start'
       closeOnBlur={false}
       closeOnEsc={false}
       initialFocusRef={initialFocusRef}
@@ -143,16 +117,8 @@ export const RewardTooltipContent = ({ contentHoverCallback }: RewardTooltipCont
           cursor='pointer'
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
-          onClick={handleClick}
         >
           <Image src='/assets/images/gem-icon.svg' width={16} height={16} alt='rewards' />
-          <Text {...paragraphMedium} color={isOpen || isClickOpen ? 'white' : 'blue.500'}>
-            {marketRewards && Boolean(marketRewards?.length)
-              ? `Earnings ${NumberUtil.toFixed(marketRewards[0].totalUnpaidReward, 6)} ${
-                  market?.collateralToken.symbol
-                }`
-              : 'Earn Rewards'}
-          </Text>
         </HStack>
       </PopoverTrigger>
       <Portal>
@@ -203,7 +169,7 @@ export const RewardTooltipContent = ({ contentHoverCallback }: RewardTooltipCont
                 <Text {...paragraphRegular}>Max spread:</Text>
                 <Text {...paragraphMedium}>
                   &#177;
-                  {new BigNumber(orderbook?.maxSpread ? orderbook.maxSpread : '0')
+                  {new BigNumber(market.settings?.maxSpread ? market.settings.maxSpread : '0')
                     .multipliedBy(100)
                     .toString()}
                   ¢
@@ -212,13 +178,10 @@ export const RewardTooltipContent = ({ contentHoverCallback }: RewardTooltipCont
               <HStack w='full' justifyContent='space-between'>
                 <Text {...paragraphRegular}>Min contracts:</Text>
                 <Text {...paragraphMedium}>
-                  {formatUnits(BigInt(minRewardsSize), market?.collateralToken.decimals || 6)}
-                </Text>
-              </HStack>
-              <HStack w='full' justifyContent='space-between'>
-                <Text {...paragraphRegular}>Current range:</Text>
-                <Text {...paragraphMedium}>
-                  {range.lower}¢ - {range.upper}¢
+                  {formatUnits(
+                    BigInt(market.settings?.minSize || '1'),
+                    market.collateralToken.decimals || 6
+                  )}
                 </Text>
               </HStack>
               <Divider my='4px' />
