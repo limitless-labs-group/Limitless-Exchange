@@ -86,6 +86,7 @@ export interface Market {
     maxSpread?: number
     c?: number
     rewardsEpoch?: number
+    dailyReward?: number
   } | null
   priorityIndex: number
   tokens: {
