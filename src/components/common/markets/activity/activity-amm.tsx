@@ -32,19 +32,28 @@ export default function ActivityAmm({ isActive }: MarketActivityTabProps) {
   const activity = activityData?.pages.flatMap((page) => page.data)
 
   return !!activity?.length ? (
-    <Box className='full-container' w={isMobile ? 'full' : 'unset'}>
+    <Box
+      id='scrollableDiv'
+      h={activity?.length < 10 ? 'unset' : '325px'}
+      overflow='auto'
+      sx={{
+        '& > div': {
+          width: '100% !important',
+        },
+      }}
+    >
       <InfiniteScroll
         dataLength={activity?.length ?? 0}
         next={getNextPage}
         hasMore={hasNextPage}
-        scrollableTarget='side-menu-scroll-container'
-        scrollThreshold='100%'
         loader={
           <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
             <Loader />
             <Text {...paragraphRegular}>Loading more posts</Text>
           </HStack>
         }
+        scrollableTarget='scrollableDiv'
+        scrollThreshold='20px'
       >
         <Box mb='30px'>
           {activity.map((activityItem) => (
