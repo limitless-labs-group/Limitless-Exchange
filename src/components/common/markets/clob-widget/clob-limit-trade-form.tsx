@@ -13,6 +13,7 @@ import { Address, formatUnits, maxUint256, parseUnits } from 'viem'
 import ClobTradeButton from '@/components/common/markets/clob-widget/clob-trade-button'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import NumberInputWithButtons from '@/components/common/number-input-with-buttons'
+import Skeleton from '@/components/common/skeleton'
 import TradeWidgetSkeleton, {
   SkeletonType,
 } from '@/components/common/skeleton/trade-widget-skeleton'
@@ -57,7 +58,7 @@ export default function ClobLimitTradeForm() {
     orderType,
   } = useClobWidget()
   const { trackClicked } = useAmplitude()
-  const { web3Wallet, loginToPlatform } = useAccount()
+  const { web3Wallet, loginToPlatform, profileLoading } = useAccount()
   const { market, strategy, clobOutcome: outcome } = useTradingService()
   const queryClient = useQueryClient()
   const { client, placeLimitOrder } = useWeb3Service()
@@ -340,7 +341,7 @@ export default function ClobLimitTradeForm() {
     ])
   }
 
-  const shouldSignUp = !web3Wallet && Boolean(price)
+  const shouldSignUp = !web3Wallet
 
   const shouldAddFunds =
     web3Wallet && strategy === 'Buy' && orderCalculations.total > Number(balance)
@@ -545,16 +546,22 @@ export default function ClobLimitTradeForm() {
           </>
         )}
       </VStack>
-      <ClobTradeButton
-        status={placeLimitOrderMutation.status}
-        isDisabled={disableButton}
-        isBlocked={tradingBlocked}
-        onClick={handleSubmitButtonClicked}
-        successText={`Submitted`}
-        onReset={onResetMutation}
-      >
-        {getButtonText()}
-      </ClobTradeButton>
+      {profileLoading ? (
+        <Box w='full'>
+          <Skeleton height={64} />
+        </Box>
+      ) : (
+        <ClobTradeButton
+          status={placeLimitOrderMutation.status}
+          isDisabled={disableButton}
+          isBlocked={tradingBlocked}
+          onClick={handleSubmitButtonClicked}
+          successText={`Submitted`}
+          onReset={onResetMutation}
+        >
+          {getButtonText()}
+        </ClobTradeButton>
+      )}
       {(!price || !sharesAmount) && (
         <Flex
           {...paragraphRegular}

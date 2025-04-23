@@ -1,5 +1,4 @@
 import { Box, Button, HStack, Text, VStack } from '@chakra-ui/react'
-import BigNumber from 'bignumber.js'
 import { useAtom } from 'jotai'
 import { formatUnits } from 'viem'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
@@ -12,17 +11,12 @@ import {
 } from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketOrderType } from '@/types'
+import { NumberUtil } from '@/utils'
 
 export default function OutcomeButtonsClob() {
-  const {
-    strategy,
-    market,
-    clobOutcome: outcome,
-    setClobOutcome: setOutcome,
-    groupMarket,
-  } = useTradingService()
+  const { market, clobOutcome: outcome, setClobOutcome: setOutcome, strategy } = useTradingService()
   const { trackChanged } = useAmplitude()
-  const { orderType, yesPrice: singleYesPriceClob, noPrice: singleNoPriceClob } = useClobWidget()
+  const { orderType, yesPrice, noPrice, sharesAvailable } = useClobWidget()
   const [, setTradingBlocked] = useAtom(blockTradeAtom)
 
   const getShares = (sharesAmount?: bigint) => {
@@ -31,19 +25,6 @@ export default function OutcomeButtonsClob() {
     }
     return formatUnits(sharesAmount, market?.collateralToken.decimals || 6)
   }
-
-  const yesPrice = groupMarket
-    ? new BigNumber(market?.prices?.[0] || 0.5)
-        .multipliedBy(market?.marketType === 'group' ? 100 : 1)
-        .decimalPlaces(1)
-        .toNumber()
-    : singleYesPriceClob
-  const noPrice = groupMarket
-    ? new BigNumber(market?.prices?.[1] || 0.5)
-        .multipliedBy(market?.marketType === 'group' ? 100 : 1)
-        .decimalPlaces(1)
-        .toNumber()
-    : singleNoPriceClob
 
   const handleOutcomeChanged = (outcome: number) => {
     trackChanged<OrderBookSideChangedMetadata>(ChangeEvent.OrderBookSideChanged, {
@@ -56,47 +37,6 @@ export default function OutcomeButtonsClob() {
       const selectedPrice = outcome ? 100 - yesPrice : 100 - noPrice
       // setPrice(selectedPrice === 0 ? '' : String(selectedPrice))
     }
-  }
-
-  const getPrice = (outcome: number) => {
-    if (orderType === MarketOrderType.MARKET) {
-      return outcome ? `No ${noPrice}¢` : `Yes ${yesPrice}¢`
-    }
-    return outcome
-      ? `No ${new BigNumber(100).minus(yesPrice).decimalPlaces(1).toString()}¢`
-      : `Yes ${new BigNumber(100).minus(noPrice).decimalPlaces(1).toString()}¢`
-  }
-
-  if (strategy === 'Buy') {
-    return (
-      <Box mb='24px'>
-        <Text {...paragraphMedium} mb='8px'>
-          Select outcome
-        </Text>
-        <HStack w='full' gap='8px'>
-          <Button
-            flex={1}
-            color={!outcome ? 'white' : 'green.500'}
-            bg={!outcome ? 'green.500' : 'greenTransparent.100'}
-            onClick={() => handleOutcomeChanged(0)}
-            h='64px'
-            borderRadius='8px'
-          >
-            {getPrice(0)}
-          </Button>
-          <Button
-            flex={1}
-            color={outcome ? 'white' : 'red.500'}
-            bg={outcome ? 'red.500' : 'redTransparent.100'}
-            onClick={() => handleOutcomeChanged(1)}
-            h='64px'
-            borderRadius='8px'
-          >
-            {getPrice(1)}
-          </Button>
-        </HStack>
-      </Box>
-    )
   }
 
   return (
@@ -117,11 +57,13 @@ export default function OutcomeButtonsClob() {
         >
           <VStack w='full' justifyContent='space-between' gap={0}>
             <Text color={!outcome ? 'white' : 'green.500'} fontSize='16px' fontWeight={700}>
-              {getPrice(0)}
+              Yes {yesPrice}¢
             </Text>
-            <Text {...paragraphRegular} color={!outcome ? 'white' : 'green.500'}>
-              {/*{NumberUtil.toFixed(getShares(sharesAvailable['yes']), 2)} Contracts*/}
-            </Text>
+            {strategy === 'Sell' && (
+              <Text {...paragraphRegular} color={!outcome ? 'white' : 'green.500'}>
+                {NumberUtil.convertWithDenomination(getShares(sharesAvailable['yes']), 2)} Contracts
+              </Text>
+            )}
           </VStack>
         </Button>
         <Button
@@ -136,11 +78,13 @@ export default function OutcomeButtonsClob() {
         >
           <VStack w='full' justifyContent='space-between' gap={0}>
             <Text color={outcome ? 'white' : 'red.500'} fontSize='16px' fontWeight={700}>
-              {getPrice(1)}
+              No {noPrice}¢
             </Text>
-            <Text {...paragraphRegular} color={outcome ? 'white' : 'red.500'}>
-              {/*{NumberUtil.toFixed(getShares(sharesAvailable['no']), 2)} Contracts*/}
-            </Text>
+            {strategy === 'Sell' && (
+              <Text {...paragraphRegular} color={outcome ? 'white' : 'red.500'}>
+                {NumberUtil.convertWithDenomination(getShares(sharesAvailable['no']), 2)} Contracts
+              </Text>
+            )}
           </VStack>
         </Button>
       </HStack>
