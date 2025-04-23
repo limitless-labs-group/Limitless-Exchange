@@ -40,6 +40,7 @@ export default function MobileDrawer({
   const drawerRef = useRef<HTMLButtonElement>(null)
   const router = useRouter()
   const ref = useRef(false)
+  const clickedRef = useRef(false)
   const { trackClicked } = useAmplitude()
   const { updateParams } = useUrlParams()
 
@@ -48,9 +49,15 @@ export default function MobileDrawer({
   useEffect(() => {
     if (ref.current) return
     const market = searchParams.get('market')
-    const slug = searchParams.get('slug')
-    if (market !== null && id !== null && (market === id || slug === id) && drawerRef.current) {
+    if (
+      market !== null &&
+      id !== null &&
+      market === id &&
+      drawerRef.current &&
+      !clickedRef.current
+    ) {
       drawerRef.current.click()
+      clickedRef.current = true
       ref.current = true
     }
   }, [id])
@@ -59,6 +66,7 @@ export default function MobileDrawer({
     if (onClose) {
       onClose()
       updateParams({ market: null, r: null })
+      clickedRef.current = false
     }
   }
 
