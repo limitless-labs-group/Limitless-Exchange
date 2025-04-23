@@ -52,17 +52,10 @@ export default function OrderBookTableSmall({
 
   const [rewardsButtonClicked, setRewardButtonClicked] = useState(false)
   const [rewardButtonHovered, setRewardButtonHovered] = useState(false)
-  const [linkHovered, setLinkHovered] = useState(false)
 
   useOutsideClick({
     ref: ref as MutableRefObject<HTMLElement>,
-    handler: () => {
-      if (!linkHovered) {
-        setRewardButtonClicked(false)
-        return
-      }
-      return
-    },
+    handler: () => setRewardButtonClicked(false),
   })
 
   useEffect(() => {
@@ -116,10 +109,7 @@ export default function OrderBookTableSmall({
         <Text {...h3Regular}>Order Book</Text>
         {market?.isRewardable && (
           <Box position='relative'>
-            <RewardTooltipContent
-              linkHoverCallback={setLinkHovered}
-              contentHoverCallback={setRewardButtonHovered}
-            />
+            <RewardTooltipContent contentHoverCallback={setRewardButtonHovered} />
           </Box>
         )}
       </HStack>
