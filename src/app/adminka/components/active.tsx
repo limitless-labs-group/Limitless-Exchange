@@ -1,12 +1,22 @@
 'use client'
 
-import { Text, Button, Flex, Spinner, VStack, useDisclosure, useToast } from '@chakra-ui/react'
+import {
+  Text,
+  Button,
+  Flex,
+  Spinner,
+  VStack,
+  useDisclosure,
+  useToast,
+  HStack,
+} from '@chakra-ui/react'
+import { title } from 'process'
 import { useMemo, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { boolean } from 'yup'
 import { Modal } from '@/components/common/modals/modal'
 import { Toast } from '@/components/common/toast'
 import { AdminMarketCard } from './market-card'
+import { Resolve, ResolveModal } from './resolve-modal'
 import { useCreateMarketModal } from '@/hooks/use-create-market-modal'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useMarkets } from '@/services/MarketsService'
@@ -47,8 +57,57 @@ export const AdminActiveMarkets = () => {
     open()
   }
 
+  const [marketsToResolve, setMarketsToResolve] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+
   const triggerResolveModal = async () => {
-    if (selectedMarkets.length === 0) return
+    // setIsLoading(true)
+    const url = '/markets/propose/winning-index'
+    const payload = { marketsIds: selectedMarkets.map((m) => m.id) }
+
+    const marketsData = selectedMarkets.map((market) => {
+      const odds = Math.random() * 100
+
+      return {
+        id: market.id,
+        title: market.title,
+        odds: odds.toFixed(2),
+        winningIndex: odds > 50 ? 1 : 0,
+      }
+    })
+    setMarketsToResolve(marketsData)
+    setIsOpen(true)
+    // try {
+    //   const res = await privateClient.post(url, payload, {
+    //     headers: { 'Content-Type': 'application/json' },
+    //   })
+    //
+    //   const marketsData = selectedMarkets.map((market) => {
+    //     const marketData = res.data.find((item: any) => item.marketId === market.id)
+    //     const odds = marketData ? marketData.odds : '0'
+    //
+    //     const oddsValue = parseFloat(odds)
+    //     const formattedOdds = oddsValue.toFixed(2)
+    //
+    //     return {
+    //       id: market.id,
+    //       title: market.title,
+    //       odds: formattedOdds,
+    //       winningIndex: oddsValue > 50 ? 1 : 0, // Recommended winning index
+    //     }
+    //   })
+    //
+    //   setMarketsToResolve(marketsData)
+    //   setIsOpen(true)
+    // } catch (err: any) {
+    //   const id = toast({ render: () => <Toast id={id} title={`Error: ${err.message}`} /> })
+    // } finally {
+    //   setIsLoading(false)
+    // }
+  }
+
+  const resolve = async (markets: Resolve[]) => {
+    if (markets.length === 0) return
 
     const marketTypes = [...new Set(selectedMarkets.map((m) => m.tradeType))]
 
@@ -60,33 +119,32 @@ export const AdminActiveMarkets = () => {
     }
 
     const marketType = marketTypes[0]
-    const marketIds = selectedMarkets.map((m) => m.id)
 
     let url = ''
-    const payload = {}
+    const payload = markets
 
-    // switch (marketType) {
-    //   case 'clob':
-    //     url = `/markets/clob/create-batch`
-    //     payload = { marketsIds: marketIds }
-    //     break
-    //   case 'group':
-    //     url = `/markets/group/create-batch`
-    //     payload = { groupIds: marketIds }
-    //     break
-    //   default:
-    //     url = `/markets/create-batch`
-    //     payload = { marketsIds: marketIds }
-    //     break
-    // }
+    switch (marketType) {
+      case 'clob':
+        url = `/markets/clob/propose/batch-resolve`
+        break
+      // case 'group':
+      //   url = `/markets/group/create-batch`
+      //   payload = { groupIds: marketIds }
+      //   break
+      // default:
+      //   url = `/markets/create-batch`
+      //   payload = { marketsIds: marketIds }
+      //   break
+    }
 
     // setIsCreating(true)
-    url = `${marketIds[0]}/clob/propose/batch-resolve`
+    // url = `${marketIds[0]}/clob/propose/batch-resolve`
     try {
-      const res = await privateClient.post(url, payload, {
-        headers: { 'Content-Type': 'application/json' },
-      })
-      console.log('res', res)
+      console.log('payload', payload)
+      // const res = await privateClient.post(url, payload, {
+      //   headers: { 'Content-Type': 'application/json' },
+      // })
+      // console.log('res', res)
 
       // if (res.status === 201 && marketType === 'amm') {
       //   const newTab = window.open('', '_blank')
@@ -96,7 +154,7 @@ export const AdminActiveMarkets = () => {
       //     window.location.href = res.data.multisigTxLink
       //   }
       // }
-
+      setIsOpen(false)
       const id = toast({ render: () => <Toast id={id} title='Created successfully' /> })
     } catch (err: any) {
       const id = toast({ render: () => <Toast id={id} title={`Error: ${err.message}`} /> })
@@ -106,8 +164,6 @@ export const AdminActiveMarkets = () => {
       // setIsCreating(false)
     }
   }
-
-  // marketId:/clob/propose/batch-resolve
 
   return (
     <Flex justifyContent={'center'} position='relative'>
@@ -134,23 +190,44 @@ export const AdminActiveMarkets = () => {
           })}
         </InfiniteScroll>
 
-        {selectedMarkets.length > 0 && (
+        {selectedMarkets.length > 0 ? (
           <Button
             colorScheme='blue'
             mt='16px'
             w='fit-content'
             onClick={triggerResolveModal}
             style={{ width: '100%', maxWidth: '868px', position: 'fixed', bottom: 20 }}
-            // isDisabled={isCreating}
+            isDisabled={isLoading}
           >
-            resolve
-            {/* {isCreating ? <Spinner /> : 'Create Markets Batch'} */}
+            {isLoading ? <Spinner size='sm' mr={2} /> : null}
+            {isLoading ? 'Loading...' : 'Resolve Selected Markets'}
           </Button>
-        )}
+        ) : null}
       </VStack>
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-        <Text>resolve</Text>
+        <ResolveModal markets={marketsToResolve ?? []} onResolve={resolve} />
       </Modal>
     </Flex>
   )
 }
+
+const mockMarkets = [
+  {
+    id: 1,
+    title: 'Group market creator Test Limiltess -> CJ2',
+    odds: '99',
+    winningIndex: 1,
+  },
+  {
+    id: 2,
+    title: 'Clob market creator Test Limiltess -> CJ2',
+    odds: '0.01',
+    winningIndex: 0,
+  },
+  {
+    id: 3,
+    title: 'Amm market creator Test Limiltess -> CJ2',
+    odds: '0.01',
+    winningIndex: 0,
+  },
+]

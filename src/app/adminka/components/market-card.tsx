@@ -385,7 +385,9 @@ export const AdminMarketCard = ({
       border={`3px solid ${
         isChecked || hover ? 'var(--chakra-colors-grey-500)' : 'var(--chakra-colors-grey-200)'
       }`}
-      bg={` ${isChecked ? 'var(--chakra-colors-grey-200)' : 'white'}`}
+      bg={` ${
+        isChecked ? 'var(--chakra-colors-grey-200)' : 'var(--chakra-colors-draftCard-background)'
+      }`}
       position='relative'
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
@@ -393,7 +395,7 @@ export const AdminMarketCard = ({
       {hover || isChecked ? (
         <Flex
           position='absolute'
-          bg={'var(--chakra-colors-white)'}
+          bg={'var(--chakra-colors-draftCard-background)'}
           top='-10px'
           left='-10px'
           w='24px'
