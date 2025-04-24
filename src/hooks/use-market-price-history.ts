@@ -78,6 +78,7 @@ export function useNegRiskPriceHistory(slug?: string) {
       const response: AxiosResponse<ClobPriceHistoryResponse[]> = await limitlessApi.get(
         `/markets/${slug}/historical-price`
       )
+      // const response = negriskHistoryMock
       return response.data.map((item) => {
         const prices = item.prices.map((price) => ({
           timestamp: price.timestamp,
@@ -85,9 +86,7 @@ export function useNegRiskPriceHistory(slug?: string) {
         }))
         const lastPriceObject = {
           timestamp: new Date().getTime(),
-          price: item.prices[item.prices.length - 1]?.price
-            ? +item.prices[item.prices.length - 1].price * 100
-            : 50,
+          price: item.prices[0]?.price ? +item.prices[0].price * 100 : 50,
         }
         return {
           ...item,
@@ -109,6 +108,7 @@ export function useMarketPriceHistory(slug?: string, address?: Address | null) {
         const response: AxiosResponse<ClobPriceHistoryResponse> = await limitlessApi.get(
           `/markets/${slug}/historical-price`
         )
+        // const response = singleHistoryMock
         return response.data.prices.map((item) => {
           return [item.timestamp, +item.price * 100]
         })
