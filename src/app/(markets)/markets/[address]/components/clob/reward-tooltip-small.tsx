@@ -111,7 +111,7 @@ export default function RewardTooltipSmall({ market }: RewardTooltipSmallProps) 
           borderRadius='8px'
           py='4px'
           px='8px'
-          bg={isOpen || isClickOpen ? 'blue.500' : 'blueTransparent.100'}
+          bg={isOpen || isClickOpen ? 'blueTransparent.200' : 'blueTransparent.100'}
           cursor='pointer'
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
