@@ -12,13 +12,14 @@ import BigNumber from 'bignumber.js'
 import React, { SyntheticEvent, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
+import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import RewardTooltipSmall from '@/app/(markets)/markets/[address]/components/clob/reward-tooltip-small'
 import GroupMarketSectionTabs from '@/app/(markets)/markets/[address]/components/group-market-section-tabs'
 import { useMarketOrders } from '@/hooks/use-market-orders'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import { ClickEvent, QuickBetClickedMetadata, useAmplitude, useTradingService } from '@/services'
 import { h3Medium, headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market } from '@/types'
+import { Market, MarketOrderType } from '@/types'
 import { ClobPosition } from '@/types/orders'
 import { NumberUtil } from '@/utils'
 
@@ -27,8 +28,15 @@ interface GroupMarketSectionSmallProps {
 }
 
 export default function GroupMarketSectionSmall({ market }: GroupMarketSectionSmallProps) {
-  const { setMarket, market: selectedMarket, setClobOutcome, clobOutcome } = useTradingService()
+  const {
+    setMarket,
+    market: selectedMarket,
+    setClobOutcome,
+    clobOutcome,
+    strategy,
+  } = useTradingService()
   const { data: userOrders } = useMarketOrders(market?.slug)
+  const { orderType } = useClobWidget()
   const { trackClicked } = useAmplitude()
   const handleOutcomeClicked = (e: SyntheticEvent, outcome: number) => {
     trackClicked<QuickBetClickedMetadata>(ClickEvent.QuickBetClicked, {
@@ -95,6 +103,57 @@ export default function GroupMarketSectionSmall({ market }: GroupMarketSectionSm
       setMarket(market)
     }
   }
+
+  const yesPrice = useMemo(() => {
+    if (!market?.tradePrices) {
+      return 50
+    }
+    if (strategy === 'Buy') {
+      return orderType === MarketOrderType.MARKET
+        ? new BigNumber(market.tradePrices.buy.market[0])
+            .multipliedBy(100)
+            .decimalPlaces(1)
+            .toNumber()
+        : new BigNumber(market.tradePrices.buy.limit[0])
+            .multipliedBy(100)
+            .decimalPlaces(1)
+            .toNumber()
+    }
+    return orderType === MarketOrderType.MARKET
+      ? new BigNumber(market.tradePrices.sell.market[0])
+          .multipliedBy(100)
+          .decimalPlaces(1)
+          .toNumber()
+      : new BigNumber(market.tradePrices.sell.limit[0])
+          .multipliedBy(100)
+          .decimalPlaces(1)
+          .toNumber()
+  }, [strategy, market?.tradePrices, orderType])
+  const noPrice = useMemo(() => {
+    if (!market?.tradePrices) {
+      return 50
+    }
+    if (strategy === 'Buy') {
+      return orderType === MarketOrderType.MARKET
+        ? new BigNumber(market.tradePrices.buy.market[1])
+            .multipliedBy(100)
+            .decimalPlaces(1)
+            .toNumber()
+        : new BigNumber(market.tradePrices.buy.limit[1])
+            .multipliedBy(100)
+            .decimalPlaces(1)
+            .toNumber()
+    }
+    return orderType === MarketOrderType.MARKET
+      ? new BigNumber(market.tradePrices.sell.market[1])
+          .multipliedBy(100)
+          .decimalPlaces(1)
+          .toNumber()
+      : new BigNumber(market.tradePrices.sell.limit[1])
+          .multipliedBy(100)
+          .decimalPlaces(1)
+          .toNumber()
+  }, [strategy, market?.tradePrices, orderType])
 
   return (
     <AccordionItem borderColor='grey.100'>
@@ -170,7 +229,7 @@ export default function GroupMarketSectionSmall({ market }: GroupMarketSectionSm
           }}
           onClick={(e) => handleOutcomeClicked(e, 0)}
         >
-          Yes {NumberUtil.multiply(market.prices[0], 100)}%
+          Yes {yesPrice}¢
         </Button>
         <Button
           w='full'
@@ -186,7 +245,7 @@ export default function GroupMarketSectionSmall({ market }: GroupMarketSectionSm
           }}
           onClick={(e) => handleOutcomeClicked(e, 1)}
         >
-          No {NumberUtil.multiply(market.prices[1], 100)}%
+          No {noPrice}¢
         </Button>
       </HStack>
       <AccordionPanel pb={0}>
