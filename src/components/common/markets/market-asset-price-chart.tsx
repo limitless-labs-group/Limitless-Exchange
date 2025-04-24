@@ -65,8 +65,6 @@ function PythLiveChart({ id }: PythLiveChartProps) {
     }
   }
 
-  console.log(livePrice)
-
   useEffect(() => {
     let subscription: any
 
