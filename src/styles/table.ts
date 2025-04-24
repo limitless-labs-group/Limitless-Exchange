@@ -8,16 +8,6 @@ const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpe
 )
 
 const baseStyle = definePartsStyle({
-  tr: {
-    'td:first-child': {
-      borderTopLeftRadius: 'full',
-      borderBottomLeftRadius: 'full',
-    },
-    'td:last-child': {
-      borderTopRightRadius: 'full',
-      borderBottomRightRadius: 'full',
-    },
-  },
   th: {
     '&[data-is-numeric=true]': {},
     fontFamily: 'Inter, sans-serif',
@@ -61,16 +51,6 @@ const baseStyle = definePartsStyle({
 })
 
 const noPaddingsOnSides = definePartsStyle({
-  tr: {
-    'td:first-child': {
-      borderTopLeftRadius: 'full',
-      borderBottomLeftRadius: 'full',
-    },
-    'td:last-child': {
-      borderTopRightRadius: 'full',
-      borderBottomRightRadius: 'full',
-    },
-  },
   th: {
     '&[data-is-numeric=true]': {},
     fontFamily: 'Inter, sans-serif',

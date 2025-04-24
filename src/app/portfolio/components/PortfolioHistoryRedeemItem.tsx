@@ -73,27 +73,59 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
   }
 
   return (
-    <Tr pos={'relative'} {...props}>
-      <Td w='92px'>{redeem.action === HistoryAction.WON ? 'Won' : 'Loss'}</Td>
-      <Td>
+    <Tr
+      pos={'relative'}
+      {...props}
+      bg={redeem.action === HistoryAction.WON ? 'greenTransparent.100' : 'redTransparent.100'}
+    >
+      <Td
+        w='92px'
+        color={redeem.action === HistoryAction.WON ? 'green.500 !important' : 'red.500 !important'}
+      >
+        {redeem.action === HistoryAction.WON ? 'Won' : 'Loss'}
+      </Td>
+      <Td
+        color={redeem.action === HistoryAction.WON ? 'green.500 !important' : 'red.500 !important'}
+      >
         <HStack gap='4px'>
           {redeem.outcomeIndex ? (
             <ThumbsDownIcon width={16} height={16} />
           ) : (
             <ThumbsUpIcon width={16} height={16} />
           )}{' '}
-          <Text {...paragraphRegular}>{redeem.outcomeIndex ? 'No' : 'Yes'}</Text>
+          <Text
+            {...paragraphRegular}
+            color={
+              redeem.action === HistoryAction.WON ? 'green.500 !important' : 'red.500 !important'
+            }
+          >
+            {redeem.outcomeIndex ? 'No' : 'Yes'}
+          </Text>
         </HStack>
       </Td>
       <Td></Td>
       <Td isNumeric>
         <Box verticalAlign='middle'>
-          {!redeem ? <Skeleton height={20} /> : <Text>{formattedAmountWithSymbol}</Text>}
+          {!redeem ? (
+            <Skeleton height={20} />
+          ) : (
+            <Text
+              color={
+                redeem.action === HistoryAction.WON ? 'green.500 !important' : 'red.500 !important'
+              }
+            >
+              {formattedAmountWithSymbol}
+            </Text>
+          )}
         </Box>
       </Td>
       <Td>
         <Box verticalAlign='middle'>
-          <Text>
+          <Text
+            color={
+              redeem.action === HistoryAction.WON ? 'green.500 !important' : 'red.500 !important'
+            }
+          >
             {new Date(Number(redeem.blockTimestamp) * 1000).toLocaleDateString(undefined, {
               year: 'numeric',
               month: 'short',
@@ -117,6 +149,9 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
               textOverflow='ellipsis'
               onClick={handleOpenMarketPage}
               cursor='pointer'
+              color={
+                redeem.action === HistoryAction.WON ? 'green.500 !important' : 'red.500 !important'
+              }
             >
               {redeem.title}
             </Td>
@@ -135,6 +170,9 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
           textOverflow='ellipsis'
           onClick={handleOpenMarketPage}
           cursor='pointer'
+          color={
+            redeem.action === HistoryAction.WON ? 'green.500 !important' : 'red.500 !important'
+          }
         >
           {redeem.title}
         </Td>
@@ -145,6 +183,9 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
           target='_blank'
           rel='noopener'
           variant='textLink'
+          color={
+            redeem.action === HistoryAction.WON ? 'green.500 !important' : 'red.500 !important'
+          }
         >
           {truncateEthAddress(redeem.transactionHash)}
         </Link>
