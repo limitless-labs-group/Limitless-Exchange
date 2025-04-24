@@ -113,6 +113,7 @@ export interface Settings {
   c?: number
   createdAt?: string
   updatedAt?: string
+  dailyReward?: number
 }
 
 export type MarketType = 'single' | 'group'
