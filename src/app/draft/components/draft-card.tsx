@@ -59,11 +59,11 @@ const MarketDataFactory = {
     const type = MarketDataFactory.getMarketType(market)
     switch (type) {
       case 'clob':
-        return 'green.100'
+        return 'green.500'
       case 'group':
-        return 'purple.100'
+        return 'purple.500'
       default:
-        return 'blue.100'
+        return 'blue.500'
     }
   },
 

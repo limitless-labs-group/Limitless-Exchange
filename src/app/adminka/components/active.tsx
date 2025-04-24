@@ -10,6 +10,7 @@ import {
   useToast,
   HStack,
 } from '@chakra-ui/react'
+import { useQueryClient } from '@tanstack/react-query'
 import { title } from 'process'
 import { useMemo, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
@@ -22,13 +23,23 @@ import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useMarkets } from '@/services/MarketsService'
 import { Market } from '@/types'
 
+export interface LastOdds {
+  marketId: number
+  lastAvgPrice: string
+  recommendedIndex: number
+}
+
 export const AdminActiveMarkets = () => {
-  const { data, fetchNextPage, hasNextPage } = useMarkets(null)
+  const { data, fetchNextPage, hasNextPage } = useMarkets(null, true, {
+    'x-ignore-limits': 'true',
+  })
   const { setMarket, open } = useCreateMarketModal()
   const [selectedMarkets, setSelectedMarkets] = useState<Market[]>([])
   const [isOpen, setIsOpen] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
   const toast = useToast()
   const privateClient = useAxiosPrivateClient()
+  const queryClient = useQueryClient()
 
   const markets: Market[] = useMemo(() => {
     const allMarkets = data?.pages.flatMap((page) => page.data.markets) || []
@@ -57,111 +68,105 @@ export const AdminActiveMarkets = () => {
     open()
   }
 
-  const [marketsToResolve, setMarketsToResolve] = useState<any[]>([])
+  interface ResolveMarketData {
+    id: number
+    title: string
+    odds: string
+    winningIndex: number
+  }
+
+  const [marketsToResolve, setMarketsToResolve] = useState<ResolveMarketData[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
   const triggerResolveModal = async () => {
-    // setIsLoading(true)
-    const url = '/markets/propose/winning-index'
-    const payload = { marketsIds: selectedMarkets.map((m) => m.id) }
+    const url = '/markets/last-odds-batch'
+    const payload = { marketIds: selectedMarkets.map((m) => m.id) }
 
-    const marketsData = selectedMarkets.map((market) => {
-      const odds = Math.random() * 100
+    try {
+      const { data } = await privateClient.post<{ data: LastOdds[] }>(url, payload, {
+        headers: { 'Content-Type': 'application/json' },
+      })
 
-      return {
-        id: market.id,
-        title: market.title,
-        odds: odds.toFixed(2),
-        winningIndex: odds > 50 ? 1 : 0,
-      }
-    })
-    setMarketsToResolve(marketsData)
-    setIsOpen(true)
-    // try {
-    //   const res = await privateClient.post(url, payload, {
-    //     headers: { 'Content-Type': 'application/json' },
-    //   })
-    //
-    //   const marketsData = selectedMarkets.map((market) => {
-    //     const marketData = res.data.find((item: any) => item.marketId === market.id)
-    //     const odds = marketData ? marketData.odds : '0'
-    //
-    //     const oddsValue = parseFloat(odds)
-    //     const formattedOdds = oddsValue.toFixed(2)
-    //
-    //     return {
-    //       id: market.id,
-    //       title: market.title,
-    //       odds: formattedOdds,
-    //       winningIndex: oddsValue > 50 ? 1 : 0, // Recommended winning index
-    //     }
-    //   })
-    //
-    //   setMarketsToResolve(marketsData)
-    //   setIsOpen(true)
-    // } catch (err: any) {
-    //   const id = toast({ render: () => <Toast id={id} title={`Error: ${err.message}`} /> })
-    // } finally {
-    //   setIsLoading(false)
-    // }
+      const marketsData = selectedMarkets.map((market) => {
+        const marketData = data.data.find((item: LastOdds) => item.marketId === market.id)
+        const odds = marketData ? (Number(marketData.lastAvgPrice) * 100).toString() : '0'
+        const oddsValue = parseFloat(odds)
+        const winningIndex = marketData ? marketData.recommendedIndex : oddsValue > 50 ? 1 : 0
+
+        return {
+          id: market.id,
+          title: market.title,
+          odds: oddsValue.toFixed(2),
+          winningIndex: winningIndex,
+        }
+      })
+
+      setMarketsToResolve(marketsData)
+      setIsOpen(true)
+    } catch (err: any) {
+      const id = toast({ render: () => <Toast id={id} title={`Error: ${err.message}`} /> })
+    } finally {
+      await queryClient.refetchQueries({ queryKey: ['markets'] })
+    }
   }
 
   const resolve = async (markets: Resolve[]) => {
-    if (markets.length === 0) return
+    if (markets.length === 0 || selectedMarkets.length === 0) return
 
-    const marketTypes = [...new Set(selectedMarkets.map((m) => m.tradeType))]
+    const tradeTypes = [...new Set(selectedMarkets.map((m) => m.tradeType))]
+    const marketTypes = [...new Set(selectedMarkets.map((m) => m.marketType))]
 
-    if (marketTypes.length > 1) {
+    const marketType = marketTypes[0] === 'group' ? 'group' : tradeTypes[0]
+
+    if (marketTypes.length > 1 || tradeTypes.length > 1) {
       const id = toast({
         render: () => <Toast id={id} title='Error: Selected markets must be of the same type' />,
       })
       return
     }
 
-    const marketType = marketTypes[0]
-
-    let url = ''
-    const payload = markets
-
-    switch (marketType) {
-      case 'clob':
-        url = `/markets/clob/propose/batch-resolve`
-        break
-      // case 'group':
-      //   url = `/markets/group/create-batch`
-      //   payload = { groupIds: marketIds }
-      //   break
-      // default:
-      //   url = `/markets/create-batch`
-      //   payload = { marketsIds: marketIds }
-      //   break
+    if (marketType === 'group' && selectedMarkets.length > 1) {
+      const id = toast({
+        render: () => (
+          <Toast id={id} title='Error: Batch is not implemented for group. Select only 1 market.' />
+        ),
+      })
+      return
     }
 
-    // setIsCreating(true)
-    // url = `${marketIds[0]}/clob/propose/batch-resolve`
-    try {
-      console.log('payload', payload)
-      // const res = await privateClient.post(url, payload, {
-      //   headers: { 'Content-Type': 'application/json' },
-      // })
-      // console.log('res', res)
+    const getUrl = () => {
+      switch (marketType) {
+        case 'clob':
+          return `/markets/clob/propose/batch-resolve`
+        case 'group':
+          return `/markets/group/${selectedMarkets[0].id}/propose/resolve`
+        case 'amm':
+        default:
+          return `markets/propose/batch-resolve`
+      }
+    }
 
-      // if (res.status === 201 && marketType === 'amm') {
-      //   const newTab = window.open('', '_blank')
-      //   if (newTab) {
-      //     newTab.location.href = res.data.multisigTxLink
-      //   } else {
-      //     window.location.href = res.data.multisigTxLink
-      //   }
-      // }
+    try {
+      setIsLoading(true)
+      const res = await privateClient.post(getUrl(), markets, {
+        headers: { 'Content-Type': 'application/json' },
+      })
+      if (res.status === 200 || res.status === 201) {
+        const newTab = window.open('', '_blank')
+        if (newTab) {
+          newTab.location.href = res.data.multisigTxLink
+        } else {
+          window.location.href = res.data.multisigTxLink
+        }
+      }
       setIsOpen(false)
-      const id = toast({ render: () => <Toast id={id} title='Created successfully' /> })
+      const id = toast({ render: () => <Toast id={id} title='Resolved successfully' /> })
     } catch (err: any) {
       const id = toast({ render: () => <Toast id={id} title={`Error: ${err.message}`} /> })
     } finally {
-      // await queryClient.refetchQueries({ queryKey: ['allDraftMarkets'] })
+      await queryClient.refetchQueries({ queryKey: ['markets'] })
       setSelectedMarkets([])
-      // setIsCreating(false)
+      setIsLoading(false)
     }
   }
 
@@ -197,37 +202,19 @@ export const AdminActiveMarkets = () => {
             w='fit-content'
             onClick={triggerResolveModal}
             style={{ width: '100%', maxWidth: '868px', position: 'fixed', bottom: 20 }}
-            isDisabled={isLoading}
           >
-            {isLoading ? <Spinner size='sm' mr={2} /> : null}
-            {isLoading ? 'Loading...' : 'Resolve Selected Markets'}
+            {'Resolve Selected Markets'}
           </Button>
         ) : null}
       </VStack>
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-        <ResolveModal markets={marketsToResolve ?? []} onResolve={resolve} />
+      <Modal
+        title='Market resolution'
+        maxWidth='max-content'
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+      >
+        <ResolveModal markets={marketsToResolve ?? []} onResolve={resolve} isLoading={isLoading} />
       </Modal>
     </Flex>
   )
 }
-
-const mockMarkets = [
-  {
-    id: 1,
-    title: 'Group market creator Test Limiltess -> CJ2',
-    odds: '99',
-    winningIndex: 1,
-  },
-  {
-    id: 2,
-    title: 'Clob market creator Test Limiltess -> CJ2',
-    odds: '0.01',
-    winningIndex: 0,
-  },
-  {
-    id: 3,
-    title: 'Amm market creator Test Limiltess -> CJ2',
-    odds: '0.01',
-    winningIndex: 0,
-  },
-]
