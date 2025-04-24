@@ -585,6 +585,7 @@ export const CreateMarket: FC = () => {
                           showTimeSelect
                           timeIntervals={60}
                           dateFormat='dd/MM/yyyy HH:mm'
+                          timeFormat='HH:mm'
                           calendarStartDay={1}
                           popperPlacement='bottom-start'
                           customInput={
