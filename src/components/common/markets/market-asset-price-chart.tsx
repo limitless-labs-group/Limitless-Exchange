@@ -65,6 +65,8 @@ function PythLiveChart({ id }: PythLiveChartProps) {
     }
   }
 
+  console.log(livePrice)
+
   useEffect(() => {
     let subscription: any
 
@@ -213,7 +215,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
       </HStack>
       <LoadingOrEmptyContainer
         isLoading={priceLoading}
-        noData={!Boolean(priceData.length)}
+        noData={live ? !livePrice : !Boolean(priceData.length)}
         noDataText={live ? 'No live data available' : 'No data available for the requested period.'}
       >
         <HighchartsReact highcharts={Highcharts} options={options} ref={chartComponentRef} />
