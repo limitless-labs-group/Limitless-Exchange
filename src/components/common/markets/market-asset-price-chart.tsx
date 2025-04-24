@@ -4,9 +4,10 @@ import axios from 'axios'
 import Highcharts from 'highcharts'
 import type { Options } from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
-import React, { memo, useEffect, useRef, useState } from 'react'
+import React, { memo, PropsWithChildren, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
+import Loader from '@/components/common/loader'
 import Paper from '@/components/common/paper'
 import { CHART_SYMBOLS, PRICES_IDS } from '@/app/draft/components'
 import { useThemeProvider } from '@/providers'
@@ -34,6 +35,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
   const chartComponentRef = useRef<HighchartsReact.RefObject>(null)
   const [priceData, setPriceData] = useState<number[][]>([])
   const [livePrice, setLivePrice] = useState<number>()
+  const [priceLoading, setPriceLoading] = useState(false)
 
   const [timeRange, setTimeRange] = useState('1H') // default time range
   const [live, setLive] = useState(true) // live state
@@ -45,6 +47,8 @@ function PythLiveChart({ id }: PythLiveChartProps) {
 
   const getHistory = async () => {
     try {
+      setPriceData([])
+      setPriceLoading(true)
       const result = await axios.get<HistoricalDataItem[]>(
         `https://web-api.pyth.network/history?symbol=${
           CHART_SYMBOLS[id as keyof typeof CHART_SYMBOLS]
@@ -56,6 +60,8 @@ function PythLiveChart({ id }: PythLiveChartProps) {
       setPriceData(preparedData)
     } catch (e) {
       console.log(`get price history failed`, e)
+    } finally {
+      setPriceLoading(false)
     }
   }
 
@@ -67,6 +73,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
 
       try {
         if (live) {
+          setPriceData([])
           subscription = connection.subscribePriceFeedUpdates([priceId], (priceFeed) => {
             try {
               const priceEntity = priceFeed.getPriceNoOlderThan(60)
@@ -83,8 +90,9 @@ function PythLiveChart({ id }: PythLiveChartProps) {
 
                 const chart = chartComponentRef.current?.chart
 
+                setLivePrice(formattedPrice)
+
                 if (chart) {
-                  setLivePrice(formattedPrice)
                   chart.series[0].addPoint([currentTime, formattedPrice], true, false)
                 }
               }
@@ -108,7 +116,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
       }
       connection.closeWebSocket()
     }
-  }, [live, timeRange])
+  }, [live, timeRange, chartComponentRef])
 
   const handleTimeRangeChange = (range: string) => {
     setTimeRange(range)
@@ -178,7 +186,12 @@ function PythLiveChart({ id }: PythLiveChartProps) {
   return (
     <Paper bg='grey.100' my='20px'>
       <HStack gap='8px' mb='16px'>
-        <CurrentPriceDisplay priceData={priceData} live={live} livePrice={livePrice} />
+        <CurrentPriceDisplay
+          priceData={priceData}
+          live={live}
+          livePrice={livePrice}
+          priceLoading={priceLoading}
+        />
         <HStack>
           <Button
             variant='transparentGray'
@@ -199,7 +212,13 @@ function PythLiveChart({ id }: PythLiveChartProps) {
           ))}
         </HStack>
       </HStack>
-      <HighchartsReact highcharts={Highcharts} options={options} ref={chartComponentRef} />
+      <LoadingOrEmptyContainer
+        isLoading={priceLoading}
+        noData={live ? !livePrice : !Boolean(priceData.length)}
+        noDataText={live ? 'No live data available' : 'No data available for the requested period.'}
+      >
+        <HighchartsReact highcharts={Highcharts} options={options} ref={chartComponentRef} />
+      </LoadingOrEmptyContainer>
     </Paper>
   )
 }
@@ -207,39 +226,75 @@ function PythLiveChart({ id }: PythLiveChartProps) {
 interface CurrentPriceDisplayProps {
   priceData: number[][]
   live: boolean
+  priceLoading: boolean
   livePrice?: number
 }
 
-const CurrentPriceDisplay = memo(({ priceData, live, livePrice }: CurrentPriceDisplayProps) => {
-  if (!priceData.length) {
+const LoadingOrEmptyContainer = ({
+  isLoading,
+  noData,
+  noDataText,
+  children,
+}: PropsWithChildren<{ isLoading: boolean; noData: boolean; noDataText: string }>) => {
+  if (isLoading) {
+    return (
+      <HStack h='220px' justifyContent='center'>
+        <Loader />
+      </HStack>
+    )
+  }
+  if (noData) {
+    return (
+      <HStack h='220px' justifyContent='center'>
+        <Text {...paragraphMedium}>{noDataText}</Text>
+      </HStack>
+    )
+  }
+  return children
+}
+
+const CurrentPriceDisplay = memo(
+  ({ priceData, live, livePrice, priceLoading }: CurrentPriceDisplayProps) => {
+    if (priceLoading) {
+      return (
+        <Text {...paragraphRegular} color='grey.800'>
+          <Text as='span' color='grey.400'>
+            Loading...
+          </Text>
+        </Text>
+      )
+    }
+
+    if (!priceData.length) {
+      return (
+        <Text {...paragraphRegular} color='grey.800'>
+          <Text as='span' color='grey.400'>
+            No price
+          </Text>
+        </Text>
+      )
+    }
+
+    const price = live ? livePrice : priceData[priceData.length - 1][1]
+
     return (
       <Text {...paragraphRegular} color='grey.800'>
-        <Text as='span' color='grey.400'>
-          Loading...
+        <Text
+          as='span'
+          {...(isMobile ? paragraphMedium : headline)}
+          color='grey.800'
+          aria-label={`Current price: ${price}`}
+        >
+          $
+          {Number(price).toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
         </Text>
       </Text>
     )
   }
-
-  const price = live ? livePrice : priceData[priceData.length - 1][1]
-
-  return (
-    <Text {...paragraphRegular} color='grey.800'>
-      <Text
-        as='span'
-        {...(isMobile ? paragraphMedium : headline)}
-        color='grey.800'
-        aria-label={`Current price: ${price}`}
-      >
-        $
-        {Number(price).toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}
-      </Text>
-    </Text>
-  )
-})
+)
 
 CurrentPriceDisplay.displayName = 'CurrentPriceDisplay'
 
