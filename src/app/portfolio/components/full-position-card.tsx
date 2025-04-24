@@ -147,9 +147,20 @@ export default function FullPositionCard({ position, type }: FullPositionCardPro
   })
 
   const onResetMutation = async () => {
-    await queryClient.refetchQueries({
-      queryKey: ['positions'],
-    })
+    await Promise.allSettled([
+      queryClient.refetchQueries({
+        queryKey: ['user-orders', position.market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['market-shares', position.market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['order-book', position.market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['positions'],
+      }),
+    ])
     setActiveTab(0)
     cancelAllOrdersMutation.reset()
   }

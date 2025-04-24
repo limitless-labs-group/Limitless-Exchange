@@ -171,6 +171,7 @@ export const lightThemeColors: ColorScheme = {
   },
   blueTransparent: {
     100: 'rgba(0, 121, 255, 0.10)',
+    200: 'rgba(0, 121, 255, 0.2)',
   },
   skeleton: {
     dark: '#EDEDED',
