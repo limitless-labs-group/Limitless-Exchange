@@ -75,11 +75,11 @@ const MarketDataFactory = {
     const type = MarketDataFactory.getMarketType(market)
     switch (type) {
       case 'clob':
-        return 'purple.100'
+        return 'purple.500'
       case 'group':
-        return 'blue.100'
+        return 'blue.500'
       default:
-        return 'green.100'
+        return 'green.500'
     }
   },
 
@@ -254,6 +254,7 @@ const MarketDataFactory = {
           <TextEditor
             value={market?.description ?? ''}
             readOnly
+            style={{ backgroundColor: 'red' }}
             className={`draft ${hover ? 'hover' : ''} ${isChecked ? 'checked' : ''}`}
           />
         </Text>

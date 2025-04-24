@@ -131,15 +131,6 @@ export const AdminDraftMarkets = () => {
           </Button>
         )}
       </VStack>
-
-      <Box
-        position='fixed'
-        right='24px'
-        top='100px'
-        maxWidth='350px'
-        w='full'
-        display={selectedMarkets.length > 0 ? 'block' : 'none'}
-      ></Box>
     </Flex>
   )
 }

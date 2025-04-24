@@ -1,5 +1,7 @@
 import { Text, Switch, HStack, Divider, Button, Stack, Flex, VStack } from '@chakra-ui/react'
 import { useState } from 'react'
+import { Switcher } from '@/components/common/switcher'
+import OddsIcon from '@/resources/icons/odds-icon.svg'
 
 export interface Resolve {
   marketId: number
@@ -9,14 +11,9 @@ export interface Resolve {
 export interface MarketsToResolve {
   markets: Row[]
   onResolve: (args: Resolve[]) => Promise<void>
+  isLoading: boolean
 }
-export const ResolveModal = ({
-  markets,
-  onResolve,
-}: {
-  markets: Row[]
-  onResolve: (resolvedMarkets: Resolve[]) => void
-}) => {
+export const ResolveModal = ({ markets, onResolve, isLoading }: MarketsToResolve) => {
   const [marketsToResolve, setMarketToResolve] = useState<Row[]>(() => {
     return markets.map((market) => {
       const oddsValue = parseFloat(market.odds)
@@ -45,13 +42,41 @@ export const ResolveModal = ({
   }
 
   return (
-    <VStack spacing={4} align='stretch' width='100%'>
-      {marketsToResolve.map((market) => (
-        <ResolveRow key={market.id} row={market} onWinningIndexChange={handleWinningIndexChange} />
-      ))}
-      <Button colorScheme='blue' onClick={handleResolve} mt={4}>
-        Confirm Resolution
-      </Button>
+    <VStack
+      align='stretch'
+      width='100%'
+      gap='16px'
+      minH='480px'
+      minW='460px'
+      justifyContent='space-between'
+      mt='24px'
+    >
+      <VStack gap='16px'>
+        {marketsToResolve.map((market) => (
+          <ResolveRow
+            key={market.id}
+            row={market}
+            onWinningIndexChange={handleWinningIndexChange}
+          />
+        ))}
+      </VStack>
+      <VStack justifyContent='space-between' alignItems='end'>
+        <Divider borderColor='grey.200' />
+        <HStack alignItems='end'>
+          <Button
+            isDisabled={isLoading}
+            size='sm'
+            color='grey.800'
+            borderColor='grey.200'
+            border='1px solid'
+          >
+            Cancel
+          </Button>
+          <Button isDisabled={isLoading} colorScheme='blue' size='sm' onClick={handleResolve}>
+            {`Resolve ${marketsToResolve.length} markets`}
+          </Button>
+        </HStack>
+      </VStack>
     </VStack>
   )
 }
@@ -78,19 +103,22 @@ const ResolveRow = ({
   }
 
   return (
-    <HStack justifyContent='space-between' alignItems='start' width='100%'>
+    <HStack
+      justifyContent='space-between'
+      alignItems='center'
+      width='100%'
+      borderTop='1px solid'
+      borderColor='grey.200'
+      pt='16px'
+    >
       <Text fontWeight='medium' flex='2'>
         {title}
       </Text>
       <HStack justifyContent='end'>
-        <Text color={parseFloat(odds) > 50 ? 'green.500' : 'red.500'} flex='1'>
-          {odds}%
-        </Text>
+        <OddsIcon width='16px' height='16px' color='grey.500' />
+        <Text flex='1'>{odds}%</Text>
         <Flex alignItems='center' flex='1'>
-          <Text minW='24px' mr={2}>
-            {winningIndex === 0 ? 'No' : 'Yes'}
-          </Text>
-          <Switch isChecked={winningIndex === 1} onChange={handleChange} colorScheme='green' />
+          <Switcher mode='default' onSwitch={handleChange} isOn={winningIndex === 1} />
         </Flex>
       </HStack>
     </HStack>
