@@ -1,3 +1,4 @@
+import { isNumber } from '@chakra-ui/utils'
 import { useQuery } from '@tanstack/react-query'
 import axios, { AxiosResponse } from 'axios'
 import { Address } from 'viem'
@@ -86,7 +87,7 @@ export function useNegRiskPriceHistory(slug?: string) {
         }))
         const lastPriceObject = {
           timestamp: new Date().getTime(),
-          price: item.prices[0]?.price ? +item.prices[0].price * 100 : 50,
+          price: isNumber(item.prices[0]?.price) ? +item.prices[0].price * 100 : 50,
         }
         return {
           ...item,
