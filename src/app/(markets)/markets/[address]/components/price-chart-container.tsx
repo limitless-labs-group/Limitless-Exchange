@@ -13,7 +13,7 @@ import { controlsMedium, headline } from '@/styles/fonts/fonts.styles'
 type TimeRange = '1H' | '6H' | '1D' | '1W' | '1M' | 'ALL'
 
 const ChartContainer = () => {
-  const [selectedRange, setSelectedRange] = useState<TimeRange>('ALL')
+  const [selectedRange, setSelectedRange] = useState<TimeRange>('1D')
   const timeRanges: TimeRange[] = ['1H', '6H', '1D', '1W', '1M', 'ALL']
 
   const { groupMarket } = useTradingService()
