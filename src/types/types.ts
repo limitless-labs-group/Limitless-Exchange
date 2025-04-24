@@ -1,6 +1,6 @@
 import { AxiosError } from 'axios'
 import { Hash, Address } from 'viem'
-import { DraftMarketType } from './draft'
+import { DraftMarketType, DraftMetadata } from './draft'
 import { Profile } from './profiles'
 
 export type { Hash, Address }
@@ -34,12 +34,6 @@ export interface Creator {
   imageUrl: string | null
   link: string | null
   address?: string
-}
-
-export type DraftMetadata = {
-  fee: number
-  liquidity: number
-  initialProbability: number
 }
 
 export interface Market {
@@ -91,13 +85,7 @@ export interface Market {
   metadata: {
     isBannered: boolean
   }
-  settings?: {
-    minSize?: number
-    maxSpread?: number
-    c?: number
-    rewardsEpoch?: number
-    dailyReward?: number
-  } | null
+  settings?: Settings
   priorityIndex: number
   tokens: {
     yes: string
@@ -115,6 +103,17 @@ export interface Market {
   tradeType: MarketTradeType
   isRewardable: boolean
   markets?: (Market & { orderInGroup?: number })[]
+}
+
+export interface Settings {
+  priorityIndex?: number
+  rewardsEpoch?: number
+  maxSpread?: number
+  minSize?: number
+  c?: number
+  createdAt?: string
+  updatedAt?: string
+  dailyReward?: number
 }
 
 export type MarketType = 'single' | 'group'
