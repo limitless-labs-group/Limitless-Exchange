@@ -54,7 +54,7 @@ export default function TradeStepperMenu() {
   const { trackClicked } = useAmplitude()
 
   const firstStepMessage = useMemo(() => {
-    const outcomePrice = outcome ? noPrice : yesPrice
+    const outcomePrice = price
     const totalPrice = new BigNumber(price).multipliedBy(sharesAmount).dividedBy(100).toString()
     const outcomeToken = outcome ? 'No' : 'Yes'
     const collateral = market?.collateralToken.symbol
@@ -75,7 +75,16 @@ export default function TradeStepperMenu() {
           totalPrice,
           2
         )} ${collateral}`
-  }, [orderType, outcome, price, sharesAmount, strategy, market?.collateralToken.symbol])
+  }, [
+    outcome,
+    noPrice,
+    yesPrice,
+    price,
+    sharesAmount,
+    market?.collateralToken.symbol,
+    strategy,
+    orderType,
+  ])
 
   const secondStepMessage = useMemo(() => {
     return strategy === 'Buy'
