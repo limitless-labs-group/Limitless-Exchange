@@ -17,5 +17,7 @@ export const commonButtonProps = {
   transitionProperty: 'none',
   transitionDuration: 'unset',
   WebkitTapHighlightColor: 'transparent',
+  WebkitTouchCallout: 'none',
+  WebkitUserSelect: 'none',
   ...paragraphMedium,
 }
