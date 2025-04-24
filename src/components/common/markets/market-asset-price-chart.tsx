@@ -90,8 +90,10 @@ function PythLiveChart({ id }: PythLiveChartProps) {
 
                 const chart = chartComponentRef.current?.chart
 
+                console.log(`chart, ${chart}`)
+                setLivePrice(formattedPrice)
+
                 if (chart) {
-                  setLivePrice(formattedPrice)
                   chart.series[0].addPoint([currentTime, formattedPrice], true, false)
                 }
               }
@@ -115,7 +117,7 @@ function PythLiveChart({ id }: PythLiveChartProps) {
       }
       connection.closeWebSocket()
     }
-  }, [live, timeRange])
+  }, [live, timeRange, chartComponentRef])
 
   const handleTimeRangeChange = (range: string) => {
     setTimeRange(range)
