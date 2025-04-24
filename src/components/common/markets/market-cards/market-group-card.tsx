@@ -149,7 +149,7 @@ export const MarketGroupCard = ({
           deadlineText={market.expirationDate}
           color='grey.500'
           showDays={false}
-          hideText={isShortCard}
+          hideText={isMobile}
         />
         <HStack gap='4px'>
           <HStack gap='4px'>
