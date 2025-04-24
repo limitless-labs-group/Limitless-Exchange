@@ -108,9 +108,8 @@ export default function MarketPage() {
 
   const isLumy = market?.tags?.includes('Lumy')
 
-  const isLivePriceSupportedMarket = LUMY_TOKENS.some((token) =>
-    market?.title.toLowerCase().includes(token.toLowerCase())
-  )
+  const isLivePriceSupportedMarket =
+    isLumy && LUMY_TOKENS.some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
 
   const chartTabs = useMemo(() => {
     const tabs = [
