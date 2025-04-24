@@ -154,8 +154,6 @@ export default function GroupMarketSectionDesktop({ market }: GroupMarketSection
           .toNumber()
   }, [strategy, market?.tradePrices, orderType])
 
-  console.log(noPrice)
-
   return (
     <AccordionItem borderColor='grey.100'>
       <AccordionButton gap='4px' display='block' onClick={handleAccordionChange}>
@@ -199,7 +197,7 @@ export default function GroupMarketSectionDesktop({ market }: GroupMarketSection
                 }}
                 onClick={(e) => handleOutcomeClicked(e, 0)}
               >
-                Yes {yesPrice}%
+                Yes {yesPrice}¢
               </Button>
               <Button
                 w='112px'
@@ -217,7 +215,7 @@ export default function GroupMarketSectionDesktop({ market }: GroupMarketSection
                 }}
                 onClick={(e) => handleOutcomeClicked(e, 1)}
               >
-                No {noPrice}%
+                No {noPrice}¢
               </Button>
             </HStack>
           </HStack>
