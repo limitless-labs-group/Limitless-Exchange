@@ -6,6 +6,17 @@ import { limitlessApi, useAccount } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { FeedEventUser, Market } from '@/types'
 
+export interface ClobActivityResponse {
+  data: MarketFeedData[]
+  totalPages: number
+}
+
+export interface AMMActivityResponse {
+  events: MarketFeedData[]
+  pageSize: number
+  totalPages: number
+}
+
 export type MarketFeedData = {
   createdAt: string
   id: number
@@ -49,28 +60,28 @@ export function useMarketFeed(market: Market | null) {
 export function useMarketClobInfinityFeed(marketSlug?: string) {
   const { web3Wallet } = useAccount()
   const privateClient = useAxiosPrivateClient()
-  return useInfiniteQuery<MarketFeedData[], Error>({
+  return useInfiniteQuery<{ data: ClobActivityResponse; next: number }, Error>({
     queryKey: ['market-page-clob-feed', marketSlug],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
       const client = web3Wallet ? privateClient : limitlessApi
       const baseUrl = `/markets/${marketSlug}/events`
-      const response: AxiosResponse<MarketFeedData[]> = await client.get(baseUrl, {
+      const response: AxiosResponse<ClobActivityResponse> = await client.get(baseUrl, {
         params: {
           page: pageParam,
-          limit: 30,
+          limit: 10,
         },
       })
       return { data: response.data, next: (pageParam as number) + 1 }
     },
     initialPageParam: 1, //default page number
     getNextPageParam: (lastPage) => {
-      // @ts-ignore
-      return lastPage.data.length === 10 ? lastPage.next : null
+      return lastPage.next <= lastPage.data.totalPages ? lastPage.next : null
     },
     refetchOnWindowFocus: false,
+    // @ts-ignore
     keepPreviousData: true,
-    enabled: !!marketSlug && process.env.NODE_ENV !== 'development',
+    enabled: !!marketSlug,
     refetchInterval: 30000,
   })
 }
@@ -78,27 +89,27 @@ export function useMarketClobInfinityFeed(marketSlug?: string) {
 export function useMarketInfinityFeed(marketAddress?: string | null, isActive = false) {
   const { web3Wallet } = useAccount()
   const privateClient = useAxiosPrivateClient()
-  return useInfiniteQuery<MarketFeedData[], Error>({
+  return useInfiniteQuery<AMMActivityResponse, Error>({
     queryKey: ['market-page-feed', marketAddress],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
       const client = web3Wallet ? privateClient : limitlessApi
       const baseUrl = `/markets/${marketAddress}/get-feed-events`
-      const response: AxiosResponse<MarketFeedData[]> = await client.get(baseUrl, {
+      const response: AxiosResponse<AMMActivityResponse> = await client.get(baseUrl, {
         params: {
           page: pageParam,
-          limit: 30,
+          limit: 10,
         },
       })
-      return { data: response.data, next: (pageParam as number) + 1 }
+      return { data: response.data.events, next: (pageParam as number) + 1 }
     },
     initialPageParam: 1, //default page number
     getNextPageParam: (lastPage) => {
       // @ts-ignore
-      return lastPage.data.length === 10 ? lastPage.next : null
+      return lastPage.next <= lastPage.data.totalPages ? lastPage.next : null
     },
     refetchOnWindowFocus: false,
     placeholderData: (placeholder) => placeholder,
-    enabled: !!marketAddress && isActive && process.env.NODE_ENV !== 'development',
+    enabled: !!marketAddress && isActive,
   })
 }

@@ -70,6 +70,16 @@ export interface Market {
   group?: Market & {
     id: number
   }
+  tradePrices?: {
+    buy: {
+      market: number[]
+      limit: number[]
+    }
+    sell: {
+      market: number[]
+      limit: number[]
+    }
+  }
   openInterest: string
   openInterestFormatted: string
   metadata: {
@@ -103,6 +113,7 @@ export interface Settings {
   c?: number
   createdAt?: string
   updatedAt?: string
+  dailyReward?: number
 }
 
 export type MarketType = 'single' | 'group'
@@ -454,6 +465,7 @@ export interface ColorScheme {
   }
   blueTransparent: {
     100: string
+    200: string
   }
   skeleton: {
     dark: string
