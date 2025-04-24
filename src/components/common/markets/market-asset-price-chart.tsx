@@ -90,7 +90,6 @@ function PythLiveChart({ id }: PythLiveChartProps) {
 
                 const chart = chartComponentRef.current?.chart
 
-                console.log(`chart, ${chart}`)
                 setLivePrice(formattedPrice)
 
                 if (chart) {
