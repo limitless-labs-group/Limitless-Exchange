@@ -1,4 +1,4 @@
-import { Category, DraftMetadata, Settings, Market, MarketType } from './types'
+import { Category, MarketType, Settings } from './types'
 
 export interface FormFieldProps {
   label: string
@@ -55,6 +55,12 @@ export type MarketInput = {
   description: string
   settings?: Settings
   id?: number
+}
+
+export type DraftMetadata = {
+  fee: number
+  liquidity: number
+  initialProbability: number
 }
 
 export type DraftMarketType = 'amm' | 'clob' | 'group'

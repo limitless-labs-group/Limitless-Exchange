@@ -286,13 +286,13 @@ export const useCreateMarket = () => {
       categoryIds: matchedCategoryIds,
       ogFile: ogLogo as File | null,
       tagIds: matchedTagIds,
+      priorityIndex: priorityIndex ?? undefined,
     }
 
     if (isClob) {
       return {
         ...baseData,
         description: description ?? '',
-        priorityIndex: priorityIndex ?? undefined,
         minSize: formData.minSize !== undefined ? calculateMinSize(formData.minSize) : undefined,
         maxSpread: calculateMaxSpread(formData.maxSpread),
         c: formData.c,
@@ -315,7 +315,6 @@ export const useCreateMarket = () => {
     } else {
       return {
         ...baseData,
-        priorityIndex: priorityIndex ?? undefined,
         description: description ?? '',
         liquidity: formData.liquidity ?? 0,
         initialYesProbability: formData.probability ? formData.probability / 100 : 0,
@@ -346,13 +345,13 @@ export const useCreateMarket = () => {
       categoryIds: matchedCategoryIds,
       tagIds: matchedTagIds,
       deadline: String(calculateZonedTime(deadline, timezone)),
+      priorityIndex: formData.priorityIndex,
     }
 
     if (isClob) {
       return {
         ...baseData,
         description: formData.description ?? '',
-        priorityIndex: formData.priorityIndex,
         minSize: calculateMinSize(Number(formData.minSize)),
         maxSpread: calculateMaxSpread(Number(formData.maxSpread)),
         c: Number(formData.c),
@@ -375,7 +374,6 @@ export const useCreateMarket = () => {
     } else {
       return {
         ...baseData,
-        priorityIndex: formData.priorityIndex,
         description: formData.description ?? '',
       }
     }

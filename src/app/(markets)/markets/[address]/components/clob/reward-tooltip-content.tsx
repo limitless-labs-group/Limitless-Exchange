@@ -1,16 +1,16 @@
 import {
-  Text,
   Box,
+  Divider,
   HStack,
   Link,
-  Portal,
   Popover,
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
+  Portal,
+  Text,
   useDisclosure,
   useOutsideClick,
-  Divider,
 } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
 import Image from 'next/image'
@@ -83,9 +83,20 @@ export const RewardTooltipContent = ({
       clearTimeout(closeTimeoutRef.current)
       closeTimeoutRef.current = null
     }
+    if (!isOpen) {
+      trackClicked(ClickEvent.RewardsButtonHovered, {
+        marketAddress: market?.slug,
+      })
+    }
     if (!isClickOpen) {
       onOpen()
     }
+  }
+
+  const handleLearnMoreClicked = () => {
+    trackClicked(ClickEvent.RewardsLearnMoreClicked, {
+      marketAddress: market?.slug,
+    })
   }
 
   const handleMouseLeave = () => {
@@ -223,6 +234,7 @@ export const RewardTooltipContent = ({
                     {...paragraphRegular}
                     isExternal
                     color='grey.500'
+                    onClick={handleLearnMoreClicked}
                   >
                     Learn more.
                   </Link>

@@ -1,6 +1,6 @@
 import { AxiosError } from 'axios'
 import { Hash, Address } from 'viem'
-import { DraftMarketType } from './draft'
+import { DraftMarketType, DraftMetadata } from './draft'
 import { Profile } from './profiles'
 
 export type { Hash, Address }
@@ -34,22 +34,6 @@ export interface Creator {
   imageUrl: string | null
   link: string | null
   address?: string
-}
-
-export interface Settings {
-  priorityIndex?: number
-  rewardsEpoch?: number
-  maxSpread?: number
-  minSize?: number
-  c?: number
-  createdAt?: string
-  updatedAt?: string
-}
-
-export type DraftMetadata = {
-  fee: number
-  liquidity: number
-  initialProbability: number
 }
 
 export interface Market {
@@ -109,6 +93,16 @@ export interface Market {
   tradeType: MarketTradeType
   isRewardable: boolean
   markets?: (Market & { orderInGroup?: number })[]
+}
+
+export interface Settings {
+  priorityIndex?: number
+  rewardsEpoch?: number
+  maxSpread?: number
+  minSize?: number
+  c?: number
+  createdAt?: string
+  updatedAt?: string
 }
 
 export type MarketType = 'single' | 'group'
@@ -248,14 +242,20 @@ export enum MarketTokensIds {
 }
 
 export enum Sort {
-  BASE = '',
   DEFAULT = '🔥 Trending',
   NEWEST = 'Newest',
   ENDING_SOON = 'Ending Soon',
-  HIGHEST_LIQUIDITY = 'High Liquidity',
   HIGHEST_VALUE = 'High Value',
   TRENDING = '🔥 Trending',
   LP_REWARDS = '💎 LP Rewards',
+}
+export enum MarketSortOption {
+  DEFAULT = 'trending',
+  TRENDING = 'trending',
+  ENDING_SOON = 'ending_soon',
+  HIGH_VALUE = 'high_value',
+  NEWEST = 'newest',
+  LP_REWARDS = 'lp_rewards',
 }
 
 export enum SortStorageName {
