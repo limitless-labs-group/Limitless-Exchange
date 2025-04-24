@@ -139,14 +139,14 @@ export const RewardTooltipContent = ({ contentHoverCallback }: RewardTooltipCont
           borderRadius='8px'
           py='4px'
           px='8px'
-          bg={isOpen || isClickOpen ? 'blue.500' : 'blueTransparent.100'}
+          bg={isOpen || isClickOpen ? 'blueTransparent.200' : 'blueTransparent.100'}
           cursor='pointer'
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
           onClick={handleClick}
         >
           <Image src='/assets/images/gem-icon.svg' width={16} height={16} alt='rewards' />
-          <Text {...paragraphMedium} color={isOpen || isClickOpen ? 'white' : 'blue.500'}>
+          <Text {...paragraphMedium} color={'blue.500'}>
             {marketRewards && Boolean(marketRewards?.length)
               ? `Earnings ${NumberUtil.toFixed(marketRewards[0].totalUnpaidReward, 6)} ${
                   market?.collateralToken.symbol

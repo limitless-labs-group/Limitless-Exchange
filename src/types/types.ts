@@ -465,6 +465,7 @@ export interface ColorScheme {
   }
   blueTransparent: {
     100: string
+    200: string
   }
   skeleton: {
     dark: string
