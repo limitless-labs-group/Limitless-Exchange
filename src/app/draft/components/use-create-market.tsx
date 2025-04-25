@@ -384,14 +384,13 @@ export const useCreateMarket = () => {
   }
 
   const validateData = (): boolean => {
-    const { probability, liquidity, title, description, deadline, creatorId, tag, token } = formData
+    const { probability, liquidity, title, description, deadline, creatorId, token } = formData
 
     const missingFields: string[] = []
 
     if (!title) missingFields.push('Title')
     if (!description && !isGroup) missingFields.push('Description')
     if (!creatorId) missingFields.push('Creator')
-    if (tag.length === 0) missingFields.push('Tag')
     if (isNaN(token.id) || !deadline) {
       missingFields.push('Token id or Deadline')
     }

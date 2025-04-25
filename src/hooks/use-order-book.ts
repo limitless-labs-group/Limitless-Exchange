@@ -3,6 +3,7 @@ import { AxiosResponse } from 'axios'
 import BigNumber from 'bignumber.js'
 import { formatUnits } from 'viem'
 import { limitlessApi } from '@/services'
+import { orderBookMock } from '@/services/order-book-mock'
 
 export interface OrderBook {
   bids: Order[]
