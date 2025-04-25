@@ -201,12 +201,7 @@ export const AdminActiveMarkets = () => {
     }
   }
 
-  return isFetching ? (
-    <VStack h='calc(100vh - 350px)' w='full' alignItems='center' justifyContent='center'>
-      <Text {...paragraphMedium}>Fetching active markets just for you!</Text>
-      <Loader />
-    </VStack>
-  ) : (
+  return (
     <Flex justifyContent={'center'} position='relative'>
       <VStack w='868px' spacing={4} mb='66px'>
         <InfiniteScroll

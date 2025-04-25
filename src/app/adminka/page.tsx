@@ -13,6 +13,7 @@ import { useCreateMarketModal } from '@/hooks/use-create-market-modal'
 import CopyIcon from '@/resources/icons/copy-icon.svg'
 import LoadingIcon from '@/resources/icons/loader-icon.svg'
 import ActiveIcon from '@/resources/icons/partially-filled-circle.svg'
+import PlusIcon from '@/resources/icons/plus-icon.svg'
 import { DraftMarketType, DraftMarket } from '@/types/draft'
 
 type DraftMarketsQueueProps = {
@@ -131,8 +132,9 @@ export default function AdminPage() {
       <Box flex='1' pl='250px'>
         <HStack justifyContent='space-between'>
           <Text>Drafts</Text>
-          <Button size='sm' colorScheme='blue' onClick={onCreateToggle}>
-            Create market
+          <Button size='sm' variant='white' onClick={onCreateToggle}>
+            <PlusIcon />
+            <Text>Create market</Text>
           </Button>
         </HStack>
         <Modal isOpen={isCreateOpen} onClose={onCreateToggle} maxW='1080px' minH='700px'>
