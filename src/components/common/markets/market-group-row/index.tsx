@@ -39,7 +39,7 @@ export default function MarketGroupRow({ market, handleOutcomeClicked }: MarketG
             onClick={(e) => handleOutcomeClicked(e, market, 0)}
           >
             {yesHovered
-              ? `${new BigNumber(market.prices[0]).multipliedBy(100).toFixed(0)}%`
+              ? `${new BigNumber(market.prices[0]).multipliedBy(100).decimalPlaces(1).toString()}%`
               : 'YES'}
           </Button>
           <Button
@@ -53,7 +53,9 @@ export default function MarketGroupRow({ market, handleOutcomeClicked }: MarketG
             onMouseLeave={() => setNoHovered(false)}
             onClick={(e) => handleOutcomeClicked(e, market, 1)}
           >
-            {noHovered ? `${new BigNumber(market.prices[1]).multipliedBy(100).toFixed(0)}%` : 'NO'}
+            {noHovered
+              ? `${new BigNumber(market.prices[1]).multipliedBy(100).decimalPlaces(1).toString()}%`
+              : 'NO'}
           </Button>
         </HStack>
       </HStack>
