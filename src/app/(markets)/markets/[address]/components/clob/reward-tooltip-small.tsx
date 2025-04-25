@@ -165,9 +165,13 @@ export default function RewardTooltipSmall({ market }: RewardTooltipSmallProps) 
                 <Text {...paragraphRegular}>Max spread:</Text>
                 <Text {...paragraphMedium}>
                   &#177;
-                  {new BigNumber(market.settings?.maxSpread ? market.settings.maxSpread : '0')
-                    .multipliedBy(100)
-                    .toString()}
+                  {market.settings?.maxSpread
+                    ? new BigNumber(market.settings.maxSpread)
+                        .minus(0.005)
+                        .multipliedBy(100)
+                        .decimalPlaces(1)
+                        .toString()
+                    : '0'}
                   ¢
                 </Text>
               </HStack>

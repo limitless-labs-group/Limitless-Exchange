@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
-import React, { useCallback, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import OrderbookTableLarge from '@/app/(markets)/markets/[address]/components/clob/orderbook-table-large'
@@ -98,7 +98,7 @@ export default function Orderbook({ variant }: OrderBookProps) {
     })
   }
 
-  const getOrderBookData = useCallback(() => {
+  const orderbookData = useMemo(() => {
     if (!orderbook) {
       return {
         bids: [],
@@ -134,19 +134,19 @@ export default function Orderbook({ variant }: OrderBookProps) {
   }, [orderbook, outcome])
 
   const spread = useMemo(() => {
-    if (!getOrderBookData()) {
+    if (!orderbookData) {
       return '0'
     }
-    if (!getOrderBookData().asks.length || !getOrderBookData().bids.length) {
+    if (!orderbookData.asks.length || !orderbookData.bids.length) {
       return '0'
     }
-    return new BigNumber(getOrderBookData().asks.reverse()[0].price)
-      .minus(new BigNumber(getOrderBookData().bids[0].price))
+    return new BigNumber(orderbookData.asks.reverse()[0].price)
+      .minus(new BigNumber(orderbookData.bids[0].price))
       .multipliedBy(100)
       .abs()
       .decimalPlaces(1)
       .toFixed()
-  }, [getOrderBookData])
+  }, [orderbookData])
 
   const lastPrice = useMemo(() => {
     if (!orderbook?.lastTradePrice) {
@@ -176,14 +176,14 @@ export default function Orderbook({ variant }: OrderBookProps) {
 
   return isMobile || variant === 'small' ? (
     <OrderBookTableSmall
-      orderBookData={getOrderBookData()}
+      orderBookData={orderbookData}
       spread={spread}
       lastPrice={lastPrice}
       deleteBatchOrders={deleteBatchOrders}
     />
   ) : (
     <OrderbookTableLarge
-      orderBookData={getOrderBookData()}
+      orderBookData={orderbookData}
       spread={spread}
       lastPrice={lastPrice}
       deleteBatchOrders={deleteBatchOrders}
