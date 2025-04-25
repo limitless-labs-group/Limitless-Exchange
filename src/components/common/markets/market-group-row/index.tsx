@@ -24,7 +24,7 @@ export default function MarketGroupRow({ market, handleOutcomeClicked }: MarketG
       </Text>
       <HStack gap='8px'>
         <Text {...paragraphRegular}>
-          {new BigNumber(market.prices[0]).multipliedBy(100).toString()}%
+          {new BigNumber(market.prices[0]).multipliedBy(100).decimalPlaces(1).toString()}%
         </Text>
         <HStack gap='4px'>
           <Button
