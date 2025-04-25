@@ -118,7 +118,6 @@ export const DraftMarketModal: FC = () => {
       populateActiveMarketData(editActiveMarket)
       return
     }
-    console.log('actime maker', editActiveMarket)
 
     setFormData(defaultFormData)
     setGroupMarkets(defaultGroupMarkets)

@@ -14,6 +14,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { title } from 'process'
 import { useMemo, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
+import Loader from '@/components/common/loader'
 import { Modal } from '@/components/common/modals/modal'
 import { Toast } from '@/components/common/toast'
 import { AdminMarketCard } from './market-card'
@@ -21,6 +22,7 @@ import { Resolve, ResolveModal } from './resolve-modal'
 import { useCreateMarketModal } from '@/hooks/use-create-market-modal'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useMarkets } from '@/services/MarketsService'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 
 export interface LastOdds {
@@ -30,7 +32,7 @@ export interface LastOdds {
 }
 
 export const AdminActiveMarkets = () => {
-  const { data, fetchNextPage, hasNextPage } = useMarkets(null, true, {
+  const { data, fetchNextPage, hasNextPage, isFetching } = useMarkets(null, true, {
     'x-ignore-limits': 'true',
   })
   const { setMarket, open } = useCreateMarketModal()
