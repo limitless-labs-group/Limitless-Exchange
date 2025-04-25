@@ -154,7 +154,7 @@ export const usePosition = () => {
       if (!web3Wallet) {
         return false
       }
-      return 5000
+      return 60000
     },
     //@ts-ignore
     keepPreviousData: true,
