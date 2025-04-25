@@ -111,6 +111,7 @@ export const DraftMarketsQueue = ({ marketType = 'amm', markets = [] }: DraftMar
               isChecked={selectedMarketIds.includes(market.id)}
               onToggle={() => handleToggle(market.id)}
               onClick={() => handleClick(market.id)}
+              param='queue'
             />
           )
         })}

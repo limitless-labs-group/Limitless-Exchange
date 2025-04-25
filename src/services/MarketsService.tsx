@@ -1,7 +1,6 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import axios, { AxiosResponse } from 'axios'
 import BigNumber from 'bignumber.js'
-import { usePathname } from 'next/navigation'
 import { useMemo } from 'react'
 import { Address, formatUnits, getContract, parseUnits } from 'viem'
 import { defaultChain, newSubgraphURI } from '@/constants'
@@ -21,18 +20,24 @@ import {
 } from '@/types'
 import { calculateMarketPrice, getPrices } from '@/utils/market'
 
-export function useMarkets(topic: Category | null, enabled = true) {
-  const pathname = usePathname()
+export function useMarkets(topic: Category | null, enabled = true, customHeaders = {}) {
   return useInfiniteQuery<MarketPage, Error>({
-    queryKey: ['markets', topic?.id],
+    queryKey: ['markets', topic?.id, customHeaders],
     queryFn: async ({ pageParam = 1 }) => {
       const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/active`
       const marketBaseUrl = topic?.id ? `${baseUrl}/${topic?.id}` : baseUrl
+
+      const hasIgnoreLimitsHeader = 'x-ignore-limits' in customHeaders
+      const params = hasIgnoreLimitsHeader
+        ? {}
+        : {
+            page: pageParam,
+            limit: LIMIT_PER_PAGE,
+          }
+
       const { data: response }: AxiosResponse<ApiResponse> = await axios.get(marketBaseUrl, {
-        params: {
-          page: pageParam,
-          limit: LIMIT_PER_PAGE,
-        },
+        params,
+        headers: { ...customHeaders },
       })
 
       const ammMarkets = response.data.filter((market) => market.tradeType === 'amm')
@@ -71,6 +76,9 @@ export function useMarkets(topic: Category | null, enabled = true) {
     },
     initialPageParam: 1, //default page number
     getNextPageParam: (lastPage) => {
+      if ('x-ignore-limits' in customHeaders) {
+        return null
+      }
       return lastPage.data.totalAmount < LIMIT_PER_PAGE ? null : lastPage.next
     },
     refetchOnWindowFocus: false,

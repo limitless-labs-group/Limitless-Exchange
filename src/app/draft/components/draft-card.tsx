@@ -9,7 +9,13 @@ import CategoryIcon from '@/resources/icons/category.svg'
 import FeeIcon from '@/resources/icons/fee.svg'
 import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
 import DeadlineIcon from '@/resources/icons/sun-watch.svg'
-import { captionMedium, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import {
+  captionMedium,
+  captionRegular,
+  paragraphBold,
+  paragraphMedium,
+  paragraphRegular,
+} from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { DraftMarket, MarketInput } from '@/types/draft'
 import { NumberUtil } from '@/utils'
@@ -19,6 +25,8 @@ interface DraftMarketSingleCardProps {
   isChecked?: boolean
   onToggle?: () => void
   onClick?: () => void
+  withBadge?: boolean
+  param?: string
 }
 
 function isDraftMarket(market: DraftMarket | Market): market is DraftMarket {
@@ -37,11 +45,12 @@ const colors = {
 
 const MarketDataFactory = {
   getMarketType: (market: DraftMarket | Market): string => {
+    if ('type' in market) return market.type
     if (isDraftMarket(market)) {
       return market.type
     }
     if (isMarket(market)) {
-      return market.tradeType
+      return market.marketType === 'group' ? 'group' : market.tradeType
     }
     return ''
   },
@@ -110,7 +119,7 @@ const MarketDataFactory = {
 
   renderCreatorAndTags: (market: DraftMarket | Market) => {
     return isMarket(market) ? (
-      <HStack gap='8px' flexWrap='wrap'>
+      <HStack mt='20px' gap='8px' flexWrap='wrap'>
         <ChakraImage
           width={6}
           height={6}
@@ -128,7 +137,7 @@ const MarketDataFactory = {
         ))}
       </HStack>
     ) : (
-      <HStack gap='8px' flexWrap='wrap'>
+      <HStack mt='20px' gap='8px' flexWrap='wrap'>
         <ChakraImage
           width={6}
           height={6}
@@ -146,39 +155,73 @@ const MarketDataFactory = {
     )
   },
 
-  renderGroupMarkets: (market: DraftMarket | Market) => {
-    if (isMarket(market)) return
-    if (market.type === 'group' && market?.markets && market.markets?.length > 0) {
+  renderDescription: (
+    market: DraftMarket | Market,
+    hover?: boolean,
+    isChecked?: boolean,
+    param?: string
+  ) => {
+    const type = (market: DraftMarket | Market) => {
+      if (isMarket(market)) return market.marketType
+      return market.type
+    }
+
+    if (type(market) === 'group' && market?.markets && market.markets?.length > 0) {
       return (
-        <Box pl={2} mb={2}>
-          <Text {...paragraphMedium} color={colors.secondary} mb={1}>
+        <Box>
+          <Text {...paragraphMedium} color={colors.secondary} mb={2}>
             Markets in group:
           </Text>
-          <Stack spacing={1}>
+          <Stack gap='15px'>
             {[...market.markets]
               .sort((a, b) => (a.id ?? 0) - (b.id ?? 0))
-              .map((subMarket: MarketInput, index: number) => (
-                <Text
-                  key={market.id ?? index}
-                  {...paragraphRegular}
-                  color={colors.main}
-                  pl={4}
-                  position='relative'
-                  _before={{
-                    content: '"•"',
-                    position: 'absolute',
-                    left: 1,
-                    color: colors.secondary,
-                  }}
-                >
-                  {subMarket.title}
-                </Text>
-              ))}
+              .map((subMarket: MarketInput, index: number) => {
+                const { title, description, settings, id } = subMarket
+                return (
+                  <Stack gap='10px' key='index'>
+                    <HStack justifyContent='space-between' alignItems='end'>
+                      <Text
+                        key={id ?? index}
+                        {...paragraphMedium}
+                        fontWeight='500'
+                        color={colors.main}
+                      >
+                        {`->`} {title}
+                      </Text>
+                      <HStack>
+                        <Text {...captionRegular}>rewards:</Text>
+                        <Text {...captionMedium} fontWeight='700'>
+                          {epochToDailyRewards(settings?.rewardsEpoch ?? 0)}
+                        </Text>
+                      </HStack>
+                    </HStack>
+                    {param === 'queue' ? (
+                      <Text {...captionRegular} color={colors.secondary} overflow='hidden'>
+                        <TextEditor
+                          value={description ?? ''}
+                          readOnly
+                          className={`draft ${hover ? 'hover' : ''} ${isChecked ? 'checked' : ''}`}
+                        />
+                      </Text>
+                    ) : null}
+                  </Stack>
+                )
+              })}
           </Stack>
         </Box>
       )
     }
-    return null
+    return market.description ? (
+      <HStack alignItems='flex-start'>
+        <Text {...paragraphMedium} color={colors.main} overflow='hidden'>
+          <TextEditor
+            value={market?.description ?? ''}
+            readOnly
+            className={`draft ${hover ? 'hover' : ''} ${isChecked ? 'checked' : ''}`}
+          />
+        </Text>
+      </HStack>
+    ) : null
   },
 }
 
@@ -282,7 +325,9 @@ export const DraftMarketCard = ({
   market,
   isChecked,
   onToggle,
+  withBadge,
   onClick,
+  param,
 }: DraftMarketSingleCardProps) => {
   const [hover, setHover] = useState(false)
 
@@ -305,7 +350,7 @@ export const DraftMarketCard = ({
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      <HStack align='start' spacing={4}>
+      <HStack align='start' spacing={2}>
         <Checkbox
           isChecked={isChecked}
           onChange={(e) => {
@@ -322,50 +367,41 @@ export const DraftMarketCard = ({
         <Box as='a' width='95%'>
           <Stack gap='5px' width='100%'>
             <HStack justifyContent='space-between' mb='5px' alignItems='flex-start'>
-              <Text {...paragraphMedium} color={colors.main}>
+              <Text {...paragraphBold} fontWeight='600' color={colors.main}>
                 {market.title}
               </Text>
-              {onClick ? (
-                <HStack
-                  gap={1}
-                  color={colors.main}
-                  onClick={onClick}
-                  cursor='pointer'
-                  _hover={{ textDecoration: 'underline' }}
-                >
-                  <Text {...paragraphMedium} color={colors.main}>
-                    Edit
-                  </Text>
-                </HStack>
-              ) : (
-                <HStack gap={1}>
-                  <Box px='2' py='1' borderRadius='md' bg={typeColor}>
-                    <Text
-                      {...paragraphMedium}
-                      color='white'
-                      textTransform='uppercase'
-                      fontSize='xs'
-                    >
-                      {marketType}
+              <HStack gap='20px'>
+                {withBadge ? (
+                  <HStack gap={1}>
+                    <Box px='2' py='1' borderRadius='md' bg={typeColor}>
+                      <Text
+                        {...paragraphMedium}
+                        color='white'
+                        textTransform='uppercase'
+                        fontSize='xs'
+                      >
+                        {marketType}
+                      </Text>
+                    </Box>
+                  </HStack>
+                ) : null}
+                {onClick ? (
+                  <HStack
+                    gap={1}
+                    color={colors.main}
+                    onClick={onClick}
+                    cursor='pointer'
+                    _hover={{ textDecoration: 'underline' }}
+                  >
+                    <Text {...paragraphMedium} color={colors.main}>
+                      Edit
                     </Text>
-                  </Box>
-                </HStack>
-              )}
+                  </HStack>
+                ) : null}
+              </HStack>
             </HStack>
 
-            {market.description ? (
-              <HStack alignItems='flex-start'>
-                <Text {...paragraphMedium} color={colors.main} overflow='hidden'>
-                  <TextEditor
-                    value={market?.description ?? ''}
-                    readOnly
-                    className={`draft ${hover ? 'hover' : ''} ${isChecked ? 'checked' : ''}`}
-                  />
-                </Text>
-              </HStack>
-            ) : null}
-
-            {MarketDataFactory.renderGroupMarkets(market)}
+            {MarketDataFactory.renderDescription(market, hover, isChecked, param)}
 
             {MarketDataFactory.renderCreatorAndTags(market)}
 
