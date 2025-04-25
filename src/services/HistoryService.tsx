@@ -158,7 +158,6 @@ export const usePosition = () => {
     },
     //@ts-ignore
     keepPreviousData: true,
-    staleTime: Infinity,
   }) as UseQueryResult<PortfolioPositions>
 }
 
