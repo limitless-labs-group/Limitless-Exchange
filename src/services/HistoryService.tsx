@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQuery, UseQueryResult } from '@tanstack/react-query'
 import { AxiosResponse } from 'axios'
 import { createContext, PropsWithChildren, useContext, useMemo } from 'react'
 import { formatUnits, Hash } from 'viem'
@@ -154,9 +154,12 @@ export const usePosition = () => {
       if (!web3Wallet) {
         return false
       }
-      return 60000
+      return 5000
     },
-  })
+    //@ts-ignore
+    keepPreviousData: true,
+    staleTime: Infinity,
+  }) as UseQueryResult<PortfolioPositions>
 }
 
 export const usePortfolioHistory = (page: number) => {

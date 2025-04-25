@@ -313,7 +313,7 @@ export default function MarketPage() {
         {market?.marketType === 'single' && (
           <MarketProgressBar isClosed={market?.expired} value={market ? market.prices[0] : 50} />
         )}
-        <HStack gap='8px' mt={isMobile ? 0 : '8px'} flexWrap='wrap'>
+        <HStack gap='8px' mt={'8px'} flexWrap='wrap'>
           {market?.tradeType !== 'amm' && (
             <HStack gap='12px' w='full' justifyContent='space-between'>
               {groupMarket?.negRiskMarketId && <WinnerTakeAllTooltip />}
