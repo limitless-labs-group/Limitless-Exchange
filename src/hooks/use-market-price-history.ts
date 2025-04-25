@@ -4,6 +4,7 @@ import axios, { AxiosResponse } from 'axios'
 import { Address } from 'viem'
 import { defaultChain, newSubgraphURI } from '@/constants'
 import { limitlessApi } from '@/services'
+import { negriskHistoryMock } from '@/services/negrisk-history-mock'
 
 // Define the interface for the chart data
 interface YesBuyChartData {
@@ -87,7 +88,7 @@ export function useNegRiskPriceHistory(slug?: string) {
         }))
         const lastPriceObject = {
           timestamp: new Date().getTime(),
-          price: isNumber(item.prices[0]?.price) ? +item.prices[0].price * 100 : 50,
+          price: isNumber(+item.prices[0]?.price) ? +item.prices[0].price * 100 : 50,
         }
         return {
           ...item,
