@@ -1,5 +1,6 @@
 import { Text, Switch, HStack, Divider, Button, Stack, Flex, VStack } from '@chakra-ui/react'
 import { useState } from 'react'
+import Loader from '@/components/common/loader'
 import { Switcher } from '@/components/common/switcher'
 import OddsIcon from '@/resources/icons/odds-icon.svg'
 
@@ -72,8 +73,14 @@ export const ResolveModal = ({ markets, onResolve, isLoading }: MarketsToResolve
           >
             Cancel
           </Button>
-          <Button isDisabled={isLoading} colorScheme='blue' size='sm' onClick={handleResolve}>
-            {`Resolve ${marketsToResolve.length} markets`}
+          <Button
+            isDisabled={isLoading}
+            colorScheme='blue'
+            size='sm'
+            onClick={handleResolve}
+            minW='150px'
+          >
+            {isLoading ? <Loader /> : `Resolve ${marketsToResolve.length} markets`}
           </Button>
         </HStack>
       </VStack>
