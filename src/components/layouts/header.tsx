@@ -47,7 +47,7 @@ import {
 } from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { MarketStatus, Sort, SortStorageName } from '@/types'
-import { SEARCH_HOTKEY_KEYS } from '@/utils/consts'
+import { DISABLE_SEARCH_PAGES, SEARCH_HOTKEY_KEYS } from '@/utils/consts'
 import { ReferralLink } from '../common/referral-link'
 
 export default function Header() {
@@ -92,6 +92,7 @@ export default function Header() {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (
         SEARCH_HOTKEY_KEYS.includes(event.key) &&
+        !DISABLE_SEARCH_PAGES.includes(pageName) &&
         document.activeElement?.tagName !== 'INPUT' &&
         document.activeElement?.tagName !== 'TEXTAREA'
       ) {

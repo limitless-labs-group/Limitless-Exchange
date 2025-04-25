@@ -38,6 +38,7 @@ export default function GroupMarketSectionSmall({ market }: GroupMarketSectionSm
   const { data: userOrders } = useMarketOrders(market?.slug)
   const { orderType } = useClobWidget()
   const { trackClicked } = useAmplitude()
+
   const handleOutcomeClicked = (e: SyntheticEvent, outcome: number) => {
     trackClicked<QuickBetClickedMetadata>(ClickEvent.QuickBetClicked, {
       source: 'Market page from outcomes section',
