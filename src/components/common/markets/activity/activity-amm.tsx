@@ -1,7 +1,6 @@
 import { Box, HStack, Text, VStack } from '@chakra-ui/react'
 import debounce from 'lodash.debounce'
 import { useCallback } from 'react'
-import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Loader from '@/components/common/loader'
 import Paper from '@/components/common/paper'
@@ -29,7 +28,7 @@ export default function ActivityAmm({ isActive }: MarketActivityTabProps) {
   )
 
   // @ts-ignore
-  const activity = activityData?.pages.flatMap((page) => page.data)
+  const activity = activityData?.pages.flatMap((page) => page.data.events)
 
   return !!activity?.length ? (
     <Box

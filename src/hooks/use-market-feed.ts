@@ -101,7 +101,7 @@ export function useMarketInfinityFeed(marketAddress?: string | null, isActive = 
           limit: 10,
         },
       })
-      return { data: response.data.events, next: (pageParam as number) + 1 }
+      return { data: response.data, next: (pageParam as number) + 1 }
     },
     initialPageParam: 1, //default page number
     getNextPageParam: (lastPage) => {
