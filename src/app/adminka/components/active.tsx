@@ -148,7 +148,8 @@ export const AdminActiveMarkets = () => {
 
     try {
       setIsLoading(true)
-      const res = await privateClient.post(getUrl(), markets, {
+      const data = markets.map((m) => ({ ...m, winningIndex: m.winningIndex === 0 ? 1 : 0 }))
+      const res = await privateClient.post(getUrl(), data, {
         headers: { 'Content-Type': 'application/json' },
       })
       if (res.status === 200 || res.status === 201) {
