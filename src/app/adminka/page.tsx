@@ -8,7 +8,9 @@ import { Modal } from '@/components/common/modals/modal'
 import { AdminActiveMarkets } from './components/active'
 import { DraftMarketModal } from './components/draft-modal'
 import { AdminDraftMarkets } from './components/drafts'
+import { AdminRecentMarkets } from './components/recent'
 import { useCreateMarketModal } from '@/hooks/use-create-market-modal'
+import CopyIcon from '@/resources/icons/copy-icon.svg'
 import LoadingIcon from '@/resources/icons/loader-icon.svg'
 import ActiveIcon from '@/resources/icons/partially-filled-circle.svg'
 import { DraftMarketType, DraftMarket } from '@/types/draft'
@@ -70,6 +72,12 @@ export default function AdminPage() {
       icon: <ActiveIcon width={16} height={16} />,
       component: AdminActiveMarkets,
       param: 'active',
+    },
+    {
+      title: 'Recent',
+      icon: <CopyIcon width={16} height={16} />,
+      component: AdminRecentMarkets,
+      param: 'recent',
     },
   ]
 
