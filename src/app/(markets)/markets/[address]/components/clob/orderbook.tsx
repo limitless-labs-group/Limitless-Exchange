@@ -131,8 +131,6 @@ export default function Orderbook({ variant }: OrderBookProps) {
     }
   }, [orderbook, outcome])
 
-  console.log(orderbookData)
-
   const spread = useMemo(() => {
     if (!orderbookData) {
       return '0'
