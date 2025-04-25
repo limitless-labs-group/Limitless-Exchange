@@ -50,6 +50,15 @@ export const AdminActiveMarkets = () => {
     })
   }, [data?.pages])
 
+  const getMarketType = () => {
+    const tradeTypes = [...new Set(selectedMarkets.map((m) => m.tradeType))]
+    const marketTypes = [...new Set(selectedMarkets.map((m) => m.marketType))]
+
+    const marketType = marketTypes[0] === 'group' ? 'group' : tradeTypes[0]
+    const isDiffTypes = marketTypes.length > 1 || tradeTypes.length > 1
+    return { marketType, isDiffTypes }
+  }
+
   const toggleMarketSelection = (market: Market) => {
     setSelectedMarkets((prev) => {
       const exists = prev.find((m) => m.id === market.id)
@@ -79,15 +88,35 @@ export const AdminActiveMarkets = () => {
   const [isLoading, setIsLoading] = useState(false)
 
   const triggerResolveModal = async () => {
+    const { marketType, isDiffTypes } = getMarketType()
+
+    if (isDiffTypes) {
+      const id = toast({
+        render: () => <Toast id={id} title='Error: Selected markets must be of the same type' />,
+      })
+      return
+    }
+
+    if (marketType === 'group' && selectedMarkets.length > 1) {
+      const id = toast({
+        render: () => (
+          <Toast id={id} title='Error: Batch is not implemented for group. Select only 1 market.' />
+        ),
+      })
+      return
+    }
+
+    const markets = marketType === 'group' ? selectedMarkets[0].markets : selectedMarkets
+
     const url = '/markets/last-odds-batch'
-    const payload = { marketIds: selectedMarkets.map((m) => m.id) }
+    const payload = { marketIds: markets?.map((m) => m.id) || [] }
 
     try {
       const { data } = await privateClient.post<{ data: LastOdds[] }>(url, payload, {
         headers: { 'Content-Type': 'application/json' },
       })
 
-      const marketsData = selectedMarkets.map((market) => {
+      const marketsData = (markets || []).map((market) => {
         const marketData = data.data.find((item: LastOdds) => item.marketId === market.id)
         const odds = marketData ? (Number(marketData.lastAvgPrice) * 100).toString() : '0'
         const oddsValue = parseFloat(odds)
@@ -113,43 +142,42 @@ export const AdminActiveMarkets = () => {
   const resolve = async (markets: Resolve[]) => {
     if (markets.length === 0 || selectedMarkets.length === 0) return
 
-    const tradeTypes = [...new Set(selectedMarkets.map((m) => m.tradeType))]
-    const marketTypes = [...new Set(selectedMarkets.map((m) => m.marketType))]
+    const { marketType } = getMarketType()
 
-    const marketType = marketTypes[0] === 'group' ? 'group' : tradeTypes[0]
-
-    if (marketTypes.length > 1 || tradeTypes.length > 1) {
-      const id = toast({
-        render: () => <Toast id={id} title='Error: Selected markets must be of the same type' />,
-      })
-      return
-    }
-
-    if (marketType === 'group' && selectedMarkets.length > 1) {
-      const id = toast({
-        render: () => (
-          <Toast id={id} title='Error: Batch is not implemented for group. Select only 1 market.' />
-        ),
-      })
-      return
-    }
-
-    const getUrl = () => {
+    const getPostData = () => {
+      const indexes = markets.map((m) => ({ ...m, winningIndex: m.winningIndex === 0 ? 1 : 0 }))
       switch (marketType) {
         case 'clob':
-          return `/markets/clob/propose/batch-resolve`
+          return { url: `/markets/clob/propose/batch-resolve`, payload: indexes }
         case 'group':
-          return `/markets/group/${selectedMarkets[0].id}/propose/resolve`
+          return {
+            url: `/markets/group/${selectedMarkets[0].id}/propose/resolve`,
+            payload: indexes,
+          }
         case 'amm':
         default:
-          return `markets/propose/batch-resolve`
+          return { url: `markets/propose/batch-resolve`, payload: indexes }
+      }
+    }
+
+    const data = getPostData()
+
+    if (marketType === 'group') {
+      const zeroCount = data.payload.filter((item) => item.winningIndex === 0).length
+      if (zeroCount !== 1) {
+        const id = toast({
+          render: () => (
+            <Toast id={id} title='Error: Group markets must have exactly one winning option' />
+          ),
+        })
+        return
       }
     }
 
     try {
       setIsLoading(true)
-      const data = markets.map((m) => ({ ...m, winningIndex: m.winningIndex === 0 ? 1 : 0 }))
-      const res = await privateClient.post(getUrl(), data, {
+
+      const res = await privateClient.post(data.url, data.payload, {
         headers: { 'Content-Type': 'application/json' },
       })
       if (res.status === 200 || res.status === 201) {
