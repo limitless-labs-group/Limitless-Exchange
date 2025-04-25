@@ -174,29 +174,56 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
     strategy,
   ])
 
-  const { yesPrice, noPrice } = useMemo(() => {
-    if (orderBook) {
-      if (strategy === 'Buy') {
-        const yesPrice = orderBook?.asks.sort((a, b) => a.price - b.price)[0]?.price * 100
-        const noPrice = (1 - orderBook?.bids.sort((a, b) => b.price - a.price)[0]?.price) * 100
-        return {
-          yesPrice: isNaN(yesPrice) ? 0 : +yesPrice.toFixed(1),
-          noPrice: isNaN(noPrice) ? 0 : +noPrice.toFixed(1),
-        }
-      }
-      const yesPrice = orderBook?.bids.sort((a, b) => b.price - a.price)[0]?.price * 100
-      const noPrice =
-        (1 - orderBook?.asks.sort((a, b) => b.price - a.price).reverse()[0]?.price) * 100
-      return {
-        yesPrice: isNaN(yesPrice) ? 0 : +yesPrice.toFixed(1),
-        noPrice: isNaN(noPrice) ? 0 : +noPrice.toFixed(1),
-      }
+  const yesPrice = useMemo(() => {
+    if (!market?.tradePrices) {
+      return 50
     }
-    return {
-      yesPrice: 0,
-      noPrice: 0,
+    if (strategy === 'Buy') {
+      return orderType === MarketOrderType.MARKET
+        ? new BigNumber(market.tradePrices.buy.market[0])
+            .multipliedBy(100)
+            .decimalPlaces(1)
+            .toNumber()
+        : new BigNumber(market.tradePrices.buy.limit[0])
+            .multipliedBy(100)
+            .decimalPlaces(1)
+            .toNumber()
     }
-  }, [strategy, orderBook])
+    return orderType === MarketOrderType.MARKET
+      ? new BigNumber(market.tradePrices.sell.market[0])
+          .multipliedBy(100)
+          .decimalPlaces(1)
+          .toNumber()
+      : new BigNumber(market.tradePrices.sell.limit[0])
+          .multipliedBy(100)
+          .decimalPlaces(1)
+          .toNumber()
+  }, [strategy, market?.tradePrices, orderType])
+  const noPrice = useMemo(() => {
+    if (!market?.tradePrices) {
+      return 50
+    }
+    if (strategy === 'Buy') {
+      return orderType === MarketOrderType.MARKET
+        ? new BigNumber(market.tradePrices.buy.market[1])
+            .multipliedBy(100)
+            .decimalPlaces(1)
+            .toNumber()
+        : new BigNumber(market.tradePrices.buy.limit[1])
+            .multipliedBy(100)
+            .decimalPlaces(1)
+            .toNumber()
+    }
+    return orderType === MarketOrderType.MARKET
+      ? new BigNumber(market.tradePrices.sell.market[1])
+          .multipliedBy(100)
+          .decimalPlaces(1)
+          .toNumber()
+      : new BigNumber(market.tradePrices.sell.limit[1])
+          .multipliedBy(100)
+          .decimalPlaces(1)
+          .toNumber()
+  }, [strategy, market?.tradePrices, orderType])
 
   const sharesPrice = useMemo(() => {
     if (orderType === MarketOrderType.LIMIT) {

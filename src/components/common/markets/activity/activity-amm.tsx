@@ -1,7 +1,6 @@
 import { Box, HStack, Text, VStack } from '@chakra-ui/react'
 import debounce from 'lodash.debounce'
 import { useCallback } from 'react'
-import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Loader from '@/components/common/loader'
 import Paper from '@/components/common/paper'
@@ -29,22 +28,31 @@ export default function ActivityAmm({ isActive }: MarketActivityTabProps) {
   )
 
   // @ts-ignore
-  const activity = activityData?.pages.flatMap((page) => page.data)
+  const activity = activityData?.pages.flatMap((page) => page.data.events)
 
   return !!activity?.length ? (
-    <Box className='full-container' w={isMobile ? 'full' : 'unset'}>
+    <Box
+      id='scrollableDiv'
+      h={activity?.length < 10 ? 'unset' : '325px'}
+      overflow='auto'
+      sx={{
+        '& > div': {
+          width: '100% !important',
+        },
+      }}
+    >
       <InfiniteScroll
         dataLength={activity?.length ?? 0}
         next={getNextPage}
         hasMore={hasNextPage}
-        scrollableTarget='side-menu-scroll-container'
-        scrollThreshold='100%'
         loader={
           <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
             <Loader />
             <Text {...paragraphRegular}>Loading more posts</Text>
           </HStack>
         }
+        scrollableTarget='scrollableDiv'
+        scrollThreshold='20px'
       >
         <Box mb='30px'>
           {activity.map((activityItem) => (
