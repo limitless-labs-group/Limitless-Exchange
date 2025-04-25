@@ -13,7 +13,6 @@ import OutcomeButtonsClob from '@/components/common/markets/outcome-buttons/outc
 import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
 import { blockTradeAtom } from '@/atoms/trading'
-import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import { ChangeEvent, StrategyChangedMetadata, useAmplitude, useTradingService } from '@/services'
 import { PendingTradeData } from '@/services/PendingTradeService'
 import { headLineLarge, paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -146,7 +145,7 @@ export default function ClobWidget() {
           {orderType === MarketOrderType.MARKET ? <ClobMarketTradeForm /> : <ClobLimitTradeForm />}
           {isBalanceNotEnough && (
             <Text my='8px' {...paragraphRegular} color='grey.500' textAlign={'center'}>
-              Not enough funds
+              Not enough {strategy === 'Buy' ? 'funds' : 'shares'}
             </Text>
           )}
         </Paper>
