@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQuery, UseQueryResult } from '@tanstack/react-query'
 import { AxiosResponse } from 'axios'
 import { createContext, PropsWithChildren, useContext, useMemo } from 'react'
 import { formatUnits, Hash } from 'viem'
@@ -156,7 +156,9 @@ export const usePosition = () => {
       }
       return 60000
     },
-  })
+    //@ts-ignore
+    keepPreviousData: true,
+  }) as UseQueryResult<PortfolioPositions>
 }
 
 export const usePortfolioHistory = (page: number) => {

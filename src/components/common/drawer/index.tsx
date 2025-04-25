@@ -48,8 +48,7 @@ export default function MobileDrawer({
   useEffect(() => {
     if (ref.current) return
     const market = searchParams.get('market')
-    const slug = searchParams.get('slug')
-    if (market !== null && id !== null && (market === id || slug === id) && drawerRef.current) {
+    if (market !== null && id !== null && market === id && drawerRef.current) {
       drawerRef.current.click()
       ref.current = true
     }
