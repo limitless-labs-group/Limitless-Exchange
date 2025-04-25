@@ -24,10 +24,10 @@ export function useOrderBook(slug?: string, tradeType?: 'amm' | 'clob') {
   return useQuery({
     queryKey: ['order-book', slug],
     queryFn: async () => {
-      // const response: AxiosResponse<OrderBook> = await limitlessApi.get(
-      //   `/markets/${slug}/orderbook`
-      // )
-      const response = orderBookMock
+      const response: AxiosResponse<OrderBook> = await limitlessApi.get(
+        `/markets/${slug}/orderbook`
+      )
+      // const response = orderBookMock
       return {
         ...response.data,
         maxSpread: new BigNumber(response.data.maxSpread).minus('0.005').toString(),
