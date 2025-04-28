@@ -31,6 +31,7 @@ export const BigBannerTrigger = React.memo(({ market, markets, index }: BigBanne
     setMarket,
     marketPageOpened,
     setMarketPageOpened,
+    setGroupMarket,
   } = useTradingService()
   const { data: marketFeedData } = useMarketFeed(market)
   const router = useRouter()
@@ -125,7 +126,12 @@ export const BigBannerTrigger = React.memo(({ market, markets, index }: BigBanne
     const searchParams = new URLSearchParams(window.location.search)
     searchParams.set('market', market.slug)
     router.push(`?${searchParams.toString()}`, { scroll: false })
-    setMarket(market)
+    if (market.marketType === 'group') {
+      setGroupMarket(market)
+    } else {
+      setMarket(market)
+    }
+
     if (!isGroup) {
       setClobOutcome(outcome)
     }
