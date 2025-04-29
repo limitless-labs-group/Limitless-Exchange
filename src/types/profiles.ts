@@ -14,6 +14,7 @@ export interface Profile {
   socialUrl?: string | null
   referralCode: string
   referralData: Referee[]
+  enrolledInPointsProgram: boolean
 }
 
 export interface Referee {

@@ -64,7 +64,7 @@ export const PortfolioStats = () => {
   const { supportedTokens } = useLimitlessApi()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { data: positions, isLoading: positionsLoading } = usePosition()
-  const { web3Wallet } = useAccount()
+  const { web3Wallet, profileLoading } = useAccount()
 
   const balanceInvested = useMemo(() => {
     const ammPositions = positions?.positions.filter(
@@ -242,7 +242,7 @@ export const PortfolioStats = () => {
         ) : (
           `${+positions.points ? NumberUtil.convertToSymbols(positions.points) : '0.00'}`
         ),
-      customContent: <EnterTheGameButton />,
+      customContent: profileLoading ? <></> : <EnterTheGameButton />,
     },
   ]
 
