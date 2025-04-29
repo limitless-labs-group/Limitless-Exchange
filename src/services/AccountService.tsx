@@ -55,6 +55,7 @@ export interface IAccountContext {
   displayUsername: string
   bio: string
   referralCode: string
+  refLink: string
   profileLoading: boolean
   profileData?: Profile | null
   updateProfileMutation: UseMutationResult<
@@ -490,6 +491,11 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     return ''
   }, [profileData?.referralCode])
 
+  const refLink = useMemo(
+    () => `${process.env.NEXT_PUBLIC_APP_URL}/?r=${referralCode}`,
+    [referralCode]
+  )
+
   const disconnectFromPlatform = useCallback(async () => {
     localStorage.removeItem(LOGGED_IN_TO_LIMITLESS)
     localStorage.removeItem(USER_ID)
@@ -508,6 +514,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     displayName,
     displayUsername,
     referralCode,
+    refLink,
     bio,
     disconnectFromPlatform,
     profileLoading: userMenuLoading,

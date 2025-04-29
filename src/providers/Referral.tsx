@@ -17,7 +17,7 @@ export const ReferralProvider = () => {
         fullPageUrl = url.toString()
       }
       sendVisit({ referralCode: referral, pageUrl: fullPageUrl }).finally(() => {
-        updateParams({ r: null })
+        // updateParams({ r: null })
       })
     }
   }, [])
