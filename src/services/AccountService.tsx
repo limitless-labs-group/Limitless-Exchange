@@ -228,6 +228,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
   const { login: loginToPlatform } = usePrivyLogin({
     onComplete: async ({ user, wasAlreadyAuthenticated, isNewUser }) => {
+      const referral = { referral: r ?? 'Empty' }
       const connectedWallet = wallets.find(
         (wallet) => wallet.connectorType === user.wallet?.connectorType
       )
@@ -260,12 +261,14 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
             trackSignUp(SignInEvent.SignedUp, {
               signedIn: true,
               account: client.account?.address ?? '',
+              ...referral,
             })
             return
           }
           trackSignIn(SignInEvent.SignedIn, {
             signedIn: true,
             account: client.account?.address ?? '',
+            ...referral,
           })
           return
         }
@@ -284,6 +287,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         trackSignIn(SignInEvent.SignedIn, {
           signedIn: true,
           account: connectedWallet.address ?? '',
+          ...referral,
         })
         // setIsLogged(true)
         return

@@ -50,7 +50,6 @@ import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { MarketStatus, Sort, SortStorageName } from '@/types'
 import { DISABLE_SEARCH_PAGES, SEARCH_HOTKEY_KEYS } from '@/utils/consts'
 import { ReferralLink } from '../common/referral-link'
-import { Toast } from '../common/toast'
 
 export default function Header() {
   const [, setSelectedSort] = useAtom(sortAtom)
@@ -71,7 +70,6 @@ export default function Header() {
     setProfilePageOpened,
     profilePageOpened,
     walletPageOpened,
-    referralCode,
   } = useAccount()
   const handleBuyCryptoClicked = async () => {
     trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.BuyCryptoClicked)
@@ -339,7 +337,6 @@ export default function Header() {
               <UserMenuDesktop
                 handleOpenWalletPage={handleOpenWalletPage}
                 handleOpenProfile={handleOpenProfile}
-                handleOpenReferral={handleOpenReferral}
               />
               {walletPageOpened && (
                 <SideBarPage>

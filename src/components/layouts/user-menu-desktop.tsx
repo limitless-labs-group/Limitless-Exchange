@@ -35,13 +35,17 @@ import {
   useBalanceQuery,
   useBalanceService,
 } from '@/services'
-import { h2Regular, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import {
+  h2Regular,
+  captionMedium,
+  paragraphMedium,
+  paragraphRegular,
+} from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
 interface UserMenuDesktopProps {
   handleOpenWalletPage: () => void
   handleOpenProfile: () => void
-  handleOpenReferral: () => void
 }
 
 export default function UserMenuDesktop({
@@ -240,13 +244,20 @@ export default function UserMenuDesktop({
                 </HStack>
               </CopyToClipboard>
             </HStack>
-            <VStack gap='16px'>
+            <VStack gap='16px' alignItems='center'>
               <Divider mt='16px' />
               <HStack justifyContent='space-between' w='full'>
-                <HStack gap='4px'>
-                  <HeartIcon width={16} height={16} />
-                  <Text {...paragraphMedium}>{refCopied ? 'Copied!' : 'Referral code'}</Text>
-                </HStack>
+                <VStack gap='2px' alignItems='start'>
+                  <HStack gap='8px'>
+                    <HeartIcon width={16} height={16} />
+                    <Text {...paragraphMedium}>{refCopied ? 'Copied!' : 'Referral code'}</Text>
+                  </HStack>
+                  {/* {!refCopied ? ( */}
+                  {/*   <Box justifyContent='start' w='full'> */}
+                  {/*     <Text {...captionMedium} ml='24px' color='grey.500'>{`Invited: ${3}`}</Text> */}
+                  {/*   </Box> */}
+                  {/* ) : null} */}
+                </VStack>
                 {/*//@ts-ignore*/}
                 <CopyToClipboard text={refLink} onCopy={onRefLinkCopy}>
                   <CopyIcon width='16px' height='16px' cursor='pointer' />
