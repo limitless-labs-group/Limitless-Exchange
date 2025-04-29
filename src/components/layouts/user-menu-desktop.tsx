@@ -53,8 +53,15 @@ export default function UserMenuDesktop({
   handleOpenProfile,
 }: UserMenuDesktopProps) {
   const { trackClicked } = useAmplitude()
-  const { disconnectFromPlatform, profileData, profileLoading, account, web3Client, refLink } =
-    useAccount()
+  const {
+    disconnectFromPlatform,
+    profileData,
+    profileLoading,
+    account,
+    web3Client,
+    refLink,
+    referralData,
+  } = useAccount()
   const {
     isOpen: isOpenAuthMenu,
     onToggle: onToggleAuthMenu,
@@ -246,17 +253,21 @@ export default function UserMenuDesktop({
             </HStack>
             <VStack gap='16px' alignItems='center'>
               <Divider mt='16px' />
-              <HStack justifyContent='space-between' w='full'>
+              <HStack justifyContent='space-between' w='full' alignItems='start'>
                 <VStack gap='2px' alignItems='start'>
                   <HStack gap='8px'>
                     <HeartIcon width={16} height={16} />
                     <Text {...paragraphMedium}>{refCopied ? 'Copied!' : 'Referral code'}</Text>
                   </HStack>
-                  {/* {!refCopied ? ( */}
-                  {/*   <Box justifyContent='start' w='full'> */}
-                  {/*     <Text {...captionMedium} ml='24px' color='grey.500'>{`Invited: ${3}`}</Text> */}
-                  {/*   </Box> */}
-                  {/* ) : null} */}
+                  {!refCopied && referralData?.refereeCount && referralData?.refereeCount > 0 ? (
+                    <Box justifyContent='start' w='full'>
+                      <Text
+                        {...captionMedium}
+                        ml='24px'
+                        color='grey.500'
+                      >{`Invited: ${referralData?.refereeCount}`}</Text>
+                    </Box>
+                  ) : null}
                 </VStack>
                 {/*//@ts-ignore*/}
                 <CopyToClipboard text={refLink} onCopy={onRefLinkCopy}>

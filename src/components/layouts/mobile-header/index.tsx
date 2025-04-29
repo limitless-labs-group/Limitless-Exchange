@@ -54,7 +54,7 @@ import {
   usePosition,
 } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { captionMedium, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
 export default function MobileHeader() {
@@ -73,6 +73,7 @@ export default function MobileHeader() {
     account,
     loginToPlatform,
     refLink,
+    referralData,
   } = useAccount()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { trackClicked } = useAmplitude()
@@ -349,19 +350,31 @@ export default function MobileHeader() {
                         </ButtonGroup>
                       </HStack>
 
-                      <VStack gap='24px' w='full'>
+                      <VStack gap='24px' w='full' alignItems='start'>
                         <Divider borderColor='grey.200' />
-                        <HStack justifyContent='space-between' w='full'>
-                          {/*//@ts-ignore*/}
-                          <CopyToClipboard text={refLink} onCopy={onRefLinkCopy}>
+                        {/*//@ts-ignore*/}
+                        <CopyToClipboard text={refLink} onCopy={onRefLinkCopy}>
+                          <VStack
+                            justifyContent='space-between'
+                            w='full'
+                            alignItems='start'
+                            gap='2px'
+                          >
                             <HStack gap='4px' p='4px'>
                               <HeartIcon width={16} height={16} />
                               <Text {...paragraphMedium}>
                                 {refCopied ? 'Referral link copied!' : 'Invite friends'}
                               </Text>
                             </HStack>
-                          </CopyToClipboard>
-                        </HStack>
+                            {!refCopied &&
+                            referralData?.refereeCount &&
+                            referralData?.refereeCount > 0 ? (
+                              <Text {...captionMedium} color='grey.500' ml='24px'>
+                                {`Invited: ${referralData.refereeCount}`}
+                              </Text>
+                            ) : null}
+                          </VStack>
+                        </CopyToClipboard>
                         <Divider borderColor='grey.200' />
                       </VStack>
 
