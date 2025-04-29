@@ -7,7 +7,6 @@ import { usePriceOracle } from '@/providers'
 import { useAccount } from '@/services/AccountService'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useLimitlessApi } from '@/services/LimitlessApi'
-import { positionsMock } from '@/services/positions-mock'
 import { Address, Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
@@ -41,7 +40,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
     ammPositions?.forEach((position) => {
       let positionUsdAmount = 0
       const token = supportedTokens?.find(
-        (token) => token.symbol === position.market.collateral?.symbol
+        (token) => token.symbol === position.market.collateralToken?.symbol
       )
       if (!!token) {
         positionUsdAmount = convertAssetAmountToUsd(token.priceOracleId, position.collateralAmount)
@@ -62,7 +61,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
     ammPositions?.forEach((position) => {
       let positionOutcomeUsdAmount = 0
       const token = supportedTokens?.find(
-        (token) => token.symbol === position.market.collateral?.symbol
+        (token) => token.symbol === position.market.collateralToken?.symbol
       )
       if (!!token) {
         positionOutcomeUsdAmount = convertAssetAmountToUsd(
@@ -146,6 +145,7 @@ export const usePosition = () => {
             rewardsByEpoch: [],
           },
           positions: [],
+          points: '0.00',
         }
       }
     },
@@ -159,21 +159,6 @@ export const usePosition = () => {
     //@ts-ignore
     keepPreviousData: true,
   }) as UseQueryResult<PortfolioPositions>
-}
-
-export const usePortfolioHistory = (page: number) => {
-  const privateClient = useAxiosPrivateClient()
-  return useQuery({
-    queryKey: ['history', page],
-    queryFn: async (): Promise<AxiosResponse<History>> => {
-      return privateClient.get<History>('/portfolio/history', {
-        params: {
-          page: page,
-          limit: 10,
-        },
-      })
-    },
-  })
 }
 
 export const useInfinityHistory = () => {
@@ -231,6 +216,10 @@ export type HistoryMarket = {
   closed?: boolean
   funding?: string
   holdersCount?: number
+  collateralToken?: {
+    symbol: string
+    id: string
+  }
   collateral?: {
     symbol: string
     id: string
@@ -292,6 +281,7 @@ type PositionsResponse = {
     totalUserRewardsLastEpoch: string
     rewardsByEpoch: RewardEpoch[]
   }
+  points: string
   amm: HistoryPositionWithType[]
   clob: ClobPositionWithType[]
 }
@@ -303,6 +293,7 @@ type PortfolioPositions = {
     rewardsByEpoch: RewardEpoch[]
   }
   positions: (HistoryPositionWithType | ClobPositionWithType)[]
+  points: string
 }
 
 export interface ClobPositionContracts {
