@@ -9,6 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
   Text,
+  useToast,
 } from '@chakra-ui/react'
 import { useFundWallet } from '@privy-io/react-auth'
 import { useAtom } from 'jotai/index'
@@ -61,6 +62,7 @@ export default function Header() {
   const { marketPageOpened, onCloseMarketPage } = useTradingService()
   const { mode } = useThemeProvider()
   const router = useRouter()
+  const toast = useToast()
   const {
     account,
     loginToPlatform,
@@ -83,6 +85,11 @@ export default function Header() {
 
   const handleOpenProfile = () => {
     setProfilePageOpened(true)
+    if (marketPageOpened) {
+      onCloseMarketPage()
+    }
+  }
+  const handleOpenReferral = () => {
     if (marketPageOpened) {
       onCloseMarketPage()
     }

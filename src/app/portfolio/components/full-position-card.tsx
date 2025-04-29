@@ -270,14 +270,14 @@ export default function FullPositionCard({ position, type }: FullPositionCardPro
         trackClicked(ClickEvent.PortfolioMarketClicked, {
           marketCategory: fetchedMarket.categories,
           marketAddress: fetchedMarket.slug,
-          marketType: position.market.negRiskMarketId ? 'group' : 'single',
+          marketType: position.market.negRiskRequestId ? 'group' : 'single',
           marketTags: fetchedMarket.tags,
           type: 'Portolio',
         })
       }
     } else {
       onOpenMarketPage(oneMarket)
-      if (oneMarket.negRiskMarketId) {
+      if (oneMarket.negRiskRequestId) {
         const targetMarket = oneMarket.markets?.find(
           (market) => market.slug === position.market.slug
         )
@@ -286,7 +286,7 @@ export default function FullPositionCard({ position, type }: FullPositionCardPro
       trackClicked(ClickEvent.PortfolioMarketClicked, {
         marketCategory: oneMarket.categories,
         marketAddress: oneMarket.slug,
-        marketType: position.market.negRiskMarketId ? 'group' : 'single',
+        marketType: position.market.negRiskRequestId ? 'group' : 'single',
         marketTags: oneMarket.tags,
         type: 'Portolio',
       })

@@ -13,6 +13,18 @@ export interface Profile {
   isAdmin: boolean
   socialUrl?: string | null
   referralCode: string
+  referralData: Referee[]
+}
+
+export interface Referee {
+  createdAt: string
+  id: number
+  referredProfileId: number
+}
+
+export interface ReferralData {
+  referralData: Referee[]
+  refereeCount: number
 }
 
 export enum ProfileActionType {
