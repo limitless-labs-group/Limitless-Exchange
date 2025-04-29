@@ -45,7 +45,7 @@ import useClient from '@/hooks/use-client'
 import { useUrlParams } from '@/hooks/use-url-param'
 import { publicClient } from '@/providers/Privy'
 import { Address, APIError, UpdateProfileData } from '@/types'
-import { Profile } from '@/types/profiles'
+import { Profile, Referee, ReferralData } from '@/types/profiles'
 import { LOGGED_IN_TO_LIMITLESS, USER_ID } from '@/utils/consts'
 
 export interface IAccountContext {
@@ -58,6 +58,7 @@ export interface IAccountContext {
   referralCode: string
   refLink: string
   profileLoading: boolean
+  referralData?: ReferralData
   profileData?: Profile | null
   updateProfileMutation: UseMutationResult<
     Profile | undefined,
@@ -501,6 +502,13 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     return ''
   }, [profileData?.referralCode])
 
+  const referralData = useMemo(() => {
+    return {
+      referralData: profileData?.referralData ?? [],
+      refereeCount: profileData?.referralData ? profileData?.referralData.length : 0,
+    }
+  }, [profileData?.referralData])
+
   const refLink = useMemo(
     () => `${process.env.NEXT_PUBLIC_APP_URL}/?r=${referralCode}`,
     [referralCode]
@@ -526,6 +534,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     referralCode,
     refLink,
     bio,
+    referralData,
     disconnectFromPlatform,
     profileLoading: userMenuLoading,
     profileData,
