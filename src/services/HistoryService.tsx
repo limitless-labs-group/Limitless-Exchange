@@ -1,5 +1,4 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
-import { AxiosResponse } from 'axios'
 import { createContext, PropsWithChildren, useContext, useMemo } from 'react'
 import { formatUnits, Hash } from 'viem'
 import useClient from '@/hooks/use-client'
@@ -7,7 +6,6 @@ import { usePriceOracle } from '@/providers'
 import { useAccount } from '@/services/AccountService'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useLimitlessApi } from '@/services/LimitlessApi'
-import { positionsMock } from '@/services/positions-mock'
 import { Address, Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
@@ -146,6 +144,7 @@ export const usePosition = () => {
             rewardsByEpoch: [],
           },
           positions: [],
+          points: '0.00',
         }
       }
     },
@@ -155,21 +154,6 @@ export const usePosition = () => {
         return false
       }
       return 60000
-    },
-  })
-}
-
-export const usePortfolioHistory = (page: number) => {
-  const privateClient = useAxiosPrivateClient()
-  return useQuery({
-    queryKey: ['history', page],
-    queryFn: async (): Promise<AxiosResponse<History>> => {
-      return privateClient.get<History>('/portfolio/history', {
-        params: {
-          page: page,
-          limit: 10,
-        },
-      })
     },
   })
 }
@@ -290,6 +274,7 @@ type PositionsResponse = {
     totalUserRewardsLastEpoch: string
     rewardsByEpoch: RewardEpoch[]
   }
+  points: string
   amm: HistoryPositionWithType[]
   clob: ClobPositionWithType[]
 }
@@ -301,6 +286,7 @@ type PortfolioPositions = {
     rewardsByEpoch: RewardEpoch[]
   }
   positions: (HistoryPositionWithType | ClobPositionWithType)[]
+  points: string
 }
 
 export interface ClobPositionContracts {
