@@ -22,7 +22,7 @@ export class NumberUtil {
 
   static convertToSymbols = (v: number | string) => {
     if (+v < 100000) {
-      return v
+      return this.convertWithDenomination(v)
     }
     if (+v < 1000000) {
       return `${new BigNumber(v).dividedBy(1000).decimalPlaces(2).toString()}k`
