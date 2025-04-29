@@ -67,13 +67,13 @@ export default function PortfolioTabContainer({
       {positionsFiltered?.map((position) =>
         position.type === 'amm' ? (
           <PortfolioPositionCard
-            key={uuidv4()}
+            key={position.market.slug}
             position={position as HistoryPosition}
             prices={(() => getPrices((position as HistoryPosition).market.id))()}
           />
         ) : (
           <FullPositionCard
-            key={uuidv4()}
+            key={position.market.slug}
             position={position as ClobPositionWithType}
             type={type}
           />
