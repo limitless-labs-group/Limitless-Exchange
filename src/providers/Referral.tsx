@@ -5,7 +5,7 @@ import { useUrlParams } from '@/hooks/use-url-param'
 import { useReferral } from '@/services/ReferralService'
 
 export const ReferralProvider = () => {
-  const { updateParams, getParam } = useUrlParams()
+  const { getParam } = useUrlParams()
   const { sendVisit } = useReferral()
   const referral = getParam('r')
   useEffect(() => {

@@ -41,7 +41,6 @@ import { NumberUtil, truncateEthAddress } from '@/utils'
 interface UserMenuDesktopProps {
   handleOpenWalletPage: () => void
   handleOpenProfile: () => void
-  handleOpenReferral: () => void
 }
 
 export default function UserMenuDesktop({
