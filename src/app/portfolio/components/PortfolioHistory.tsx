@@ -98,7 +98,7 @@ const History = () => {
       )
     }
     // @ts-ignore
-    if (item.action) {
+    if (['won', 'loss'].includes(item.action)) {
       return (
         <PortfolioHistoryRedeemItem
           key={(item as HistoryRedeem).blockTimestamp}
