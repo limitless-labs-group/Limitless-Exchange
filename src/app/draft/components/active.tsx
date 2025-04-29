@@ -1,12 +1,14 @@
 'use client'
 
-import { Flex, VStack } from '@chakra-ui/react'
+import { Flex, VStack, Text } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
+import Loader from '@/components/common/loader'
 import { DraftMarketCard } from '@/app/draft/components/draft-card'
 import { useUrlParams } from '@/hooks/use-url-param'
 import { useMarkets } from '@/services/MarketsService'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 
 export const ActiveMarkets = () => {
@@ -14,7 +16,9 @@ export const ActiveMarkets = () => {
   const { getParam } = useUrlParams()
   const isEnabled = getParam('tab') === 'active'
 
-  const { data, fetchNextPage, hasNextPage } = useMarkets(null, isEnabled)
+  const { data, fetchNextPage, hasNextPage, isLoading } = useMarkets(null, isEnabled, {
+    'x-ignore-limits': 'true',
+  })
 
   const markets: Market[] = useMemo(() => {
     const allMarkets = data?.pages.flatMap((page) => page.data.markets) || []
@@ -31,7 +35,12 @@ export const ActiveMarkets = () => {
     router.push(baseUrl + addon)
   }
 
-  return (
+  return isLoading ? (
+    <VStack h='calc(100vh - 350px)' w='full' alignItems='center' justifyContent='center'>
+      <Text {...paragraphMedium}>Fetching active markets just for you!</Text>
+      <Loader />
+    </VStack>
+  ) : (
     <Flex justifyContent={'center'} position='relative'>
       <VStack w='868px' spacing={4} mb='66px'>
         <InfiniteScroll
@@ -48,6 +57,7 @@ export const ActiveMarkets = () => {
                 market={market}
                 key={market.id}
                 onClick={() => handleClick(market.slug, market.tradeType, market.marketType)}
+                withBadge
               />
             )
           })}

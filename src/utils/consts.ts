@@ -18,3 +18,5 @@ export const SEARCH_HOTKEY_KEYS = [
   '־', // Hebrew layout
   'ـ', // Arabic layout (sometimes)
 ]
+
+export const DISABLE_SEARCH_PAGES = ['Adminka', 'Draft']

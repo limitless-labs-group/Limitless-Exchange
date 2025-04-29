@@ -1,14 +1,5 @@
-import {
-  Box,
-  HStack,
-  Tab,
-  TabIndicator,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
-} from '@chakra-ui/react'
-import React, { useEffect, useState, useRef } from 'react'
+import { HStack, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { isDesktop, isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import ClobOrdersTab from '@/app/(markets)/markets/[address]/components/clob/clob-orders-tab'
@@ -66,12 +57,14 @@ export default function GroupMarketSectionTabs({
     },
   ]
 
-  const tabPanels = [
-    <Orderbook key={uuidv4()} variant={isSmallLaptop || mobileView ? 'small' : 'large'} />,
-    <MarketPriceChart key={uuidv4()} />,
-    <ClobOrdersTab key={uuidv4()} />,
-    <PortfolioMarketGroup key={uuidv4()} />,
-  ]
+  const tabPanels = useMemo(() => {
+    return [
+      <Orderbook key={uuidv4()} variant={isSmallLaptop || mobileView ? 'small' : 'large'} />,
+      <MarketPriceChart key={uuidv4()} />,
+      <ClobOrdersTab key={uuidv4()} />,
+      <PortfolioMarketGroup key={uuidv4()} />,
+    ]
+  }, [isSmallLaptop, mobileView])
 
   const handleTabChanged = (event: string) => {
     // trackChanged(ChangeEvent.ChartTabChanged, {

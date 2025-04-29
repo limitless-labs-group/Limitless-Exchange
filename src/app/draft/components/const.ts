@@ -82,9 +82,9 @@ export const defaultFormData = {
   isBannered: false,
   priorityIndex: 0,
   txHash: '',
-  rewardsEpoch: 0.20833,
+  rewardsEpoch: 0.06944444444444445,
   maxSpread: 3,
-  minSize: 100,
+  minSize: 50,
   c: 3,
 }
 

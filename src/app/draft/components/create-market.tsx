@@ -570,7 +570,7 @@ export const CreateMarket: FC = () => {
                   <HStack w='full' spacing={4} alignItems='flex-start'>
                     <VStack w='full' alignItems='flex-start'>
                       <Text fontSize='sm' fontWeight='medium'>
-                        UTC
+                        UTC (24h format)
                       </Text>
                       <Box w='full' h='40px'>
                         <DatePicker
@@ -584,7 +584,8 @@ export const CreateMarket: FC = () => {
                           minDate={new Date()}
                           showTimeSelect
                           timeIntervals={60}
-                          dateFormat='Pp'
+                          dateFormat='dd/MM/yyyy HH:mm'
+                          timeFormat='HH:mm'
                           calendarStartDay={1}
                           popperPlacement='bottom-start'
                           customInput={
@@ -626,7 +627,7 @@ export const CreateMarket: FC = () => {
                           minDate={new Date()}
                           showTimeSelect
                           timeIntervals={60}
-                          dateFormat='Pp'
+                          dateFormat='dd/MM/yyyy h:mm aa'
                           calendarStartDay={1}
                           popperPlacement='bottom-start'
                           customInput={

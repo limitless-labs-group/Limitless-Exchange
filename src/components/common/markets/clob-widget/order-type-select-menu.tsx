@@ -1,4 +1,5 @@
 import { Box, Button, Menu, MenuButton, MenuList, Text, useDisclosure } from '@chakra-ui/react'
+import BigNumber from 'bignumber.js'
 import React, { useEffect, useRef } from 'react'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
@@ -54,7 +55,10 @@ export default function OrderTypeSelectMenu() {
       setPrice(sharesAmount)
       setSharesAmount('')
     } else {
-      const selectedPrice = outcome ? 100 - yesPrice : 100 - noPrice
+      const selectedPrice = new BigNumber(100)
+        .minus(outcome ? yesPrice : noPrice)
+        .decimalPlaces(1)
+        .toNumber()
       setPrice(selectedPrice === 0 ? '' : String(selectedPrice))
       setSharesAmount(price)
     }
