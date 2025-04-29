@@ -215,7 +215,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
             <HStack>
               {position.market?.closed && (
                 <ClaimButton
-                  conditionId={position.market.condition_id as Address}
+                  conditionId={position.market.conditionId as Address}
                   collateralAddress={position.market.collateralToken?.id as Address}
                   marketAddress={position.market.id}
                   outcomeIndex={position.latestTrade?.outcomeIndex as number}
@@ -285,7 +285,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
           <HStack>
             {position.market?.closed ? (
               <ClaimButton
-                conditionId={position.market.condition_id as Address}
+                conditionId={position.market.conditionId as Address}
                 collateralAddress={position.market.collateralToken?.id as Address}
                 marketAddress={position.market.id}
                 outcomeIndex={position.latestTrade?.outcomeIndex as number}
