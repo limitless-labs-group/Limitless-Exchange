@@ -89,20 +89,20 @@ const History = () => {
       return <></>
     }
     // @ts-ignore
-    if (item.market) {
-      return (
-        <PortfolioHistoryTradeItem
-          key={(item as HistoryTrade).blockTimestamp}
-          trade={item as HistoryTrade}
-        />
-      )
-    }
-    // @ts-ignore
     if (item.action) {
       return (
         <PortfolioHistoryRedeemItem
           key={(item as HistoryRedeem).blockTimestamp}
           redeem={item as HistoryRedeem}
+        />
+      )
+    }
+    // @ts-ignore
+    if (item.market) {
+      return (
+        <PortfolioHistoryTradeItem
+          key={(item as HistoryTrade).blockTimestamp}
+          trade={item as HistoryTrade}
         />
       )
     }
