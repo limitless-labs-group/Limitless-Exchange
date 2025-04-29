@@ -14,9 +14,9 @@ export async function generateMetadata({
 }: {
   searchParams: { r?: string }
 }): Promise<Metadata> {
-  const referralCode = searchParams?.r || ''
+  const referralCode = searchParams?.r ?? ''
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://limitless.exchange'
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://limitless.exchange'
 
   const ogImageUrl = referralCode
     ? `${baseUrl}/api/og?r=${encodeURIComponent(referralCode)}`
