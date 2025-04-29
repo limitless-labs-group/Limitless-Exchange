@@ -211,7 +211,7 @@ export type HistoryTrade = {
 
 export type HistoryMarket = {
   id: Address
-  condition_id: Hash //#TODO align namings to conditionId
+  conditionId: Hash //#TODO align namings to conditionId
   paused?: boolean
   closed?: boolean
   funding?: string
