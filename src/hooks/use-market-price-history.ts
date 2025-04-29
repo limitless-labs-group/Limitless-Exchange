@@ -86,9 +86,19 @@ export function useNegRiskPriceHistory(slug?: string) {
           timestamp: price.timestamp,
           price: +price.price * 100,
         }))
+        if (prices.length) {
+          const lastPriceObject = {
+            timestamp: new Date().getTime(),
+            price: isNumber(+item.prices[0]?.price) ? +item.prices[0].price * 100 : 50,
+          }
+          return {
+            ...item,
+            prices: [...prices, lastPriceObject],
+          }
+        }
         const lastPriceObject = {
           timestamp: new Date().getTime(),
-          price: isNumber(+item.prices[0]?.price) ? +item.prices[0].price * 100 : 50,
+          price: 50,
         }
         return {
           ...item,
