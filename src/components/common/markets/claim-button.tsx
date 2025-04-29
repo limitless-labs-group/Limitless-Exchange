@@ -41,6 +41,16 @@ export default function ClaimButton({
   amounts,
   ...props
 }: ClaimButtonProps) {
+  console.log(`slug ${slug}`)
+  console.log(`conditionId ${conditionId}`)
+  console.log(`collateralAddress ${collateralAddress}`)
+  console.log(`marketAddress ${marketAddress}`)
+  console.log(`outcomeIndex ${outcomeIndex}`)
+  console.log(`marketType ${marketType}`)
+  console.log(`amountToClaim ${amountToClaim}`)
+  console.log(`symbol ${symbol}`)
+  console.log(`negRiskRequestId ${negRiskRequestId}`)
+  console.log(`amounts ${amounts}`)
   const toast = useToast()
   const { redeemPositions, approveAllowanceForAll } = useWeb3Service()
   const { trackClicked } = useAmplitude()
