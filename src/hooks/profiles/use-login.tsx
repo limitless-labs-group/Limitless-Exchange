@@ -71,7 +71,6 @@ export const useLogin = () => {
         localStorage.setItem(USER_ID, res.data.id)
         await refetchAll()
         return res.data as Profile
-      } catch (e) {
       } finally {
         useParams.updateParams({ r: null })
       }
