@@ -1,23 +1,21 @@
-import { Box, Grid, GridItem, HStack, Text, Tooltip, VStack } from '@chakra-ui/react'
+import { Box, Grid, GridItem, HStack, Text, VStack } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
-import React, { useCallback, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
+import EnterTheGameButton from '@/app/portfolio/components/enter-the-game-button'
 import { usePriceOracle } from '@/providers'
 import GemIcon from '@/resources/icons/gem-icon.svg'
 import HistoryIcon from '@/resources/icons/history-icon.svg'
 import PointsIcon from '@/resources/icons/points-icon.svg'
-import InfoIcon from '@/resources/icons/question-icon.svg'
 import TrophyIcon from '@/resources/icons/trophy-icon.svg'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import {
   ClobPositionWithType,
   HistoryPositionWithType,
-  HoverEvent,
   useAccount,
-  useAmplitude,
   useBalanceQuery,
   useBalanceService,
   useLimitlessApi,
@@ -30,14 +28,13 @@ const StatBox = ({
   title,
   icon,
   value,
-  tooltip,
-  tooltipCallback,
+  customContent,
 }: {
   title: string
   icon: JSX.Element
   value: string | JSX.Element
   tooltip?: string
-  tooltipCallback?: () => void
+  customContent?: JSX.Element
 }) => {
   return (
     <Paper flex={isMobile ? 1 : 'unset'} w={'full'} p='16px'>
@@ -51,14 +48,11 @@ const StatBox = ({
           <Text {...paragraphMedium} color='grey.500'>
             {title}
           </Text>
-          {tooltip && (
-            <Tooltip variant='grey' label={tooltip} placement='top-end' onOpen={tooltipCallback}>
-              {' '}
-              <InfoIcon width='16px' height='16px' cursor='pointer' />
-            </Tooltip>
-          )}
         </HStack>
-        <Text {...h3Medium}>{value}</Text>
+        <HStack w='full' justifyContent='space-between'>
+          <Text {...h3Medium}>{value}</Text>
+          {customContent}
+        </HStack>
       </VStack>
     </Paper>
   )
@@ -70,7 +64,6 @@ export const PortfolioStats = () => {
   const { supportedTokens } = useLimitlessApi()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { data: positions, isLoading: positionsLoading } = usePosition()
-  const { trackHovered } = useAmplitude()
   const { web3Wallet } = useAccount()
 
   const balanceInvested = useMemo(() => {
@@ -175,12 +168,6 @@ export const PortfolioStats = () => {
     ? formatUnits(BigInt(positions.rewards.totalUserRewardsLastEpoch), 6)
     : '0.00'
 
-  const handlePointsTooltipOpen = useCallback(() => {
-    trackHovered(HoverEvent.PointsTooltipHovered, {
-      page: 'Portfolio',
-    })
-  }, [])
-
   const stats = [
     {
       title: 'Portfolio',
@@ -253,10 +240,9 @@ export const PortfolioStats = () => {
             <Skeleton height={20} />
           </Box>
         ) : (
-          `${+positions.points ? NumberUtil.convertWithDenomination(positions.points, 2) : '0.00'}`
+          `${+positions.points ? NumberUtil.convertToSymbols(positions.points) : '0.00'}`
         ),
-      tooltip: 'Limitless points you earn while interacting with a platform.',
-      tooltipCallback: handlePointsTooltipOpen,
+      customContent: <EnterTheGameButton />,
     },
   ]
 

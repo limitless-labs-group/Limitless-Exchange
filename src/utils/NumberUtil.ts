@@ -20,6 +20,22 @@ export class NumberUtil {
     return new BigNumber(v).multipliedBy(mul).decimalPlaces(1).toString()
   }
 
+  static convertToSymbols = (v: number | string) => {
+    if (+v < 100000) {
+      return v
+    }
+    if (+v < 1000000) {
+      return `${new BigNumber(v).dividedBy(1000).decimalPlaces(2).toString()}k`
+    }
+    if (+v < 100000000) {
+      return `${new BigNumber(v).dividedBy(1000000).decimalPlaces(2).toString()}m`
+    }
+    if (+v < 1000000000) {
+      return `${new BigNumber(v).dividedBy(1000000).decimalPlaces(1).toString()}m`
+    }
+    return `${new BigNumber(v).dividedBy(1000000000).decimalPlaces(2).toString()}b`
+  }
+
   static toFixed = (v?: number | string, decimals = 0, fill = false, truncate = true): string => {
     const numberValue = Number(v ?? 0)
     let numberStr = numberValue.toString()

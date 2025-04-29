@@ -172,7 +172,6 @@ export enum ChangeEvent {
 
 export enum HoverEvent {
   RewardsButtonHovered = 'Rewards Button Hovered',
-  PointsTooltipHovered = 'Points Tooltip Hovered',
 }
 
 export enum ClickEvent {
@@ -252,6 +251,7 @@ export enum ClickEvent {
   PortfolioInvestmentsTabClicked = 'Portfolio Investments Tab Clicked',
   ClobPositionTabClicked = 'Clob Position Tab Clicked',
   CancelAllOrdersClicked = 'Cancel All Orders Clicked',
+  PointsButtonClicked = 'Points Button Clicked',
 }
 
 export enum SignInEvent {
