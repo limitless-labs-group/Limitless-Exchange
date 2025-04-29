@@ -102,7 +102,7 @@ export default function MarketTimer({
               }) ${deadlineLeftInPercent.toFixed(0)}% 100%)`}
             />
           </Box>
-          <Text {...paragraphRegular} color={color} {...props}>
+          <Text {...paragraphRegular} color={color} {...props} minW={isMobile ? '102px' : '90px'}>
             {formatTime({ ...timeRemaining, showDays })}
           </Text>
         </HStack>
