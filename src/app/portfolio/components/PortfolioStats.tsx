@@ -69,7 +69,7 @@ export const PortfolioStats = () => {
     ammPositions?.forEach((position) => {
       let positionUsdAmount = 0
       const token = supportedTokens?.find(
-        (token) => token.symbol === position.market.collateral?.symbol
+        (token) => token.symbol === position.market.collateralToken?.symbol
       )
       if (token) {
         positionUsdAmount = convertAssetAmountToUsd(token.priceOracleId, position.collateralAmount)
@@ -107,7 +107,7 @@ export const PortfolioStats = () => {
     ammPositions?.forEach((position) => {
       let positionOutcomeUsdAmount = 0
       const token = supportedTokens?.find(
-        (token) => token.symbol === position.market.collateral?.symbol
+        (token) => token.symbol === position.market.collateralToken?.symbol
       )
       if (token) {
         positionOutcomeUsdAmount = convertAssetAmountToUsd(
