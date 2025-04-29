@@ -19,7 +19,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { formatUnits, maxUint256 } from 'viem'
 import useMarketRewardsIncentive from '@/hooks/use-market-rewards'
 import { useOrderBook } from '@/hooks/use-order-book'
-import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import { ClickEvent, HoverEvent, useAmplitude, useTradingService } from '@/services'
 import { useMarketRewards } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
@@ -41,7 +41,7 @@ export const RewardTooltipContent = ({ contentHoverCallback }: RewardTooltipCont
     orderbook?.maxSpread
   )
   const { data: marketRewards } = useMarketRewards(market?.slug, market?.isRewardable)
-  const { trackClicked } = useAmplitude()
+  const { trackClicked, trackHovered } = useAmplitude()
 
   const initialFocusRef = useRef(null)
   const popoverContentRef = useRef(null)
@@ -80,7 +80,7 @@ export const RewardTooltipContent = ({ contentHoverCallback }: RewardTooltipCont
       closeTimeoutRef.current = null
     }
     if (!isOpen) {
-      trackClicked(ClickEvent.RewardsButtonHovered, {
+      trackHovered(HoverEvent.RewardsButtonHovered, {
         marketAddress: market?.slug,
       })
     }
