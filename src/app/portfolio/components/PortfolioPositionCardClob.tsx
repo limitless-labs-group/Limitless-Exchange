@@ -75,7 +75,7 @@ const PortfolioPositionCardClob = ({ positionData, ...props }: PortfolioPosition
           />
         )}
       </HStack>
-      {positionData.market.group && (
+      {positionData.market.group?.title && (
         <Text {...paragraphMedium} mt='24px'>
           {positionData.market.title}
         </Text>
