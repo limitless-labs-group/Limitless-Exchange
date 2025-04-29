@@ -36,7 +36,7 @@ export default function PortfolioTabContainer({
     return ammPositions
       .map((position) => ({
         address: position.market.id,
-        decimals: position.market.collateral?.symbol === 'USDT' ? 6 : 8,
+        decimals: position.market.collateralToken?.symbol === 'USDT' ? 6 : 8,
       }))
       .filter(
         (item): item is { address: `0x${string}`; decimals: number } =>
@@ -67,13 +67,13 @@ export default function PortfolioTabContainer({
       {positionsFiltered?.map((position) =>
         position.type === 'amm' ? (
           <PortfolioPositionCard
-            key={uuidv4()}
+            key={position.market.slug}
             position={position as HistoryPosition}
             prices={(() => getPrices((position as HistoryPosition).market.id))()}
           />
         ) : (
           <FullPositionCard
-            key={uuidv4()}
+            key={position.market.slug}
             position={position as ClobPositionWithType}
             type={type}
           />

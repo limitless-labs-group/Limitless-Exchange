@@ -1,13 +1,15 @@
-import { Box, Grid, HStack, Text, VStack } from '@chakra-ui/react'
+import { Box, Grid, GridItem, HStack, Text, VStack } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
 import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
+import EnterTheGameButton from '@/app/portfolio/components/enter-the-game-button'
 import { usePriceOracle } from '@/providers'
 import GemIcon from '@/resources/icons/gem-icon.svg'
 import HistoryIcon from '@/resources/icons/history-icon.svg'
+import PointsIcon from '@/resources/icons/points-icon.svg'
 import TrophyIcon from '@/resources/icons/trophy-icon.svg'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import {
@@ -26,10 +28,13 @@ const StatBox = ({
   title,
   icon,
   value,
+  customContent,
 }: {
   title: string
   icon: JSX.Element
   value: string | JSX.Element
+  tooltip?: string
+  customContent?: JSX.Element
 }) => {
   return (
     <Paper flex={isMobile ? 1 : 'unset'} w={'full'} p='16px'>
@@ -44,7 +49,10 @@ const StatBox = ({
             {title}
           </Text>
         </HStack>
-        <Text {...h3Medium}>{value}</Text>
+        <HStack w='full' justifyContent='space-between'>
+          <Text {...h3Medium}>{value}</Text>
+          {customContent}
+        </HStack>
       </VStack>
     </Paper>
   )
@@ -69,7 +77,7 @@ export const PortfolioStats = () => {
     ammPositions?.forEach((position) => {
       let positionUsdAmount = 0
       const token = supportedTokens?.find(
-        (token) => token.symbol === position.market.collateral?.symbol
+        (token) => token.symbol === position.market.collateralToken?.symbol
       )
       if (token) {
         positionUsdAmount = convertAssetAmountToUsd(token.priceOracleId, position.collateralAmount)
@@ -107,7 +115,7 @@ export const PortfolioStats = () => {
     ammPositions?.forEach((position) => {
       let positionOutcomeUsdAmount = 0
       const token = supportedTokens?.find(
-        (token) => token.symbol === position.market.collateral?.symbol
+        (token) => token.symbol === position.market.collateralToken?.symbol
       )
       if (token) {
         positionOutcomeUsdAmount = convertAssetAmountToUsd(
@@ -207,7 +215,9 @@ export const PortfolioStats = () => {
           </Box>
         ) : (
           <HStack gap='4px' alignItems='flex-end'>
-            <Text {...h3Medium}>{NumberUtil.convertWithDenomination(totalRewards, 2)} USD</Text>
+            <Text {...h3Medium}>
+              {+totalRewards ? NumberUtil.convertWithDenomination(totalRewards, 2) : '0.00'} USD
+            </Text>
             {+lastMinuteRewards && (
               <HStack gap='4px' mb='2px'>
                 <Text {...paragraphMedium} color='green.500'>
@@ -221,13 +231,32 @@ export const PortfolioStats = () => {
           </HStack>
         ),
     },
+    {
+      title: 'Points',
+      icon: <PointsIcon width={16} height={16} />,
+      value:
+        positionsLoading || !positions || !web3Wallet ? (
+          <Box w='120px'>
+            <Skeleton height={20} />
+          </Box>
+        ) : (
+          `${+positions.points ? NumberUtil.convertToSymbols(positions.points) : '0.00'}`
+        ),
+      customContent: <EnterTheGameButton />,
+    },
   ]
 
   return (
-    <Grid templateColumns={isMobile ? '1fr' : 'repeat(2, 1fr)'} gap='12px' mt='24px'>
-      {stats.map((stat, index) => (
-        <StatBox key={index} {...stat} />
-      ))}
+    <Grid templateColumns={isMobile ? '1fr' : 'repeat(6, 1fr)'} gap='12px' mt='24px'>
+      {stats.map((stat, index) =>
+        isMobile ? (
+          <StatBox {...stat} key={index} />
+        ) : (
+          <GridItem key={index} colSpan={index < 2 ? 3 : 2} rowStart={index < 2 ? 1 : 2}>
+            <StatBox {...stat} />
+          </GridItem>
+        )
+      )}
     </Grid>
   )
 }
