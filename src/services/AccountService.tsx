@@ -42,9 +42,10 @@ import { useToast } from '@/hooks'
 import { useLogin } from '@/hooks/profiles/use-login'
 import { useRefetchSession } from '@/hooks/profiles/use-session'
 import useClient from '@/hooks/use-client'
+import { useUrlParams } from '@/hooks/use-url-param'
 import { publicClient } from '@/providers/Privy'
 import { Address, APIError, UpdateProfileData } from '@/types'
-import { Profile } from '@/types/profiles'
+import { Profile, Referee, ReferralData } from '@/types/profiles'
 import { LOGGED_IN_TO_LIMITLESS, USER_ID } from '@/utils/consts'
 
 export interface IAccountContext {
@@ -55,7 +56,9 @@ export interface IAccountContext {
   displayUsername: string
   bio: string
   referralCode: string
+  refLink: string
   profileLoading: boolean
+  referralData?: ReferralData
   profileData?: Profile | null
   updateProfileMutation: UseMutationResult<
     Profile | undefined,
@@ -125,6 +128,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
     enabled: !!user?.wallet?.address,
   })
+
+  const { getParam } = useUrlParams()
+  const r = getParam('r')
 
   useEffect(() => {
     if (user?.wallet?.address) {
@@ -223,6 +229,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
   const { login: loginToPlatform } = usePrivyLogin({
     onComplete: async ({ user, wasAlreadyAuthenticated, isNewUser }) => {
+      const referral = { referral: r ?? 'Empty' }
       const connectedWallet = wallets.find(
         (wallet) => wallet.connectorType === user.wallet?.connectorType
       )
@@ -245,6 +252,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
             account: connectedWallet.address as Address,
             smartWallet: client.account?.address,
             web3Wallet: walletClient,
+            r,
           })
           if (!isDev) {
             spindl.attribute(client.account?.address)
@@ -254,12 +262,14 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
             trackSignUp(SignInEvent.SignedUp, {
               signedIn: true,
               account: client.account?.address ?? '',
+              ...referral,
             })
             return
           }
           trackSignIn(SignInEvent.SignedIn, {
             signedIn: true,
             account: client.account?.address ?? '',
+            ...referral,
           })
           return
         }
@@ -267,6 +277,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
           client: 'eoa',
           account: connectedWallet.address as Address,
           web3Wallet: walletClient,
+          r,
         })
         if (!isDev) {
           spindl.attribute(connectedWallet.address)
@@ -277,6 +288,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         trackSignIn(SignInEvent.SignedIn, {
           signedIn: true,
           account: connectedWallet.address ?? '',
+          ...referral,
         })
         // setIsLogged(true)
         return
@@ -490,6 +502,18 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     return ''
   }, [profileData?.referralCode])
 
+  const referralData = useMemo(() => {
+    return {
+      referralData: profileData?.referralData ?? [],
+      refereeCount: profileData?.referralData ? profileData?.referralData.length : 0,
+    }
+  }, [profileData?.referralData])
+
+  const refLink = useMemo(
+    () => `${process.env.NEXT_PUBLIC_APP_URL}/?r=${referralCode}`,
+    [referralCode]
+  )
+
   const disconnectFromPlatform = useCallback(async () => {
     localStorage.removeItem(LOGGED_IN_TO_LIMITLESS)
     localStorage.removeItem(USER_ID)
@@ -508,7 +532,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     displayName,
     displayUsername,
     referralCode,
+    refLink,
     bio,
+    referralData,
     disconnectFromPlatform,
     profileLoading: userMenuLoading,
     profileData,
