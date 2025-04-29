@@ -14,7 +14,8 @@ import { useFundWallet, usePrivy } from '@privy-io/react-auth'
 import BigNumber from 'bignumber.js'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
+import CopyToClipboard from 'react-copy-to-clipboard'
 import { v4 as uuidv4 } from 'uuid'
 import { formatUnits, isAddress } from 'viem'
 import Avatar from '@/components/common/avatar'
@@ -31,6 +32,8 @@ import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import useClient from '@/hooks/use-client'
 import { usePriceOracle, useThemeProvider } from '@/providers'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
+import CopyIcon from '@/resources/icons/copy-icon.svg'
+import HeartIcon from '@/resources/icons/heart-icon.svg'
 import KeyIcon from '@/resources/icons/key-icon.svg'
 import MenuIcon from '@/resources/icons/menu-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
@@ -60,6 +63,7 @@ export default function MobileHeader() {
   const { data: positions } = usePosition()
   const { supportedTokens } = useLimitlessApi()
   const { convertAssetAmountToUsd } = usePriceOracle()
+  const [refCopied, setRefCopied] = useState(false)
   const { exportWallet } = usePrivy()
   const router = useRouter()
   const {
@@ -69,6 +73,7 @@ export default function MobileHeader() {
     displayName,
     account,
     loginToPlatform,
+    refLink,
   } = useAccount()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { trackClicked } = useAmplitude()
@@ -83,6 +88,29 @@ export default function MobileHeader() {
     onClose: onCloseUserMenu,
   } = useDisclosure()
   const { handleDashboard, handleCategory } = useTokenFilter()
+
+  useEffect(() => {
+    let hideRefCopiedMessage: NodeJS.Timeout | undefined
+
+    if (refCopied) {
+      hideRefCopiedMessage = setTimeout(() => {
+        setRefCopied(false)
+      }, 2000)
+    }
+    return () => {
+      if (hideRefCopiedMessage) {
+        clearTimeout(hideRefCopiedMessage)
+      }
+    }
+  }, [refCopied])
+
+  const onRefLinkCopy = () => {
+    trackClicked(ClickEvent.CopyReferralClicked, {
+      // @ts-ignore
+      from: 'Mobile Header',
+    })
+    setRefCopied(true)
+  }
 
   const balanceInvested = useMemo(() => {
     const ammPositions = positions?.positions.filter(
@@ -321,7 +349,24 @@ export default function MobileHeader() {
                           </Button>
                         </ButtonGroup>
                       </HStack>
-                      <VStack my='24px' gap='8px'>
+
+                      <VStack gap='24px' w='full'>
+                        <Divider borderColor='grey.200' />
+                        <HStack justifyContent='space-between' w='full'>
+                          {/*//@ts-ignore*/}
+                          <CopyToClipboard text={refLink} onCopy={onRefLinkCopy}>
+                            <HStack gap='4px' p='4px'>
+                              <HeartIcon width={16} height={16} />
+                              <Text {...paragraphMedium}>
+                                {refCopied ? 'Referral link copied!' : 'Invite friends'}
+                              </Text>
+                            </HStack>
+                          </CopyToClipboard>
+                        </HStack>
+                        <Divider borderColor='grey.200' />
+                      </VStack>
+
+                      <VStack my='24px' gap='24px'>
                         <Button
                           variant='transparent'
                           px='4px'

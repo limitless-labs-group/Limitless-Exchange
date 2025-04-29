@@ -9,6 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
   Text,
+  useToast,
 } from '@chakra-ui/react'
 import { useFundWallet } from '@privy-io/react-auth'
 import { useAtom } from 'jotai/index'
@@ -47,8 +48,9 @@ import {
 } from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { MarketStatus, Sort, SortStorageName } from '@/types'
-import { SEARCH_HOTKEY_KEYS } from '@/utils/consts'
+import { DISABLE_SEARCH_PAGES, SEARCH_HOTKEY_KEYS } from '@/utils/consts'
 import { ReferralLink } from '../common/referral-link'
+import { Toast } from '../common/toast'
 
 export default function Header() {
   const [, setSelectedSort] = useAtom(sortAtom)
@@ -61,6 +63,7 @@ export default function Header() {
   const { marketPageOpened, onCloseMarketPage } = useTradingService()
   const { mode } = useThemeProvider()
   const router = useRouter()
+  const toast = useToast()
   const {
     account,
     loginToPlatform,
@@ -68,6 +71,7 @@ export default function Header() {
     setProfilePageOpened,
     profilePageOpened,
     walletPageOpened,
+    referralCode,
   } = useAccount()
   const handleBuyCryptoClicked = async () => {
     trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.BuyCryptoClicked)
@@ -87,11 +91,17 @@ export default function Header() {
       onCloseMarketPage()
     }
   }
+  const handleOpenReferral = () => {
+    if (marketPageOpened) {
+      onCloseMarketPage()
+    }
+  }
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (
         SEARCH_HOTKEY_KEYS.includes(event.key) &&
+        !DISABLE_SEARCH_PAGES.includes(pageName) &&
         document.activeElement?.tagName !== 'INPUT' &&
         document.activeElement?.tagName !== 'TEXTAREA'
       ) {
@@ -329,6 +339,7 @@ export default function Header() {
               <UserMenuDesktop
                 handleOpenWalletPage={handleOpenWalletPage}
                 handleOpenProfile={handleOpenProfile}
+                handleOpenReferral={handleOpenReferral}
               />
               {walletPageOpened && (
                 <SideBarPage>
