@@ -42,6 +42,7 @@ import { useToast } from '@/hooks'
 import { useLogin } from '@/hooks/profiles/use-login'
 import { useRefetchSession } from '@/hooks/profiles/use-session'
 import useClient from '@/hooks/use-client'
+import { useUrlParams } from '@/hooks/use-url-param'
 import { publicClient } from '@/providers/Privy'
 import { Address, APIError, UpdateProfileData } from '@/types'
 import { Profile } from '@/types/profiles'
@@ -126,6 +127,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
     enabled: !!user?.wallet?.address,
   })
+
+  const { getParam } = useUrlParams()
+  const r = getParam('r')
 
   useEffect(() => {
     if (user?.wallet?.address) {
@@ -246,6 +250,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
             account: connectedWallet.address as Address,
             smartWallet: client.account?.address,
             web3Wallet: walletClient,
+            r,
           })
           if (!isDev) {
             spindl.attribute(client.account?.address)
@@ -268,6 +273,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
           client: 'eoa',
           account: connectedWallet.address as Address,
           web3Wallet: walletClient,
+          r,
         })
         if (!isDev) {
           spindl.attribute(connectedWallet.address)
