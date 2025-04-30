@@ -125,7 +125,7 @@ export default function ClobOrdersTable({ marketType }: ClobOrdersTableProps) {
                           orderBook?.minSize,
                           market?.tokens
                         ) &&
-                          market?.isRewardable && <GemIcon />}
+                          market?.isRewardable && <GemIcon width={16} height={16} />}
                         <Text {...paragraphRegular}>{order.side === 'BUY' ? 'Buy' : 'Sell'}</Text>
                       </HStack>
                     </Td>
