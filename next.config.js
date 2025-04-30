@@ -4,7 +4,7 @@ const {
   limitlessPolicy,
   vercelPolicy,
   spindlPolicy,
-  googlePolicy,
+  googleTagManagerPolicy,
   privyPolicy,
   intercomPolicy,
 } = require('./csp.config')
@@ -55,7 +55,7 @@ module.exports = withBundleAnalyzer({
               limitlessPolicy,
               vercelPolicy,
               spindlPolicy,
-              googlePolicy,
+              googleTagManagerPolicy,
               privyPolicy,
               intercomPolicy,
             ]),

@@ -237,6 +237,6 @@ module.exports = {
   privyPolicy,
   intercomPolicy,
   spindlPolicy,
-  googlePolicy: googleTagManagerPolicy,
+  googleTagManagerPolicy,
   generateCSPHeader,
 }
