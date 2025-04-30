@@ -102,6 +102,7 @@ const googleTagManagerPolicy = {
     'https://*.googletagmanager.com',
     'https://pagead2.googlesyndication.com',
   ],
+  'child-src': ['https://www.googletagmanager.com'],
 }
 
 const privyPolicy = {
@@ -132,70 +133,44 @@ const privyPolicy = {
 }
 
 const intercomPolicy = {
-  'script-src': [
-    'https://app.intercom.io',
-    'https://widget.intercom.io',
-    'https://js.intercomcdn.com',
-  ],
+  'script-src': ['https://*.intercom.io', 'https://js.intercomcdn.com'],
   'connect-src': [
-    'https://via.intercom.io',
-    'https://api.intercom.io',
-    'https://api.au.intercom.io',
-    'https://api.eu.intercom.io',
-    'https://api-iam.intercom.io',
-    'https://api-iam.eu.intercom.io',
-    'https://api-iam.au.intercom.io',
-    'https://api-ping.intercom.io',
-    'https://nexus-websocket-a.intercom.io',
-    'wss://nexus-websocket-a.intercom.io',
-    'https://nexus-websocket-b.intercom.io',
-    'wss://nexus-websocket-b.intercom.io',
-    'https://nexus-europe-websocket.intercom.io',
-    'wss://nexus-europe-websocket.intercom.io',
-    'https://nexus-australia-websocket.intercom.io',
-    'wss://nexus-australia-websocket.intercom.io',
-    'https://uploads.intercomcdn.com',
-    'https://uploads.intercomcdn.eu',
-    'https://uploads.au.intercomcdn.com',
-    'https://uploads.eu.intercomcdn.com',
+    'https://*.intercom.io',
+    'wss://*.intercom.io',
+    'https://*.intercomcdn.com',
+    'https://*.intercomcdn.eu',
+    'https://*.au.intercomcdn.com',
+    'https://*.eu.intercomcdn.com',
     'https://uploads.intercomusercontent.com',
   ],
   'child-src': [
+    'https://*.intercom-reporting.com',
     'https://intercom-sheets.com',
-    'https://www.intercom-reporting.com',
     'https://www.youtube.com',
     'https://player.vimeo.com',
     'https://fast.wistia.net',
   ],
   'font-src': ['https://js.intercomcdn.com', 'https://fonts.intercomcdn.com'],
-  'form-action': [
-    'https://intercom.help',
-    'https://api-iam.intercom.io',
-    'https://api-iam.eu.intercom.io',
-    'https://api-iam.au.intercom.io',
-  ],
+  'form-action': ['https://intercom.help', 'https://*.intercom.io'],
   'media-src': [
     'https://js.intercomcdn.com',
-    'https://downloads.intercomcdn.com',
-    'https://downloads.intercomcdn.eu',
-    'https://downloads.au.intercomcdn.com',
+    'https://*.intercomcdn.com',
+    'https://*.intercomcdn.eu',
+    'https://*.au.intercomcdn.com',
   ],
   'img-src': [
     'blob:',
-    'https://js.intercomcdn.com',
-    'https://static.intercomassets.com',
-    'https://downloads.intercomcdn.com',
-    'https://downloads.intercomcdn.eu',
-    'https://downloads.au.intercomcdn.com',
+    'https://*.intercom.io',
+    'https://*.intercomassets.com',
+    'https://*.intercomassets.eu',
+    'https://*.au.intercomassets.com',
+    'https://*.intercomcdn.com',
+    'https://*.intercomcdn.eu',
+    'https://*.au.intercomcdn.com',
     'https://uploads.intercomusercontent.com',
     'https://gifs.intercomcdn.com',
     'https://video-messages.intercomcdn.com',
-    'https://messenger-apps.intercom.io',
-    'https://messenger-apps.eu.intercom.io',
-    'https://messenger-apps.au.intercom.io',
     'https://*.intercom-attachments-1.com',
-    'https://*.intercom-attachments.eu',
-    'https://*.au.intercom-attachments.com',
     'https://*.intercom-attachments-2.com',
     'https://*.intercom-attachments-3.com',
     'https://*.intercom-attachments-4.com',
@@ -204,12 +179,12 @@ const intercomPolicy = {
     'https://*.intercom-attachments-7.com',
     'https://*.intercom-attachments-8.com',
     'https://*.intercom-attachments-9.com',
-    'https://static.intercomassets.eu',
-    'https://static.au.intercomassets.com',
+    'https://*.intercom-attachments.eu',
+    'https://*.au.intercom-attachments.com',
   ],
   'frame-src': [
     'https://intercom-sheets.com',
-    'https://www.intercom-reporting.com',
+    'https://*.intercom-reporting.com',
     'https://www.youtube.com',
     'https://player.vimeo.com',
     'https://fast.wistia.net',
@@ -233,57 +208,6 @@ function generateCSPHeader(policies) {
   return [...baseDirectives, 'upgrade-insecure-requests'].join('; ')
 }
 
-/**
- * Splits a long CSP policy into multiple chunks that stay under Vercel's limit
- * @param {string} fullCSP - Complete CSP policy string
- * @returns {string[]} - Array of CSP policy chunks
- */
-function splitCSPIntoHeaders(fullCSP) {
-  const directives = fullCSP.split('; ')
-
-  const directiveGroups = {}
-
-  for (const directive of directives) {
-    if (!directive) continue
-
-    const parts = directive.split(' ')
-    if (parts.length < 1) continue
-
-    const directiveName = parts[0]
-
-    if (!directiveGroups[directiveName]) {
-      directiveGroups[directiveName] = directive
-    } else {
-      directiveGroups[directiveName] += ' ' + parts.slice(1).join(' ')
-    }
-  }
-
-  const chunks = []
-  let currentChunk = []
-  let currentLength = 0
-  const CHUNK_LIMIT = 3800 // Safely under Vercel's 4096 limit
-
-  for (const directiveName in directiveGroups) {
-    const directive = directiveGroups[directiveName]
-    const directiveLength = directive.length + 2 // +2 for '; '
-
-    if (currentLength + directiveLength > CHUNK_LIMIT) {
-      chunks.push(currentChunk.join('; '))
-      currentChunk = [directive]
-      currentLength = directiveLength
-    } else {
-      currentChunk.push(directive)
-      currentLength += directiveLength
-    }
-  }
-
-  if (currentChunk.length > 0) {
-    chunks.push(currentChunk.join('; '))
-  }
-
-  return chunks
-}
-
 module.exports = {
   RPCs,
   defaultPolicy,
@@ -294,5 +218,4 @@ module.exports = {
   spindlPolicy,
   googleTagManagerPolicy,
   generateCSPHeader,
-  splitCSPIntoHeaders,
 }
