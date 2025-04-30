@@ -1,5 +1,6 @@
 const {
   generateCSPHeader,
+  defaultConfig,
   limitlessPolicy,
   vercelPolicy,
   privyPolicy,
@@ -47,7 +48,13 @@ module.exports = withBundleAnalyzer({
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: generateCSPHeader([limitlessPolicy, vercelPolicy, privyPolicy, intercomPolicy]),
+            value: generateCSPHeader([
+              defaultConfig,
+              limitlessPolicy,
+              vercelPolicy,
+              privyPolicy,
+              intercomPolicy,
+            ]),
           },
           {
             key: 'X-Frame-Options',
