@@ -49,6 +49,8 @@ import {
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { MarketStatus, Sort, SortStorageName } from '@/types'
 import { DISABLE_SEARCH_PAGES, SEARCH_HOTKEY_KEYS } from '@/utils/consts'
+import { CircularProgress } from '../common/circle-progress'
+import { OnboardingModal } from '../common/onboarding-modal'
 import { ReferralLink } from '../common/referral-link'
 
 export default function Header() {
@@ -338,6 +340,7 @@ export default function Header() {
                 handleOpenWalletPage={handleOpenWalletPage}
                 handleOpenProfile={handleOpenProfile}
               />
+              <OnboardingModal />
               {walletPageOpened && (
                 <SideBarPage>
                   <WalletPage />
