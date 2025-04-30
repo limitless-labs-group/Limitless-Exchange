@@ -34,8 +34,8 @@ const RPCs = [
  */
 const defaultConfig = {
   'default-src': ["'self'", 'https://limitless.exchange'],
-  'script-src': ["'self'"],
-  'style-src': ["'self'"],
+  'script-src': ["'self'", "'unsafe-inline'"],
+  'style-src': ["'self'", "'unsafe-inline'"],
   'img-src': ["'self'", 'data:', 'https:'],
   'font-src': ["'self'"],
   'connect-src': ["'self'"],
@@ -44,11 +44,11 @@ const defaultConfig = {
   'base-uri': ["'self'"],
   'form-action': ["'self'"],
   'frame-ancestors': ["'none'"],
-  'upgrade-insecure-requests': true,
 }
 
 const limitlessPolicy = {
   'script-src': ['https://limitless.exchange', 'https://*.limitless.exchange'],
+  'style-src': ['https://limitless.exchange', 'https://*.limitless.exchange'],
   'connect-src': [
     'https://api.limitless.exchange',
     'https://*.api.limitless.exchange',
@@ -60,7 +60,10 @@ const limitlessPolicy = {
     'https://storage.googleapis.com/limitless-exchange-prod-424014',
     'https://pbs.twimg.com',
     'https://limitless.exchange',
+    'https://*.limitless.exchange',
   ],
+  'font-src': ['https://limitless.exchange', 'https://*.limitless.exchange'],
+  'manifest-src': ['https://limitless.exchange', 'https://*.limitless.exchange'],
 }
 
 const vercelPolicy = {
