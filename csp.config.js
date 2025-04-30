@@ -81,8 +81,22 @@ const spindlPolicy = {
   'connect-src': ['https://spindl.link'],
 }
 
-const googlePolicy = {
+const googleTagManagerPolicy = {
   'script-src': ['https://www.googletagmanager.com'],
+  'img-src': [
+    'https://*.google-analytics.com',
+    'https://*.googletagmanager.com',
+    'https://www.googletagmanager.com',
+  ],
+  'frame-src': ['https://td.doubleclick.net', 'https://www.googletagmanager.com'],
+  'connect-src': [
+    'https://www.googletagmanager.com',
+    'https://google.com',
+    'https://www.google.com',
+    'https://*.google-analytics.com',
+    'https://*.analytics.google.com',
+    'https://*.googletagmanager.com',
+  ],
 }
 
 const privyPolicy = {
@@ -223,6 +237,6 @@ module.exports = {
   privyPolicy,
   intercomPolicy,
   spindlPolicy,
-  googlePolicy,
+  googlePolicy: googleTagManagerPolicy,
   generateCSPHeader,
 }
