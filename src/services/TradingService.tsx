@@ -128,7 +128,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       setGroupMarket(market)
     }
     !isMobile && setMarketPageOpened(true)
-    updateParams({ market: market.slug, ...(referralCode ? { r: referralCode } : {}) })
+    updateParams({ market: market.slug, ...(referralCode ? { rv: referralCode } : {}) })
   }
 
   const { data: conditionalTokensAddress, refetch: getConditionalTokensAddress } =

@@ -1,6 +1,5 @@
 import { ImageResponse } from 'next/og'
 import LimitlessLogo from '@/app/api/og/market/assets/logo'
-import VolumeIcon from '@/app/api/og/market/assets/volume'
 
 export const runtime = 'edge'
 
@@ -97,7 +96,6 @@ export async function GET(request: Request) {
               alignItems: 'center',
             }}
           >
-            <VolumeIcon />
             <span
               style={{
                 color: 'rgba(255, 255, 255, 0.4)',

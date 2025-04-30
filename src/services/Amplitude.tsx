@@ -167,6 +167,7 @@ export enum ChangeEvent {
   SearchPerfomed = 'Search Perfomed',
   SearchInputCleared = 'Search Input Cleared',
   SearchQuery = 'Search Query',
+  TrackVisit = 'Track Visit',
   PortfolioClobViewChanged = 'Portfolio/Orders View Changed',
 }
 
@@ -309,6 +310,11 @@ export interface StrategyChangedMetadata {
 }
 export interface SearchMetadata {
   text: string
+}
+
+export interface TrackVisitMetadata {
+  refCode: string
+  user: string
 }
 
 export interface OutcomeChangedMetadata {
@@ -542,6 +548,7 @@ interface WidgetClickedMetadata {
 export type ChangedEventMetadata =
   | StrategyChangedMetadata
   | SearchMetadata
+  | TrackVisitMetadata
   | OutcomeChangedMetadata
   | ProfilePictureUploadedChangedMetadata
   | ProfileSettingsChangedMetadata

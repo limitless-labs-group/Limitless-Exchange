@@ -61,7 +61,7 @@ export interface FeedEntity<T> {
 }
 
 export interface MarketNewTradeFeedData {
-  address: Address
+  slug: string
   contracts: string
   outcome: 'NO' | 'YES'
   strategy: 'Buy' | 'Sell'
