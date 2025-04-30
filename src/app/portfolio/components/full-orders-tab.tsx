@@ -89,7 +89,7 @@ export default function FullOrdersTab({
               <Tr key={order.id}>
                 <Td>
                   <HStack gap='4px'>
-                    {order.isEarning && <GemIcon />}
+                    {order.isEarning && <GemIcon width={16} height={16} />}
                     <Text {...paragraphMedium}>{order.side === 'BUY' ? 'Buy' : 'Sell'}</Text>
                   </HStack>
                 </Td>

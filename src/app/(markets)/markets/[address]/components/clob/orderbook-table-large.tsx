@@ -232,7 +232,7 @@ export default function OrderbookTableLarge({
                       market?.tokens
                     ) &&
                       checkPriceIsInRange(+item.price, orderBookPriceRange) &&
-                      market?.isRewardable && <GemIcon />}
+                      market?.isRewardable && <GemIcon width={16} height={16} />}
                     {hasOrdersForThisOrderBookEntity(
                       item.price,
                       outcome,
@@ -350,7 +350,7 @@ export default function OrderbookTableLarge({
                       market?.tokens
                     ) &&
                       checkPriceIsInRange(+item.price, orderBookPriceRange) &&
-                      market?.isRewardable && <GemIcon />}
+                      market?.isRewardable && <GemIcon width={16} height={16} />}
                     {hasOrdersForThisOrderBookEntity(
                       item.price,
                       outcome,
