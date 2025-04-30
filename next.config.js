@@ -56,9 +56,11 @@ module.exports = withBundleAnalyzer({
       intercomPolicy,
     ])
 
-    const cspChunks = splitCSPIntoHeaders(fullCSPPolicy)
-
     const securityHeaders = [
+      {
+        key: 'Content-Security-Policy-',
+        value: fullCSPPolicy,
+      },
       {
         key: 'X-Frame-Options',
         value: 'SAMEORIGIN',
@@ -97,15 +99,10 @@ module.exports = withBundleAnalyzer({
       },
     ]
 
-    const cspHeaders = cspChunks.map((chunk) => ({
-      key: 'Content-Security-Policy',
-      value: chunk,
-    }))
-
     return [
       {
         source: '/:path*',
-        headers: [...cspHeaders, ...securityHeaders],
+        headers: [...securityHeaders],
       },
     ]
   },
