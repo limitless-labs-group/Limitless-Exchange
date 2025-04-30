@@ -21,8 +21,11 @@ import Loader from '@/components/common/loader'
 import { MarketCategoryHeader } from '@/components/common/markets/market-category-header'
 import MarketsSection from '@/components/common/markets/markets-section'
 import TopMarkets from '@/components/common/markets/top-markets'
+import { Modal } from '@/components/common/modals/modal'
+import { WelcomeModal } from '@/components/common/welcome-modal'
 import CategoriesDesktop from '@/components/layouts/categories-desktop'
 import { sortAtom } from '@/atoms/market-sort'
+import { welcomeModalAtom } from '@/atoms/onboard'
 import { MainLayout } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import { useUrlParams } from '@/hooks/use-url-param'
@@ -38,6 +41,7 @@ import {
 import { useBanneredMarkets, useMarket, useSortedMarkets } from '@/services/MarketsService'
 import { h3Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Dashboard, Market, MarketType, Sort, SortStorageName } from '@/types'
+import { ONBOARDING } from '@/utils/consts'
 import { getSortValue, sortMarkets } from '@/utils/market-sorting'
 
 const MainPage = () => {
@@ -45,6 +49,7 @@ const MainPage = () => {
   const category = getParam('category')
   const market = getParam('market')
   const dashboardSearch = getParam('dashboard')
+  const referralCode = getParam('r')
 
   const { data: categories } = useCategories()
   const {
@@ -58,6 +63,7 @@ const MainPage = () => {
   const { data: banneredMarkets, isFetching: isBanneredLoading } = useBanneredMarkets(null)
   const { selectedCategory, handleCategory, dashboard, handleDashboard } = useTokenFilter()
   const [selectedSort, setSelectedSort] = useAtom(sortAtom)
+  const [onboardModal, setOnboardModal] = useAtom(welcomeModalAtom)
   const { convertTokenAmountToUsd } = usePriceOracle()
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useSortedMarkets({
     categoryId: selectedCategory?.id,
@@ -110,6 +116,15 @@ const MainPage = () => {
       }
     }
   }, [])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && referralCode) {
+      const isOnboarded = window.localStorage.getItem(ONBOARDING)
+      console.log('isOnboarded ', isOnboarded)
+      if (isOnboarded && isOnboarded === 'true') return
+      setOnboardModal(true)
+    }
+  }, [referralCode])
 
   const handleSelectSort = (options: Sort, name: SortStorageName) => {
     window.localStorage.setItem(name, JSON.stringify(options))
@@ -344,6 +359,11 @@ const MainPage = () => {
           </Box>
         )}
       </VStack>
+      {onboardModal && referralCode ? (
+        <Modal isOpen={onboardModal} onClose={() => setOnboardModal(false)}>
+          <WelcomeModal onClose={() => setOnboardModal(false)} referralCode={referralCode} />
+        </Modal>
+      ) : null}
     </MainLayout>
   )
 }

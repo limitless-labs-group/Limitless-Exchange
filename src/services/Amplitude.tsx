@@ -542,6 +542,7 @@ interface ChartTabChangedMetadata {
 
 interface SignedInMetadata {
   signedIn: boolean
+  fromReferral?: boolean
 }
 
 interface WidgetClickedMetadata {

@@ -37,6 +37,7 @@ import { useAxiosPrivateClient } from './AxiosPrivateClient'
 import useGoogleAnalytics, { GAEvents } from './GoogleAnalytics'
 import usePendingTrade from './PendingTradeService'
 import { accountAtom } from '@/atoms/account'
+import { onboardModalAtom } from '@/atoms/onboard'
 import { defaultChain } from '@/constants'
 import { useToast } from '@/hooks'
 import { useLogin } from '@/hooks/profiles/use-login'
@@ -116,6 +117,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const { refetchSession } = useRefetchSession()
   const { pushGA4Event } = useGoogleAnalytics()
   const [, setAcc] = useAtom(accountAtom)
+  const [, setIsMenuOpen] = useAtom(onboardModalAtom)
   const { handleRedirect } = usePendingTrade()
   const { trackSignIn, trackSignUp } = useAmplitude()
   const isDev = process.env.NODE_ENV === 'development'
@@ -414,6 +416,11 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     web3Wallet,
     isLogged,
   ])
+  useEffect(() => {
+    if (!profileData?.isOnboarded) {
+      setIsMenuOpen(true)
+    }
+  }, [profileData])
 
   const signout = useCallback(async () => {
     try {
