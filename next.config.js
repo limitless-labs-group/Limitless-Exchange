@@ -44,6 +44,18 @@ module.exports = withBundleAnalyzer({
     ]
   },
   async headers() {
+    console.log(
+      'LOG',
+      generateCSPHeader([
+        defaultPolicy,
+        limitlessPolicy,
+        vercelPolicy,
+        spindlPolicy,
+        googleTagManagerPolicy,
+        privyPolicy,
+        intercomPolicy,
+      ]).length
+    )
     return [
       {
         source: '/:path*',
