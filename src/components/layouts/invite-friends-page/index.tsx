@@ -47,7 +47,7 @@ export default function InviteFriendsPage() {
     {
       icon: <HeartIcon width={16} height={16} />,
       text: 'Invited people',
-      value: <Text {...h3Medium}>{profileData?.referralData.length || 0}</Text>,
+      value: <Text {...h3Medium}>{profileData?.referralData?.length || 0}</Text>,
     },
     {
       icon: <VolumeIcon width={16} height={16} />,
