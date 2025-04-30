@@ -4,7 +4,7 @@ const {
   limitlessPolicy,
   vercelPolicy,
   spindlPolicy,
-  googlePolicy,
+  googleTagManagerPolicy,
   privyPolicy,
   intercomPolicy,
 } = require('./csp.config')
@@ -48,18 +48,18 @@ module.exports = withBundleAnalyzer({
       {
         source: '/:path*',
         headers: [
-          // {
-          //   key: 'Content-Security-Policy',
-          //   value: generateCSPHeader([
-          //     defaultPolicy,
-          //     limitlessPolicy,
-          //     vercelPolicy,
-          //     spindlPolicy,
-          //     googlePolicy,
-          //     privyPolicy,
-          //     intercomPolicy,
-          //   ]),
-          // },
+          {
+            key: 'Content-Security-Policy',
+            value: generateCSPHeader([
+              defaultPolicy,
+              limitlessPolicy,
+              vercelPolicy,
+              spindlPolicy,
+              googleTagManagerPolicy,
+              privyPolicy,
+              intercomPolicy,
+            ]),
+          },
           {
             key: 'X-Frame-Options',
             value: 'SAMEORIGIN',
