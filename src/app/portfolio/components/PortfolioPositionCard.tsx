@@ -218,7 +218,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
                   conditionId={position.market.condition_id as Address}
                   collateralAddress={position.market.collateralToken?.id as Address}
                   marketAddress={position.market.id}
-                  outcomeIndex={position.latestTrade?.outcomeIndex as number}
+                  outcomeIndex={position.outcomeIndex}
                   marketType='amm'
                   amountToClaim={position.outcomeTokenAmount as string}
                   symbol={position.market.collateralToken?.symbol as string}
@@ -288,7 +288,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
                 conditionId={position.market.condition_id as Address}
                 collateralAddress={position.market.collateralToken?.id as Address}
                 marketAddress={position.market.id}
-                outcomeIndex={position.latestTrade?.outcomeIndex as number}
+                outcomeIndex={position.outcomeIndex}
                 marketType='amm'
                 amountToClaim={position.outcomeTokenAmount as string}
                 symbol={position.market.collateralToken?.symbol as string}
