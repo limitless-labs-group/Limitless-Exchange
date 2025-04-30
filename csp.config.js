@@ -87,15 +87,20 @@ const googleTagManagerPolicy = {
     'https://*.google-analytics.com',
     'https://*.googletagmanager.com',
     'https://www.googletagmanager.com',
+    'https://*.g.doubleclick.net',
+    'https://*.google.com',
   ],
   'frame-src': ['https://td.doubleclick.net', 'https://www.googletagmanager.com'],
   'connect-src': [
     'https://www.googletagmanager.com',
     'https://google.com',
     'https://www.google.com',
+    'https://*.g.doubleclick.net',
+    'https://*.google.com',
     'https://*.google-analytics.com',
     'https://*.analytics.google.com',
     'https://*.googletagmanager.com',
+    'https://pagead2.googlesyndication.com',
   ],
 }
 
@@ -171,24 +176,23 @@ const intercomPolicy = {
   ],
   'media-src': [
     'https://js.intercomcdn.com',
-    'https://*.intercomcdn.com',
-    'https://*.intercomcdn.eu',
-    'https://*.au.intercomcdn.com',
+    'https://downloads.intercomcdn.com',
+    'https://downloads.intercomcdn.eu',
+    'https://downloads.au.intercomcdn.com',
   ],
   'img-src': [
     'blob:',
-    'data:',
     'https://js.intercomcdn.com',
-    'https://*.intercomassets.com',
-    'https://*.intercomcdn.com',
-    'https://*.intercomcdn.eu',
-    'https://*.au.intercomcdn.com',
+    'https://static.intercomassets.com',
+    'https://downloads.intercomcdn.com',
+    'https://downloads.intercomcdn.eu',
+    'https://downloads.au.intercomcdn.com',
     'https://uploads.intercomusercontent.com',
     'https://gifs.intercomcdn.com',
     'https://video-messages.intercomcdn.com',
-    'https://*-apps.intercom.io',
-    'https://*-apps.eu.intercom.io',
-    'https://*-apps.au.intercom.io',
+    'https://messenger-apps.intercom.io',
+    'https://messenger-apps.eu.intercom.io',
+    'https://messenger-apps.au.intercom.io',
     'https://*.intercom-attachments-1.com',
     'https://*.intercom-attachments.eu',
     'https://*.au.intercom-attachments.com',
@@ -206,6 +210,8 @@ const intercomPolicy = {
   'frame-src': [
     'https://intercom-sheets.com',
     'https://www.intercom-reporting.com',
+    'https://www.youtube.com',
+    'https://player.vimeo.com',
     'https://fast.wistia.net',
   ],
 }
@@ -227,6 +233,57 @@ function generateCSPHeader(policies) {
   return [...baseDirectives, 'upgrade-insecure-requests'].join('; ')
 }
 
+/**
+ * Splits a long CSP policy into multiple chunks that stay under Vercel's limit
+ * @param {string} fullCSP - Complete CSP policy string
+ * @returns {string[]} - Array of CSP policy chunks
+ */
+function splitCSPIntoHeaders(fullCSP) {
+  const directives = fullCSP.split('; ')
+
+  const directiveGroups = {}
+
+  for (const directive of directives) {
+    if (!directive) continue
+
+    const parts = directive.split(' ')
+    if (parts.length < 1) continue
+
+    const directiveName = parts[0]
+
+    if (!directiveGroups[directiveName]) {
+      directiveGroups[directiveName] = directive
+    } else {
+      directiveGroups[directiveName] += ' ' + parts.slice(1).join(' ')
+    }
+  }
+
+  const chunks = []
+  let currentChunk = []
+  let currentLength = 0
+  const CHUNK_LIMIT = 3800 // Safely under Vercel's 4096 limit
+
+  for (const directiveName in directiveGroups) {
+    const directive = directiveGroups[directiveName]
+    const directiveLength = directive.length + 2 // +2 for '; '
+
+    if (currentLength + directiveLength > CHUNK_LIMIT) {
+      chunks.push(currentChunk.join('; '))
+      currentChunk = [directive]
+      currentLength = directiveLength
+    } else {
+      currentChunk.push(directive)
+      currentLength += directiveLength
+    }
+  }
+
+  if (currentChunk.length > 0) {
+    chunks.push(currentChunk.join('; '))
+  }
+
+  return chunks
+}
+
 module.exports = {
   RPCs,
   defaultPolicy,
@@ -237,4 +294,5 @@ module.exports = {
   spindlPolicy,
   googleTagManagerPolicy,
   generateCSPHeader,
+  splitCSPIntoHeaders,
 }
