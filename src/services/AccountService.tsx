@@ -45,7 +45,7 @@ import useClient from '@/hooks/use-client'
 import { useUrlParams } from '@/hooks/use-url-param'
 import { publicClient } from '@/providers/Privy'
 import { Address, APIError, UpdateProfileData } from '@/types'
-import { Profile, Referee, ReferralData } from '@/types/profiles'
+import { Profile, ReferralData } from '@/types/profiles'
 import { LOGGED_IN_TO_LIMITLESS, USER_ID } from '@/utils/consts'
 
 export interface IAccountContext {
@@ -76,6 +76,9 @@ export interface IAccountContext {
   walletPageOpened: boolean
   setProfilePageOpened: (val: boolean) => void
   setWalletPageOpened: (val: boolean) => void
+  referralPageOpened: boolean
+  setReferralPageOpened: (val: boolean) => void
+  closeAllAuthSidebarPages: () => void
 }
 
 const pimlicoRpcUrl = `https://api.pimlico.io/v2/${defaultChain.id}/rpc?apikey=${process.env.NEXT_PUBLIC_PIMLICO_API_KEY}`
@@ -100,6 +103,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const [web3Wallet, setWeb3Wallet] = useState<WalletClient | null>(null)
   const [profilePageOpened, setProfilePageOpened] = useState(false)
   const [walletPageOpened, setWalletPageOpened] = useState(false)
+  const [referralPageOpened, setReferralPageOpened] = useState(false)
   const queryClient = useQueryClient()
   const { logout: disconnect, authenticated, user } = usePrivy()
   const pathname = usePathname()
@@ -128,6 +132,12 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
     enabled: !!user?.wallet?.address,
   })
+
+  const closeAllAuthSidebarPages = () => {
+    setProfilePageOpened(false)
+    setWalletPageOpened(false)
+    setReferralPageOpened(false)
+  }
 
   const { getParam } = useUrlParams()
   const r = getParam('r')
@@ -549,6 +559,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     walletPageOpened,
     setProfilePageOpened,
     setWalletPageOpened,
+    referralPageOpened,
+    setReferralPageOpened,
+    closeAllAuthSidebarPages,
   }
 
   return <AccountContext.Provider value={contextProviderValue}>{children}</AccountContext.Provider>

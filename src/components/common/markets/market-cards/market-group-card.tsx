@@ -41,7 +41,7 @@ export const MarketGroupCard = ({
   const uniqueUsersTrades = useUniqueUsersTrades(marketFeedData)
   const router = useRouter()
   const { trackClicked } = useAmplitude()
-  const { setWalletPageOpened, setProfilePageOpened } = useAccount()
+  const { closeAllAuthSidebarPages } = useAccount()
 
   const isShortCard = variant === 'grid'
 
@@ -53,8 +53,7 @@ export const MarketGroupCard = ({
     const searchParams = new URLSearchParams(window.location.search)
     searchParams.set('market', market.slug)
     router.push(`?${searchParams.toString()}`, { scroll: false })
-    setWalletPageOpened(false)
-    setProfilePageOpened(false)
+    closeAllAuthSidebarPages()
     trackClicked(ClickEvent.MediumMarketBannerClicked, {
       marketCategory: market.categories,
       marketAddress: market.slug,
@@ -85,8 +84,7 @@ export const MarketGroupCard = ({
     const searchParams = new URLSearchParams(window.location.search)
     searchParams.set('market', market.slug)
     router.push(`?${searchParams.toString()}`, { scroll: false })
-    setWalletPageOpened(false)
-    setProfilePageOpened(false)
+    closeAllAuthSidebarPages()
     setGroupMarket(market)
     setMarket(marketToSet)
     setClobOutcome(outcome)

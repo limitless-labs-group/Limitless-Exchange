@@ -1,6 +1,5 @@
 import { ImageResponse } from 'next/og'
 import LimitlessLogo from '@/app/api/og/market/assets/logo'
-import VolumeIcon from '@/app/api/og/market/assets/volume'
 
 export const runtime = 'edge'
 
@@ -16,10 +15,10 @@ export async function GET(request: Request) {
     ? 'Use this referral link to get started'
     : 'Forecast the future on Limitless, financial prediction market'
 
-  const fontDataBold = await fetch(new URL('./og/assets/Inter-Bold.ttf', import.meta.url)).then(
+  const fontDataBold = await fetch(new URL('./assets/Inter-Bold.ttf', import.meta.url)).then(
     (res) => res.arrayBuffer()
   )
-  const fontDataThin = await fetch(new URL('./og/assets/Inter-Medium.ttf', import.meta.url)).then(
+  const fontDataThin = await fetch(new URL('./assets/Inter-Medium.ttf', import.meta.url)).then(
     (res) => res.arrayBuffer()
   )
 
@@ -97,7 +96,6 @@ export async function GET(request: Request) {
               alignItems: 'center',
             }}
           >
-            <VolumeIcon />
             <span
               style={{
                 color: 'rgba(255, 255, 255, 0.4)',

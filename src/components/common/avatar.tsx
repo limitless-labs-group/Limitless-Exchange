@@ -4,7 +4,7 @@ import { createAvatar } from '@dicebear/core'
 
 type AvatarCustomProps = AvatarProps & {
   account: string
-  avatarUrl?: string
+  avatarUrl?: string | null
 }
 
 export default function Avatar({ account, avatarUrl, ...props }: AvatarCustomProps) {
