@@ -43,8 +43,7 @@ type Web3Service = {
     conditionalTokensAddress: Address,
     collateralAddress: Address,
     parentCollectionId: Address,
-    marketConditionId: Address,
-    indexSets: number[]
+    marketConditionId: Address
   ) => Promise<string | undefined>
   placeLimitOrder: (
     tokenId: string,
@@ -169,24 +168,21 @@ export function useWeb3Service(): Web3Service {
     conditionalTokensAddress: Address,
     collateralAddress: Address,
     parentCollectionId: Address,
-    marketConditionId: Address,
-    indexSets: number[]
+    marketConditionId: Address
   ) => {
     if (web3Client === 'etherspot') {
       return privyService.redeemPositions(
         conditionalTokensAddress,
         collateralAddress,
         parentCollectionId,
-        marketConditionId,
-        indexSets
+        marketConditionId
       )
     }
     return externalWalletService.redeemPositions(
       conditionalTokensAddress,
       collateralAddress,
       parentCollectionId,
-      marketConditionId,
-      indexSets
+      marketConditionId
     )
   }
 

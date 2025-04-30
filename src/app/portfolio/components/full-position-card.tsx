@@ -352,7 +352,6 @@ export default function FullPositionCard({ position, type }: FullPositionCardPro
                     ? (process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address)
                     : (process.env.NEXT_PUBLIC_CTF_CONTRACT as Address)
                 }
-                outcomeIndex={position.market.winningOutcomeIndex as number}
                 marketType={position.market.tradeType}
                 amounts={amountsToNegriskClaim}
                 amountToClaim={getAmountToClaim()}
@@ -375,7 +374,6 @@ export default function FullPositionCard({ position, type }: FullPositionCardPro
                     ? (process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address)
                     : (process.env.NEXT_PUBLIC_CTF_CONTRACT as Address)
                 }
-                outcomeIndex={position.market.winningOutcomeIndex as number}
                 negRiskRequestId={position.market.negRiskRequestId}
                 amounts={amountsToNegriskClaim}
                 marketType={position.market.tradeType}

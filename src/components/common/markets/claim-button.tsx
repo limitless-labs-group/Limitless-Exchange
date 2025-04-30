@@ -20,7 +20,6 @@ export type ClaimButtonProps = ButtonProps & {
   conditionId: Address
   collateralAddress: Address
   marketAddress: Address
-  outcomeIndex: number
   marketType: 'amm' | 'clob'
   amountToClaim?: string
   symbol: string
@@ -33,7 +32,6 @@ export default function ClaimButton({
   conditionId,
   collateralAddress,
   marketAddress,
-  outcomeIndex,
   marketType,
   amountToClaim,
   symbol,
@@ -41,16 +39,6 @@ export default function ClaimButton({
   amounts,
   ...props
 }: ClaimButtonProps) {
-  console.log(`slug ${slug}`)
-  console.log(`conditionId ${conditionId}`)
-  console.log(`collateralAddress ${collateralAddress}`)
-  console.log(`marketAddress ${marketAddress}`)
-  console.log(`outcomeIndex ${outcomeIndex}`)
-  console.log(`marketType ${marketType}`)
-  console.log(`amountToClaim ${amountToClaim}`)
-  console.log(`symbol ${symbol}`)
-  console.log(`negRiskRequestId ${negRiskRequestId}`)
-  console.log(`amounts ${amounts}`)
   const toast = useToast()
   const { redeemPositions, approveAllowanceForAll } = useWeb3Service()
   const { trackClicked } = useAmplitude()
@@ -72,8 +60,7 @@ export default function ClaimButton({
         conditionalTokenAddress,
         collateralAddress,
         zeroHash,
-        conditionId,
-        [1 << outcomeIndex]
+        conditionId
       )
 
       if (!receipt) {
