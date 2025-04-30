@@ -169,6 +169,7 @@ export enum ChangeEvent {
   SearchQuery = 'Search Query',
   TrackVisit = 'Track Visit',
   PortfolioClobViewChanged = 'Portfolio/Orders View Changed',
+  ReferalsTablePageChanged = 'Referals Table Page Changed',
 }
 
 export enum HoverEvent {
@@ -200,7 +201,9 @@ export enum ClickEvent {
   UIModeClicked = 'UI Mode Changed',
   CategoryClicked = 'Category Clicked',
   SeeMoreCkicked = 'See More Clicked',
-  WalletClicked = 'Wallet Clicked',
+  WalletPageClicked = 'Wallet Page Clicked',
+  ProfileButtonClicked = 'Profile Button Clicked',
+  InviteFriendsPageClicked = 'Invite Friends Button Clicked',
   CopyAddressClicked = 'Wallet Address Copied',
   CopyReferralClicked = 'Referral Link Copied',
   WithdrawClicked = 'Withdraw Clicked',
