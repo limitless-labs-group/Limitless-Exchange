@@ -32,7 +32,7 @@ const RPCs = [
  * @param {SecurityPolicyEntry[]} policies - Array of security policies
  * @returns {string} - Combined security policy string
  */
-const defaultConfig = {
+const defaultPolicy = {
   'default-src': ["'self'", 'https://limitless.exchange'],
   'script-src': ["'self'", "'unsafe-inline'"],
   'style-src': ["'self'", "'unsafe-inline'"],
@@ -52,13 +52,15 @@ const limitlessPolicy = {
   'connect-src': [
     'https://api.limitless.exchange',
     'https://*.api.limitless.exchange',
-    'wss://hermes.pyth.network',
+    'wss://hermes.pyth.network', //pyth websocket for price feed
+    'https://api.coingecko.com',
+    'https://indexer.hyperindex.xyz', //envio indexer
     'https://mainnet.base.org',
     ...RPCs,
   ],
   'img-src': [
-    'https://storage.googleapis.com/limitless-exchange-prod-424014',
-    'https://pbs.twimg.com',
+    'https://storage.googleapis.com/limitless-exchange-prod-424014', //google cloud storage
+    'https://pbs.twimg.com', //twitter api for avatars
     'https://limitless.exchange',
     'https://*.limitless.exchange',
   ],
@@ -73,6 +75,14 @@ const vercelPolicy = {
   'style-src': ['https://vercel.live'],
   'font-src': ['https://vercel.live'],
   'frame-src': ['https://vercel.live'],
+}
+
+const spindlPolicy = {
+  'connect-src': ['https://spindl.link'],
+}
+
+const googlePolicy = {
+  'script-src': ['https://www.googletagmanager.com'],
 }
 
 const privyPolicy = {
@@ -91,7 +101,6 @@ const privyPolicy = {
     'https://challenges.cloudflare.com',
   ],
   'connect-src': [
-    "'self'",
     'https://auth.privy.io',
     'wss://relay.walletconnect.com',
     'wss://relay.walletconnect.org',
@@ -180,7 +189,6 @@ const intercomPolicy = {
     'https://static.intercomassets.eu',
     'https://static.au.intercomassets.com',
   ],
-  'style-src': ["'unsafe-inline'"],
   'frame-src': [
     'https://intercom-sheets.com',
     'https://www.intercom-reporting.com',
@@ -209,10 +217,12 @@ function generateCSPHeader(policies) {
 
 module.exports = {
   RPCs,
-  defaultConfig,
+  defaultPolicy,
   limitlessPolicy,
   vercelPolicy,
   privyPolicy,
   intercomPolicy,
+  spindlPolicy,
+  googlePolicy,
   generateCSPHeader,
 }
