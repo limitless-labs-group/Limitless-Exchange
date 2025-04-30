@@ -1,6 +1,7 @@
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Metadata } from 'next'
+import { headers } from 'next/headers'
 import Script from 'next/script'
 import { PropsWithChildren } from 'react'
 import { CanonicalLink } from '@/components/common/canonical-link'
@@ -9,12 +10,12 @@ import { ReferralProvider } from '@/providers/Referral'
 import { SpindlProvider } from '@/providers/Spindl'
 import '../../public/fonts.css'
 
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams: { r?: string }
-}): Promise<Metadata> {
-  const referralCode = searchParams?.r ?? ''
+export async function generateMetadata(): Promise<Metadata> {
+  const headersList = headers()
+  const url = headersList.get('x-url') ?? headersList.get('referer') ?? ''
+
+  const searchParams = new URL(url, process.env.NEXT_PUBLIC_APP_URL).searchParams
+  const referralCode = searchParams.get('r') ?? ''
 
   const ogImageUrl = referralCode ? `/api/og?r=${encodeURIComponent(referralCode)}` : `/api/og`
 
