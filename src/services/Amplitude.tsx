@@ -201,6 +201,7 @@ export enum ClickEvent {
   SeeMoreCkicked = 'See More Clicked',
   WalletClicked = 'Wallet Clicked',
   CopyAddressClicked = 'Wallet Address Copied',
+  CopyReferralClicked = 'Referral Link Copied',
   WithdrawClicked = 'Withdraw Clicked',
   WrapETHClicked = 'Wrap ETH Clicked',
   UnwrapETHClicked = 'Unwrap ETH Clicked',

@@ -64,7 +64,7 @@ export const PortfolioStats = () => {
   const { supportedTokens } = useLimitlessApi()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { data: positions, isLoading: positionsLoading } = usePosition()
-  const { web3Wallet } = useAccount()
+  const { web3Wallet, profileLoading } = useAccount()
 
   const balanceInvested = useMemo(() => {
     const ammPositions = positions?.positions.filter(
@@ -77,7 +77,7 @@ export const PortfolioStats = () => {
     ammPositions?.forEach((position) => {
       let positionUsdAmount = 0
       const token = supportedTokens?.find(
-        (token) => token.symbol === position.market.collateral?.symbol
+        (token) => token.symbol === position.market.collateralToken?.symbol
       )
       if (token) {
         positionUsdAmount = convertAssetAmountToUsd(token.priceOracleId, position.collateralAmount)
@@ -115,7 +115,7 @@ export const PortfolioStats = () => {
     ammPositions?.forEach((position) => {
       let positionOutcomeUsdAmount = 0
       const token = supportedTokens?.find(
-        (token) => token.symbol === position.market.collateral?.symbol
+        (token) => token.symbol === position.market.collateralToken?.symbol
       )
       if (token) {
         positionOutcomeUsdAmount = convertAssetAmountToUsd(
@@ -242,7 +242,7 @@ export const PortfolioStats = () => {
         ) : (
           `${+positions.points ? NumberUtil.convertToSymbols(positions.points) : '0.00'}`
         ),
-      customContent: <EnterTheGameButton />,
+      customContent: profileLoading ? <></> : <EnterTheGameButton />,
     },
   ]
 

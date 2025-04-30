@@ -1,6 +1,7 @@
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Metadata } from 'next'
+import { headers } from 'next/headers'
 import Script from 'next/script'
 import { PropsWithChildren } from 'react'
 import { CanonicalLink } from '@/components/common/canonical-link'
@@ -9,14 +10,49 @@ import { ReferralProvider } from '@/providers/Referral'
 import { SpindlProvider } from '@/providers/Spindl'
 import '../../public/fonts.css'
 
-export const metadata: Metadata = {
-  title: 'Limitless',
-  icons: [{ url: '/assets/images/logo.svg' }],
-  viewport: {
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const headersList = headers()
+  const url = headersList.get('x-url') ?? headersList.get('referer') ?? ''
+
+  const searchParams = new URL(url, process.env.NEXT_PUBLIC_APP_URL).searchParams
+  const referralCode = searchParams.get('r') ?? ''
+
+  const ogImageUrl = referralCode ? `/api/og?r=${encodeURIComponent(referralCode)}` : `/api/og`
+
+  const title = referralCode ? `Join Limitless with referral: ${referralCode}` : 'Limitless'
+
+  const description = referralCode
+    ? `Use this referral link to get started on Limitless Exchange`
+    : 'Forecast the future on Limitless, financial prediction market'
+
+  return {
+    title,
+    description,
+    icons: [{ url: '/assets/images/logo.svg' }],
+    viewport: {
+      initialScale: 1,
+      maximumScale: 1,
+      userScalable: false,
+    },
+    openGraph: {
+      title,
+      description,
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: 'Limitless Exchange',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImageUrl],
+    },
+  }
 }
 
 const RootLayout = ({ children }: PropsWithChildren) => {
