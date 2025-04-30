@@ -357,11 +357,6 @@ export default function Header() {
           )}
         </HStack>
       </HStack>
-      {pageName === 'Explore Markets' && (
-        <HStack py='4px' px='12px' bg='grey.50' gap={0} pt='4px'>
-          <CategoriesDesktop />
-        </HStack>
-      )}
     </Box>
   )
 }

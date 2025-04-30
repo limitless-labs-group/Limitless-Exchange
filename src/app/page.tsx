@@ -13,7 +13,7 @@ import {
   TabIndicator,
 } from '@chakra-ui/react'
 import { useAtom } from 'jotai'
-import { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Chat from '@/components/chat'
@@ -23,6 +23,7 @@ import MarketsSection from '@/components/common/markets/markets-section'
 import TopMarkets from '@/components/common/markets/top-markets'
 import { Modal } from '@/components/common/modals/modal'
 import { WelcomeModal } from '@/components/common/welcome-modal'
+import CategoriesDesktop from '@/components/layouts/categories-desktop'
 import { sortAtom } from '@/atoms/market-sort'
 import { welcomeModalAtom } from '@/atoms/onboard'
 import { MainLayout } from '@/components'
@@ -209,8 +210,14 @@ const MainPage = () => {
     return <TopMarkets markets={banneredMarkets as Market[]} isLoading={isBanneredLoading} />
   }, [selectedCategory, banneredMarkets, isBanneredLoading])
 
+  const header = (
+    <HStack py='4px' px='12px' bg='grey.50' gap={0} pt='4px' mb='12px'>
+      <CategoriesDesktop />
+    </HStack>
+  )
+
   return (
-    <MainLayout layoutPadding={'0px'}>
+    <MainLayout layoutPadding={'0px'} headerComponent={header}>
       <VStack w='full' spacing={0}>
         {headerContent}
 

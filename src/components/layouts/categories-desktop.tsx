@@ -1,5 +1,6 @@
 import { Box, HStack, IconButton, Link, Text, useTheme } from '@chakra-ui/react'
 import { useRef, useState, useEffect } from 'react'
+import { isMobile } from 'react-device-detect'
 import { CategoryItems } from '@/components/common/markets/sidebar-item'
 import { ReferralLink } from '@/components/common/referral-link'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
@@ -106,7 +107,7 @@ export default function ScrollableCategories() {
               left={0}
               top={0}
               bottom={0}
-              width='180px'
+              width={isMobile ? '100px' : '180px'}
               pointerEvents='none'
               background={`linear-gradient(to left, rgba(249, 249, 249, 0), ${theme.colors.grey[50]})`}
               zIndex={1}
@@ -136,7 +137,7 @@ export default function ScrollableCategories() {
               right={0}
               top={0}
               bottom={0}
-              width='180px'
+              width={isMobile ? '100px' : '180px'}
               pointerEvents='none'
               background={`linear-gradient(to right, rgba(249, 249, 249, 0), ${theme.colors.grey[50]})`}
               zIndex={1}

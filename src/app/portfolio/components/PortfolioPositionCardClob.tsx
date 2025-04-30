@@ -61,7 +61,6 @@ const PortfolioPositionCardClob = ({ positionData, ...props }: PortfolioPosition
                 ? (process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address)
                 : (process.env.NEXT_PUBLIC_CTF_CONTRACT as Address)
             }
-            outcomeIndex={positionData.market.winningOutcomeIndex as number}
             marketType='clob'
             amountToClaim={formatUnits(
               BigInt(
