@@ -12,10 +12,18 @@ import '../../public/fonts.css'
 
 export async function generateMetadata(): Promise<Metadata> {
   const headersList = headers()
+  const referral = headersList.get('x-referral')
   const url = headersList.get('x-url') ?? headersList.get('referer') ?? ''
 
-  const searchParams = new URL(url, process.env.NEXT_PUBLIC_APP_URL).searchParams
-  const referralCode = searchParams.get('r') ?? ''
+  let referralCode = referral ?? ''
+  try {
+    if (!referral) {
+      const searchParams = new URL(url, process.env.NEXT_PUBLIC_APP_URL).searchParams
+      referralCode = searchParams.get('r') ?? ''
+    }
+  } catch (error) {
+    console.error('Failed to parse URL for referral code', error)
+  }
 
   const ogImageUrl = referralCode ? `/api/og?r=${encodeURIComponent(referralCode)}` : `/api/og`
 
@@ -29,11 +37,6 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     icons: [{ url: '/assets/images/logo.svg' }],
-    viewport: {
-      initialScale: 1,
-      maximumScale: 1,
-      userScalable: false,
-    },
     openGraph: {
       title,
       description,
@@ -53,6 +56,11 @@ export async function generateMetadata(): Promise<Metadata> {
       images: [ogImageUrl],
     },
   }
+}
+export const viewport = {
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 }
 
 const RootLayout = ({ children }: PropsWithChildren) => {
