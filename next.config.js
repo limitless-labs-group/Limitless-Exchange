@@ -1,8 +1,10 @@
 const {
   generateCSPHeader,
-  defaultConfig,
+  defaultPolicy,
   limitlessPolicy,
   vercelPolicy,
+  spindlPolicy,
+  googlePolicy,
   privyPolicy,
   intercomPolicy,
 } = require('./csp.config')
@@ -49,9 +51,11 @@ module.exports = withBundleAnalyzer({
           {
             key: 'Content-Security-Policy',
             value: generateCSPHeader([
-              defaultConfig,
+              defaultPolicy,
               limitlessPolicy,
               vercelPolicy,
+              spindlPolicy,
+              googlePolicy,
               privyPolicy,
               intercomPolicy,
             ]),
