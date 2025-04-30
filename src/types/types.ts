@@ -281,6 +281,11 @@ export enum LeaderboardSort {
   ALL_TIME = 'All time',
 }
 
+export enum LeaderboardType {
+  BY_POINTS = 'By Points',
+  BY_VOLUME = 'By Volume',
+}
+
 export enum MarketStatus {
   RESOLVED = 'RESOLVED',
   FUNDED = 'FUNDED',
