@@ -1,3 +1,14 @@
+const {
+  generateCSPHeader,
+  defaultPolicy,
+  limitlessPolicy,
+  vercelPolicy,
+  spindlPolicy,
+  googlePolicy,
+  privyPolicy,
+  intercomPolicy,
+} = require('./csp.config')
+
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 })
@@ -37,10 +48,18 @@ module.exports = withBundleAnalyzer({
       {
         source: '/:path*',
         headers: [
-          // { TODO: needs polish
-          //   key: 'Content-Security-Policy',
-          //   value: "default-src 'self' https://*.limitless.exchange; script-src 'self' https://*.limitless.exchange https://challenges.cloudflare.com; style-src 'self' https://*.limitless.exchange 'unsafe-inline'; img-src 'self' https://*.limitless.exchange data: blob:; font-src 'self' https://*.limitless.exchange; object-src 'none'; base-uri 'self'; form-action 'self' https://*.limitless.exchange; frame-ancestors 'none'; child-src https://*.limitless.exchange https://auth.privy.io https://verify.walletconnect.com https://verify.walletconnect.org; frame-src https://*.limitless.exchange https://auth.privy.io https://verify.walletconnect.com https://verify.walletconnect.org https://challenges.cloudflare.com; connect-src 'self' https://*.limitless.exchange https://auth.privy.io wss://relay.walletconnect.com wss://relay.walletconnect.org wss://www.walletlink.org https://*.rpc.privy.systems https://explorer-api.walletconnect.com; worker-src 'self' https://*.limitless.exchange; manifest-src 'self' https://*.limitless.exchange"
-          // },
+          {
+            key: 'Content-Security-Policy',
+            value: generateCSPHeader([
+              defaultPolicy,
+              limitlessPolicy,
+              vercelPolicy,
+              spindlPolicy,
+              googlePolicy,
+              privyPolicy,
+              intercomPolicy,
+            ]),
+          },
           {
             key: 'X-Frame-Options',
             value: 'SAMEORIGIN',
