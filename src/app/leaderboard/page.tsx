@@ -33,7 +33,6 @@ import WreathsSilverIcon from '@/resources/icons/wreaths_silver.svg'
 import { ChangeEvent, useAmplitude } from '@/services'
 import {
   h1Bold,
-  h1Regular,
   h2Medium,
   headlineRegular,
   paragraphMedium,
