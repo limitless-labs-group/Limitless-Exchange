@@ -58,7 +58,7 @@ module.exports = withBundleAnalyzer({
 
     const securityHeaders = [
       {
-        key: 'Content-Security-Policy-',
+        key: 'Content-Security-Policy-Report-Only',
         value: fullCSPPolicy,
       },
       {
