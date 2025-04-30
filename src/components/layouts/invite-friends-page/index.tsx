@@ -134,8 +134,8 @@ export default function InviteFriendsPage() {
             </Tr>
           </Thead>
           <Tbody>
-            {currentPageItems?.slice(0, 10).map((user, index) => (
-              <Tr key={index}>
+            {currentPageItems?.slice(0, 10).map((user) => (
+              <Tr key={user.createdAt}>
                 <Td>
                   <HStack gap='4px'>
                     <Avatar account={user.displayName} avatarUrl={user.pfpUrl} />
