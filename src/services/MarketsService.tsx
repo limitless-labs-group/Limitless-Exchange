@@ -1,7 +1,6 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import axios, { AxiosResponse } from 'axios'
 import BigNumber from 'bignumber.js'
-import { usePathname } from 'next/navigation'
 import { useMemo } from 'react'
 import { Address, formatUnits, getContract, parseUnits } from 'viem'
 import { defaultChain, newSubgraphURI } from '@/constants'
@@ -10,20 +9,100 @@ import { fixedProductMarketMakerABI } from '@/contracts'
 import { publicClient } from '@/providers/Privy'
 import { useAccount } from '@/services/AccountService'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
-import { ApiResponse, Category, Market, MarketPage, MarketRewardsResponse, OddsData } from '@/types'
+import {
+  ApiResponse,
+  Category,
+  Market,
+  MarketPage,
+  MarketRewardsResponse,
+  MarketSortOption,
+  OddsData,
+} from '@/types'
 import { calculateMarketPrice, getPrices } from '@/utils/market'
 
-export function useMarkets(topic: Category | null, enabled = true) {
-  const pathname = usePathname()
+export function useMarkets(topic: Category | null, enabled = true, customHeaders = {}) {
   return useInfiniteQuery<MarketPage, Error>({
-    queryKey: ['markets', topic?.id],
+    queryKey: ['markets', topic?.id, customHeaders],
     queryFn: async ({ pageParam = 1 }) => {
       const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/active`
       const marketBaseUrl = topic?.id ? `${baseUrl}/${topic?.id}` : baseUrl
+
+      const hasIgnoreLimitsHeader = 'x-ignore-limits' in customHeaders
+      const params = hasIgnoreLimitsHeader
+        ? {}
+        : {
+            page: pageParam,
+            limit: LIMIT_PER_PAGE,
+          }
+
+      const { data: response }: AxiosResponse<ApiResponse> = await axios.get(marketBaseUrl, {
+        params,
+        headers: { ...customHeaders },
+      })
+
+      const ammMarkets = response.data.filter((market) => market.tradeType === 'amm')
+
+      const marketDataForMultiCall = ammMarkets.map((market) => ({
+        address: market.address as Address,
+        decimals: market.collateralToken.decimals,
+      }))
+
+      const pricesResult = ammMarkets.length > 0 ? await getPrices(marketDataForMultiCall) : []
+
+      const _markets = new Map<`0x${string}`, OddsData>(
+        pricesResult.map((item) => [item.address, { prices: item.prices }])
+      )
+
+      const result = response.data.map((market) => {
+        return {
+          ...market,
+          prices:
+            market.tradeType === 'amm'
+              ? _markets.get(market.address as `0x${string}`)?.prices || [50, 50]
+              : [
+                  calculateMarketPrice(market?.prices?.[0]),
+                  calculateMarketPrice(market?.prices?.[1]),
+                ],
+        }
+      })
+
+      return {
+        data: {
+          markets: result,
+          totalAmount: response.totalMarketsCount,
+        },
+        next: (pageParam as number) + 1,
+      }
+    },
+    initialPageParam: 1, //default page number
+    getNextPageParam: (lastPage) => {
+      if ('x-ignore-limits' in customHeaders) {
+        return null
+      }
+      return lastPage.data.totalAmount < LIMIT_PER_PAGE ? null : lastPage.next
+    },
+    refetchOnWindowFocus: false,
+    enabled,
+    placeholderData: (previousData) => previousData,
+  })
+}
+export type UseSortedArgs = {
+  categoryId?: number | null
+  enabled?: boolean
+  sortBy?: MarketSortOption | null
+}
+export function useSortedMarkets(args: UseSortedArgs) {
+  const { categoryId, enabled, sortBy } = args
+  return useInfiniteQuery<MarketPage, Error>({
+    queryKey: ['sorted-markets', categoryId, sortBy],
+    queryFn: async ({ pageParam = 1 }) => {
+      const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/active`
+      const marketBaseUrl = categoryId ? `${baseUrl}/${categoryId}` : baseUrl
       const { data: response }: AxiosResponse<ApiResponse> = await axios.get(marketBaseUrl, {
         params: {
           page: pageParam,
           limit: LIMIT_PER_PAGE,
+          ...(sortBy ? { sortBy } : {}),
         },
       })
 
@@ -65,6 +144,8 @@ export function useMarkets(topic: Category | null, enabled = true) {
     getNextPageParam: (lastPage) => {
       return lastPage.data.totalAmount < LIMIT_PER_PAGE ? null : lastPage.next
     },
+    staleTime: 5 * 60 * 1000, // Data stays fresh for 5 minutes
+    gcTime: 10 * 60 * 1000, // Keep unused data in cache for 10 minutes
     refetchOnWindowFocus: false,
     enabled,
     placeholderData: (previousData) => previousData,
@@ -80,7 +161,7 @@ export function useBanneredMarkets(topic: Category | null) {
 
       const { data: response }: AxiosResponse<Market[]> = await axios.get(marketBaseUrl)
 
-      const slicedMarkets = response.slice(response.length - 12)
+      const slicedMarkets = response.length <= 12 ? response : response.slice(0, 12)
 
       const ammMarkets = slicedMarkets.filter((market) => market.tradeType === 'amm')
 

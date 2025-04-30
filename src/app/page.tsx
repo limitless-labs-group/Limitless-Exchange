@@ -34,10 +34,10 @@ import {
   useCategories,
   useTradingService,
 } from '@/services'
-import { useBanneredMarkets, useMarket, useMarkets } from '@/services/MarketsService'
+import { useBanneredMarkets, useMarket, useSortedMarkets } from '@/services/MarketsService'
 import { h3Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Dashboard, Market, MarketType, Sort, SortStorageName } from '@/types'
-import { sortMarkets } from '@/utils/market-sorting'
+import { getSortValue, sortMarkets } from '@/utils/market-sorting'
 
 const MainPage = () => {
   const { getParam } = useUrlParams()
@@ -58,9 +58,10 @@ const MainPage = () => {
   const { selectedCategory, handleCategory, dashboard, handleDashboard } = useTokenFilter()
   const [selectedSort, setSelectedSort] = useAtom(sortAtom)
   const { convertTokenAmountToUsd } = usePriceOracle()
-  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useMarkets(
-    selectedCategory ?? null
-  )
+  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useSortedMarkets({
+    categoryId: selectedCategory?.id,
+    sortBy: getSortValue(selectedSort.sort),
+  })
 
   useEffect(() => {
     if (marketData) {

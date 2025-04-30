@@ -42,9 +42,10 @@ import { useToast } from '@/hooks'
 import { useLogin } from '@/hooks/profiles/use-login'
 import { useRefetchSession } from '@/hooks/profiles/use-session'
 import useClient from '@/hooks/use-client'
+import { useUrlParams } from '@/hooks/use-url-param'
 import { publicClient } from '@/providers/Privy'
 import { Address, APIError, UpdateProfileData } from '@/types'
-import { Profile } from '@/types/profiles'
+import { Profile, Referee, ReferralData } from '@/types/profiles'
 import { LOGGED_IN_TO_LIMITLESS, USER_ID } from '@/utils/consts'
 
 export interface IAccountContext {
@@ -55,7 +56,9 @@ export interface IAccountContext {
   displayUsername: string
   bio: string
   referralCode: string
+  refLink: string
   profileLoading: boolean
+  referralData?: ReferralData
   profileData?: Profile | null
   updateProfileMutation: UseMutationResult<
     Profile | undefined,
@@ -104,14 +107,14 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const privateClient = useAxiosPrivateClient()
   const { mutateAsync: login } = useLogin()
   const web3Client = user?.wallet?.walletClientType === 'privy' ? 'etherspot' : 'eoa'
-  const { wallets, ready: walletsReady } = useWallets()
+  const { wallets } = useWallets()
   const { isLogged } = useClient()
   const { refetchSession } = useRefetchSession()
   const { pushGA4Event } = useGoogleAnalytics()
   const [, setAcc] = useAtom(accountAtom)
   const { handleRedirect } = usePendingTrade()
   const { trackSignIn, trackSignUp } = useAmplitude()
-
+  const isDev = process.env.NODE_ENV === 'development'
   const toast = useToast()
   const router = useRouter()
 
@@ -126,12 +129,17 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     enabled: !!user?.wallet?.address,
   })
 
+  const { getParam } = useUrlParams()
+  const r = getParam('r')
+
   useEffect(() => {
     if (user?.wallet?.address) {
       setAcc({ account: user.wallet.address as string })
-      spindl.attribute(user.wallet.address)
+      if (!isDev) {
+        spindl.attribute(user.wallet.address)
+      }
     }
-  }, [user])
+  }, [user, isDev])
 
   const userMenuLoading = useMemo(() => {
     if (isLogged || authenticated) {
@@ -221,6 +229,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
   const { login: loginToPlatform } = usePrivyLogin({
     onComplete: async ({ user, wasAlreadyAuthenticated, isNewUser }) => {
+      const referral = { referral: r ?? 'Empty' }
       const connectedWallet = wallets.find(
         (wallet) => wallet.connectorType === user.wallet?.connectorType
       )
@@ -243,19 +252,24 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
             account: connectedWallet.address as Address,
             smartWallet: client.account?.address,
             web3Wallet: walletClient,
+            r,
           })
-          spindl.attribute(client.account?.address)
+          if (!isDev) {
+            spindl.attribute(client.account?.address)
+          }
           pushGA4Event(GAEvents.WalletConnected)
           if (isNewUser) {
             trackSignUp(SignInEvent.SignedUp, {
               signedIn: true,
               account: client.account?.address ?? '',
+              ...referral,
             })
             return
           }
           trackSignIn(SignInEvent.SignedIn, {
             signedIn: true,
             account: client.account?.address ?? '',
+            ...referral,
           })
           return
         }
@@ -263,14 +277,18 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
           client: 'eoa',
           account: connectedWallet.address as Address,
           web3Wallet: walletClient,
+          r,
         })
-        spindl.attribute(connectedWallet.address)
+        if (!isDev) {
+          spindl.attribute(connectedWallet.address)
+        }
         pushGA4Event(GAEvents.WalletConnected)
         await handleRedirect()
         setAcc({ account: connectedWallet.address ?? '' })
         trackSignIn(SignInEvent.SignedIn, {
           signedIn: true,
           account: connectedWallet.address ?? '',
+          ...referral,
         })
         // setIsLogged(true)
         return
@@ -340,8 +358,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       web3Client === 'etherspot'
         ? wallets.find((wallet) => wallet.walletClientType === 'privy')
         : wallets[0]
-    console.log(`wallets ${wallets}`)
-    console.log(`web3Client ${web3Client}`)
     if (wallet) {
       const provider = await wallet.getEthereumProvider()
       const walletClient = createWalletClient({
@@ -356,10 +372,14 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   }
 
   useEffect(() => {
-    if (walletsReady && !web3Wallet && authenticated) {
+    if (!authenticated) {
+      setWeb3Wallet(null)
+      return
+    }
+    if (!web3Wallet && authenticated) {
       getWallet()
     }
-  }, [walletsReady, web3Wallet, authenticated])
+  }, [web3Wallet, authenticated, wallets])
 
   const { mutateAsync: logout } = useMutation({
     mutationKey: ['logout'],
@@ -435,27 +455,31 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
   const getAndStoreSmartAccountClient = async (wallet: ConnectedWallet) => {
     const smartAccountClient = await getSmartAccountClient(wallet)
+    console.log(`smartWallet address ${smartAccountClient.account.address}`)
     //@ts-ignore
     setSmartAccountClient(smartAccountClient)
   }
+
+  console.log('wallets', wallets)
 
   useEffect(() => {
     ;(async () => {
       if (
         authenticated &&
-        wallets.length &&
-        walletsReady &&
+        wallets.some((wallet) => wallet.walletClientType === 'privy') &&
         web3Client === 'etherspot' &&
         !smartAccountClient
       ) {
         const embeddedWallet = wallets.find((wallet) => wallet.walletClientType === 'privy')
+
+        console.log(`embedded wallet address ${embeddedWallet?.address}`)
 
         if (embeddedWallet) {
           getAndStoreSmartAccountClient(embeddedWallet)
         }
       }
     })()
-  }, [authenticated, wallets, publicClient, web3Client, smartAccountClient, walletsReady])
+  }, [authenticated, wallets, publicClient, web3Client, smartAccountClient])
 
   const displayUsername = useMemo(() => {
     if (profileData?.username) {
@@ -478,6 +502,18 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     return ''
   }, [profileData?.referralCode])
 
+  const referralData = useMemo(() => {
+    return {
+      referralData: profileData?.referralData ?? [],
+      refereeCount: profileData?.referralData ? profileData?.referralData.length : 0,
+    }
+  }, [profileData?.referralData])
+
+  const refLink = useMemo(
+    () => `${process.env.NEXT_PUBLIC_APP_URL}/?r=${referralCode}`,
+    [referralCode]
+  )
+
   const disconnectFromPlatform = useCallback(async () => {
     localStorage.removeItem(LOGGED_IN_TO_LIMITLESS)
     localStorage.removeItem(USER_ID)
@@ -496,7 +532,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     displayName,
     displayUsername,
     referralCode,
+    refLink,
     bio,
+    referralData,
     disconnectFromPlatform,
     profileLoading: userMenuLoading,
     profileData,

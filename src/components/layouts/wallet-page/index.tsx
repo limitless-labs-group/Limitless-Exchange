@@ -62,7 +62,6 @@ export default function WalletPage() {
   }
 
   const handleOpenWithdrawModal = () => {
-    setWalletPageOpened(false)
     onOpenWithdraw()
   }
 
@@ -167,7 +166,7 @@ export default function WalletPage() {
               <Text>Ethereum</Text>
             </HStack>
             {supportedTokens?.map((token) => (
-              <HStack gap='4px' key={token.symbol}>
+              <HStack gap='4px' key={token.id}>
                 <Image src={token.logoUrl} alt={token.symbol} width={16} height={16} />
                 <Text>{token.symbol}</Text>
               </HStack>

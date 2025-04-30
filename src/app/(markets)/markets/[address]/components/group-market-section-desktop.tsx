@@ -12,12 +12,14 @@ import BigNumber from 'bignumber.js'
 import React, { SyntheticEvent, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
+import { useClobWidget } from '@/components/common/markets/clob-widget/context'
+import RewardTooltipSmall from '@/app/(markets)/markets/[address]/components/clob/reward-tooltip-small'
 import GroupMarketSectionTabs from '@/app/(markets)/markets/[address]/components/group-market-section-tabs'
 import { useMarketOrders } from '@/hooks/use-market-orders'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import { ClickEvent, QuickBetClickedMetadata, useAmplitude, useTradingService } from '@/services'
 import { h3Medium, headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market } from '@/types'
+import { Market, MarketOrderType } from '@/types'
 import { ClobPosition } from '@/types/orders'
 import { NumberUtil } from '@/utils'
 
@@ -27,7 +29,14 @@ export interface GroupMarketSectionProps {
 
 export default function GroupMarketSectionDesktop({ market }: GroupMarketSectionProps) {
   const { trackClicked } = useAmplitude()
-  const { setMarket, market: selectedMarket, setClobOutcome, clobOutcome } = useTradingService()
+  const {
+    setMarket,
+    market: selectedMarket,
+    setClobOutcome,
+    clobOutcome,
+    strategy,
+  } = useTradingService()
+  const { orderType } = useClobWidget()
 
   const { data: userOrders } = useMarketOrders(market?.slug)
 
@@ -95,6 +104,57 @@ export default function GroupMarketSectionDesktop({ market }: GroupMarketSection
     }
   }
 
+  const yesPrice = useMemo(() => {
+    if (!market?.tradePrices) {
+      return 50
+    }
+    if (strategy === 'Buy') {
+      return orderType === MarketOrderType.MARKET
+        ? new BigNumber(market.tradePrices.buy.market[0])
+            .multipliedBy(100)
+            .decimalPlaces(1)
+            .toNumber()
+        : new BigNumber(market.tradePrices.buy.limit[0])
+            .multipliedBy(100)
+            .decimalPlaces(1)
+            .toNumber()
+    }
+    return orderType === MarketOrderType.MARKET
+      ? new BigNumber(market.tradePrices.sell.market[0])
+          .multipliedBy(100)
+          .decimalPlaces(1)
+          .toNumber()
+      : new BigNumber(market.tradePrices.sell.limit[0])
+          .multipliedBy(100)
+          .decimalPlaces(1)
+          .toNumber()
+  }, [strategy, market?.tradePrices, orderType])
+  const noPrice = useMemo(() => {
+    if (!market?.tradePrices) {
+      return 50
+    }
+    if (strategy === 'Buy') {
+      return orderType === MarketOrderType.MARKET
+        ? new BigNumber(market.tradePrices.buy.market[1])
+            .multipliedBy(100)
+            .decimalPlaces(1)
+            .toNumber()
+        : new BigNumber(market.tradePrices.buy.limit[1])
+            .multipliedBy(100)
+            .decimalPlaces(1)
+            .toNumber()
+    }
+    return orderType === MarketOrderType.MARKET
+      ? new BigNumber(market.tradePrices.sell.market[1])
+          .multipliedBy(100)
+          .decimalPlaces(1)
+          .toNumber()
+      : new BigNumber(market.tradePrices.sell.limit[1])
+          .multipliedBy(100)
+          .decimalPlaces(1)
+          .toNumber()
+  }, [strategy, market?.tradePrices, orderType])
+
   return (
     <AccordionItem borderColor='grey.100'>
       <AccordionButton gap='4px' display='block' onClick={handleAccordionChange}>
@@ -104,15 +164,18 @@ export default function GroupMarketSectionDesktop({ market }: GroupMarketSection
               <Text textAlign='left' {...headline}>
                 {market.proxyTitle || market.title}
               </Text>
-              <HStack w={isMobile ? 'full' : 'unset'} gap='4px' color='grey.500'>
-                <VolumeIcon width={16} height={16} />
-                <Text {...paragraphRegular} color='grey.500'>
-                  Volume
-                </Text>
-                <Text {...paragraphRegular} color='grey.500'>
-                  {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
-                  {market?.collateralToken.symbol}
-                </Text>
+              <HStack gap='8px' mt='4px'>
+                {market.isRewardable && <RewardTooltipSmall market={market} />}
+                <HStack w={isMobile ? 'full' : 'unset'} gap='4px' color='grey.500'>
+                  <VolumeIcon width={16} height={16} />
+                  <Text {...paragraphRegular} color='grey.500'>
+                    Volume
+                  </Text>
+                  <Text {...paragraphRegular} color='grey.500'>
+                    {NumberUtil.convertWithDenomination(market.volumeFormatted, 2)}{' '}
+                    {market?.collateralToken.symbol}
+                  </Text>
+                </HStack>
               </HStack>
             </Box>
             <HStack gap='16px'>
@@ -135,7 +198,7 @@ export default function GroupMarketSectionDesktop({ market }: GroupMarketSection
                 }}
                 onClick={(e) => handleOutcomeClicked(e, 0)}
               >
-                Yes {NumberUtil.multiply(market.prices[0], 100)}%
+                Yes {yesPrice}¢
               </Button>
               <Button
                 w='112px'
@@ -153,7 +216,7 @@ export default function GroupMarketSectionDesktop({ market }: GroupMarketSection
                 }}
                 onClick={(e) => handleOutcomeClicked(e, 1)}
               >
-                No {NumberUtil.multiply(market.prices[1], 100)}%
+                No {noPrice}¢
               </Button>
             </HStack>
           </HStack>

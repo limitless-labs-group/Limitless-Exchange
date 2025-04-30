@@ -1,7 +1,6 @@
 import { Box, HStack, Text, VStack } from '@chakra-ui/react'
 import debounce from 'lodash.debounce'
 import { useCallback } from 'react'
-import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Loader from '@/components/common/loader'
 import ActivityClobItem from '@/components/common/markets/activity/activity-clob-item'
@@ -29,7 +28,16 @@ export default function ActivityClob() {
   )
 
   return !!activity?.length ? (
-    <Box className='full-container' w={isMobile ? 'full' : 'unset'}>
+    <Box
+      id='scrollableDiv'
+      h={activity?.length < 10 ? 'unset' : '325px'}
+      overflow='auto'
+      sx={{
+        '& > div': {
+          width: '100% !important',
+        },
+      }}
+    >
       <InfiniteScroll
         dataLength={activity?.length ?? 0}
         next={getNextPage}
@@ -40,6 +48,8 @@ export default function ActivityClob() {
             <Text {...paragraphRegular}>Loading more events</Text>
           </HStack>
         }
+        scrollableTarget='scrollableDiv'
+        scrollThreshold='20px'
       >
         {activity.map((activityItem: ClobTradeEvent) => (
           <ActivityClobItem key={activityItem.createdAt} data={activityItem} />

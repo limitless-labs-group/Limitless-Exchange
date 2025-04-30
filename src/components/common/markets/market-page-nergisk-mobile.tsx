@@ -313,12 +313,12 @@ export default function MarketPageNergiskMobile() {
           <ChakraImage
             width={6}
             height={6}
-            src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
+            src={groupMarket?.creator.imageURI ?? '/assets/images/logo.svg'}
             alt='creator'
             borderRadius={'2px'}
           />
-          <Link href={market?.creator.link || ''} variant='textLinkSecondary' fontWeight={400}>
-            {market?.creator.name}
+          <Link href={groupMarket?.creator.link || ''} variant='textLinkSecondary' fontWeight={400}>
+            {groupMarket?.creator.name}
           </Link>
         </HStack>
       </HStack>
@@ -387,7 +387,6 @@ export default function MarketPageNergiskMobile() {
           ))}
         </TabPanels>
       </Tabs>
-      <ConvertModal />
     </Box>
   )
 }

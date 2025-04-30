@@ -120,7 +120,6 @@ export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading }: ChatTextareaP
     return 'unset'
   }, [error])
 
-  console.log(profileData)
   return (
     <FormControl>
       <VStack w='full' mt='16px'>

@@ -330,8 +330,6 @@ export const useBalanceQuery = () => {
         })
       }
 
-      log.success('ON_BALANCE_SUCC', account, balanceResult)
-
       balanceResult.forEach((balance) => {
         if (!!balanceOfSmartWallet) {
           const currentBalance = balanceOfSmartWallet.find((currentBalanceEntity) => {

@@ -9,6 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
   Text,
+  useToast,
 } from '@chakra-ui/react'
 import { useFundWallet } from '@privy-io/react-auth'
 import { useAtom } from 'jotai/index'
@@ -17,8 +18,8 @@ import NextLink from 'next/link'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useMemo } from 'react'
 import { LoginButtons } from '@/components/common/login-button'
-import { CategoryItems } from '@/components/common/markets/sidebar-item'
 import SideBarPage from '@/components/common/side-bar-page'
+import CategoriesDesktop from '@/components/layouts/categories-desktop'
 import UserMenuDesktop from '@/components/layouts/user-menu-desktop'
 import WalletPage from '@/components/layouts/wallet-page'
 import { sortAtom } from '@/atoms/market-sort'
@@ -47,7 +48,7 @@ import {
 } from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { MarketStatus, Sort, SortStorageName } from '@/types'
-import { SEARCH_HOTKEY_KEYS } from '@/utils/consts'
+import { DISABLE_SEARCH_PAGES, SEARCH_HOTKEY_KEYS } from '@/utils/consts'
 import { ReferralLink } from '../common/referral-link'
 
 export default function Header() {
@@ -61,6 +62,7 @@ export default function Header() {
   const { marketPageOpened, onCloseMarketPage } = useTradingService()
   const { mode } = useThemeProvider()
   const router = useRouter()
+  const toast = useToast()
   const {
     account,
     loginToPlatform,
@@ -87,11 +89,17 @@ export default function Header() {
       onCloseMarketPage()
     }
   }
+  const handleOpenReferral = () => {
+    if (marketPageOpened) {
+      onCloseMarketPage()
+    }
+  }
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (
         SEARCH_HOTKEY_KEYS.includes(event.key) &&
+        !DISABLE_SEARCH_PAGES.includes(pageName) &&
         document.activeElement?.tagName !== 'INPUT' &&
         document.activeElement?.tagName !== 'TEXTAREA'
       ) {
@@ -347,8 +355,8 @@ export default function Header() {
         </HStack>
       </HStack>
       {pageName === 'Explore Markets' && (
-        <HStack py='4px' px='12px' bg='grey.50'>
-          <CategoryItems />
+        <HStack py='4px' px='12px' bg='grey.50' gap={0} pt='4px'>
+          <CategoriesDesktop />
         </HStack>
       )}
     </Box>

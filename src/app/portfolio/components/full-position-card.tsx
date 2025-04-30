@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
-import React, { SyntheticEvent, useState } from 'react'
+import React, { SyntheticEvent, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address, formatUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
@@ -23,7 +23,6 @@ import MarketPage from '@/components/common/markets/market-page'
 import FullOrdersTab from '@/app/portfolio/components/full-orders-tab'
 import FullPositionsTab from '@/app/portfolio/components/full-positions-tab'
 import RewardsSection from '@/app/portfolio/components/rewards-section'
-import { useUrlParams } from '@/hooks/use-url-param'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import GemWhiteIcon from '@/resources/icons/gem-white-icon.svg'
 import PieChartIcon from '@/resources/icons/pie-chart-icon.svg'
@@ -38,16 +37,17 @@ import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useMarket } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketStatus } from '@/types'
+import { PortfolioTab } from '@/types/portfolio'
 import { NumberUtil } from '@/utils'
 
 interface FullPositionCardProps {
   position: ClobPositionWithType
+  type: PortfolioTab
 }
 
-export default function FullPositionCard({ position }: FullPositionCardProps) {
+export default function FullPositionCard({ position, type }: FullPositionCardProps) {
   const [activeTab, setActiveTab] = useState(0)
   const date = new Date(position.market.deadline)
-  const { params } = useUrlParams()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { onOpenMarketPage, setMarket } = useTradingService()
   const marketClosed = position.market.status === MarketStatus.RESOLVED
@@ -147,9 +147,20 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
   })
 
   const onResetMutation = async () => {
-    await queryClient.refetchQueries({
-      queryKey: ['positions'],
-    })
+    await Promise.allSettled([
+      queryClient.refetchQueries({
+        queryKey: ['user-orders', position.market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['market-shares', position.market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['order-book', position.market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['positions'],
+      }),
+    ])
     setActiveTab(0)
     cancelAllOrdersMutation.reset()
   }
@@ -167,60 +178,136 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
     })
   }
 
-  const tabs = [
-    {
-      title: 'Positions',
-      show: true,
-    },
-    {
-      title: 'Open Orders',
-      show: showOrders,
-    },
-  ]
+  const getTabs = () => {
+    if (type === 'positions-only') {
+      return [
+        {
+          title: 'Positions',
+          show: true,
+        },
+      ]
+    }
+    if (type === 'orders-only') {
+      return [
+        {
+          title: 'Open Orders',
+          show: showOrders,
+        },
+      ]
+    }
+    return [
+      {
+        title: 'Positions',
+        show: true,
+      },
+      {
+        title: 'Open Orders',
+        show: showOrders,
+      },
+    ]
+  }
 
-  const tabList = [
-    <FullPositionsTab
-      key='full-positions'
-      position={position.positions}
-      contracts={position.tokensBalance}
-      decimals={position.market.collateralToken.decimals}
-      symbol={position.market.collateralToken.symbol}
-      marketClosed={marketClosed}
-      winSide={position.market.winningOutcomeIndex}
-    />,
-    <FullOrdersTab
-      key='full-orders-tab'
-      orders={position.orders.liveOrders}
-      yesPositionId={position.market.yesPositionId as string}
-      decimals={position.market.collateralToken.decimals}
-      symbol={position.market.collateralToken.symbol}
-    />,
-  ]
+  const tabs = getTabs()
+
+  const getTabList = () => {
+    if (type === 'positions-only') {
+      return [
+        <FullPositionsTab
+          key='full-positions'
+          position={position.positions}
+          contracts={position.tokensBalance}
+          decimals={position.market.collateralToken.decimals}
+          symbol={position.market.collateralToken.symbol}
+          marketClosed={marketClosed}
+          winSide={position.market.winningOutcomeIndex}
+        />,
+      ]
+    }
+    if (type === 'orders-only') {
+      return [
+        <FullOrdersTab
+          key='full-orders-tab'
+          orders={position.orders.liveOrders}
+          yesPositionId={position.market.yesPositionId as string}
+          decimals={position.market.collateralToken.decimals}
+          symbol={position.market.collateralToken.symbol}
+        />,
+      ]
+    }
+    return [
+      <FullPositionsTab
+        key='full-positions'
+        position={position.positions}
+        contracts={position.tokensBalance}
+        decimals={position.market.collateralToken.decimals}
+        symbol={position.market.collateralToken.symbol}
+        marketClosed={marketClosed}
+        winSide={position.market.winningOutcomeIndex}
+      />,
+      <FullOrdersTab
+        key='full-orders-tab'
+        orders={position.orders.liveOrders}
+        yesPositionId={position.market.yesPositionId as string}
+        decimals={position.market.collateralToken.decimals}
+        symbol={position.market.collateralToken.symbol}
+      />,
+    ]
+  }
+
+  const tabList = getTabList()
 
   const handleOpenMarketPage = async () => {
     if (!oneMarket) {
       const { data: fetchedMarket } = await refetchMarket()
       if (fetchedMarket) {
         onOpenMarketPage(fetchedMarket)
+        if (fetchedMarket.negRiskMarketId) {
+          const targetMarket = fetchedMarket?.markets?.find(
+            (market) => market.slug === position.market.slug
+          )
+          setMarket(targetMarket || null)
+        }
         trackClicked(ClickEvent.PortfolioMarketClicked, {
           marketCategory: fetchedMarket.categories,
           marketAddress: fetchedMarket.slug,
-          marketType: 'single',
+          marketType: position.market.negRiskRequestId ? 'group' : 'single',
           marketTags: fetchedMarket.tags,
           type: 'Portolio',
         })
       }
     } else {
       onOpenMarketPage(oneMarket)
+      if (oneMarket.negRiskRequestId) {
+        const targetMarket = oneMarket.markets?.find(
+          (market) => market.slug === position.market.slug
+        )
+        setMarket(targetMarket || null)
+      }
       trackClicked(ClickEvent.PortfolioMarketClicked, {
         marketCategory: oneMarket.categories,
         marketAddress: oneMarket.slug,
-        marketType: 'single',
+        marketType: position.market.negRiskRequestId ? 'group' : 'single',
         marketTags: oneMarket.tags,
         type: 'Portolio',
       })
     }
   }
+
+  const amountsToNegriskClaim = useMemo(() => {
+    if (!position.market.negRiskRequestId) {
+      return
+    }
+    const yesTokensToClaim =
+      position.market.winningOutcomeIndex === 0 ? BigInt(position.tokensBalance.yes) : 0n
+    const noTokensToClaim =
+      position.market.winningOutcomeIndex === 1 ? BigInt(position.tokensBalance.no) : 0n
+    return [yesTokensToClaim, noTokensToClaim]
+  }, [
+    position.market.negRiskRequestId,
+    position.market.winningOutcomeIndex,
+    position.tokensBalance.no,
+    position.tokensBalance.yes,
+  ])
 
   const content = (
     <Box
@@ -240,9 +327,13 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
         alignItems={marketClosed ? 'flex-start' : 'center'}
         flexWrap='wrap'
       >
-        <Box>
-          <HStack w='full' justifyContent='space-between' mb={isMobile ? '8px' : 0}>
-            <Text {...paragraphRegular} mb='16px' color={marketClosed ? 'white' : 'grey.800'}>
+        <Box w={isMobile ? 'full' : 'unset'}>
+          <HStack w='full' justifyContent='space-between' mb='16px'>
+            <Text
+              {...paragraphRegular}
+              textAlign='left'
+              color={marketClosed ? 'white' : 'grey.800'}
+            >
               {position.market.title}
             </Text>
             {isMobile && !marketClosed && (
@@ -252,65 +343,24 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
             )}
           </HStack>
           {isMobile && marketClosed && (
-            <ClaimButton
-              conditionId={position.market.conditionId as Address}
-              collateralAddress={position.market.collateralToken.address}
-              marketAddress={
-                position.market.negRiskRequestId
-                  ? (process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address)
-                  : (process.env.NEXT_PUBLIC_CTF_CONTRACT as Address)
-              }
-              outcomeIndex={position.market.winningOutcomeIndex as number}
-              marketType={position.market.tradeType}
-              amountToClaim={getAmountToClaim()}
-              symbol={position.market.collateralToken.symbol}
-              mb='8px'
-            />
+            <Box mb='16px'>
+              <ClaimButton
+                conditionId={position.market.conditionId as Address}
+                collateralAddress={position.market.collateralToken.address}
+                marketAddress={
+                  position.market.negRiskRequestId
+                    ? (process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address)
+                    : (process.env.NEXT_PUBLIC_CTF_CONTRACT as Address)
+                }
+                outcomeIndex={position.market.winningOutcomeIndex as number}
+                marketType={position.market.tradeType}
+                amounts={amountsToNegriskClaim}
+                amountToClaim={getAmountToClaim()}
+                negRiskRequestId={position.market.negRiskRequestId}
+                symbol={position.market.collateralToken.symbol}
+              />
+            </Box>
           )}
-          <HStack gap={isMobile ? '16px' : '24px'} columnGap='8px' flexWrap='wrap'>
-            <MarketCountdown
-              deadline={new Date(position.market.deadline).getTime()}
-              deadlineText={formatted}
-              showDays={false}
-              hideText
-              color={marketClosed ? 'whiteAlpha.70' : 'grey.500'}
-            />
-            {marketClosed ? (
-              <HStack gap='4px'>
-                <GemWhiteIcon />
-                <Text {...paragraphRegular} color='whiteAlpha.70'>
-                  Total Rewards Earned
-                </Text>
-                <Text {...paragraphRegular} color='whiteAlpha.70'>
-                  {NumberUtil.convertWithDenomination(totalRewards, 2)}{' '}
-                  {position.market.collateralToken.symbol}
-                </Text>
-              </HStack>
-            ) : (
-              <HStack gap='4px' color='grey.500'>
-                <CandlestickIcon width={16} height={16} />
-                <Text {...paragraphRegular} color='grey.500'>
-                  Total Limit orders
-                </Text>
-                <Text {...paragraphMedium} color={totalLimitOrdersColor()}>
-                  {NumberUtil.toFixed(totalLimitOrders, 2)} USD
-                </Text>
-              </HStack>
-            )}
-            {marketClosed ? (
-              <HStack gap='4px' color='whiteAlpha.70'>
-                <PieChartIcon width={16} height={16} />
-                <Text {...paragraphRegular} color='whiteAlpha.70'>
-                  P&L
-                </Text>
-                <Text {...paragraphRegular} color='whiteAlpha.70'>
-                  {getPnL()} {position.market.collateralToken.symbol}
-                </Text>
-              </HStack>
-            ) : (
-              <RewardsSection position={position} />
-            )}
-          </HStack>
         </Box>
         {!isMobile && (
           <>
@@ -326,12 +376,65 @@ export default function FullPositionCard({ position }: FullPositionCardProps) {
                     : (process.env.NEXT_PUBLIC_CTF_CONTRACT as Address)
                 }
                 outcomeIndex={position.market.winningOutcomeIndex as number}
+                negRiskRequestId={position.market.negRiskRequestId}
+                amounts={amountsToNegriskClaim}
                 marketType={position.market.tradeType}
                 amountToClaim={getAmountToClaim()}
                 symbol={position.market.collateralToken.symbol}
               />
             )}
           </>
+        )}
+      </HStack>
+      <HStack
+        gap={isMobile ? '16px' : '24px'}
+        columnGap='8px'
+        flexWrap='wrap'
+        justifyContent='space-between'
+      >
+        <HStack gap='8px'>
+          <MarketCountdown
+            deadline={new Date(position.market.deadline).getTime()}
+            deadlineText={formatted}
+            showDays={false}
+            hideText={isMobile}
+            color={marketClosed ? 'whiteAlpha.70' : 'grey.500'}
+          />
+          {marketClosed ? (
+            <HStack gap='4px'>
+              <GemWhiteIcon />
+              <Text {...paragraphRegular} color='whiteAlpha.70'>
+                Total Rewards Earned
+              </Text>
+              <Text {...paragraphRegular} color='whiteAlpha.70'>
+                {NumberUtil.convertWithDenomination(totalRewards, 2)}{' '}
+                {position.market.collateralToken.symbol}
+              </Text>
+            </HStack>
+          ) : (
+            <HStack gap='4px' color='grey.500'>
+              <CandlestickIcon width={16} height={16} />
+              <Text {...paragraphRegular} color='grey.500'>
+                Total Limit orders
+              </Text>
+              <Text {...paragraphMedium} color={totalLimitOrdersColor()}>
+                {NumberUtil.toFixed(totalLimitOrders, 2)} USD
+              </Text>
+            </HStack>
+          )}
+        </HStack>
+        {marketClosed ? (
+          <HStack gap='4px' color='whiteAlpha.70'>
+            <PieChartIcon width={16} height={16} />
+            <Text {...paragraphRegular} color='whiteAlpha.70'>
+              P&L
+            </Text>
+            <Text {...paragraphRegular} color='whiteAlpha.70'>
+              {getPnL()} {position.market.collateralToken.symbol}
+            </Text>
+          </HStack>
+        ) : (
+          <RewardsSection position={position} />
         )}
       </HStack>
       <Divider my='16px' h='2px' variant={marketClosed ? 'transparent' : undefined} />

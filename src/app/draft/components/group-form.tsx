@@ -119,7 +119,11 @@ export const GroupForm = () => {
               id={`market${index}_title`}
               name={`marketsInput[${index}][title]`}
               value={getCurrentValue(index, 'title', market.title)}
-              onChange={(e) => handleInputChange(index, 'title', e.target.value)}
+              onChange={(e) => {
+                if (getPlainTextLength(e.target.value) <= 3000) {
+                  handleInputChange(index, 'title', e.target.value)
+                }
+              }}
               placeholder={`Enter market ${index + 1} title`}
               _placeholder={{ color: 'grey.400' }}
               borderColor='grey.300'
@@ -138,6 +142,7 @@ export const GroupForm = () => {
                   handleInputChange(index, 'description', value)
                 }
               }}
+              style={{ wordBreak: 'break-word' }}
             />
           </FormControl>
           <Flex w='full' direction='row' gap={2} flexWrap='wrap' alignItems='start'>

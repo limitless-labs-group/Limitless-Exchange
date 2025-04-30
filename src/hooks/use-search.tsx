@@ -27,7 +27,7 @@ export function useInfinitySearch(query: string) {
           params: {
             query,
             page: pageParam,
-            similarityThreshold: 0.25,
+            similarityThreshold: 0.3,
             limit: LIMIT_PER_PAGE,
           },
         }

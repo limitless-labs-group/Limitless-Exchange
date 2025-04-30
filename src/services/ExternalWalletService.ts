@@ -17,7 +17,7 @@ export const useExternalWalletService = () => {
     try {
       const receipt = await publicClient.waitForTransactionReceipt({
         hash,
-        timeout: 60_000, // 60 seconds timeout
+        timeout: 60_000,
       })
       return receipt
     } catch (error) {

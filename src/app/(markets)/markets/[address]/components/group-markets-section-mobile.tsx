@@ -5,14 +5,16 @@ import React, { SyntheticEvent, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
+import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import MarketPageNergiskMobile from '@/components/common/markets/market-page-nergisk-mobile'
+import RewardTooltipSmall from '@/app/(markets)/markets/[address]/components/clob/reward-tooltip-small'
 import { useMarketOrders } from '@/hooks/use-market-orders'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import { ClickEvent, QuickBetClickedMetadata, useAmplitude, useTradingService } from '@/services'
 import { h3Medium, headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market } from '@/types'
+import { Market, MarketOrderType } from '@/types'
 import { ClobPosition } from '@/types/orders'
 import { NumberUtil } from '@/utils'
 
@@ -27,7 +29,9 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
     setClobOutcome,
     clobOutcome,
     groupMarket,
+    strategy,
   } = useTradingService()
+  const { orderType } = useClobWidget()
   const { trackClicked } = useAmplitude()
 
   const { data: userOrders } = useMarketOrders(market?.slug)
@@ -125,6 +129,57 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
         }
       : undefined
 
+  const yesPrice = useMemo(() => {
+    if (!market?.tradePrices) {
+      return 50
+    }
+    if (strategy === 'Buy') {
+      return orderType === MarketOrderType.MARKET
+        ? new BigNumber(market.tradePrices.buy.market[0])
+            .multipliedBy(100)
+            .decimalPlaces(1)
+            .toNumber()
+        : new BigNumber(market.tradePrices.buy.limit[0])
+            .multipliedBy(100)
+            .decimalPlaces(1)
+            .toNumber()
+    }
+    return orderType === MarketOrderType.MARKET
+      ? new BigNumber(market.tradePrices.sell.market[0])
+          .multipliedBy(100)
+          .decimalPlaces(1)
+          .toNumber()
+      : new BigNumber(market.tradePrices.sell.limit[0])
+          .multipliedBy(100)
+          .decimalPlaces(1)
+          .toNumber()
+  }, [strategy, market?.tradePrices, orderType])
+  const noPrice = useMemo(() => {
+    if (!market?.tradePrices) {
+      return 50
+    }
+    if (strategy === 'Buy') {
+      return orderType === MarketOrderType.MARKET
+        ? new BigNumber(market.tradePrices.buy.market[1])
+            .multipliedBy(100)
+            .decimalPlaces(1)
+            .toNumber()
+        : new BigNumber(market.tradePrices.buy.limit[1])
+            .multipliedBy(100)
+            .decimalPlaces(1)
+            .toNumber()
+    }
+    return orderType === MarketOrderType.MARKET
+      ? new BigNumber(market.tradePrices.sell.market[1])
+          .multipliedBy(100)
+          .decimalPlaces(1)
+          .toNumber()
+      : new BigNumber(market.tradePrices.sell.limit[1])
+          .multipliedBy(100)
+          .decimalPlaces(1)
+          .toNumber()
+  }, [strategy, market?.tradePrices, orderType])
+
   const trigger = (
     <Box
       border='3px solid'
@@ -144,15 +199,18 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
             <Text textAlign='left' {...headline}>
               {market.proxyTitle || market.title}
             </Text>
-            <HStack w={isMobile ? 'full' : 'unset'} gap='4px' color='grey.500'>
-              <VolumeIcon width={16} height={16} />
-              <Text {...paragraphRegular} color='grey.500'>
-                Volume
-              </Text>
-              <Text {...paragraphRegular} color='grey.500'>
-                {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
-                {market?.collateralToken.symbol}
-              </Text>
+            <HStack gap='8px' mt='4px'>
+              {market.isRewardable && <RewardTooltipSmall market={market} />}
+              <HStack w={isMobile ? 'full' : 'unset'} gap='4px' color='grey.500'>
+                <VolumeIcon width={16} height={16} />
+                <Text {...paragraphRegular} color='grey.500'>
+                  Volume
+                </Text>
+                <Text {...paragraphRegular} color='grey.500'>
+                  {NumberUtil.convertWithDenomination(market.volumeFormatted, 2)}{' '}
+                  {market?.collateralToken.symbol}
+                </Text>
+              </HStack>
             </HStack>
           </Box>
           <HStack gap='16px'>
@@ -201,7 +259,7 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
           }}
           onClick={(e) => handleOutcomeClicked(e, 0)}
         >
-          Yes {NumberUtil.multiply(market.prices[0], 100)}%
+          Yes {yesPrice}¢
         </Button>
         <Button
           w='full'
@@ -217,7 +275,7 @@ export default function GroupMarketsSectionMobile({ market }: GroupMarketsSectio
           }}
           onClick={(e) => handleOutcomeClicked(e, 1)}
         >
-          No {NumberUtil.multiply(market.prices[1], 100)}%
+          No {noPrice}¢
         </Button>
       </HStack>
     </Box>

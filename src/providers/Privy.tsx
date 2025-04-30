@@ -1,8 +1,9 @@
 'use client'
 
 import { PrivyClientConfig, PrivyProvider } from '@privy-io/react-auth'
+import { RPCs } from 'csp.config.js'
 import { PropsWithChildren } from 'react'
-import { createPublicClient, http } from 'viem'
+import { createPublicClient, fallback, http } from 'viem'
 import { base, baseSepolia } from 'viem/chains'
 import { defaultChain } from '@/constants'
 import { useThemeProvider } from '@/providers/Chakra'
@@ -10,7 +11,13 @@ import { QueryProvider } from '@/providers/ReactQuery'
 
 export const publicClient = createPublicClient({
   chain: defaultChain,
-  transport: http(),
+  transport:
+    process.env.NEXT_PUBLIC_NETWORK === 'testnet'
+      ? http()
+      : fallback(
+          RPCs.map((rpc) => http(rpc)),
+          { rank: true }
+        ),
 })
 
 export default function PrivyAuthProvider({ children }: PropsWithChildren) {

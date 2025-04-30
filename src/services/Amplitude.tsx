@@ -17,6 +17,7 @@ interface IAmplitudeContext {
   trackClicked: <T extends ClickedEventMetadata>(event: ClickEvent, customData?: T) => void
   trackOpened: <T extends OpenedEventMetadata>(event: OpenEvent, customData?: T) => void
   trackSignIn: <T extends SignInEventMetadata>(event: SignInEvent, customData?: T) => void
+  trackHovered: (event: HoverEvent, customData?: HoverEventMetadata) => void
 }
 
 const AmplitudeContext = createContext<IAmplitudeContext>({} as IAmplitudeContext)
@@ -125,12 +126,17 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
     return trackEvent(event, customData)
   }
 
+  const trackHovered = async (event: HoverEvent, customData?: HoverEventMetadata) => {
+    return trackEvent(event, customData)
+  }
+
   const contextProviderValue: IAmplitudeContext = {
     trackSignUp,
     trackChanged,
     trackClicked,
     trackOpened,
     trackSignIn: trackSignIn,
+    trackHovered,
   }
 
   return (
@@ -138,7 +144,13 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
   )
 }
 
-export type EventType = ChangeEvent | ClickEvent | SignInEvent | OpenEvent | AuthenticationEvent
+export type EventType =
+  | ChangeEvent
+  | ClickEvent
+  | SignInEvent
+  | OpenEvent
+  | AuthenticationEvent
+  | HoverEvent
 
 export enum ChangeEvent {
   StrategyChanged = 'Strategy Changed',
@@ -156,6 +168,10 @@ export enum ChangeEvent {
   SearchInputCleared = 'Search Input Cleared',
   SearchQuery = 'Search Query',
   PortfolioClobViewChanged = 'Portfolio/Orders View Changed',
+}
+
+export enum HoverEvent {
+  RewardsButtonHovered = 'Rewards Button Hovered',
 }
 
 export enum ClickEvent {
@@ -185,6 +201,7 @@ export enum ClickEvent {
   SeeMoreCkicked = 'See More Clicked',
   WalletClicked = 'Wallet Clicked',
   CopyAddressClicked = 'Wallet Address Copied',
+  CopyReferralClicked = 'Referral Link Copied',
   WithdrawClicked = 'Withdraw Clicked',
   WrapETHClicked = 'Wrap ETH Clicked',
   UnwrapETHClicked = 'Unwrap ETH Clicked',
@@ -223,6 +240,7 @@ export enum ClickEvent {
   UserMarketClicked = 'User Market Clicked',
   UpgradeWalletClicked = 'Upgrade Wallet Clicked',
   RewardsButtonClicked = 'Rewards Button Clicked',
+  RewardsLearnMoreClicked = 'Rewards Learn More Clicked',
   SplitContractsModalClicked = 'Split Contracts Modal Clicked',
   MergeContractsModalClicked = 'Merge Contracts Modal Clicked',
   SplitSharesConfirmed = 'Split Contracts Confirmed',
@@ -234,6 +252,7 @@ export enum ClickEvent {
   PortfolioInvestmentsTabClicked = 'Portfolio Investments Tab Clicked',
   ClobPositionTabClicked = 'Clob Position Tab Clicked',
   CancelAllOrdersClicked = 'Cancel All Orders Clicked',
+  PointsButtonClicked = 'Points Button Clicked',
 }
 
 export enum SignInEvent {
@@ -565,6 +584,7 @@ export type OpenedEventMetadata =
   | ProfileSettingsMetadata
   | SidebarMarketOpenedMetadata
 export type SignInEventMetadata = SignInWithFarcasterMetadata | SignedInMetadata
+export type HoverEventMetadata = Record<string, unknown>
 export type CopiedEventMetadata = WalletAddressCopiedMetadata
 
 export type EventMetadata =

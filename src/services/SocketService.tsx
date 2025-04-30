@@ -24,10 +24,6 @@ const initializeSocket = () => {
     timeout: 20000,
   })
 
-  socketInstance.on('connect', () => {
-    console.log('✅ Connected to WebSocket server')
-  })
-
   socketInstance.on('connect_error', (error) => {
     console.error('❌ Connection Error:', error)
   })

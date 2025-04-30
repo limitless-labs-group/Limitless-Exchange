@@ -91,8 +91,8 @@ export const useUrlParams = () => {
     setParams(newParams)
   }
 
-  const getParam = (key: string): string | null => {
-    return params[key] || null
+  const getParam = (key: string): string | undefined => {
+    return params[key] || undefined
   }
 
   return { params, setParam, updateParams, getParam }
