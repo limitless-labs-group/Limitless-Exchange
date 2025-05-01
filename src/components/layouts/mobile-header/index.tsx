@@ -47,6 +47,7 @@ import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
 import SwapIcon from '@/resources/icons/sidebar/Wrap.svg'
 import SunIcon from '@/resources/icons/sun-icon.svg'
 import {
+  ChangeEvent,
   ClickEvent,
   ClobPositionWithType,
   HistoryPositionWithType,
@@ -81,7 +82,7 @@ export default function MobileHeader() {
     updateOnboardingStatus,
   } = useAccount()
   const { balanceOfSmartWallet } = useBalanceQuery()
-  const { trackClicked } = useAmplitude()
+  const { trackClicked, trackChanged } = useAmplitude()
   const { client } = useWeb3Service()
   const { isLoggedToPlatform } = useClient()
   const { mode, setLightTheme, setDarkTheme } = useThemeProvider()
@@ -104,6 +105,7 @@ export default function MobileHeader() {
   const isFinished = completedSteps === steps.length
   const finish = async () => {
     await updateOnboardingStatus.mutateAsync(true)
+    trackChanged(ChangeEvent.FinishedOnboarding)
   }
 
   const {

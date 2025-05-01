@@ -38,6 +38,7 @@ import {
   useCategories,
   useTradingService,
   useAccount,
+  ChangeEvent,
 } from '@/services'
 import { useBanneredMarkets, useMarket, useSortedMarkets } from '@/services/MarketsService'
 import { h3Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -60,7 +61,7 @@ const MainPage = () => {
     groupMarket,
   } = useTradingService()
   const { referralCode: ownRefCode, isLoggedIn } = useAccount()
-  const { trackOpened } = useAmplitude()
+  const { trackOpened, trackChanged } = useAmplitude()
   const { data: marketData } = useMarket(market ?? undefined)
   const { data: banneredMarkets, isFetching: isBanneredLoading } = useBanneredMarkets(null)
   const { selectedCategory, handleCategory, dashboard, handleDashboard } = useTokenFilter()
@@ -366,7 +367,13 @@ const MainPage = () => {
         )}
       </VStack>
       {isWelcomeShown ? (
-        <Modal isOpen={onboardModal} onClose={() => setOnboardModal(false)}>
+        <Modal
+          isOpen={onboardModal}
+          onClose={() => {
+            trackChanged(ChangeEvent.ReferralWelcomeClosed)
+            setOnboardModal(false)
+          }}
+        >
           <WelcomeModal onClose={() => setOnboardModal(false)} referralCode={referralCode ?? ''} />
         </Modal>
       ) : null}

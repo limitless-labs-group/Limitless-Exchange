@@ -20,7 +20,7 @@ export const WelcomeModal = ({ onClose, referralCode }: OnboardModalProps) => {
   const signUp = () => {
     loginToPlatform()
     trackSignIn(SignInEvent.SignUp, {
-      signedIn: true,
+      signedIn: false,
       fromReferral: true,
     })
     pushGA4Event(GAEvents.ClickLogin)

@@ -155,6 +155,8 @@ export type EventType =
 export enum ChangeEvent {
   StrategyChanged = 'Strategy Changed',
   OutcomeChanged = 'Outcome Changed',
+  ReferralWelcomeClosed = 'Referral Welcome Closed',
+  FinishedOnboarding = 'Finished Onboarding',
   ProfilePictureUploadedChanged = 'Profile Picture Uploaded',
   ProfileSettingsChanged = 'Profile Settings Changed',
   LeaderboardViewChanged = 'Leaderboard View Changed',
