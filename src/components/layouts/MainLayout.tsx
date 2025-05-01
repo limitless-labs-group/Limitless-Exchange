@@ -1,6 +1,6 @@
 import { Box, FlexProps } from '@chakra-ui/react'
 import { usePathname } from 'next/navigation'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import MarketPage from '@/components/common/markets/market-page'
 import Header from '@/components/layouts/header'
@@ -23,6 +23,15 @@ export const MainLayout = ({
   const pathname = usePathname()
   const { marketPageOpened, market } = useTradingService()
 
+  const childrenMargin = useMemo(() => {
+    const baseMargin = isMobile ? 64 : 48
+    const headerMargin = isMobile ? 16 : 0
+    if (headerComponent) {
+      return baseMargin + headerMargin + 32
+    }
+    return baseMargin
+  }, [headerComponent])
+
   return (
     <Box
       className={inter.className}
@@ -34,9 +43,20 @@ export const MainLayout = ({
       {...props}
     >
       {isMobile ? <MobileHeader /> : <Header />}
-      <Box mb={isMobile ? '60px' : 0} overflow='hidden' mt={isMobile ? '64px' : '48px'}>
-        <Box minH={'100vh'}>
+      {headerComponent && (
+        <Box
+          position='fixed'
+          top={isMobile ? '64px' : '48px'}
+          bg='grey.50'
+          overflow='hidden'
+          zIndex={2000}
+          w='full'
+        >
           {headerComponent}
+        </Box>
+      )}
+      <Box mb={isMobile ? '60px' : 0} overflow='hidden' mt={`${childrenMargin}px`}>
+        <Box minH={'100vh'}>
           <Box p={layoutPadding} maxW='1420px' m='auto'>
             {children}
           </Box>

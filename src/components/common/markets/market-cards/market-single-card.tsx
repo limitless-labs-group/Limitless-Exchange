@@ -62,7 +62,7 @@ export const MarketSingleCard = ({
   const router = useRouter()
   const { data: marketFeedData } = useMarketFeed(market)
   const { pushGA4Event } = useGoogleAnalytics()
-  const { setWalletPageOpened, setProfilePageOpened } = useAccount()
+  const { closeAllAuthSidebarPages } = useAccount()
   const page = usePageName()
 
   const onClickRedirectToMarket = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -82,8 +82,7 @@ export const MarketSingleCard = ({
       ...analyticParams,
     })
     pushGA4Event(GAEvents.SelectAnyMarket)
-    setWalletPageOpened(false)
-    setProfilePageOpened(false)
+    closeAllAuthSidebarPages()
     onOpenMarketPage(market)
   }
 
@@ -122,8 +121,7 @@ export const MarketSingleCard = ({
     router.push(`?${searchParams.toString()}`, { scroll: false })
     setMarket(market)
     setClobOutcome(outcome)
-    setWalletPageOpened(false)
-    setProfilePageOpened(false)
+    closeAllAuthSidebarPages()
     if (!marketPageOpened) {
       setMarketPageOpened(true)
     }

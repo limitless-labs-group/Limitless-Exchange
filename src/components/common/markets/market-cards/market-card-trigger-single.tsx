@@ -19,15 +19,14 @@ export default function MarketCardTriggerSingle({
   markets,
   analyticParams,
 }: MarketCardProps) {
-  const { setProfilePageOpened, setWalletPageOpened } = useAccount()
+  const { closeAllAuthSidebarPages } = useAccount()
   const { onOpenMarketPage, setMarkets, setClobOutcome } = useTradingService()
   const router = useRouter()
 
   const { trackClicked } = useAmplitude()
 
   const handleMarketPageOpened = () => {
-    setWalletPageOpened(false)
-    setProfilePageOpened(false)
+    closeAllAuthSidebarPages()
     trackClicked(ClickEvent.MediumMarketBannerClicked, {
       ...analyticParams,
     })
