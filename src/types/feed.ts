@@ -70,6 +70,7 @@ export interface MarketNewTradeFeedData {
   tradeAmount: string
   tradeAmountUSD: string
   txHash: string
+  address: string | null
 }
 
 export interface FeedMarketGroupEntity {

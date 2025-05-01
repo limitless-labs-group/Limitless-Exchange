@@ -31,7 +31,7 @@ export default function MarketFeedTradeCard({ data }: MarketFeedTradeCardProps) 
     )} ${data.data.symbol} in total.`
   }, [data])
 
-  const { data: market } = useMarket(data.data.slug)
+  const { data: market } = useMarket(data.data.address || data.data.slug)
 
   const content = (
     <HStack gap='4px' color='grey.500'>
