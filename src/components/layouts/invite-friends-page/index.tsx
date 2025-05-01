@@ -19,6 +19,7 @@ import Avatar from '@/components/common/avatar'
 import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
 import TablePagination from '@/components/common/table-pagination'
+import NoInvitedFriendsSection from '@/components/layouts/invite-friends-page/components/no-invited-friends-section'
 import ReferralLinkButton from '@/components/layouts/invite-friends-page/components/referral-link-button'
 import { useReferralsTotalVolume } from '@/hooks/use-referrals-total-volume'
 import CloseIcon from '@/resources/icons/close-icon.svg'
@@ -95,7 +96,7 @@ export default function InviteFriendsPage() {
       <Text mt='8px' {...headlineRegular}>
         Share smarter thinking
       </Text>
-      <Text mt='12px' {...paragraphMedium}>
+      <Text mt='12px' {...paragraphMedium} maxW={isMobile ? 'unset' : '90%'}>
         Invite friends to explore the future through financial prediction markets—and track the
         impact of your invites below.
       </Text>
@@ -157,6 +158,7 @@ export default function InviteFriendsPage() {
         onPageChange={handlePageChange}
         totalPages={totalPages}
       />
+      {!Boolean(referralData?.referralData.length) && <NoInvitedFriendsSection />}
     </Box>
   )
 }

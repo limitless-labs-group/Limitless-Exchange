@@ -25,8 +25,9 @@ export const MainLayout = ({
 
   const childrenMargin = useMemo(() => {
     const baseMargin = isMobile ? 64 : 48
+    const headerMargin = isMobile ? 16 : 0
     if (headerComponent) {
-      return baseMargin + 32
+      return baseMargin + headerMargin + 32
     }
     return baseMargin
   }, [headerComponent])
@@ -43,7 +44,14 @@ export const MainLayout = ({
     >
       {isMobile ? <MobileHeader /> : <Header />}
       {headerComponent && (
-        <Box position='fixed' top='48px' bg='grey.50' overflow='hidden' zIndex={2000} w='full'>
+        <Box
+          position='fixed'
+          top={isMobile ? '64px' : '48px'}
+          bg='grey.50'
+          overflow='hidden'
+          zIndex={2000}
+          w='full'
+        >
           {headerComponent}
         </Box>
       )}
