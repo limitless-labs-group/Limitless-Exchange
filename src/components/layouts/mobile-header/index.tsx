@@ -212,7 +212,7 @@ export default function MobileHeader() {
         position='fixed'
         top={0}
         bg='grey.50'
-        zIndex={2000}
+        zIndex={2500}
       >
         <HStack justifyContent='space-between' alignItems='center'>
           <Box
