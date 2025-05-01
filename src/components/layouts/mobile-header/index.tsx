@@ -184,7 +184,7 @@ export default function MobileHeader() {
 
   const handleThemeSwitchMenuClicked = () => {
     trackClicked(ClickEvent.HeaderThemeSwitchMenuClicked, {
-      platform: 'desktop',
+      platform: 'mobile',
     })
   }
 
