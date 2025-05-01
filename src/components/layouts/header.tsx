@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation'
 import React, { useEffect, useMemo } from 'react'
 import { LoginButtons } from '@/components/common/login-button'
 import SideBarPage from '@/components/common/side-bar-page'
+import InviteFriendsPage from '@/components/layouts/invite-friends-page'
 import UserMenuDesktop from '@/components/layouts/user-menu-desktop'
 import WalletPage from '@/components/layouts/wallet-page'
 import { sortAtom } from '@/atoms/market-sort'
@@ -67,6 +68,8 @@ export default function Header() {
     setProfilePageOpened,
     profilePageOpened,
     walletPageOpened,
+    referralPageOpened,
+    setReferralPageOpened,
   } = useAccount()
   const handleBuyCryptoClicked = async () => {
     trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.BuyCryptoClicked)
@@ -74,6 +77,9 @@ export default function Header() {
   }
 
   const handleOpenWalletPage = () => {
+    trackClicked(ClickEvent.WalletPageClicked, {
+      platform: 'desktop',
+    })
     setWalletPageOpened(true)
     if (marketPageOpened) {
       onCloseMarketPage()
@@ -81,12 +87,20 @@ export default function Header() {
   }
 
   const handleOpenProfile = () => {
+    trackClicked(ClickEvent.ProfileButtonClicked, {
+      platform: 'desktop',
+    })
     setProfilePageOpened(true)
     if (marketPageOpened) {
       onCloseMarketPage()
     }
   }
+
   const handleOpenReferral = () => {
+    trackClicked(ClickEvent.InviteFriendsPageClicked, {
+      platform: 'desktop',
+    })
+    setReferralPageOpened(true)
     if (marketPageOpened) {
       onCloseMarketPage()
     }
@@ -334,6 +348,7 @@ export default function Header() {
               <UserMenuDesktop
                 handleOpenWalletPage={handleOpenWalletPage}
                 handleOpenProfile={handleOpenProfile}
+                handleOpenReferralPage={handleOpenReferral}
               />
               {walletPageOpened && (
                 <SideBarPage>
@@ -343,6 +358,11 @@ export default function Header() {
               {profilePageOpened && (
                 <SideBarPage>
                   <Profile />
+                </SideBarPage>
+              )}
+              {referralPageOpened && (
+                <SideBarPage>
+                  <InviteFriendsPage />
                 </SideBarPage>
               )}
             </HStack>
