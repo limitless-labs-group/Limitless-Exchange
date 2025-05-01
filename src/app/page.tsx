@@ -32,6 +32,7 @@ import {
   DashboardName,
   useAmplitude,
   useTradingService,
+  useCategories,
 } from '@/services'
 import { useBanneredMarkets, useMarket, useSortedMarkets } from '@/services/MarketsService'
 import { h3Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -42,6 +43,9 @@ const MainPage = () => {
   const { getParam } = useUrlParams()
   const market = getParam('market')
   const dashboardSearch = getParam('dashboard')
+  const category = getParam('category')
+
+  const { data: categories } = useCategories()
 
   const {
     onCloseMarketPage,
@@ -52,12 +56,23 @@ const MainPage = () => {
   const { trackOpened } = useAmplitude()
   const { data: marketData } = useMarket(market ?? undefined)
   const { data: banneredMarkets, isFetching: isBanneredLoading } = useBanneredMarkets(null)
-  const { selectedCategory, dashboard, handleDashboard } = useTokenFilter()
+  const { selectedCategory, handleCategory, dashboard, handleDashboard } = useTokenFilter()
   const [selectedSort, setSelectedSort] = useAtom(sortAtom)
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useSortedMarkets({
     categoryId: selectedCategory?.id,
     sortBy: getSortValue(selectedSort.sort),
   })
+
+  useEffect(() => {
+    if (category && categories) {
+      const categoryFromUrl = categories.find(
+        (c) => c.name.toLowerCase() === category.toLowerCase()
+      )
+      if (categoryFromUrl) {
+        handleCategory(categoryFromUrl)
+      }
+    }
+  }, [category, categories])
 
   useEffect(() => {
     if (marketData) {
@@ -120,6 +135,7 @@ const MainPage = () => {
   const totalAmount = useMemo(() => data?.pages[0]?.data.totalAmount ?? 0, [data?.pages])
 
   const markets: Market[] = useMemo(() => {
+    console.log('data', data)
     return data?.pages.flatMap((page) => page.data.markets) || []
   }, [data?.pages])
 
