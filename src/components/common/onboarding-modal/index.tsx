@@ -19,7 +19,7 @@ export const OnboardingModal = () => {
       setSteps((prevSteps) =>
         prevSteps.map((step) => ({
           ...step,
-          isChecked: points[step.id] || false,
+          isChecked: points[step.id] ?? false,
         }))
       )
     }

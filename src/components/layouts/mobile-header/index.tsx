@@ -94,7 +94,7 @@ export default function MobileHeader() {
       setSteps((prevSteps) =>
         prevSteps.map((step) => ({
           ...step,
-          isChecked: points[step.id] || false,
+          isChecked: points[step.id] ?? false,
         }))
       )
     }
