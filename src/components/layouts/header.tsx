@@ -136,7 +136,7 @@ export default function Header() {
   }, [positions])
 
   return (
-    <Box position='fixed' w='full' top={0} zIndex={2000}>
+    <Box position='fixed' w='full' top={0} zIndex={2100}>
       <HStack
         w='full'
         justifyContent='space-between'
