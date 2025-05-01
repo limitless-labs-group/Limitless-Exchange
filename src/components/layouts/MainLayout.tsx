@@ -3,6 +3,7 @@ import { usePathname } from 'next/navigation'
 import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import MarketPage from '@/components/common/markets/market-page'
+import DesktopFooter from '@/components/layouts/desktop-footer'
 import Header from '@/components/layouts/header'
 import MobileHeader from '@/components/layouts/mobile-header'
 import MobileNavigation from '@/components/layouts/mobile-navigation'
@@ -62,6 +63,7 @@ export const MainLayout = ({
           </Box>
         </Box>
       </Box>
+      {!isMobile && <DesktopFooter />}
       {isMobile && <MobileNavigation />}
       {marketPageOpened && pathname !== `/markets/${market?.slug}` && <MarketPage />}
     </Box>
