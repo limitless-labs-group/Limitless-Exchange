@@ -58,10 +58,10 @@ export const OnboardingList = ({ isFinished, onFinish, mobile }: OnboardingListP
       borderRadius={mobile ? '8px' : 'unset'}
     >
       <Text {...headlineBold} color='white'>
-        {`🎉 You are all set!`}
+        🎉 You are all set!
       </Text>
       <Text {...paragraphRegular} color='white'>
-        {`You have completed onboarding and earned +5 points.`}
+        You have completed onboarding.
       </Text>
       <Text {...paragraphRegular} color='white'>
         Keep exploring to sharpen your forecasting skills—and invite others to join too!
@@ -106,14 +106,14 @@ export const OnboardingList = ({ isFinished, onFinish, mobile }: OnboardingListP
       <Stack>
         <HStack alignItems='start'>
           <Stack>
-            <Text {...paragraphBold}>Get started and earn points</Text>
-            <Text {...paragraphRegular}>
-              Complete these simple steps to unlock rewards for you and your inviter
-            </Text>
+            <Text {...headlineBold}>Get started with Limitless</Text>
+            {/* <Text {...paragraphRegular}> */}
+            {/*   Complete these simple steps to unlock rewards for you and your inviter */}
+            {/* </Text> */}
           </Stack>
-          <Stack>
-            <RoundCheckIcon width='24px' height='24px' />
-          </Stack>
+          {/* <Stack> */}
+          {/*   <RoundCheckIcon width='24px' height='24px' /> */}
+          {/* </Stack> */}
         </HStack>
       </Stack>
       <Divider borderColor='grey.200' />
@@ -129,7 +129,7 @@ export const OnboardingList = ({ isFinished, onFinish, mobile }: OnboardingListP
             />
           )
         })}
-        <OnboardRow title='Finish onboarding and get +5 points' />
+        {/* <OnboardRow title='Finish onboarding and get +5 points' /> */}
       </Stack>
     </Stack>
   )
