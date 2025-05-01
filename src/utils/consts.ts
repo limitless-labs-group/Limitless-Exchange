@@ -21,3 +21,10 @@ export const SEARCH_HOTKEY_KEYS = [
 ]
 
 export const DISABLE_SEARCH_PAGES = ['Adminka', 'Draft']
+
+export const SOCIAL_LINKS = {
+  X: 'https://x.com/trylimitless',
+  DISCORD: DISCORD_LINK,
+  FARCASTER: 'https://warpcast.com/~/channel/limitless',
+  DOCS: 'https://www.notion.so/limitlesslabs/Limitless-Exchange-Docs-0e59399dd44b492f8d494050969a1567?pvs=4',
+}

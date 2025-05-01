@@ -4,6 +4,9 @@ import {
   ButtonGroup,
   Divider,
   HStack,
+  Menu,
+  MenuButton,
+  MenuList,
   Slide,
   Spacer,
   Stack,
@@ -28,6 +31,7 @@ import { OnboardingList } from '@/components/common/onboarding-modal/onboarding-
 import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
 import InviteFriendsPage from '@/components/layouts/invite-friends-page'
+import ThemeSwitcher from '@/components/layouts/theme-switcher'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { onboardingStepsAtom } from '@/atoms/onboard'
@@ -46,6 +50,7 @@ import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
 import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
 import SwapIcon from '@/resources/icons/sidebar/Wrap.svg'
 import SunIcon from '@/resources/icons/sun-icon.svg'
+import Dots from '@/resources/icons/three-horizontal-dots.svg'
 import {
   ChangeEvent,
   ClickEvent,
@@ -202,6 +207,12 @@ export default function MobileHeader() {
       platform: 'mobile',
     })
     onCloseUserMenu()
+  }
+
+  const handleThemeSwitchMenuClicked = () => {
+    trackClicked(ClickEvent.HeaderThemeSwitchMenuClicked, {
+      platform: 'mobile',
+    })
   }
 
   return (
@@ -617,7 +628,17 @@ export default function MobileHeader() {
                 </Slide>
               </>
             ) : (
-              <LoginButtons login={loginToPlatform} />
+              <HStack gap='8px'>
+                <Menu variant='transparent' placement='top'>
+                  <MenuButton onClick={handleThemeSwitchMenuClicked}>
+                    <Dots />
+                  </MenuButton>
+                  <MenuList w='254px'>
+                    <ThemeSwitcher />
+                  </MenuList>
+                </Menu>
+                <LoginButtons login={loginToPlatform} />
+              </HStack>
             )}
           </HStack>
         </HStack>
