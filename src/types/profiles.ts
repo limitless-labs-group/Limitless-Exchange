@@ -22,6 +22,8 @@ export interface Referee {
   createdAt: string
   id: number
   referredProfileId: number
+  displayName: string
+  pfpUrl: string | null
 }
 
 export interface ReferralData {
@@ -33,4 +35,10 @@ export enum ProfileActionType {
   REGISTER_PROFILE = 'REGISTER_PROFILE',
   UPDATE_PROFILE = 'UPDATE_PROFILE',
   LEAVE_COMMENT = 'LEAVE_COMMENT',
+}
+
+export interface ReferralsTradingVolumeResponse {
+  referrer_profile_id: number
+  referees_trading_usd: number | null
+  referees_trading_contracts: number | null
 }

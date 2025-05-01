@@ -17,7 +17,6 @@ import { useAtom } from 'jotai'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useMemo, useState } from 'react'
-import CopyToClipboard from 'react-copy-to-clipboard'
 import { v4 as uuidv4 } from 'uuid'
 import { formatUnits, isAddress } from 'viem'
 import Avatar from '@/components/common/avatar'
@@ -28,6 +27,7 @@ import WrapModal from '@/components/common/modals/wrap-modal'
 import { OnboardingList } from '@/components/common/onboarding-modal/onboarding-list'
 import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
+import InviteFriendsPage from '@/components/layouts/invite-friends-page'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { onboardingStepsAtom } from '@/atoms/onboard'
@@ -59,7 +59,7 @@ import {
   usePosition,
 } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
-import { captionMedium, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
 export default function MobileHeader() {
@@ -77,7 +77,6 @@ export default function MobileHeader() {
     displayName,
     account,
     loginToPlatform,
-    refLink,
     referralData,
     updateOnboardingStatus,
   } = useAccount()
@@ -128,14 +127,6 @@ export default function MobileHeader() {
       }
     }
   }, [refCopied])
-
-  const onRefLinkCopy = () => {
-    trackClicked(ClickEvent.CopyReferralClicked, {
-      // @ts-ignore
-      from: 'Mobile Header',
-    })
-    setRefCopied(true)
-  }
 
   const balanceInvested = useMemo(() => {
     const ammPositions = positions?.positions.filter(
@@ -204,6 +195,13 @@ export default function MobileHeader() {
     }
   }
 
+  const handleInviteFriendsClicked = () => {
+    trackClicked(ClickEvent.InviteFriendsPageClicked, {
+      platform: 'mobile',
+    })
+    onCloseUserMenu()
+  }
+
   return (
     <>
       <Box
@@ -214,7 +212,7 @@ export default function MobileHeader() {
         position='fixed'
         top={0}
         bg='grey.50'
-        zIndex={2000}
+        zIndex={2500}
       >
         <HStack justifyContent='space-between' alignItems='center'>
           <Box
@@ -400,29 +398,27 @@ export default function MobileHeader() {
 
                       <VStack gap='24px' w='full' alignItems='start'>
                         <Divider borderColor='grey.200' />
-                        {/*//@ts-ignore*/}
-                        <CopyToClipboard text={refLink} onCopy={onRefLinkCopy}>
-                          <VStack
-                            justifyContent='space-between'
-                            w='full'
-                            alignItems='start'
-                            gap='2px'
-                          >
-                            <HStack gap='4px' p='4px'>
-                              <HeartIcon width={16} height={16} />
-                              <Text {...paragraphMedium}>
-                                {refCopied ? 'Referral link copied!' : 'Invite friends'}
-                              </Text>
+                        <MobileDrawer
+                          variant='common'
+                          trigger={
+                            <HStack
+                              justifyContent='space-between'
+                              w='full'
+                              onClick={handleInviteFriendsClicked}
+                            >
+                              <HStack gap='4px' p='4px'>
+                                <HeartIcon width={16} height={16} />
+                                <Text {...paragraphMedium}>
+                                  {refCopied ? 'Referral link copied!' : 'Invite friends'}
+                                </Text>
+                              </HStack>
+
+                              <Text {...paragraphMedium}>{referralData?.refereeCount || 0}</Text>
                             </HStack>
-                            {!refCopied &&
-                            referralData?.refereeCount &&
-                            referralData?.refereeCount > 0 ? (
-                              <Text {...captionMedium} color='grey.500' ml='24px'>
-                                {`Invited: ${referralData.refereeCount}`}
-                              </Text>
-                            ) : null}
-                          </VStack>
-                        </CopyToClipboard>
+                          }
+                        >
+                          <InviteFriendsPage />
+                        </MobileDrawer>
                         <Divider borderColor='grey.200' />
                       </VStack>
 

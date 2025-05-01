@@ -9,7 +9,6 @@ import {
   PopoverContent,
   PopoverTrigger,
   Text,
-  useToast,
 } from '@chakra-ui/react'
 import { useFundWallet } from '@privy-io/react-auth'
 import { useAtom } from 'jotai/index'
@@ -19,6 +18,7 @@ import { useRouter } from 'next/navigation'
 import React, { useEffect, useMemo } from 'react'
 import { LoginButtons } from '@/components/common/login-button'
 import SideBarPage from '@/components/common/side-bar-page'
+import InviteFriendsPage from '@/components/layouts/invite-friends-page'
 import UserMenuDesktop from '@/components/layouts/user-menu-desktop'
 import WalletPage from '@/components/layouts/wallet-page'
 import { sortAtom } from '@/atoms/market-sort'
@@ -70,6 +70,8 @@ export default function Header() {
     profilePageOpened,
     walletPageOpened,
     profileData,
+    referralPageOpened,
+    setReferralPageOpened,
   } = useAccount()
   const handleBuyCryptoClicked = async () => {
     trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.BuyCryptoClicked)
@@ -77,6 +79,9 @@ export default function Header() {
   }
 
   const handleOpenWalletPage = () => {
+    trackClicked(ClickEvent.WalletPageClicked, {
+      platform: 'desktop',
+    })
     setWalletPageOpened(true)
     if (marketPageOpened) {
       onCloseMarketPage()
@@ -84,12 +89,20 @@ export default function Header() {
   }
 
   const handleOpenProfile = () => {
+    trackClicked(ClickEvent.ProfileButtonClicked, {
+      platform: 'desktop',
+    })
     setProfilePageOpened(true)
     if (marketPageOpened) {
       onCloseMarketPage()
     }
   }
+
   const handleOpenReferral = () => {
+    trackClicked(ClickEvent.InviteFriendsPageClicked, {
+      platform: 'desktop',
+    })
+    setReferralPageOpened(true)
     if (marketPageOpened) {
       onCloseMarketPage()
     }
@@ -125,7 +138,7 @@ export default function Header() {
   }, [positions])
 
   return (
-    <Box position='fixed' w='full' top={0} zIndex={2000}>
+    <Box position='fixed' w='full' top={0} zIndex={2100}>
       <HStack
         w='full'
         justifyContent='space-between'
@@ -337,6 +350,7 @@ export default function Header() {
               <UserMenuDesktop
                 handleOpenWalletPage={handleOpenWalletPage}
                 handleOpenProfile={handleOpenProfile}
+                handleOpenReferralPage={handleOpenReferral}
               />
               {profileData && !profileData.isOnboarded ? <OnboardingModal /> : null}
               {walletPageOpened && (
@@ -347,6 +361,11 @@ export default function Header() {
               {profilePageOpened && (
                 <SideBarPage>
                   <Profile />
+                </SideBarPage>
+              )}
+              {referralPageOpened && (
+                <SideBarPage>
+                  <InviteFriendsPage />
                 </SideBarPage>
               )}
             </HStack>
