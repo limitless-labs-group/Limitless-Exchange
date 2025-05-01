@@ -5,7 +5,7 @@ import { OnboardingList } from './onboarding-list'
 import { onboardingStepsAtom, onboardModalAtom } from '@/atoms/onboard'
 import { usePointsActions } from '@/hooks/use-onboarding-points'
 import RoundCheckIcon from '@/resources/icons/round-check-icon.svg'
-import { useAccount } from '@/services'
+import { ChangeEvent, useAccount, useAmplitude } from '@/services'
 import { CircularProgress } from '../circle-progress'
 
 export const OnboardingModal = () => {
@@ -13,6 +13,7 @@ export const OnboardingModal = () => {
   const [steps, setSteps] = useAtom(onboardingStepsAtom)
   const { data: points } = usePointsActions()
   const { updateOnboardingStatus } = useAccount()
+  const { trackChanged } = useAmplitude()
 
   useEffect(() => {
     if (points) {
@@ -32,6 +33,7 @@ export const OnboardingModal = () => {
   const finish = async () => {
     await updateOnboardingStatus.mutateAsync(true)
     setIsMenuOpen(false)
+    trackChanged(ChangeEvent.FinishedOnboarding)
   }
 
   return (

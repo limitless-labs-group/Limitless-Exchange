@@ -155,6 +155,8 @@ export type EventType =
 export enum ChangeEvent {
   StrategyChanged = 'Strategy Changed',
   OutcomeChanged = 'Outcome Changed',
+  ReferralWelcomeClosed = 'Referral Welcome Closed',
+  FinishedOnboarding = 'Finished Onboarding',
   ProfilePictureUploadedChanged = 'Profile Picture Uploaded',
   ProfileSettingsChanged = 'Profile Settings Changed',
   LeaderboardViewChanged = 'Leaderboard View Changed',
@@ -257,6 +259,7 @@ export enum ClickEvent {
   ClobPositionTabClicked = 'Clob Position Tab Clicked',
   CancelAllOrdersClicked = 'Cancel All Orders Clicked',
   PointsButtonClicked = 'Points Button Clicked',
+  HeaderThemeSwitchMenuClicked = 'Header Theme Switch Menu Clicked',
 }
 
 export enum SignInEvent {
