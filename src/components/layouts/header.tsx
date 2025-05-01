@@ -19,7 +19,6 @@ import { useRouter } from 'next/navigation'
 import React, { useEffect, useMemo } from 'react'
 import { LoginButtons } from '@/components/common/login-button'
 import SideBarPage from '@/components/common/side-bar-page'
-import CategoriesDesktop from '@/components/layouts/categories-desktop'
 import UserMenuDesktop from '@/components/layouts/user-menu-desktop'
 import WalletPage from '@/components/layouts/wallet-page'
 import { sortAtom } from '@/atoms/market-sort'
@@ -49,7 +48,6 @@ import {
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { MarketStatus, Sort, SortStorageName } from '@/types'
 import { DISABLE_SEARCH_PAGES, SEARCH_HOTKEY_KEYS } from '@/utils/consts'
-import { CircularProgress } from '../common/circle-progress'
 import { OnboardingModal } from '../common/onboarding-modal'
 import { ReferralLink } from '../common/referral-link'
 
@@ -64,7 +62,6 @@ export default function Header() {
   const { marketPageOpened, onCloseMarketPage } = useTradingService()
   const { mode } = useThemeProvider()
   const router = useRouter()
-  const toast = useToast()
   const {
     account,
     loginToPlatform,
@@ -72,6 +69,7 @@ export default function Header() {
     setProfilePageOpened,
     profilePageOpened,
     walletPageOpened,
+    profileData,
   } = useAccount()
   const handleBuyCryptoClicked = async () => {
     trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.BuyCryptoClicked)
@@ -340,7 +338,7 @@ export default function Header() {
                 handleOpenWalletPage={handleOpenWalletPage}
                 handleOpenProfile={handleOpenProfile}
               />
-              <OnboardingModal />
+              {profileData && !profileData.isOnboarded ? <OnboardingModal /> : null}
               {walletPageOpened && (
                 <SideBarPage>
                   <WalletPage />

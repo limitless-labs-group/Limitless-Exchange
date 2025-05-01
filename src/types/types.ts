@@ -5,6 +5,14 @@ import { Profile } from './profiles'
 
 export type { Hash, Address }
 
+// TRADE_VOLUME: true - 2nd step
+// REFERRAL_ONBOARD: true - 3rd step
+export enum PointsActionType {
+  ENROLL_IN_PROGRAM = 'ENROLL_IN_PROGRAM',
+  TRADE_VOLUME = 'TRADE_VOLUME',
+  REFERRAL_ONBOARD = 'REFERRAL_ONBOARD',
+}
+
 export type Token = {
   address: Address
   symbol: string

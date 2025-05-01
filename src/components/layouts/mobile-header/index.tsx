@@ -14,7 +14,6 @@ import {
 import { useFundWallet, usePrivy } from '@privy-io/react-auth'
 import BigNumber from 'bignumber.js'
 import { useAtom } from 'jotai'
-import { Stalemate } from 'next/font/google'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useMemo, useState } from 'react'
@@ -26,14 +25,16 @@ import MobileDrawer from '@/components/common/drawer'
 import Loader from '@/components/common/loader'
 import { LoginButtons } from '@/components/common/login-button'
 import WrapModal from '@/components/common/modals/wrap-modal'
-import { OnboardingList, onboardingStepsAtom } from '@/components/common/onboarding-modal'
+import { OnboardingList } from '@/components/common/onboarding-modal/onboarding-list'
 import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
+import { onboardingStepsAtom } from '@/atoms/onboard'
 import { Profile } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import useClient from '@/hooks/use-client'
+import { usePointsActions } from '@/hooks/use-onboarding-points'
 import { usePriceOracle, useThemeProvider } from '@/providers'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import HeartIcon from '@/resources/icons/heart-icon.svg'
@@ -64,7 +65,6 @@ import { NumberUtil, truncateEthAddress } from '@/utils'
 export default function MobileHeader() {
   const { overallBalanceUsd } = useBalanceService()
   const { data: positions } = usePosition()
-  const [steps] = useAtom(onboardingStepsAtom)
   const { supportedTokens } = useLimitlessApi()
   const { convertAssetAmountToUsd } = usePriceOracle()
   const [refCopied, setRefCopied] = useState(false)
@@ -79,6 +79,7 @@ export default function MobileHeader() {
     loginToPlatform,
     refLink,
     referralData,
+    updateOnboardingStatus,
   } = useAccount()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { trackClicked } = useAmplitude()
@@ -86,11 +87,24 @@ export default function MobileHeader() {
   const { isLoggedToPlatform } = useClient()
   const { mode, setLightTheme, setDarkTheme } = useThemeProvider()
   const { fundWallet } = useFundWallet()
+  const [steps, setSteps] = useAtom(onboardingStepsAtom)
+  const { data: points } = usePointsActions()
+
+  useEffect(() => {
+    if (points) {
+      setSteps((prevSteps) =>
+        prevSteps.map((step) => ({
+          ...step,
+          isChecked: points[step.id] || false,
+        }))
+      )
+    }
+  }, [points, setSteps])
 
   const completedSteps = steps.filter((step) => step.isChecked).length
   const isFinished = completedSteps === steps.length
   const finish = async () => {
-    console.log('finish')
+    await updateOnboardingStatus.mutateAsync(true)
   }
 
   const {
@@ -373,9 +387,16 @@ export default function MobileHeader() {
                           </Button>
                         </ButtonGroup>
                       </HStack>
-                      <Stack mb='16px' border='1px solid' borderColor='grey.200' borderRadius='8px'>
-                        <OnboardingList onFinish={finish} isFinished={isFinished} mobile />
-                      </Stack>
+                      {profileData && !profileData.isOnboarded ? (
+                        <Stack
+                          mb='16px'
+                          border='1px solid'
+                          borderColor='grey.200'
+                          borderRadius='8px'
+                        >
+                          <OnboardingList onFinish={finish} isFinished={isFinished} mobile />
+                        </Stack>
+                      ) : null}
 
                       <VStack gap='24px' w='full' alignItems='start'>
                         <Divider borderColor='grey.200' />
