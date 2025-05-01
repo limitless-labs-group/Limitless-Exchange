@@ -21,5 +21,14 @@ export async function middleware(req: NextRequest) {
     response.cookies.delete('limitless_geo')
   }
 
+  const url = new URL(req.url)
+  const searchParams = url.searchParams
+  const referralCode = searchParams.get('r')
+
+  if (referralCode) {
+    response.headers.set('x-referral', referralCode)
+  }
+  response.headers.set('x-url', req.url)
+
   return response
 }

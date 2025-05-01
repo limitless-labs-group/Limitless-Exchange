@@ -21,7 +21,7 @@ export default function RewardsChart() {
   return (
     <Paper mt='12px' p='16px'>
       <HStack gap='8px' mb='12px'>
-        <GemIcon />
+        <GemIcon width={16} height={16} />
         <Text {...paragraphMedium} color='grey.500'>
           Today’s rewards
         </Text>

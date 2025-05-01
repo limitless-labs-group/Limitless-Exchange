@@ -78,7 +78,6 @@ interface ITradingServiceContext {
   setConvertModalOpened: (val: boolean) => void
   setGroupMarket: (val: Market | null) => void
   groupMarket: Market | null
-  redeemMutation: UseMutationResult<string | undefined, Error, RedeemParams, unknown>
   negriskApproved: boolean
   setNegRiskApproved: (val: boolean) => void
   negriskApproveStatusLoading: boolean
@@ -129,7 +128,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       setGroupMarket(market)
     }
     !isMobile && setMarketPageOpened(true)
-    updateParams({ market: market.slug, ...(referralCode ? { r: referralCode } : {}) })
+    updateParams({ market: market.slug, ...(referralCode ? { rv: referralCode } : {}) })
   }
 
   const { data: conditionalTokensAddress, refetch: getConditionalTokensAddress } =
@@ -752,71 +751,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     })
   }
 
-  /**
-   * REDEEM / CLAIM
-   */
-  const redeemMutation = useMutation({
-    mutationKey: ['redeemPosition', market?.slug],
-    mutationFn: async ({
-      outcomeIndex,
-      marketAddress,
-      collateralAddress,
-      conditionId,
-      type,
-    }: RedeemParams) => {
-      const conditionalTokenAddress =
-        type === ('amm' as MarketType)
-          ? await getConditionalTokenAddress(getAddress(marketAddress))
-          : marketAddress
-
-      const receipt = await redeemPositions(
-        conditionalTokenAddress,
-        collateralAddress,
-        zeroHash,
-        conditionId,
-        [1 << outcomeIndex]
-      )
-
-      if (!receipt) {
-        const id = toast({
-          render: () => (
-            <Toast
-              title={`Unsuccessful transaction`}
-              text={'Please contact our support.'}
-              link={DISCORD_LINK}
-              linkText='Open Discord'
-              id={id}
-            />
-          ),
-        })
-        return
-      }
-
-      await refetchChain()
-
-      const id = toast({
-        render: () => <Toast title={`Successfully redeemed`} id={id} />,
-      })
-
-      await sleep(1)
-
-      const updateId = toast({
-        render: () => <Toast title={`Updating portfolio...`} id={updateId} />,
-      })
-
-      // TODO: redesign subgraph refetch logic
-      sleep(10).then(() => refetchSubgraph())
-
-      await refetchHistory()
-      return receipt
-    },
-    onSuccess: async () => {
-      await queryClient.refetchQueries({
-        queryKey: ['positions'],
-      })
-    },
-  })
-
   const trade = useCallback(
     // (outcomeTokenId: number) => buy(outcomeTokenId),
     (outcomeTokenId: number, slippage: string) =>
@@ -865,7 +799,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     tradeStatus,
     approveBuy,
     approveSellMutation,
-    redeemMutation,
     resetQuotes,
     marketFee,
     marketPageOpened,

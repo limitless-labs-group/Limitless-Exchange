@@ -45,7 +45,7 @@ import useClient from '@/hooks/use-client'
 import { useUrlParams } from '@/hooks/use-url-param'
 import { publicClient } from '@/providers/Privy'
 import { Address, APIError, UpdateProfileData } from '@/types'
-import { Profile, Referee, ReferralData } from '@/types/profiles'
+import { Profile, ReferralData } from '@/types/profiles'
 import { LOGGED_IN_TO_LIMITLESS, USER_ID } from '@/utils/consts'
 
 export interface IAccountContext {

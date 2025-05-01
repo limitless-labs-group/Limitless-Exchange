@@ -33,7 +33,6 @@ import WreathsSilverIcon from '@/resources/icons/wreaths_silver.svg'
 import { ChangeEvent, useAmplitude } from '@/services'
 import {
   h1Bold,
-  h1Regular,
   h2Medium,
   headlineRegular,
   paragraphMedium,
@@ -194,12 +193,7 @@ export default function LeaderboardPage() {
 
   return (
     <MainLayout layoutPadding={isMobile ? '0' : '16px'}>
-      <HStack
-        className='w-full'
-        alignItems='flex-start'
-        w={isMobile ? 'full' : 'calc(100vw - 690px)'}
-        justifyContent='center'
-      >
+      <HStack className='w-full' alignItems='flex-start' justifyContent='center'>
         <Box w={isMobile ? 'full' : '664px'} mt='24px'>
           <Heading as='h1' {...h1Bold} gap={2} userSelect='text'>
             Leaderboard
