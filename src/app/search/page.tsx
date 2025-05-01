@@ -122,7 +122,15 @@ const SearchPage = () => {
   const hasNoResults = !isLoading && searchQuery
 
   return (
-    <VStack mt='24px' w='full' maxW='716px' alignItems='center' justifyContent='center' gap='16px'>
+    <VStack
+      mt='24px'
+      w='full'
+      maxW='716px'
+      alignItems='center'
+      justifyContent='center'
+      gap='16px'
+      margin='auto'
+    >
       <SearchInput
         value={search}
         onChange={handleSearch}
