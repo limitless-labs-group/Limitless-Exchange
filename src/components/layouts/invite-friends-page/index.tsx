@@ -50,19 +50,19 @@ export default function InviteFriendsPage() {
       text: 'Invited people',
       value: <Text {...h3Medium}>{referralData?.referralData?.length || 0}</Text>,
     },
-    // {
-    //   icon: <VolumeIcon width={16} height={16} />,
-    //   text: 'Total volume traded',
-    //   value: referralsVolumeLoading ? (
-    //     <Box w='64px'>
-    //       <Skeleton height={24} />
-    //     </Box>
-    //   ) : (
-    //     <Text {...h3Medium}>
-    //       {NumberUtil.convertToSymbols(data?.referees_trading_usd || 0)} USD
-    //     </Text>
-    //   ),
-    // },
+    {
+      icon: <VolumeIcon width={16} height={16} />,
+      text: 'Total volume traded',
+      value: referralsVolumeLoading ? (
+        <Box w='64px'>
+          <Skeleton height={24} />
+        </Box>
+      ) : (
+        <Text {...h3Medium}>
+          {NumberUtil.convertToSymbols(data?.referees_trading_usd || 0)} USD
+        </Text>
+      ),
+    },
   ]
 
   const handlePageChange = (val: number) => {
