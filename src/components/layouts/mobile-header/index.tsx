@@ -6,12 +6,15 @@ import {
   HStack,
   Slide,
   Spacer,
+  Stack,
   Text,
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
 import { useFundWallet, usePrivy } from '@privy-io/react-auth'
 import BigNumber from 'bignumber.js'
+import { useAtom } from 'jotai'
+import { Stalemate } from 'next/font/google'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useMemo, useState } from 'react'
@@ -22,6 +25,7 @@ import MobileDrawer from '@/components/common/drawer'
 import Loader from '@/components/common/loader'
 import { LoginButtons } from '@/components/common/login-button'
 import WrapModal from '@/components/common/modals/wrap-modal'
+import { OnboardingList, onboardingStepsAtom } from '@/components/common/onboarding-modal'
 import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
 import InviteFriendsPage from '@/components/layouts/invite-friends-page'
@@ -60,6 +64,7 @@ import { NumberUtil, truncateEthAddress } from '@/utils'
 export default function MobileHeader() {
   const { overallBalanceUsd } = useBalanceService()
   const { data: positions } = usePosition()
+  const [steps] = useAtom(onboardingStepsAtom)
   const { supportedTokens } = useLimitlessApi()
   const { convertAssetAmountToUsd } = usePriceOracle()
   const [refCopied, setRefCopied] = useState(false)
@@ -80,6 +85,12 @@ export default function MobileHeader() {
   const { isLoggedToPlatform } = useClient()
   const { mode, setLightTheme, setDarkTheme } = useThemeProvider()
   const { fundWallet } = useFundWallet()
+
+  const completedSteps = steps.filter((step) => step.isChecked).length
+  const isFinished = completedSteps === steps.length
+  const finish = async () => {
+    console.log('finish')
+  }
 
   const {
     isOpen: isOpenUserMenu,
@@ -245,7 +256,20 @@ export default function MobileHeader() {
                   >
                     <SearchIcon width={16} height={16} />
                   </Button>
-                  <Box ml='8px'>
+                  <Box ml='8px' position='relative'>
+                    {profileData && profileData.isOnboarded === false && (
+                      <Box
+                        position='absolute'
+                        top='-2px'
+                        right='-2px'
+                        width='8px'
+                        height='8px'
+                        borderRadius='50%'
+                        bg='green.500'
+                        border='1px solid'
+                        borderColor='grey.50'
+                      />
+                    )}
                     <MenuIcon width={16} height={16} />
                   </Box>
                 </Button>
@@ -347,6 +371,9 @@ export default function MobileHeader() {
                           </Button>
                         </ButtonGroup>
                       </HStack>
+                      <Stack mb='16px' border='1px solid' borderColor='grey.200' borderRadius='8px'>
+                        <OnboardingList onFinish={finish} isFinished={isFinished} mobile />
+                      </Stack>
 
                       <VStack gap='24px' w='full' alignItems='start'>
                         <Divider borderColor='grey.200' />

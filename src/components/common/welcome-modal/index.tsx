@@ -33,8 +33,12 @@ export const WelcomeModal = ({ onClose, referralCode }: OnboardModalProps) => {
       <Box position='relative'>
         <Ticket />
         <Box position='absolute' top='14px' left='14px'>
-          <Text {...paragraphRegular}>Code:</Text>
-          <Text {...paragraphBold}>{referralCode}</Text>
+          <Text {...paragraphRegular} color='black'>
+            Code:
+          </Text>
+          <Text {...paragraphBold} color='black'>
+            {referralCode}
+          </Text>
         </Box>
       </Box>
       <Text {...h3Bold} mt='24px'>
