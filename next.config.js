@@ -83,7 +83,7 @@ module.exports = withBundleAnalyzer({
       },
       {
         key: 'Permissions-Policy',
-        value: 'camera=(), microphone=(), interest-cohort=()',
+        value: 'camera=(), microphone=()',
       },
       {
         key: 'X-XSS-Protection',
