@@ -4,6 +4,9 @@ import {
   Flex,
   HStack,
   Link,
+  Menu,
+  MenuButton,
+  MenuList,
   Popover,
   PopoverBody,
   PopoverContent,
@@ -19,6 +22,7 @@ import React, { useEffect, useMemo } from 'react'
 import { LoginButtons } from '@/components/common/login-button'
 import SideBarPage from '@/components/common/side-bar-page'
 import InviteFriendsPage from '@/components/layouts/invite-friends-page'
+import ThemeSwitcher from '@/components/layouts/theme-switcher'
 import UserMenuDesktop from '@/components/layouts/user-menu-desktop'
 import WalletPage from '@/components/layouts/wallet-page'
 import { sortAtom } from '@/atoms/market-sort'
@@ -34,6 +38,7 @@ import GridIcon from '@/resources/icons/sidebar/Markets.svg'
 import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
 import SidebarIcon from '@/resources/icons/sidebar/crone-icon.svg'
 import DashboardIcon from '@/resources/icons/sidebar/dashboard.svg'
+import Dots from '@/resources/icons/three-horizontal-dots.svg'
 import {
   ClickEvent,
   ClobPositionWithType,
@@ -367,7 +372,17 @@ export default function Header() {
               )}
             </HStack>
           ) : (
-            <LoginButtons login={loginToPlatform} />
+            <HStack gap='16px'>
+              <Menu variant='transparent'>
+                <MenuButton>
+                  <Dots />
+                </MenuButton>
+                <MenuList w='254px'>
+                  <ThemeSwitcher />
+                </MenuList>
+              </Menu>
+              <LoginButtons login={loginToPlatform} />
+            </HStack>
           )}
         </HStack>
       </HStack>

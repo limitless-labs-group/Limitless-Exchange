@@ -219,6 +219,16 @@ body {
   z-index: 99999 !important;
 }
 
+.intercom-lightweight-app-launcher {
+  bottom: 32px !important;
+  right: 16px !important;
+}
+[class^='intercom-with-namespace'] {
+  bottom: 32px !important;
+  right: 16px !important;
+}
+
+
 @media (max-width: 1024px) {
   .intercom-lightweight-app-launcher {
     bottom: 88px !important;
