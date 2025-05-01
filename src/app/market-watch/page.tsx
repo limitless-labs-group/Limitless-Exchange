@@ -73,9 +73,24 @@ export default function MarketWatchPage() {
           <Loader />
         </Flex>
       ) : (
-        <Box w={isMobile ? 'full' : 'unset'}>
+        <Box w={isMobile ? 'full' : '976px'} m='auto'>
           <DashboardHeader />
-          <Box className='full-container' w={isMobile ? 'full' : 'unset'}>
+          <Box mt='24px' mb={isMobile ? '36px' : '40px'} justifyContent='center'>
+            <Box>
+              <Divider orientation='horizontal' />
+              <Flex
+                alignItems='center'
+                justifyContent='space-between'
+                flexDirection={isMobile ? 'column' : 'row'}
+              >
+                <Text {...headlineRegular} mt={isMobile ? '8px' : '0px'}>
+                  Curious what happens next?
+                </Text>
+                <SortFilter onChange={handleSelectSort} sort={sort} />
+              </Flex>
+            </Box>
+          </Box>
+          <Box className='full-container' w={isMobile ? 'full' : 'fit-content'}>
             <InfiniteScroll
               className='scroll'
               dataLength={dashboard?.length ?? 0}
@@ -84,37 +99,15 @@ export default function MarketWatchPage() {
               style={{ width: '100%' }}
               loader={null}
             >
-              <Box
-                mt='24px'
-                mb={isMobile ? '36px' : '40px'}
-                w={isMobile ? 'full' : '976px'}
-                justifyContent='center'
-              >
-                <Box px={isMobile ? '16px' : 0}>
-                  <Divider orientation='horizontal' />
-                  <Flex
-                    alignItems='center'
-                    justifyContent='space-between'
-                    flexDirection={isMobile ? 'column' : 'row'}
-                  >
-                    <Text {...headlineRegular} mt={isMobile ? '8px' : '0px'}>
-                      Curious what happens next?
-                    </Text>
-                    <SortFilter onChange={handleSelectSort} sort={sort} />
-                  </Flex>
-                </Box>
-                <VStack gap='80px' mt='80px' width='full'>
-                  {categorizedMarkets.map((category, index) => (
-                    <DashboardGroup
-                      key={category.name}
-                      marketIndex={index}
-                      type={isMobile ? DashboardGroupType.Mobile : category.type}
-                      categoryName={category.name}
-                      markets={category.markets ?? []}
-                    />
-                  ))}
-                </VStack>
-              </Box>
+              {categorizedMarkets.map((category, index) => (
+                <DashboardGroup
+                  key={category.name}
+                  marketIndex={index}
+                  type={isMobile ? DashboardGroupType.Mobile : category.type}
+                  categoryName={category.name}
+                  markets={category.markets ?? []}
+                />
+              ))}
             </InfiniteScroll>
           </Box>
         </Box>
