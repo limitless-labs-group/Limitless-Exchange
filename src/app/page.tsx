@@ -26,27 +26,23 @@ import { sortAtom } from '@/atoms/market-sort'
 import { MainLayout } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import { useUrlParams } from '@/hooks/use-url-param'
-import { usePriceOracle } from '@/providers'
 import {
   OpenEvent,
   PageOpenedMetadata,
   DashboardName,
   useAmplitude,
-  useCategories,
   useTradingService,
 } from '@/services'
 import { useBanneredMarkets, useMarket, useSortedMarkets } from '@/services/MarketsService'
 import { h3Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Dashboard, Market, MarketType, Sort, SortStorageName } from '@/types'
-import { getSortValue, sortMarkets } from '@/utils/market-sorting'
+import { getSortValue } from '@/utils/market-sorting'
 
 const MainPage = () => {
   const { getParam } = useUrlParams()
-  const category = getParam('category')
   const market = getParam('market')
   const dashboardSearch = getParam('dashboard')
 
-  const { data: categories } = useCategories()
   const {
     onCloseMarketPage,
     onOpenMarketPage,
@@ -56,9 +52,8 @@ const MainPage = () => {
   const { trackOpened } = useAmplitude()
   const { data: marketData } = useMarket(market ?? undefined)
   const { data: banneredMarkets, isFetching: isBanneredLoading } = useBanneredMarkets(null)
-  const { selectedCategory, handleCategory, dashboard, handleDashboard } = useTokenFilter()
+  const { selectedCategory, dashboard, handleDashboard } = useTokenFilter()
   const [selectedSort, setSelectedSort] = useAtom(sortAtom)
-  const { convertTokenAmountToUsd } = usePriceOracle()
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useSortedMarkets({
     categoryId: selectedCategory?.id,
     sortBy: getSortValue(selectedSort.sort),
@@ -117,17 +112,6 @@ const MainPage = () => {
   }
 
   useEffect(() => {
-    if (category && categories) {
-      const categoryFromUrl = categories.find(
-        (c) => c.name.toLowerCase() === category.toLowerCase()
-      )
-      if (categoryFromUrl) {
-        handleCategory(categoryFromUrl)
-      }
-    }
-  }, [category, categories])
-
-  useEffect(() => {
     if (dashboardSearch) {
       handleDashboard(dashboardSearch as Dashboard)
     }
@@ -138,30 +122,6 @@ const MainPage = () => {
   const markets: Market[] = useMemo(() => {
     return data?.pages.flatMap((page) => page.data.markets) || []
   }, [data?.pages])
-
-  const filteredAllMarkets = useMemo(() => {
-    if (!markets) return []
-    if (!selectedCategory) return markets
-    if (selectedCategory) {
-      setSelectedSort({ sort: Sort.DEFAULT })
-      window.localStorage.setItem(SortStorageName.SORT, JSON.stringify(Sort.DEFAULT))
-      return markets.filter((market) =>
-        market.categories.some(
-          (category) => category.toLowerCase() === selectedCategory.name.toLowerCase()
-        )
-      )
-    }
-
-    return markets
-  }, [markets, selectedCategory])
-
-  const sortedAllMarkets = useMemo(() => {
-    return sortMarkets(
-      filteredAllMarkets,
-      selectedSort?.sort || Sort.DEFAULT,
-      convertTokenAmountToUsd
-    )
-  }, [filteredAllMarkets, selectedSort, convertTokenAmountToUsd])
 
   useEffect(() => {
     return () => {
@@ -253,7 +213,7 @@ const MainPage = () => {
                         }
                       >
                         <MarketsSection
-                          markets={sortedAllMarkets as Market[]}
+                          markets={markets as Market[]}
                           handleSelectSort={handleSelectSort}
                           isLoading={isFetching && !isFetchingNextPage}
                           sort={selectedSort.sort}
@@ -292,7 +252,7 @@ const MainPage = () => {
                   }
                 >
                   <MarketsSection
-                    markets={sortedAllMarkets as Market[]}
+                    markets={markets as Market[]}
                     handleSelectSort={handleSelectSort}
                     isLoading={isFetching && !isFetchingNextPage}
                     sort={selectedSort.sort}
@@ -335,7 +295,7 @@ const MainPage = () => {
               }
             >
               <MarketsSection
-                markets={sortedAllMarkets as Market[]}
+                markets={markets as Market[]}
                 handleSelectSort={handleSelectSort}
                 isLoading={isFetching && !isFetchingNextPage}
                 sort={selectedSort.sort}
