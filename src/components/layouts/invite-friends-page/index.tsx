@@ -52,7 +52,7 @@ export default function InviteFriendsPage() {
     },
     {
       icon: <VolumeIcon width={16} height={16} />,
-      text: 'Total volume traded',
+      text: 'Referee’s volume',
       value: referralsVolumeLoading ? (
         <Box w='64px'>
           <Skeleton height={24} />
