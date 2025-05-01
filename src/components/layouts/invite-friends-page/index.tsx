@@ -37,7 +37,7 @@ import { NumberUtil, timeSinceCreation } from '@/utils'
 import { cutUsername } from '@/utils/string'
 
 export default function InviteFriendsPage() {
-  const { setReferralPageOpened, refLink, profileData } = useAccount()
+  const { setReferralPageOpened, refLink, referralData } = useAccount()
   const [currentPage, setCurrentPage] = useState(1)
   const { trackChanged } = useAmplitude()
 
@@ -47,21 +47,21 @@ export default function InviteFriendsPage() {
     {
       icon: <HeartIcon width={16} height={16} />,
       text: 'Invited people',
-      value: <Text {...h3Medium}>{profileData?.referralData?.length || 0}</Text>,
+      value: <Text {...h3Medium}>{referralData?.referralData?.length || 0}</Text>,
     },
-    {
-      icon: <VolumeIcon width={16} height={16} />,
-      text: 'Total volume traded',
-      value: referralsVolumeLoading ? (
-        <Box w='64px'>
-          <Skeleton height={24} />
-        </Box>
-      ) : (
-        <Text {...h3Medium}>
-          {NumberUtil.convertToSymbols(data?.referees_trading_usd || 0)} USD
-        </Text>
-      ),
-    },
+    // {
+    //   icon: <VolumeIcon width={16} height={16} />,
+    //   text: 'Total volume traded',
+    //   value: referralsVolumeLoading ? (
+    //     <Box w='64px'>
+    //       <Skeleton height={24} />
+    //     </Box>
+    //   ) : (
+    //     <Text {...h3Medium}>
+    //       {NumberUtil.convertToSymbols(data?.referees_trading_usd || 0)} USD
+    //     </Text>
+    //   ),
+    // },
   ]
 
   const handlePageChange = (val: number) => {
@@ -75,10 +75,10 @@ export default function InviteFriendsPage() {
   const startIndex = (currentPage - 1) * 10
   const endIndex = startIndex + 10
 
-  const currentPageItems = profileData?.referralData.slice(startIndex, endIndex)
+  const currentPageItems = referralData?.referralData.slice(startIndex, endIndex)
 
-  const totalPages = profileData?.referralData.length
-    ? Math.ceil(profileData.referralData.length / 10)
+  const totalPages = referralData?.referralData.length
+    ? Math.ceil(referralData.referralData.length / 10)
     : 1
 
   return (
