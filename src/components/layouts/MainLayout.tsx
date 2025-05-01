@@ -43,7 +43,14 @@ export const MainLayout = ({
     >
       {isMobile ? <MobileHeader /> : <Header />}
       {headerComponent && (
-        <Box position='fixed' top='48px' bg='grey.50' overflow='hidden' zIndex={2000} w='full'>
+        <Box
+          position='fixed'
+          top={isMobile ? '64px' : '48px'}
+          bg='grey.50'
+          overflow='hidden'
+          zIndex={2000}
+          w='full'
+        >
           {headerComponent}
         </Box>
       )}
