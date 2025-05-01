@@ -37,6 +37,7 @@ import {
   useAmplitude,
   useCategories,
   useTradingService,
+  useAccount,
 } from '@/services'
 import { useBanneredMarkets, useMarket, useSortedMarkets } from '@/services/MarketsService'
 import { h3Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -58,6 +59,7 @@ const MainPage = () => {
     market: selectedMarket,
     groupMarket,
   } = useTradingService()
+  const { referralCode: ownRefCode, isLoggedIn } = useAccount()
   const { trackOpened } = useAmplitude()
   const { data: marketData } = useMarket(market ?? undefined)
   const { data: banneredMarkets, isFetching: isBanneredLoading } = useBanneredMarkets(null)
@@ -183,6 +185,10 @@ const MainPage = () => {
       onCloseMarketPage()
     }
   }, [])
+
+  const isWelcomeShown = useMemo(() => {
+    return onboardModal && referralCode && referralCode !== ownRefCode && !isLoggedIn
+  }, [onboardModal, referralCode, ownRefCode, isLoggedIn])
 
   const headerContent = useMemo(() => {
     if (selectedCategory?.name === 'Crypto') return
@@ -359,9 +365,9 @@ const MainPage = () => {
           </Box>
         )}
       </VStack>
-      {onboardModal && referralCode ? (
+      {isWelcomeShown ? (
         <Modal isOpen={onboardModal} onClose={() => setOnboardModal(false)}>
-          <WelcomeModal onClose={() => setOnboardModal(false)} referralCode={referralCode} />
+          <WelcomeModal onClose={() => setOnboardModal(false)} referralCode={referralCode ?? ''} />
         </Modal>
       ) : null}
     </MainLayout>

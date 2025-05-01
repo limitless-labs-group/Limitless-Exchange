@@ -67,6 +67,7 @@ export interface IAccountContext {
     UpdateProfileData,
     unknown
   >
+  updateOnboardingStatus: UseMutationResult<Profile | undefined, APIError, boolean, unknown>
   onBlockUser: UseMutationResult<void, Error, { account: Address }>
   onUnblockUser: UseMutationResult<void, Error, { account: Address }>
   web3Client: 'eoa' | 'etherspot'
@@ -365,6 +366,31 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
+  const updateOnboardingStatus = useMutation<Profile | undefined, APIError, boolean, unknown>({
+    mutationKey: ['update-onboarding-status'],
+    mutationFn: async (isOnboarded: boolean) => {
+      try {
+        const response = await privateClient.put(
+          '/profiles',
+          {
+            isOnboarded,
+          },
+          {
+            headers: {
+              'content-type': 'application/json',
+            },
+          }
+        )
+        return response.data
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    onSuccess: (updatedData) => {
+      queryClient.setQueryData(['profiles', { account: user?.wallet?.address }], updatedData)
+    },
+  })
+
   const getWallet = async (): Promise<WalletClient | undefined> => {
     const wallet =
       web3Client === 'etherspot'
@@ -417,8 +443,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     isLogged,
   ])
   useEffect(() => {
-    if (!profileData?.isOnboarded) {
+    const ses = sessionStorage.getItem('onboard')
+    if (!profileData?.isOnboarded && !ses) {
       setIsMenuOpen(true)
+      sessionStorage.setItem('onboard', '1')
     }
   }, [profileData])
 
@@ -556,6 +584,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     profileLoading: userMenuLoading,
     profileData,
     updateProfileMutation,
+    updateOnboardingStatus,
     onBlockUser,
     onUnblockUser,
     web3Client,
