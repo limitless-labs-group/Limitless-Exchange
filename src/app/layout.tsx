@@ -1,6 +1,7 @@
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Metadata } from 'next'
+import { headers } from 'next/headers'
 import Script from 'next/script'
 import { PropsWithChildren } from 'react'
 import { CanonicalLink } from '@/components/common/canonical-link'
@@ -9,12 +10,20 @@ import { ReferralProvider } from '@/providers/Referral'
 import { SpindlProvider } from '@/providers/Spindl'
 import '../../public/fonts.css'
 
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams: { r?: string }
-}): Promise<Metadata> {
-  const referralCode = searchParams?.r ?? ''
+export async function generateMetadata(): Promise<Metadata> {
+  const headersList = headers()
+  const referral = headersList.get('x-referral')
+  const url = headersList.get('x-url') ?? headersList.get('referer') ?? ''
+
+  let referralCode = referral ?? ''
+  try {
+    if (!referral) {
+      const searchParams = new URL(url, process.env.NEXT_PUBLIC_APP_URL).searchParams
+      referralCode = searchParams.get('r') ?? ''
+    }
+  } catch (error) {
+    console.error('Failed to parse URL for referral code', error)
+  }
 
   const ogImageUrl = referralCode ? `/api/og?r=${encodeURIComponent(referralCode)}` : `/api/og`
 
@@ -28,11 +37,6 @@ export async function generateMetadata({
     title,
     description,
     icons: [{ url: '/assets/images/logo.svg' }],
-    viewport: {
-      initialScale: 1,
-      maximumScale: 1,
-      userScalable: false,
-    },
     openGraph: {
       title,
       description,
@@ -52,6 +56,11 @@ export async function generateMetadata({
       images: [ogImageUrl],
     },
   }
+}
+export const viewport = {
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 }
 
 const RootLayout = ({ children }: PropsWithChildren) => {
