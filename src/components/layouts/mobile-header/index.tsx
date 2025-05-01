@@ -182,6 +182,12 @@ export default function MobileHeader() {
     onCloseUserMenu()
   }
 
+  const handleThemeSwitchMenuClicked = () => {
+    trackClicked(ClickEvent.HeaderThemeSwitchMenuClicked, {
+      platform: 'desktop',
+    })
+  }
+
   return (
     <>
       <Box
@@ -574,7 +580,7 @@ export default function MobileHeader() {
             ) : (
               <HStack gap='8px'>
                 <Menu variant='transparent' placement='top'>
-                  <MenuButton>
+                  <MenuButton onClick={handleThemeSwitchMenuClicked}>
                     <Dots />
                   </MenuButton>
                   <MenuList w='254px'>

@@ -257,6 +257,7 @@ export enum ClickEvent {
   ClobPositionTabClicked = 'Clob Position Tab Clicked',
   CancelAllOrdersClicked = 'Cancel All Orders Clicked',
   PointsButtonClicked = 'Points Button Clicked',
+  HeaderThemeSwitchMenuClicked = 'Header Theme Switch Menu Clicked',
 }
 
 export enum SignInEvent {

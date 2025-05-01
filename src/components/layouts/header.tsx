@@ -140,6 +140,12 @@ export default function Header() {
     })
   }, [positions])
 
+  const handleThemeSwitchMenuClicked = () => {
+    trackClicked(ClickEvent.HeaderThemeSwitchMenuClicked, {
+      platform: 'desktop',
+    })
+  }
+
   return (
     <Box position='fixed' w='full' top={0} zIndex={2100}>
       <HStack
@@ -374,7 +380,7 @@ export default function Header() {
           ) : (
             <HStack gap='16px'>
               <Menu variant='transparent'>
-                <MenuButton>
+                <MenuButton onClick={handleThemeSwitchMenuClicked}>
                   <Dots />
                 </MenuButton>
                 <MenuList w='254px'>
