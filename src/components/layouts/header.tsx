@@ -69,6 +69,7 @@ export default function Header() {
     setProfilePageOpened,
     profilePageOpened,
     walletPageOpened,
+    profileData,
     referralPageOpened,
     setReferralPageOpened,
     profileData,
