@@ -236,6 +236,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       if (connectedWallet && !wasAlreadyAuthenticated) {
         pushGA4Event(`select_wallet_${connectedWallet.walletClientType}`)
         pushGA4Event(GAEvents.SelectAnyWallet)
+        setAcc({ account: connectedWallet.address ?? '' })
         const provider = await connectedWallet.getEthereumProvider()
         const walletClient = createWalletClient({
           chain: defaultChain,
@@ -284,7 +285,6 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         }
         pushGA4Event(GAEvents.WalletConnected)
         await handleRedirect()
-        setAcc({ account: connectedWallet.address ?? '' })
         trackSignIn(SignInEvent.SignedIn, {
           signedIn: true,
           account: connectedWallet.address ?? '',
