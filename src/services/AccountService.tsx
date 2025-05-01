@@ -444,7 +444,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   ])
   useEffect(() => {
     const ses = sessionStorage.getItem('onboard')
-    if (!profileData?.isOnboarded && !ses) {
+    if (profileData && !profileData?.isOnboarded && !ses) {
       setIsMenuOpen(true)
       sessionStorage.setItem('onboard', '1')
     }
