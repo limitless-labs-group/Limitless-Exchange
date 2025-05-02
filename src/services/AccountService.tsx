@@ -290,6 +290,8 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
           web3Wallet: walletClient,
           r,
         })
+        debugger
+        console.log(`isNewUser ${isNewUser}`)
         if (isNewUser) {
           trackSignUp(SignInEvent.SignedUp, {
             signedIn: true,
