@@ -1,20 +1,22 @@
 'use client'
-import Highcharts from 'highcharts'
-import HighchartsReact from 'highcharts-react-official'
+
+import { defaultChain, newSubgraphURI } from '@/constants'
+import { useMarketData } from '@/hooks'
+import { useToken } from '@/hooks/use-token'
+import { Market } from '@/types'
+import { Box, Divider, Text, Image, HStack, VStack, Spacer } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { defaultChain, newSubgraphURI } from '@/constants'
+import Highcharts from 'highcharts'
+import HighchartsReact from 'highcharts-react-official'
 import { usePathname } from 'next/navigation'
-import { Box, Divider, Text, Image, HStack, VStack, Spacer } from '@chakra-ui/react'
 import { useMemo, useState } from 'react'
 import { getAddress, zeroAddress } from 'viem'
-import { useMarketData } from '@/hooks'
-import { Market } from '@/types'
-import { useToken } from '@/hooks/use-token'
 
 // Define the interface for the chart data
 interface YesBuyChartData {
-  yesBuyChartData: [number, number]
+  timestamp: number
+  price: number
 }
 
 // Define the MarketPriceChart component
@@ -26,12 +28,16 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
   /**
    * MARKET DATA
    */
-  const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
-  const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
-  const { outcomeTokensPercent } = useMarketData({
-    marketAddress,
-    collateralToken,
-  })
+  // const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
+  // const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
+  // const { outcomeTokensPercent } = useMarketData({
+  //   marketAddress,
+  //   collateralToken,
+  // })
+
+  console.log(market)
+
+  const outcomeTokensPercent = market?.outcomeTokensPercent
 
   const pathname = usePathname()
   const [yesChance, setYesChance] = useState('')
@@ -157,34 +163,41 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
    * @returns {number[][]} - A 2D array of flattened and interpolated price data,
    *                         where each sub-array contains a timestamp and a price percentage.
    */
-  const flattenPriceData = (data: YesBuyChartData[]): number[][] => {
-    if (!data || data.length === 0) {
-      return []
-    }
-
-    const flattenData: number[][] = []
-    const oneHour = 3600000 // milliseconds in an hour
-
-    // Append current timestamp with the last price
-    const lastTrade = [...filterBrokenPrice(data[data.length - 1].yesBuyChartData)]
-    lastTrade[0] = Math.floor(Date.now())
-    data.push({ yesBuyChartData: lastTrade as [number, number] })
-
-    for (let i = 0; i < data.length - 1; i++) {
-      const currentTrade = filterBrokenPrice(data[i].yesBuyChartData)
-      const nextTrade = filterBrokenPrice(data[i + 1].yesBuyChartData)
-
-      flattenData.push(currentTrade)
-
-      let currentTime = currentTrade[0]
-      while (currentTime + oneHour < nextTrade[0]) {
-        currentTime += oneHour
-        flattenData.push([currentTime, currentTrade[1]])
-      }
-    }
-
-    return flattenData
-  }
+  // const flattenPriceData = (
+  //   data: {
+  //     timestamp: 1746075871213
+  //     price: 0.9005931856451822
+  //   }[]
+  // ): number[][] => {
+  //   if (!data || data.length === 0) {
+  //     return []
+  //   }
+  //
+  //   const flattenData: number[][] = []
+  //   const oneHour = 3600000 // milliseconds in an hour
+  //
+  //   // Append current timestamp with the last price
+  //   const lastTrade = [
+  //     ...filterBrokenPrice([data[data.length - 1].timestamp, data[data.length - 1].price]),
+  //   ]
+  //   lastTrade[0] = Math.floor(Date.now())
+  //   data.push(lastTrade)
+  //
+  //   for (let i = 0; i < data.length - 1; i++) {
+  //     const currentTrade = filterBrokenPrice(data[i].yesBuyChartData)
+  //     const nextTrade = filterBrokenPrice(data[i + 1].yesBuyChartData)
+  //
+  //     flattenData.push(currentTrade)
+  //
+  //     let currentTime = currentTrade[0]
+  //     while (currentTime + oneHour < nextTrade[0]) {
+  //       currentTime += oneHour
+  //       flattenData.push([currentTime, currentTrade[1]])
+  //     }
+  //   }
+  //
+  //   return flattenData
+  // }
 
   /**
    * Sometimes indexer returns the first price as NaN
@@ -201,17 +214,17 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
   const { data: prices } = useQuery({
     queryKey: ['prices'],
     queryFn: async () => {
-      const marketId = pathname.substring(pathname.lastIndexOf('/') + 1)
-      const query = `query prices {
-          AutomatedMarketMakerPricing(where: { market_id: { _ilike: "${marketId}" } }) {
-            yesBuyChartData
-          }
-      }`
-
-      const response = await axios.post(newSubgraphURI[defaultChain.id], { query })
-      const pricingData = response.data.data?.AutomatedMarketMakerPricing as YesBuyChartData[]
-
-      return flattenPriceData(pricingData)
+      // const marketId = pathname.substring(pathname.lastIndexOf('/') + 1)
+      // const query = `query prices {
+      //     AutomatedMarketMakerPricing(where: { market_id: { _ilike: "${marketId}" } }) {
+      //       yesBuyChartData
+      //     }
+      // }`
+      //
+      // const response = await axios.post(newSubgraphURI[defaultChain.id], { query })
+      // const pricingData = response.data.data?.AutomatedMarketMakerPricing as YesBuyChartData[]
+      //
+      // return flattenPriceData(pricingData)
     },
   })
 
@@ -244,7 +257,7 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
         <Spacer />
         <Image mr={4} boxSize={'20%'} src='/assets/images/limitless.png' alt='Limitless Logo' />
       </HStack>
-      <HighchartsReact highcharts={Highcharts} options={getChartOptions(prices)} />
+      {/*<HighchartsReact highcharts={Highcharts} options={getChartOptions(prices)} />*/}
     </Box>
   )
 }

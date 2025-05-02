@@ -1,6 +1,8 @@
 import { Button, InfoIcon, Input, LogInButton, Tooltip } from '@/components'
 import { defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
+import { useToken } from '@/hooks/use-token'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { usePriceOracle } from '@/providers'
 import {
   StrategyChangedMetadata,
@@ -13,6 +15,7 @@ import {
   TradeClickedMetadata,
 } from '@/services'
 import { borderRadius } from '@/styles'
+import { Market, MarketTokensIds } from '@/types'
 import { NumberUtil } from '@/utils'
 import {
   Avatar,
@@ -31,9 +34,6 @@ import {
 } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getAddress, zeroAddress } from 'viem'
-import { Market, MarketTokensIds } from '@/types'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
-import { useToken } from '@/hooks/use-token'
 
 interface MarketTradingFormProps extends StackProps {
   market: Market
@@ -86,15 +86,17 @@ export const MarketTradingForm = ({ market, ...props }: MarketTradingFormProps) 
 
   const isZeroBalance = !(Number(balance) > 0)
 
+  const outcomeTokensPercent = market.outcomeTokensPercent
+
   /**
    * MARKET DATA
    */
-  const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
+  // const marketAddress = getAddress(market?.address[defaultChain.id] ?? zeroAddress)
   const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
-  const { outcomeTokensPercent } = useMarketData({
-    marketAddress,
-    collateralToken,
-  })
+  // const { outcomeTokensPercent } = useMarketData({
+  //   marketAddress,
+  //   collateralToken,
+  // })
 
   /**
    * Amount to display in UI and reduce queries
@@ -189,10 +191,10 @@ export const MarketTradingForm = ({ market, ...props }: MarketTradingFormProps) 
           borderRadius={0}
           minW={'unset'}
           onClick={() => {
-            trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
-              type: 'Buy selected',
-              marketAddress,
-            })
+            // trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
+            //   type: 'Buy selected',
+            //   marketAddress,
+            // })
             setStrategy('Buy')
           }}
         >
@@ -215,10 +217,10 @@ export const MarketTradingForm = ({ market, ...props }: MarketTradingFormProps) 
           borderRadius={0}
           minW={'unset'}
           onClick={() => {
-            trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
-              type: 'Sell selected',
-              marketAddress,
-            })
+            // trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
+            //   type: 'Sell selected',
+            //   marketAddress,
+            // })
             setStrategy('Sell')
           }}
         >
@@ -247,10 +249,10 @@ export const MarketTradingForm = ({ market, ...props }: MarketTradingFormProps) 
               bg={outcomeTokenId == 0 ? 'green' : 'bgLight'}
               color={outcomeTokenId == 0 ? 'white' : 'fontLight'}
               onClick={() => {
-                trackChanged<OutcomeChangedMetadata>(ChangeEvent.OutcomeChanged, {
-                  choice: 'Yes',
-                  marketAddress,
-                })
+                // trackChanged<OutcomeChangedMetadata>(ChangeEvent.OutcomeChanged, {
+                //   choice: 'Yes',
+                //   marketAddress,
+                // })
                 setOutcomeTokenId(0)
               }}
             >
@@ -261,10 +263,10 @@ export const MarketTradingForm = ({ market, ...props }: MarketTradingFormProps) 
               bg={outcomeTokenId == 1 ? 'red' : 'bgLight'}
               color={outcomeTokenId == 1 ? 'white' : 'fontLight'}
               onClick={() => {
-                trackChanged<OutcomeChangedMetadata>(ChangeEvent.OutcomeChanged, {
-                  choice: 'No',
-                  marketAddress,
-                })
+                // trackChanged<OutcomeChangedMetadata>(ChangeEvent.OutcomeChanged, {
+                //   choice: 'No',
+                //   marketAddress,
+                // })
                 setOutcomeTokenId(1)
               }}
             >
@@ -376,10 +378,10 @@ export const MarketTradingForm = ({ market, ...props }: MarketTradingFormProps) 
             isDisabled={status != 'Ready'}
             isLoading={status == 'Loading'}
             onClick={() => {
-              trackClicked<TradeClickedMetadata>(ClickEvent.TradeClicked, {
-                strategy,
-                marketAddress,
-              })
+              // trackClicked<TradeClickedMetadata>(ClickEvent.TradeClicked, {
+              //   strategy,
+              //   marketAddress,
+              // })
               trade()
             }}
           >

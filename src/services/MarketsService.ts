@@ -1,6 +1,7 @@
+import { mockMarkets } from '@/services/mock-markets'
+import { Market, MarketData } from '@/types'
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { Market, MarketData } from '@/types'
 import { useMemo } from 'react'
 
 const LIMIT_PER_PAGE = 10
@@ -15,16 +16,17 @@ export function useMarkets() {
   return useInfiniteQuery<MarketData, Error>({
     queryKey: ['markets'],
     queryFn: async ({ pageParam = 1 }) => {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/active`,
-        {
-          params: {
-            page: pageParam,
-            limit: LIMIT_PER_PAGE,
-          },
-        }
-      )
-      return { data: response.data, next: (pageParam as number) + 1 }
+      // const response = await axios.get(
+      //   `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/active`,
+      //   {
+      //     params: {
+      //       page: pageParam,
+      //       limit: LIMIT_PER_PAGE,
+      //     },
+      //   }
+      // )
+      const response = mockMarkets
+      return { data: response.data, next: 1 }
     },
     initialPageParam: 1, //default page number
     getNextPageParam: (lastPage) => {
@@ -37,7 +39,8 @@ export function useAllMarkets() {
   const { data: markets } = useQuery({
     queryKey: ['allMarkets'],
     queryFn: async () => {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets`)
+      // const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets`)
+      const response = mockMarkets
 
       return response.data as Market[]
     },

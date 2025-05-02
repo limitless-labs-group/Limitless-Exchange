@@ -1,15 +1,17 @@
+import { MarketCardUserActions } from '@/components/markets/MarketCardUserActions'
 import { defaultChain } from '@/constants'
 import { useMarketData } from '@/hooks'
+import { useToken } from '@/hooks/use-token'
 import { createMarketShareUrls } from '@/services'
+import { useMarket } from '@/services/MarketsService'
+import { mockMarkets } from '@/services/mock-markets'
 import { borderRadius, colors } from '@/styles'
-import { Address } from '@/types'
+import { Address, Market } from '@/types'
 import { NumberUtil } from '@/utils'
 import { Divider, Heading, HStack, Image, Stack, StackProps, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
-import { MarketCardUserActions } from '@/components/markets/MarketCardUserActions'
-import { useMarket } from '@/services/MarketsService'
-import { useToken } from '@/hooks/use-token'
+import { formatUnits, parseUnits } from 'viem'
 
 interface IMarketCard extends StackProps {
   marketAddress?: Address
@@ -20,22 +22,28 @@ export const MarketCard = ({ marketAddress, ...props }: IMarketCard) => {
    * NAVIGATION
    */
   const router = useRouter()
-  const market = useMarket(marketAddress as string)
-  const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
-  const { outcomeTokensPercent, liquidity, volume } = useMarketData({
-    marketAddress,
-    collateralToken,
-  })
+  // const market = useMarket(marketAddress as string)
+  const market = mockMarkets.data.find(
+    (market) => market.address[defaultChain.id] === marketAddress
+  )
+  // const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
+  // const { outcomeTokensPercent, liquidity, volume } = useMarketData({
+  //   marketAddress,
+  //   collateralToken,
+  // })
 
-  const chancePercent = useMemo(() => {
-    return outcomeTokensPercent?.[market?.outcomeTokens[0] === 'Yes' ? 0 : 1].toFixed(1)
-  }, [market, outcomeTokensPercent])
+  const volume = formatUnits(BigInt(market?.volume || '0'), 6)
+  const liquidity = formatUnits(BigInt(market?.liquidity || '0'), 6)
+
+  const chancePercent = market?.outcomeTokensPercent[0]
 
   /**
    * SHARE
    */
   const marketURI = `${window.location.origin}/markets/${marketAddress}`
-  const shareLinks = createMarketShareUrls(market, outcomeTokensPercent)
+  const shareLinks = createMarketShareUrls(market as Market, market?.outcomeTokensPercent)
+
+  console.log(market)
 
   return (
     <Stack

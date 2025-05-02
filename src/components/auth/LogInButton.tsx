@@ -11,6 +11,7 @@ export const LogInButton = ({ children, ...props }: IButton) => {
       onClick={() => {
         signIn()
       }}
+      disabled
       {...props}
     >
       {children ?? 'Sign In'}

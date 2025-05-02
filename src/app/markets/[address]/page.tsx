@@ -1,20 +1,22 @@
 'use client'
 
-import { MainLayout } from '@/components'
 import {
   MarketClaimingForm,
   MarketMetadata,
   MarketPositions,
   MarketTradingForm,
 } from '@/app/markets/[address]/components'
+import { MarketPriceChart } from '@/app/markets/[address]/components/MarketPriceChart'
+import { MainLayout } from '@/components'
+import ApproveModal from '@/components/common/ApproveModal'
+import { defaultChain } from '@/constants'
+import { useToken } from '@/hooks/use-token'
+import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services'
+import { useMarket } from '@/services/MarketsService'
+import { mockMarkets } from '@/services/mock-markets'
+import { Market } from '@/types'
 import { Flex, Spacer, Spinner } from '@chakra-ui/react'
 import { useEffect } from 'react'
-import { OpenEvent, PageOpenedMetadata, useAmplitude, useTradingService } from '@/services'
-import { MarketPriceChart } from '@/app/markets/[address]/components/MarketPriceChart'
-import { useMarket } from '@/services/MarketsService'
-import ApproveModal from '@/components/common/ApproveModal'
-import { useToken } from '@/hooks/use-token'
-import { defaultChain } from '@/constants'
 
 const MarketPage = ({ params }: { params: { address: string } }) => {
   /**
@@ -29,34 +31,39 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
     })
   }, [])
 
+  console.log(params.address)
+
   /**
    * SET MARKET
    */
-  const market = useMarket(params.address)
+  // const market = useMarket(params.address)
+  const market = mockMarkets.data.find(
+    (mockMarket) => mockMarket.address[defaultChain.id] === params.address
+  )
 
-  const { isLoading: isCollateralLoading } = useToken(market?.collateralToken[defaultChain.id])
+  // const { isLoading: isCollateralLoading } = useToken(market?.collateralToken[defaultChain.id])
 
   const {
     setMarket,
     market: previousMarket,
-    approveBuy,
+    // approveBuy,
     strategy,
-    approveSell,
+    // approveSell,
   } = useTradingService()
 
   useEffect(() => {
     if (market != previousMarket) {
-      setMarket(market)
+      setMarket(market as Market)
     }
   }, [market, previousMarket])
 
-  const handleApproveMarket = async () => {
-    return strategy === 'Buy' ? approveBuy() : approveSell()
-  }
+  // const handleApproveMarket = async () => {
+  //   return strategy === 'Buy' ? approveBuy() : approveSell()
+  // }
 
   return (
     <MainLayout maxContentWidth={'1200px'}>
-      {!market || isCollateralLoading ? (
+      {!market ? (
         <Flex w={'full'} h={'80vh'} alignItems={'center'} justifyContent={'center'}>
           <Spinner />
         </Flex>
@@ -78,7 +85,7 @@ const MarketPage = ({ params }: { params: { address: string } }) => {
             </Flex>
             <Spacer />
           </Flex>
-          <ApproveModal onApprove={handleApproveMarket} />
+          {/*<ApproveModal onApprove={handleApproveMarket} />*/}
         </>
       )}
     </MainLayout>

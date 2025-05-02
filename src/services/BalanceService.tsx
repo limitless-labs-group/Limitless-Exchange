@@ -2,8 +2,11 @@ import { Toast, ToastWithdraw } from '@/components'
 import { defaultChain } from '@/constants'
 import { wethABI } from '@/contracts'
 import { useToast } from '@/hooks'
+import { useWalletAddress } from '@/hooks/use-wallet-address'
 import { usePriceOracle } from '@/providers'
-import { useEtherspot, useLimitlessApi } from '@/services'
+import { publicClient } from '@/providers'
+import { HistoryPosition, useEtherspot, useLimitlessApi } from '@/services'
+import { useWeb3Service } from '@/services/Web3Service'
 import { Address, GetBalanceResult, MarketTokensIds, Token } from '@/types'
 import { Logger, NumberUtil } from '@/utils'
 import {
@@ -33,9 +36,6 @@ import {
   parseUnits,
 } from 'viem'
 import { getBalance } from 'viem/actions'
-import { useWalletAddress } from '@/hooks/use-wallet-address'
-import { useWeb3Service } from '@/services/Web3Service'
-import { publicClient } from '@/providers'
 
 interface IBalanceService {
   balanceOfSmartWallet: GetBalanceResult[] | undefined
@@ -65,6 +65,13 @@ interface IBalanceService {
   ethBalance?: string
   wrapETHManual: (amount: string) => Promise<void>
   isWrapPending: boolean
+
+  transferAllAssetsToAnotherWallet: UseMutateAsyncFunction<
+    void,
+    Error,
+    { receiver: Address; positions: HistoryPosition[] },
+    unknown
+  >
 }
 
 const BalanceService = createContext({} as IBalanceService)
@@ -89,7 +96,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
 
   const walletAddress = useWalletAddress()
 
-  const { mintErc20, transferErc20, unwrapEth, transferEthers, wrapEth } = useWeb3Service()
+  // const { mintErc20, transferErc20, unwrapEth, transferEthers, wrapEth } = useWeb3Service()
 
   const { supportedTokens } = useLimitlessApi()
 
@@ -260,7 +267,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
       toast({
         render: () => <Toast title={'Processing transaction...'} />,
       })
-      await wrapEth(parseUnits(amount, 18))
+      await etherspot?.wrapEth(parseUnits(amount, 18))
       setEOAWrapModalOpened(false)
       toast({
         render: () => <Toast title={'ETH wrapped successfully.'} />,
@@ -277,7 +284,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         render: () => <Toast title={'Processing transaction...'} />,
       })
       const token = supportedTokens?.find((token) => token.address === params.address)
-      await mintErc20(
+      await etherspot?.mintErc20(
         params.address,
         parseUnits('1', token?.decimals || 18),
         walletAddress || '0x',
@@ -325,7 +332,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
           render: () => <Toast title={'Unwrapping ETH...'} />,
         })
 
-        const unwrapReceipt = await unwrapEth(amountBI)
+        const unwrapReceipt = await etherspot?.unwrapEth(amountBI)
         if (!unwrapReceipt) {
           // TODO: show error toast
           log.error('Unwrap is unsuccessful')
@@ -338,7 +345,10 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
           render: () => <Toast title={'Sending ETH...'} />,
         })
 
-        const transferReceipt = await transferEthers(addressToWithdraw as Address, amountBI)
+        const transferReceipt = await etherspot?.transferEthers(
+          addressToWithdraw as Address,
+          amountBI
+        )
 
         if (!transferReceipt) {
           // TODO: show error toast
@@ -360,7 +370,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         render: () => <Toast title={'Processing transaction...'} />,
       })
 
-      const transferReceipt = await transferErc20(
+      const transferReceipt = await etherspot?.transferErc20(
         token?.address as Address,
         addressToWithdraw as Address,
         amountBI
@@ -379,11 +389,28 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
+  const { smartWalletAddress } = useEtherspot()
+
+  const { mutateAsync: transferAllAssetsToAnotherWallet, isPending: isPositionsTransferPending } =
+    useMutation({
+      mutationFn: async (params: { receiver: Address; positions: HistoryPosition[] }) => {
+        if (!etherspot || !balanceOfSmartWallet || !smartWalletAddress) {
+          return
+        }
+        // return etherspot.transferAllAssets(
+        //   params.receiver,
+        //   balanceOfSmartWallet,
+        //   smartWalletAddress,
+        //   params.positions
+        // )
+      },
+    })
+
   /**
    * UI STATUS
    */
   const status: BalanceServiceStatus = useMemo(() => {
-    if (isLoadingMint || isLoadingWithdraw) {
+    if (isLoadingMint || isLoadingWithdraw || isPositionsTransferPending) {
       return 'Loading'
     }
     if (isInvalidAddressToWithdraw) {
@@ -393,7 +420,13 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
       return 'InvalidAmount'
     }
     return 'ReadyToFund'
-  }, [isInvalidAddressToWithdraw, isInvalidAmount, isLoadingMint, isLoadingWithdraw])
+  }, [
+    isInvalidAddressToWithdraw,
+    isInvalidAmount,
+    isLoadingMint,
+    isLoadingWithdraw,
+    isPositionsTransferPending,
+  ])
 
   return (
     <BalanceService.Provider
@@ -418,6 +451,7 @@ export const BalanceServiceProvider = ({ children }: PropsWithChildren) => {
         ethBalance,
         wrapETHManual,
         isWrapPending,
+        transferAllAssetsToAnotherWallet,
       }}
     >
       {children}

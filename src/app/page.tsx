@@ -1,19 +1,19 @@
 'use client'
 
 import { CreateMarketCard, MainLayout, MarketCard, MarketCardMobile } from '@/components'
+import SortFilter from '@/components/common/SortFilter'
+import Filter from '@/components/common/TokenFilter'
 import { defaultChain } from '@/constants'
 import { useIsMobile } from '@/hooks'
 import { OpenEvent, useAmplitude } from '@/services'
-import { Grid, Stack } from '@chakra-ui/react'
-import { useEffect, useMemo, useState } from 'react'
-import { v4 as uuidv4 } from 'uuid'
-import Filter from '@/components/common/TokenFilter'
-import SortFilter from '@/components/common/SortFilter'
-import { Market, Sort, Token } from '@/types'
-import { formatUnits, getAddress } from 'viem'
 import { useMarkets } from '@/services/MarketsService'
+import { mockMarkets } from '@/services/mock-markets'
+import { Market, Sort, Token } from '@/types'
+import { Grid, HStack, Stack } from '@chakra-ui/react'
+import { useEffect, useMemo, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { usePriceOracle } from '@/providers'
+import { v4 as uuidv4 } from 'uuid'
+import { getAddress } from 'viem'
 
 const MainPage = () => {
   /**
@@ -36,24 +36,13 @@ const MainPage = () => {
   const handleSelectFilterTokens = (tokens: Token[]) => setSelectedFilterTokens(tokens)
   const handleSelectSort = (options: Sort) => setSelectedSort(options)
 
-  const { convertTokenAmountToUsd } = usePriceOracle()
-  const { data, fetchNextPage, hasNextPage } = useMarkets()
+  // const { data, fetchNextPage, hasNextPage } = useMarkets()
 
-  const dataLength = data?.pages.reduce((counter, page) => {
-    return counter + page.data.length
-  }, 0)
+  const dataLength = mockMarkets.data.length
 
   const markets: Market[] = useMemo(() => {
-    return data?.pages.flatMap((page) => page.data) || []
-  }, [data?.pages])
-
-  //it helps to get integer value form solidity representation
-  const formatMarketNumber = (market: Market, amount: string | undefined) => {
-    return convertTokenAmountToUsd(
-      market.tokenTicker[defaultChain.id],
-      formatUnits(BigInt(amount ?? 0), market.tokenTicker[defaultChain.id] === 'USDC' ? 6 : 18)
-    )
-  }
+    return mockMarkets.data
+  }, [])
 
   const filteredMarkets = useMemo(() => {
     return markets?.filter((market) =>
@@ -75,13 +64,9 @@ const MainPage = () => {
           (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         )
       case Sort.HIGHEST_VOLUME:
-        return [...filteredMarkets].sort(
-          (a, b) => formatMarketNumber(b, b.volume) - formatMarketNumber(a, a.volume)
-        )
+        return [...filteredMarkets].sort((a, b) => Number(b.volume) - Number(a.volume))
       case Sort.HIGHEST_LIQUIDITY:
-        return [...filteredMarkets].sort(
-          (a, b) => formatMarketNumber(b, b.liquidity) - formatMarketNumber(a, a.liquidity)
-        )
+        return [...filteredMarkets].sort((a, b) => Number(b.liquidity) - Number(a.liquidity))
       case Sort.COMING_DEADLINE:
         return [...filteredMarkets].sort(
           (a, b) =>
@@ -90,17 +75,17 @@ const MainPage = () => {
       default:
         return filteredMarkets
     }
-  }, [markets, filteredMarkets, selectedSort])
+  }, [filteredMarkets, selectedSort])
 
   return (
     <InfiniteScroll
       dataLength={dataLength ?? 0}
-      next={fetchNextPage}
-      hasMore={hasNextPage}
+      next={() => console.log('next')}
+      hasMore={false}
       loader={<h4></h4>}
       scrollThreshold={0.1}
-      refreshFunction={fetchNextPage}
       pullDownToRefresh
+      refreshFunction={() => console.log('refresh')}
     >
       <MainLayout maxContentWidth={'unset'}>
         <Stack w={'full'} spacing={5} px={{ md: 14 }}>

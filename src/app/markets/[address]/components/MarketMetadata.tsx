@@ -1,6 +1,7 @@
 import { Button } from '@/components'
 import { defaultChain } from '@/constants'
 import { useIsMobile, useMarketData } from '@/hooks'
+import { useToken } from '@/hooks/use-token'
 import {
   ClickEvent,
   ShareClickedMetadata,
@@ -29,7 +30,7 @@ import {
 } from '@chakra-ui/react'
 import { FaShareSquare } from 'react-icons/fa'
 import { FaLink, FaXTwitter } from 'react-icons/fa6'
-import { useToken } from '@/hooks/use-token'
+import { formatUnits } from 'viem'
 
 export const MarketMetadata = ({ ...props }: StackProps) => {
   /**
@@ -37,12 +38,15 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
    */
   const { market } = useTradingService()
 
-  const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
+  // const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
+  //
+  // const { liquidity, volume, outcomeTokensPercent } = useMarketData({
+  //   marketAddress: market?.address[defaultChain.id],
+  //   collateralToken,
+  // })
 
-  const { liquidity, volume, outcomeTokensPercent } = useMarketData({
-    marketAddress: market?.address[defaultChain.id],
-    collateralToken,
-  })
+  const liquidity = formatUnits(BigInt(market?.liquidity || '0'), 6)
+  const volume = formatUnits(BigInt(market?.volume || '0'), 6)
 
   /**
    * ANALYTICS
@@ -51,7 +55,10 @@ export const MarketMetadata = ({ ...props }: StackProps) => {
 
   const { onCopy, hasCopied } = useClipboard(window.location.href)
 
-  const { tweetURI, castURI } = createMarketShareUrls(market, outcomeTokensPercent)
+  const { tweetURI, castURI } = createMarketShareUrls(
+    market,
+    market?.outcomeTokensPercent || [50, 50]
+  )
 
   const isMobile = useIsMobile()
 

@@ -1,10 +1,17 @@
 import { defaultChain } from '@/constants'
 import { conditionalTokensABI, wethABI, fixedProductMarketMakerABI } from '@/contracts'
+import { Erc1155Abi } from '@/contracts/abi/erc1155'
+import { contractABI } from '@/contracts/utils'
 import { useWeb3Auth } from '@/providers'
-import { Address, Token } from '@/types'
+import { publicClient } from '@/providers'
+import { useBalanceService } from '@/services/BalanceService'
+import { HistoryPosition, useHistory } from '@/services/HistoryService'
+import { useLimitlessApi } from '@/services/LimitlessApi'
+import { Address, GetBalanceResult, Token } from '@/types'
 import { ArkaPaymaster, EtherspotBundler, PrimeSdk, Web3WalletProvider } from '@etherspot/prime-sdk'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common/utils'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { erc1155 } from '@etherspot/prime-sdk/dist/sdk/contracts/@openzeppelin/contracts/token'
+import { UseMutateAsyncFunction, useMutation, useQuery } from '@tanstack/react-query'
 import {
   PropsWithChildren,
   createContext,
@@ -14,9 +21,6 @@ import {
   useState,
 } from 'react'
 import { TransactionReceipt, encodeFunctionData, getContract, maxUint256, erc20Abi } from 'viem'
-import { contractABI } from '@/contracts/utils'
-import { publicClient } from '@/providers'
-import { useLimitlessApi } from '@/services/LimitlessApi'
 
 interface IEtherspotContext {
   etherspot: Etherspot | null
@@ -50,7 +54,7 @@ export const EtherspotProvider = ({ children }: PropsWithChildren) => {
     if (
       !web3AuthProvider ||
       !isConnected ||
-      web3Auth.connectedAdapterName !== 'openlogin' ||
+      // web3Auth.connectedAdapterName !== 'openlogin' ||
       !supportedTokens
     ) {
       setEtherspot(null)
@@ -362,6 +366,29 @@ class Etherspot {
     return transactionReceipt?.transactionHash
   }
 
+  async transferPosition(
+    smartWalletAddress: Address,
+    receiver: Address,
+    id: string,
+    contractAddress: Address,
+    amount: string
+  ) {
+    const receipt = await this.primeSdk.getUserOpReceipt(
+      '0x52c99daae29c3f7da8748be4aab6fa437a796c2405c5f465bf10b699a2cf3327'
+    )
+    console.log(receipt)
+    const conditionalContarct = this.getConditionalTokensContract(contractAddress)
+    console.log(conditionalContarct)
+    const data = encodeFunctionData({
+      abi: Erc1155Abi,
+      functionName: 'safeTransferFrom',
+      args: [smartWalletAddress, receiver, id, amount, ''],
+    })
+    const opHash = await this.batchAndSendUserOp(contractAddress, data)
+    const transactionReceipt = await this.waitForTransaction(opHash)
+    return transactionReceipt?.transactionHash
+  }
+
   // TODO: incapsulate
   async sellOutcomeTokens(
     conditionalTokensAddress: Address,
@@ -399,6 +426,34 @@ class Etherspot {
     const opHash = await this.batchAndSendUserOp(conditionalTokensAddress, data)
     const transactionReceipt = await this.waitForTransaction(opHash)
     return transactionReceipt?.transactionHash
+  }
+  async transferAllAssets(
+    receiver: Address,
+    balances: GetBalanceResult[],
+    walletAddress: Address,
+    positions?: HistoryPosition[]
+  ) {
+    await Promise.allSettled(
+      balances.map(async (balance) => {
+        if (balance.value > 0n) {
+          return this.transferErc20(balance.contractAddress as Address, receiver, balance.value)
+        }
+      })
+    )
+    // 1st contract is contract interacted to in tx
+    // 2nd contract is contract of erc1155 token
+    // tx hash for these values is https://sepolia.basescan.org/tx/0x613400e5024705e4aa1daa54bd8b176a9814ccf5c2830fcfc04126778c564b6e
+    // await this.approveConditionalIfNeeded(
+    //   '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
+    //   '0x15A61459d65D89A25a9e91e0dc9FC69598791505'
+    // )
+    // await this.transferPosition(
+    //   walletAddress,
+    //   receiver,
+    //   '75013239698457134472761320017049384586594526164119081025047338859912849294421',
+    //   '0x15A61459d65D89A25a9e91e0dc9FC69598791505',
+    //   '197335150853114121'
+    // )
   }
 }
 

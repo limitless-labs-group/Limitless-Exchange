@@ -18,6 +18,7 @@ export type MarketData = {
 }
 
 export type Market = {
+  outcomeTokensPercent: number[]
   address: {
     [chainId: number]: Address
   }
@@ -57,11 +58,11 @@ export type Market = {
     imageURI?: string
     link?: string
   }
+  prices: number[]
   tags?: string[]
-  winningOutcomeIndex?: number
+  winningOutcomeIndex?: number | null
   volume?: string
   liquidity?: string
-  prices: number[]
 }
 
 export type GetBalanceResult = {
@@ -92,6 +93,7 @@ export enum MarketTokensIds {
   USDC = 'usd-coin',
   VITA = 'vitadao',
   BETS = 'all-street-bets',
+  GHST = 'aavegotchi',
 }
 
 export enum Sort {
