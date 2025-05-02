@@ -25,7 +25,7 @@ const defaultSteps = [
     description: 'Choose a question and assign a probability to one of the outcomes',
   },
   {
-    id: PointsActionType.REFERRAL_ONBOARD,
+    id: PointsActionType.HOLDING_TILL_RESOLVED,
     isChecked: false,
     title: 'Follow through on a forecast',
     description:
