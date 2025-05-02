@@ -16,7 +16,6 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import Avatar from '@/components/common/avatar'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import Skeleton from '@/components/common/skeleton'
-import SocialsFooter from '@/components/common/socials-footer'
 import ThemeSwitcher from '@/components/layouts/theme-switcher'
 import BaseWhiteIcon from '@/resources/icons/base-icon-white.svg'
 import CheckedIcon from '@/resources/icons/checked-icon.svg'
@@ -264,8 +263,6 @@ export default function UserMenuDesktop({
               <LogoutIcon width={16} height={16} />
               Log Out
             </Button>
-            <Divider mt='4px' />
-            <SocialsFooter />
           </VStack>
         </MenuList>
       </Menu>

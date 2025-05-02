@@ -31,9 +31,7 @@ export default function MarketsSection({
     return selectedCategory ? { fromCategory: selectedCategory.name } : {}
   }, [selectedCategory])
 
-  const firstPartOfMarkets = markets?.slice(0, 5)
-
-  const otherMarkets = markets?.slice(5)
+  const allMarkets = markets || []
 
   return (
     <Box
@@ -74,8 +72,27 @@ export default function MarketsSection({
             [...Array(3)].map((_, index) => <Skeleton height={200} key={index} />)
           ) : (
             <>
-              {firstPartOfMarkets?.map((market, index) => {
+              {allMarkets?.map((market, index) => {
                 const cyclePosition = index % 10
+
+                // Insert VolumeCard after the 6th market
+                if (index === 6) {
+                  return (
+                    <React.Fragment key={`volume-card-${index}`}>
+                      <VolumeCard />
+                      <MarketCardMobile
+                        key={market.slug || market.address}
+                        market={market}
+                        variant={
+                          cyclePosition >= 6 && cyclePosition < 10 ? 'speedometer' : undefined
+                        }
+                        analyticParams={getAnalyticsParams(index, 0, category)}
+                        markets={markets}
+                      />
+                    </React.Fragment>
+                  )
+                }
+
                 // First 6 cards in cycle - regular cards
                 if (cyclePosition < 6) {
                   return (
@@ -87,21 +104,7 @@ export default function MarketsSection({
                     />
                   )
                 }
-              })}
-              <VolumeCard />
-              {otherMarkets?.map((market, index) => {
-                const cyclePosition = index % 10
-                // First 6 cards in cycle - regular cards
-                if (cyclePosition < 6) {
-                  return (
-                    <MarketCardMobile
-                      key={market.slug || market.address}
-                      market={market}
-                      analyticParams={getAnalyticsParams(index, 0, category)}
-                      markets={markets}
-                    />
-                  )
-                }
+
                 // Next 4 cards in cycle - speedometer cards
                 if (cyclePosition >= 6 && cyclePosition < 10) {
                   return (
@@ -114,6 +117,7 @@ export default function MarketsSection({
                     />
                   )
                 }
+
                 return null
               })}
             </>
@@ -126,14 +130,17 @@ export default function MarketsSection({
               <>
                 {withChat ? (
                   <>
-                    {markets?.map((market, index) => {
+                    {allMarkets?.map((market, index) => {
                       const cyclePosition = index % 5 // 5 = 3 (for 3-col) + 2 (for 2-col)
 
                       // First 3 markets in cycle - 3-column grid with row variant
-                      if (cyclePosition <= 3) {
+                      if (cyclePosition < 3) {
                         const isGridStart = cyclePosition === 0
                         if (isGridStart) {
-                          const gridCards = markets.slice(index, index + 3)
+                          // Get up to 3 cards for the grid
+                          const remainingCount = Math.min(3, allMarkets.length - index)
+                          const gridCards = allMarkets.slice(index, index + remainingCount)
+
                           return (
                             <Flex
                               key={`grid-3col-${market.slug || market.address}`}
@@ -169,7 +176,10 @@ export default function MarketsSection({
                       if (cyclePosition >= 3 && cyclePosition < 5) {
                         const isGridStart = cyclePosition === 3
                         if (isGridStart) {
-                          const gridCards = markets.slice(index, index + 2)
+                          // Get up to 2 cards for the grid
+                          const remainingCount = Math.min(2, allMarkets.length - index)
+                          const gridCards = allMarkets.slice(index, index + remainingCount)
+
                           return (
                             <Flex
                               key={`grid-2col-${market.slug || market.address}`}
@@ -209,8 +219,10 @@ export default function MarketsSection({
                   </>
                 ) : (
                   <>
-                    {firstPartOfMarkets?.map((market, index) => {
+                    {allMarkets?.map((market, index) => {
+                      // Use a single cycle pattern for all markets
                       const cyclePosition = index % 12
+
                       // First 2 cards - straight column
                       if (cyclePosition < 2) {
                         return (
@@ -227,54 +239,12 @@ export default function MarketsSection({
                       if (cyclePosition >= 2 && cyclePosition < 6) {
                         const isGridStart = cyclePosition === 2
                         if (isGridStart) {
-                          const gridCards = firstPartOfMarkets.slice(index, index + 4)
-                          return (
-                            <Flex
-                              key={`grid-${market.slug || market.address}`}
-                              flexWrap='wrap'
-                              gap={4}
-                              w='full'
-                            >
-                              {gridCards.map((gridMarket, gridIndex) => (
-                                <Box
-                                  key={gridMarket.slug || gridMarket.address}
-                                  flex='1 1 calc(50% - 8px)'
-                                  minW='calc(50% - 8px)'
-                                >
-                                  <MarketCard
-                                    variant='grid'
-                                    market={gridMarket}
-                                    analyticParams={getAnalyticsParams(index, gridIndex, category)}
-                                  />
-                                </Box>
-                              ))}
-                              <VolumeCard />
-                            </Flex>
-                          )
-                        }
-                        return null
-                      }
-                      return null
-                    })}
-                    {otherMarkets?.map((market, index) => {
-                      const cyclePosition = index % 12
-                      // First 2 cards - straight column
-                      if (cyclePosition < 2) {
-                        return (
-                          <Box key={market.slug || market.address} w='full'>
-                            <MarketCard
-                              market={market}
-                              analyticParams={getAnalyticsParams(index, 0, category)}
-                            />
-                          </Box>
-                        )
-                      }
+                          // Get up to 4 cards for the grid
+                          const gridCards = allMarkets.slice(index, index + 4)
 
-                      // Next 4 cards - 2x2 grid
-                      if (cyclePosition >= 2 && cyclePosition < 6) {
-                        const isGridStart = cyclePosition === 2
-                        if (isGridStart) {
-                          const gridCards = otherMarkets.slice(index, index + 4)
+                          // Insert VolumeCard after the first grid (at index 2)
+                          const includeVolumeCard = index === 2
+
                           return (
                             <Flex
                               key={`grid-${market.slug || market.address}`}
@@ -291,10 +261,15 @@ export default function MarketsSection({
                                   <MarketCard
                                     variant='grid'
                                     market={gridMarket}
-                                    analyticParams={getAnalyticsParams(index, gridIndex, category)}
+                                    analyticParams={getAnalyticsParams(
+                                      index + gridIndex,
+                                      gridIndex,
+                                      category
+                                    )}
                                   />
                                 </Box>
                               ))}
+                              {includeVolumeCard && <VolumeCard />}
                             </Flex>
                           )
                         }
@@ -317,7 +292,9 @@ export default function MarketsSection({
                       if (cyclePosition >= 8 && cyclePosition < 12) {
                         const isSpeedometerStart = cyclePosition === 8
                         if (isSpeedometerStart) {
-                          const speedometerCards = otherMarkets.slice(index, index + 4)
+                          // Get remaining cards for this cycle
+                          const remainingCount = Math.min(4, allMarkets.length - index)
+                          const speedometerCards = allMarkets.slice(index, index + remainingCount)
 
                           if (speedometerCards.length === 1) {
                             // Single market - show as row
@@ -354,7 +331,7 @@ export default function MarketsSection({
                                       variant='grid'
                                       market={speedometerMarket}
                                       analyticParams={getAnalyticsParams(
-                                        index,
+                                        index + gridIndex,
                                         gridIndex,
                                         category
                                       )}
@@ -386,7 +363,7 @@ export default function MarketsSection({
                                           variant='grid'
                                           market={speedometerMarket}
                                           analyticParams={getAnalyticsParams(
-                                            index,
+                                            index + gridIndex,
                                             gridIndex,
                                             category
                                           )}
@@ -398,7 +375,7 @@ export default function MarketsSection({
                                   <MarketCard
                                     variant='row'
                                     market={speedometerCards[2]}
-                                    analyticParams={getAnalyticsParams(index, 2, category)}
+                                    analyticParams={getAnalyticsParams(index + 2, 2, category)}
                                   />
                                 </Box>
                               </VStack>
@@ -422,7 +399,11 @@ export default function MarketsSection({
                                   <MarketCard
                                     variant='grid'
                                     market={speedometerMarket}
-                                    analyticParams={getAnalyticsParams(index, gridIndex, category)}
+                                    analyticParams={getAnalyticsParams(
+                                      index + gridIndex,
+                                      gridIndex,
+                                      category
+                                    )}
                                   />
                                 </Box>
                               ))}
