@@ -19,7 +19,7 @@ const defaultSteps = [
     title: 'Create your account',
   },
   {
-    id: PointsActionType.TRADE_VOLUME,
+    id: PointsActionType.HAS_TRADED,
     isChecked: false,
     title: 'Make your first prediction',
     description: 'Choose a question and assign a probability to one of the outcomes',
