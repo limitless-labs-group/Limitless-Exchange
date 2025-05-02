@@ -100,8 +100,8 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
     [acc]
   )
 
-  const trackSignUp = async () => {
-    return trackEvent(AuthenticationEvent.SignUp)
+  const trackSignUp = async <T extends SignInEventMetadata>(event: SignInEvent, customData?: T) => {
+    return trackEvent(event, customData)
   }
 
   const trackChanged = async <T extends ChangedEventMetadata>(
@@ -135,7 +135,7 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
     trackChanged,
     trackClicked,
     trackOpened,
-    trackSignIn: trackSignIn,
+    trackSignIn,
     trackHovered,
   }
 
