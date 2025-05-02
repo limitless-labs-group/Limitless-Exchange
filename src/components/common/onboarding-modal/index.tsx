@@ -56,7 +56,10 @@ export const OnboardingModal = () => {
         p='12px'
         display='flex'
         flexDirection='column'
-        bg={isFinished ? 'green.500' : 'grey.100'}
+        border='1px solid'
+        borderRadius='8px'
+        borderColor={isFinished ? 'green.500' : 'grey.100'}
+        bg={isFinished ? 'green.500' : 'grey.50'}
       >
         <OnboardingList isFinished={isFinished} onFinish={finish} />
       </MenuList>

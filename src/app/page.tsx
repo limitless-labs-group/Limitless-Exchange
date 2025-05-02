@@ -133,7 +133,6 @@ const MainPage = () => {
   useEffect(() => {
     if (typeof window !== 'undefined' && referralCode) {
       const isOnboarded = window.localStorage.getItem(ONBOARDING)
-      console.log('isOnboarded ', isOnboarded)
       if (isOnboarded && isOnboarded === 'true') return
       setOnboardModal(true)
     }
