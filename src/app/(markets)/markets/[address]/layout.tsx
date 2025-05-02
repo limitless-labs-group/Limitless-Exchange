@@ -31,11 +31,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         description: convertHtmlToText(market?.description),
         images: [
           {
-            url: `/api/og/market/${params.address}`,
+            url: `${baseUrl}/api/og/market/${params.address}`,
             width: 1200,
             height: 630,
+            alt: market?.proxyTitle ?? market?.title ?? 'Noname market',
           },
         ],
+        type: 'website',
+        siteName: 'Limitless Exchange',
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: market?.proxyTitle ?? market?.title ?? 'Noname market',
+        description: convertHtmlToText(market?.description),
+        images: [`${baseUrl}/api/og/market/${params.address}`],
       },
       alternates: {
         canonical: `${baseUrl}/markets/${params.address}`,
