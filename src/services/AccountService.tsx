@@ -269,6 +269,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
             trackSignUp(SignInEvent.SignedUp, {
               signedIn: true,
               account: connectedWallet.address,
+              walletType: 'smart wallet',
               ...referral,
             })
             return
@@ -276,6 +277,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
           trackSignIn(SignInEvent.SignedIn, {
             signedIn: true,
             account: connectedWallet.address,
+            walletType: 'smart wallet',
             ...referral,
           })
           if (!isDev) {
@@ -290,12 +292,11 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
           web3Wallet: walletClient,
           r,
         })
-        debugger
-        console.log(`isNewUser ${isNewUser}`)
         if (isNewUser) {
           trackSignUp(SignInEvent.SignedUp, {
             signedIn: true,
             account: connectedWallet.address,
+            walletType: 'EOA wallet',
             ...referral,
           })
           return
@@ -303,6 +304,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         trackSignIn(SignInEvent.SignedIn, {
           signedIn: true,
           account: connectedWallet.address,
+          walletType: 'EOA wallet',
           ...referral,
         })
         if (!isDev) {
