@@ -74,6 +74,10 @@ export const OnboardingList = ({ isFinished, onFinish, mobile }: OnboardingListP
           borderColor='white'
           color='black'
           onClick={onFinish}
+          _hover={{
+            bg: '#E5E7EB',
+            borderColor: '#E5E7EB',
+          }}
         >
           <Text {...paragraphMedium} color='black'>
             Finish onboarding
@@ -87,6 +91,10 @@ export const OnboardingList = ({ isFinished, onFinish, mobile }: OnboardingListP
           borderColor='white'
           color='black'
           onClick={onRefLinkCopy}
+          _hover={{
+            bg: '#E5E7EB',
+            borderColor: '#E5E7EB',
+          }}
         >
           <CopyIcon width='16px' height='16px' cursor='pointer' />
           {hasCopied ? (
