@@ -265,12 +265,31 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
             web3Wallet: walletClient,
             r,
           })
+          if (isNewUser) {
+            trackSignUp(SignInEvent.SignedUp, {
+              signedIn: true,
+              account: connectedWallet.address,
+              ...referral,
+            })
+            return
+          }
+          trackSignIn(SignInEvent.SignedIn, {
+            signedIn: true,
+            account: connectedWallet.address,
+            ...referral,
+          })
           if (!isDev) {
             spindl.attribute(client.account?.address)
           }
           pushGA4Event(GAEvents.WalletConnected)
           return
         }
+        await login({
+          client: 'eoa',
+          account: connectedWallet.address as Address,
+          web3Wallet: walletClient,
+          r,
+        })
         if (isNewUser) {
           trackSignUp(SignInEvent.SignedUp, {
             signedIn: true,
@@ -284,22 +303,11 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
           account: connectedWallet.address,
           ...referral,
         })
-        await login({
-          client: 'eoa',
-          account: connectedWallet.address as Address,
-          web3Wallet: walletClient,
-          r,
-        })
         if (!isDev) {
           spindl.attribute(connectedWallet.address)
         }
         pushGA4Event(GAEvents.WalletConnected)
         await handleRedirect()
-        trackSignIn(SignInEvent.SignedIn, {
-          signedIn: true,
-          account: connectedWallet.address ?? '',
-          ...referral,
-        })
         // setIsLogged(true)
         return
       }
