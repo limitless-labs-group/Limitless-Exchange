@@ -1,10 +1,14 @@
 import { Box, Divider, HStack, Icon, Link, Text } from '@chakra-ui/react'
+import React from 'react'
 import { isMobile } from 'react-device-detect'
+import { ReferralLink } from '@/components/common/referral-link'
+import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import FarcasterIcon from '@/resources/icons/Farcaster.svg'
 import XIcon from '@/resources/icons/X.svg'
 import BookIcon from '@/resources/icons/book-icon.svg'
 import DiscordIcon from '@/resources/icons/discord-icon.svg'
-import { ClickEvent, useAmplitude } from '@/services'
+import SidebarIcon from '@/resources/icons/sidebar/crone-icon.svg'
+import { ClickEvent, ProfileBurgerMenuClickedMetadata, useAmplitude } from '@/services'
 import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
 import { captionRegular, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { SOCIAL_LINKS } from '@/utils/consts'
@@ -24,6 +28,7 @@ const ICON_WITHOUT_TEXT_PROPS = {
 export default function DesktopFooter() {
   const { trackClicked } = useAmplitude()
   const { pushGA4Event } = useGoogleAnalytics()
+  const { handleCategory, handleDashboard } = useTokenFilter()
   return (
     <HStack
       w='full'
@@ -42,6 +47,25 @@ export default function DesktopFooter() {
         <Text {...captionRegular}>Operational</Text>
       </HStack>
       <HStack gap='8px'>
+        <ReferralLink href='/blog' passHref>
+          <Link
+            onClick={() => {
+              trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.ProfileBurgerMenuClicked, {
+                option: 'Leaderboard',
+              })
+              handleCategory(undefined)
+              handleDashboard(undefined)
+            }}
+            _hover={{
+              textDecoration: 'unset',
+              color: 'grey.800',
+            }}
+            color='grey.500'
+          >
+            Blog
+          </Link>
+        </ReferralLink>
+        <Divider orientation='vertical' h='16px' />
         <Link
           href={SOCIAL_LINKS.DOCS}
           target='_blank'
