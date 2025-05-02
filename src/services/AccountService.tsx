@@ -269,21 +269,21 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
             spindl.attribute(client.account?.address)
           }
           pushGA4Event(GAEvents.WalletConnected)
-          if (isNewUser) {
-            trackSignUp(SignInEvent.SignedUp, {
-              signedIn: true,
-              account: client.account?.address ?? '',
-              ...referral,
-            })
-            return
-          }
-          trackSignIn(SignInEvent.SignedIn, {
+          return
+        }
+        if (isNewUser) {
+          trackSignUp(SignInEvent.SignedUp, {
             signedIn: true,
-            account: client.account?.address ?? '',
+            account: connectedWallet.address,
             ...referral,
           })
           return
         }
+        trackSignIn(SignInEvent.SignedIn, {
+          signedIn: true,
+          account: connectedWallet.address,
+          ...referral,
+        })
         await login({
           client: 'eoa',
           account: connectedWallet.address as Address,
