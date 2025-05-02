@@ -19,13 +19,13 @@ const defaultSteps = [
     title: 'Create your account',
   },
   {
-    id: PointsActionType.TRADE_VOLUME,
+    id: PointsActionType.HAS_TRADED,
     isChecked: false,
     title: 'Make your first prediction',
     description: 'Choose a question and assign a probability to one of the outcomes',
   },
   {
-    id: PointsActionType.REFERRAL_ONBOARD,
+    id: PointsActionType.HOLDING_TILL_RESOLVED,
     isChecked: false,
     title: 'Follow through on a forecast',
     description:
