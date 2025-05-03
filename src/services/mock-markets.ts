@@ -53,6 +53,54 @@ export const mockMarkets: { data: Market[] } = {
     },
     {
       address: {
+        [defaultChain.id]: '0x4',
+      },
+      questionId: {
+        [defaultChain.id]: '0x4',
+      },
+      conditionId: {
+        [defaultChain.id]: '0x4',
+      },
+      collateralToken: {
+        [defaultChain.id]: '0x4',
+      },
+      hidden: {
+        [defaultChain.id]: false,
+      },
+      resolved: {
+        [defaultChain.id]: false,
+      },
+      outcomeTokens: ['Yes', 'No'],
+      title: 'Will Dima put 5 stars 2 times in a row during tech syncs?',
+      description:
+        'This market will be resolved to YES if Dima put 5 stars at some tech sync and the other exactly after previous. The resolution is based on tech syncs outcomes but you can always ask Dima to do this and share some moni (not sure he will go for it).',
+      placeholderURI: 'assets/images/val.png',
+      imageURI: '/assets/images/val.png',
+      expirationDate: '01 Jan, 2027',
+      expirationTimestamp: 1798761600,
+      createdAt: 1754006399,
+      expired: false,
+      tokenTicker: {
+        [defaultChain.id]: 'USDC',
+      },
+      tokenURI: {
+        [defaultChain.id]:
+          'https://assets.coingecko.com/coins/images/6319/standard/usdc.png?1696506694',
+      },
+      creator: {
+        imageURI: 'https://limitless.exchange/assets/images/logo.svg',
+        link: 'https://x.com/trylimitless',
+        name: 'Limitless',
+      },
+      prices: [63, 37],
+      tags: ['dima'],
+      winningOutcomeIndex: null,
+      volume: '780000000',
+      liquidity: '500000000',
+      outcomeTokensPercent: [63, 37],
+    },
+    {
+      address: {
         [defaultChain.id]: '0x2',
       },
       questionId: {
