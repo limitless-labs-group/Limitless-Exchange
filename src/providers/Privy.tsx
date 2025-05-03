@@ -26,6 +26,7 @@ export default function PrivyAuthProvider({ children }: PropsWithChildren) {
     appearance: {
       theme: mode,
       logo: 'https://limitless-web.vercel.app/assets/images/logo.svg',
+      landingHeader: 'Welcome to Limitless',
     },
     embeddedWallets: {
       createOnLogin: 'users-without-wallets',
