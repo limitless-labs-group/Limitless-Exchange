@@ -138,7 +138,7 @@ export default function Orderbook({ variant }: OrderBookProps) {
     if (!orderbookData.asks.length || !orderbookData.bids.length) {
       return '0'
     }
-    return new BigNumber(orderbookData.asks.reverse()[0].price)
+    return new BigNumber(orderbookData.asks[0].price)
       .minus(new BigNumber(orderbookData.bids[0].price))
       .multipliedBy(100)
       .abs()
