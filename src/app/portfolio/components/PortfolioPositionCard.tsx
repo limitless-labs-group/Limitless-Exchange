@@ -3,14 +3,14 @@ import { defaultChain } from '@/constants'
 import { createPortfolioShareUrls, HistoryPosition } from '@/services'
 import { NumberUtil } from '@/utils'
 import { HStack, Heading, Image, Stack, StackProps, Text } from '@chakra-ui/react'
-import { useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { usePriceOracle } from '@/providers'
 import { borderRadius, colors } from '@/styles'
-import { useIsMobile, useMarketData } from '@/hooks'
+import { useIsMobile } from '@/hooks'
 import { FaCircle } from 'react-icons/fa'
-import { useMarket } from '@/services/MarketsService'
-import { useToken } from '@/hooks/use-token'
+import { mockMarkets } from '@/services/mock-markets'
+import { formatUnits } from 'viem'
+import { Market } from '@/types'
 
 export interface IPortfolioPositionCard extends Omit<StackProps, 'position'> {
   position: HistoryPosition
@@ -25,25 +25,33 @@ export const PortfolioPositionCard = ({ position, ...props }: IPortfolioPosition
   /**
    * MARKET DATA
    */
-  const market = useMarket(position.market.id)
-  const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
-  const { outcomeTokensPercent, volume } = useMarketData({
-    marketAddress: position.market.id,
-    collateralToken,
-  })
+  // const market = useMarket(position.market.id)
+  // const { data: collateralToken } = useToken(market?.collateralToken[defaultChain.id])
+  // const { outcomeTokensPercent, volume } = useMarketData({
+  //   marketAddress: position.market.id,
+  //   collateralToken,
+  // })
 
-  const chancePercent = useMemo(() => {
-    if (market?.expired) {
-      return market?.winningOutcomeIndex === 0 ? '100' : '0'
-    }
-    return outcomeTokensPercent?.[market?.outcomeTokens[0] === 'Yes' ? 0 : 1].toFixed(1)
-  }, [market, outcomeTokensPercent])
+  const market = mockMarkets.data.find(
+    (market) => market.address[defaultChain.id] === position.market.id
+  )
+
+  // const chancePercent = useMemo(() => {
+  //   if (market?.expired) {
+  //     return market?.winningOutcomeIndex === 0 ? '100' : '0'
+  //   }
+  //   return outcomeTokensPercent?.[market?.outcomeTokens[0] === 'Yes' ? 0 : 1].toFixed(1)
+  // }, [market, outcomeTokensPercent])
+
+  const volume = formatUnits(BigInt(market?.volume || 0), 6)
+
+  const chancePercent = market?.outcomeTokensPercent[0]
 
   /**
    * SHARE
    */
   const marketURI = `${window.location.origin}/markets/${position.market.id}`
-  const shareLinks = createPortfolioShareUrls(market, position)
+  const shareLinks = createPortfolioShareUrls(market as Market, position)
 
   /**
    * UTILS
