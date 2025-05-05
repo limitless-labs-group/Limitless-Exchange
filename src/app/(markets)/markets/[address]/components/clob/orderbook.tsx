@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import OrderbookTableLarge from '@/app/(markets)/markets/[address]/components/clob/orderbook-table-large'
 import OrderBookTableSmall from '@/app/(markets)/markets/[address]/components/clob/orderbook-table-small'
@@ -42,7 +42,10 @@ export default function Orderbook({ variant }: OrderBookProps) {
     },
   })
 
-  const orderbookData = getOrderBookData(outcome, orderbook, market?.collateralToken.decimals)
+  const orderbookData = useCallback(
+    () => getOrderBookData(outcome, orderbook, market?.collateralToken.decimals),
+    [outcome]
+  )()
 
   const spread = useMemo(() => {
     if (!orderbookData) {
