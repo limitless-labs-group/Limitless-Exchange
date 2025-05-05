@@ -119,7 +119,7 @@ export const MarketGroupCard = ({
       <Text {...headline} p='16px' textAlign='left'>
         {market.title}
       </Text>
-      <VStack maxH='96px' px='16px' overflowY='auto' gap='8px' pt={0}>
+      <VStack maxH='86px' px='16px' overflowY='auto' gap='8px' pt={0}>
         {market.markets?.map((marketInGroup) => (
           <MarketGroupRow
             market={marketInGroup}
@@ -129,9 +129,7 @@ export const MarketGroupCard = ({
         ))}
       </VStack>
       <HStack
-        position='absolute'
         bg={hovered ? 'grey.100' : 'grey.50'}
-        bottom={0}
         width='full'
         p='16px'
         justifyContent='space-between'
