@@ -15,6 +15,7 @@ import ClosedIcon from '@/resources/icons/close-rounded-icon.svg'
 import { ClickEvent, HistoryPosition, useAmplitude, useTradingService } from '@/services'
 import { useMarket } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export interface IPortfolioPositionCard {
@@ -210,6 +211,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
                 showDays={false}
                 hideText
                 color={position?.market?.closed ? 'whiteAlpha.70' : 'grey.500'}
+                ended={position?.market?.closed || false}
               />
             </HStack>
             <HStack>

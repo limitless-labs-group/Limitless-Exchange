@@ -18,7 +18,7 @@ import {
   useTradingService,
 } from '@/services'
 import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market } from '@/types'
+import { Market, MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export const MarketGroupCard = ({
@@ -140,6 +140,7 @@ export const MarketGroupCard = ({
           color='grey.500'
           showDays={false}
           hideText={isMobile || isShortCard}
+          ended={market.status === MarketStatus.RESOLVED}
         />
         <HStack gap='4px'>
           <HStack gap='4px'>
