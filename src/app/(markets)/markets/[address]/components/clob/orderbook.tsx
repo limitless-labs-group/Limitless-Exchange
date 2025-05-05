@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
-import React, { useCallback, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import OrderbookTableLarge from '@/app/(markets)/markets/[address]/components/clob/orderbook-table-large'
@@ -20,41 +20,38 @@ export default function Orderbook({ variant }: OrderBookProps) {
   const privateClient = useAxiosPrivateClient()
   const queryClient = useQueryClient()
 
-  const calculatePercentReverse = useCallback(
-    (array: Order[]) => {
-      const totalSum = array.reduce(
-        (sum, bid) =>
-          sum +
-          new BigNumber(formatUnits(BigInt(bid.size), market?.collateralToken.decimals || 6))
-            .multipliedBy(bid.price)
-            .toNumber(),
-        0
-      )
+  const calculatePercentReverse = (array: Order[]) => {
+    const totalSum = array.reduce(
+      (sum, bid) =>
+        sum +
+        new BigNumber(formatUnits(BigInt(bid.size), market?.collateralToken.decimals || 6))
+          .multipliedBy(bid.price)
+          .toNumber(),
+      0
+    )
 
-      let cumulativeSum = 0
-      const processedBids = array
-        .slice()
-        .map((order) => {
-          const bidSum = new BigNumber(
-            formatUnits(BigInt(order.size), market?.collateralToken.decimals || 6)
-          )
-            .multipliedBy(order.price)
-            .toNumber()
-          cumulativeSum += bidSum
-          const cumulativePercent = (cumulativeSum / totalSum) * 100
+    let cumulativeSum = 0
+    const processedBids = array
+      .slice()
+      .map((order) => {
+        const bidSum = new BigNumber(
+          formatUnits(BigInt(order.size), market?.collateralToken.decimals || 6)
+        )
+          .multipliedBy(order.price)
+          .toNumber()
+        cumulativeSum += bidSum
+        const cumulativePercent = (cumulativeSum / totalSum) * 100
 
-          return {
-            ...order,
-            cumulativePercent: cumulativePercent.toFixed(6),
-            percent: cumulativePercent.toFixed(6),
-            cumulativePrice: cumulativeSum.toFixed(6),
-          }
-        })
-        .reverse()
-      return processedBids
-    },
-    [market?.collateralToken.decimals]
-  )
+        return {
+          ...order,
+          cumulativePercent: cumulativePercent.toFixed(6),
+          percent: cumulativePercent.toFixed(6),
+          cumulativePrice: cumulativeSum.toFixed(6),
+        }
+      })
+      .reverse()
+    return processedBids
+  }
 
   const deleteBatchOrders = useMutation({
     mutationKey: ['delete-batch-orders'],
@@ -78,34 +75,29 @@ export default function Orderbook({ variant }: OrderBookProps) {
     },
   })
 
-  const calculatePercent = useCallback(
-    (array: Order[]) => {
-      const totalSize = array.reduce((sum, item) => sum + item.size, 0)
-      let cumulativePrice = 0
+  const calculatePercent = (array: Order[]) => {
+    const totalSize = array.reduce((sum, item) => sum + item.size, 0)
+    let cumulativePrice = 0
 
-      let cumulativePercent = 0
-      return array.map((item) => {
-        const percent = (item.size / totalSize) * 100
-        cumulativePercent += percent
-        cumulativePrice += new BigNumber(
-          formatUnits(BigInt(item.size), market?.collateralToken.decimals || 6)
-        )
-          .multipliedBy(item.price)
-          .toNumber()
-        return {
-          ...item,
-          percent: percent.toFixed(2),
-          cumulativePercent: cumulativePercent.toFixed(6),
-          cumulativePrice: cumulativePrice.toFixed(6),
-        }
-      })
-    },
-    [market?.collateralToken.decimals]
-  )
+    let cumulativePercent = 0
+    return array.map((item) => {
+      const percent = (item.size / totalSize) * 100
+      cumulativePercent += percent
+      cumulativePrice += new BigNumber(
+        formatUnits(BigInt(item.size), market?.collateralToken.decimals || 6)
+      )
+        .multipliedBy(item.price)
+        .toNumber()
+      return {
+        ...item,
+        percent: percent.toFixed(2),
+        cumulativePercent: cumulativePercent.toFixed(6),
+        cumulativePrice: cumulativePrice.toFixed(6),
+      }
+    })
+  }
 
-  console.log(outcome)
-
-  const orderbookData = useMemo(() => {
+  const getOrderBookData = () => {
     if (!orderbook) {
       return {
         bids: [],
@@ -136,7 +128,9 @@ export default function Orderbook({ variant }: OrderBookProps) {
       bids: calculatePercent(bids),
       asks: calculatePercentReverse(asks),
     }
-  }, [orderbook, outcome, calculatePercentReverse, calculatePercent])
+  }
+
+  const orderbookData = getOrderBookData()
 
   const spread = useMemo(() => {
     if (!orderbookData) {
