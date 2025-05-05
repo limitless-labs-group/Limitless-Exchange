@@ -56,7 +56,7 @@ export const MainLayout = ({
           {headerComponent}
         </Box>
       )}
-      <Box mb={isMobile ? '60px' : 0} overflow='hidden' mt={`${childrenMargin}px`}>
+      <Box mb='60px' overflow='hidden' mt={`${childrenMargin}px`}>
         <Box minH={'100vh'}>
           <Box p={layoutPadding} maxW='1420px' m='auto'>
             {children}
