@@ -58,6 +58,7 @@ export default function OrderbookTableLarge({
   lastPrice,
   deleteBatchOrders,
 }: OrderBookData) {
+  console.log(orderBookData)
   const { market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
   const { data: orderbook, isLoading: orderBookLoading } = useOrderBook(
     market?.slug,
