@@ -58,7 +58,6 @@ export default function OrderbookTableLarge({
   lastPrice,
   deleteBatchOrders,
 }: OrderBookData) {
-  console.log(orderBookData)
   const { market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
   const { data: orderbook, isLoading: orderBookLoading } = useOrderBook(
     market?.slug,
@@ -210,7 +209,7 @@ export default function OrderbookTableLarge({
         <Box position='relative'>
           <Box maxH='162px' minH='36px' overflow='auto' position='relative' ref={containerRef}>
             <>
-              {orderBookData.asks.map((item, index) => (
+              {orderBookData.asks.reverse().map((item, index) => (
                 <HStack
                   gap={0}
                   key={index}
