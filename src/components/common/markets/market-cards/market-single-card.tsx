@@ -28,9 +28,9 @@ import { Market } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export const MIN_CARD_HEIGHT = {
-  row: '144px',
+  row: '164px',
   grid: '164px',
-  speedometer: '137px',
+  speedometer: '164px',
   chart: '144px',
   groupRow: '196px',
 }
