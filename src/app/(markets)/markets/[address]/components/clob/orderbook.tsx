@@ -179,6 +179,8 @@ export default function Orderbook({ variant }: OrderBookProps) {
     return ''
   }, [orderbook, market, outcome])
 
+  console.log(orderbookData)
+
   return isMobile || variant === 'small' ? (
     <OrderBookTableSmall
       orderBookData={orderbookData}
