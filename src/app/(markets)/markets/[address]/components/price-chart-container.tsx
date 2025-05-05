@@ -25,8 +25,6 @@ const ChartContainer = () => {
   const { data: priceHistory, isLoading: isLoadingPriceHistory } =
     useNegRiskPriceHistory(marketSlug)
 
-  console.log(priceHistory)
-
   if (!priceHistory || isLoadingPriceHistory) {
     return (
       <Box w='full'>

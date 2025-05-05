@@ -103,6 +103,8 @@ export default function Orderbook({ variant }: OrderBookProps) {
     [market?.collateralToken.decimals]
   )
 
+  console.log(outcome)
+
   const orderbookData = useMemo(() => {
     if (!orderbook) {
       return {
