@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import OrderbookTableLarge from '@/app/(markets)/markets/[address]/components/clob/orderbook-table-large'
@@ -97,7 +97,7 @@ export default function Orderbook({ variant }: OrderBookProps) {
     })
   }
 
-  const getOrderBookData = () => {
+  const getOrderBookData = useCallback(() => {
     if (!orderbook) {
       return {
         bids: [],
@@ -128,7 +128,7 @@ export default function Orderbook({ variant }: OrderBookProps) {
       bids: calculatePercent(bids),
       asks: calculatePercentReverse(asks),
     }
-  }
+  }, [outcome, orderbook])
 
   const orderbookData = getOrderBookData()
 
