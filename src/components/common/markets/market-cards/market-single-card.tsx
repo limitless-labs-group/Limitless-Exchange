@@ -24,7 +24,7 @@ import {
 } from '@/services'
 import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
 import { captionMedium, headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market } from '@/types'
+import { Market, MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export const MIN_CARD_HEIGHT = {
@@ -156,6 +156,7 @@ export const MarketSingleCard = ({
             deadlineText={market.expirationDate}
             {...paragraphRegular}
             color='grey.500'
+            ended={market.status === MarketStatus.RESOLVED}
           />
         </Box>
         <VStack w='full' h='calc(100% - 28px)' gap='16px' justifyContent='space-between'>
