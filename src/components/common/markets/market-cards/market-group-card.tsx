@@ -119,13 +119,7 @@ export const MarketGroupCard = ({
       <Text {...headline} p='16px' textAlign='left'>
         {market.title}
       </Text>
-      <VStack
-        maxH={`calc(${MIN_CARD_HEIGHT[variant]} - 104px)`}
-        p='16px'
-        overflowY='auto'
-        gap='8px'
-        pt={0}
-      >
+      <VStack maxH='96px' p='16px' overflowY='auto' gap='8px' pt={0}>
         {market.markets?.map((marketInGroup) => (
           <MarketGroupRow
             market={marketInGroup}
