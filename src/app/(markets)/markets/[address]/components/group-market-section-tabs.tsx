@@ -57,14 +57,12 @@ export default function GroupMarketSectionTabs({
     },
   ]
 
-  const tabPanels = useMemo(() => {
-    return [
-      <Orderbook key={uuidv4()} variant={isSmallLaptop || mobileView ? 'small' : 'large'} />,
-      <MarketPriceChart key={uuidv4()} />,
-      <ClobOrdersTab key={uuidv4()} />,
-      <PortfolioMarketGroup key={uuidv4()} />,
-    ]
-  }, [isSmallLaptop, mobileView])
+  const tabPanels = [
+    <Orderbook key={uuidv4()} variant={isSmallLaptop || mobileView ? 'small' : 'large'} />,
+    <MarketPriceChart key={uuidv4()} />,
+    <ClobOrdersTab key={uuidv4()} />,
+    <PortfolioMarketGroup key={uuidv4()} />,
+  ]
 
   const handleTabChanged = (event: string) => {
     // trackChanged(ChangeEvent.ChartTabChanged, {
