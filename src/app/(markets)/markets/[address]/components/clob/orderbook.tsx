@@ -21,6 +21,7 @@ export default function Orderbook({ variant }: OrderBookProps) {
   const queryClient = useQueryClient()
 
   function calculatePercentReverse(array: Order[]) {
+    console.log(array)
     const totalSum = array.reduce(
       (sum, bid) =>
         sum +
