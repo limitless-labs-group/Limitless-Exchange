@@ -74,8 +74,8 @@ export const mockMarkets: { data: Market[] } = {
       title: 'Will Dima put 5 stars 2 times in a row during tech syncs?',
       description:
         'This market will be resolved to YES if Dima put 5 stars at some tech sync and the other exactly after previous. The resolution is based on tech syncs outcomes but you can always ask Dima to do this and share some moni (not sure he will go for it).',
-      placeholderURI: 'assets/images/val.png',
-      imageURI: '/assets/images/val.png',
+      placeholderURI: 'assets/images/dima.jpg',
+      imageURI: '/assets/images/dima.jpg',
       expirationDate: '01 Jan, 2027',
       expirationTimestamp: 1798761600,
       createdAt: 1754006399,
@@ -194,6 +194,53 @@ export const mockMarkets: { data: Market[] } = {
       volume: '1200000000',
       liquidity: '1000000000',
       outcomeTokensPercent: [99, 1],
+    },
+    {
+      address: {
+        [defaultChain.id]: '0x5',
+      },
+      questionId: {
+        [defaultChain.id]: '0x5',
+      },
+      conditionId: {
+        [defaultChain.id]: '0x5',
+      },
+      collateralToken: {
+        [defaultChain.id]: '0x5',
+      },
+      hidden: {
+        [defaultChain.id]: false,
+      },
+      resolved: {
+        [defaultChain.id]: false,
+      },
+      outcomeTokens: ['Yes', 'No'],
+      title: 'Why are yoy gay?',
+      description: 'No resolution rules.',
+      placeholderURI: 'assets/images/gay.jpg',
+      imageURI: '/assets/images/gay.jpg',
+      expirationDate: '31 Dec, 2025',
+      expirationTimestamp: 1767225599,
+      createdAt: 1754006399,
+      expired: false,
+      tokenTicker: {
+        [defaultChain.id]: 'USDC',
+      },
+      tokenURI: {
+        [defaultChain.id]:
+          'https://assets.coingecko.com/coins/images/6319/standard/usdc.png?1696506694',
+      },
+      creator: {
+        imageURI: 'https://limitless.exchange/assets/images/logo.svg',
+        link: 'https://x.com/trylimitless',
+        name: 'Limitless',
+      },
+      prices: [100, 0],
+      tags: ['gay'],
+      winningOutcomeIndex: null,
+      volume: '120000000000',
+      liquidity: '100000000000',
+      outcomeTokensPercent: [100, 0],
     },
   ],
 }
