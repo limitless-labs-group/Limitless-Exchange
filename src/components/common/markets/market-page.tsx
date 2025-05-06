@@ -61,6 +61,7 @@ import {
 } from '@/services'
 import { useMarket } from '@/services/MarketsService'
 import { h2Bold, h2Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 import { ReferralLink } from '../referral-link'
 
@@ -278,6 +279,7 @@ export default function MarketPage() {
             deadlineText={market.expirationDate}
             {...paragraphRegular}
             color='grey.500'
+            ended={market.status === MarketStatus.RESOLVED}
           />
         )}
         <HStack gap='6px' flexWrap='wrap'>
