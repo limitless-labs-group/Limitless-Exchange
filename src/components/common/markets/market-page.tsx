@@ -245,7 +245,7 @@ export default function MarketPage() {
   useEffect(() => {
     setActiveActionsTabIndex(0)
     setActiveChartTabIndex(0)
-  }, [market])
+  }, [market?.slug])
 
   return (
     <SideBarPage>
