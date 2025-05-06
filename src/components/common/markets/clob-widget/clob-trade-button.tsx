@@ -1,4 +1,6 @@
-import ButtonWithStates, { ButtonWithStatesProps } from '@/components/common/button-with-states'
+import ButtonWithStates, {
+  ButtonWithStatesProps,
+} from 'src/components/common/buttons/button-with-states'
 
 export default function ClobTradeButton({
   status,

@@ -22,7 +22,7 @@ import BigNumber from 'bignumber.js'
 import debounce from 'lodash.debounce'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import ButtonWithStates from '@/components/common/button-with-states'
+import ButtonWithStates from 'src/components/common/buttons/button-with-states'
 import TradeWidgetSkeleton, {
   SkeletonType,
 } from '@/components/common/skeleton/trade-widget-skeleton'

@@ -16,16 +16,16 @@ import {
 import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Avatar from '@/components/common/avatar'
+import CopyButton from '@/components/common/buttons/copy-button'
 import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
 import TablePagination from '@/components/common/table-pagination'
 import NoInvitedFriendsSection from '@/components/layouts/invite-friends-page/components/no-invited-friends-section'
-import ReferralLinkButton from '@/components/layouts/invite-friends-page/components/referral-link-button'
 import { useReferralsTotalVolume } from '@/hooks/use-referrals-total-volume'
 import CloseIcon from '@/resources/icons/close-icon.svg'
 import HeartIcon from '@/resources/icons/heart-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import { ChangeEvent, useAccount, useAmplitude } from '@/services'
+import { ChangeEvent, ClickEvent, useAccount, useAmplitude } from '@/services'
 import {
   h1Bold,
   h3Bold,
@@ -40,9 +40,16 @@ import { cutUsername } from '@/utils/string'
 export default function InviteFriendsPage() {
   const { setReferralPageOpened, refLink, referralData } = useAccount()
   const [currentPage, setCurrentPage] = useState(1)
-  const { trackChanged } = useAmplitude()
+  const { trackChanged, trackClicked } = useAmplitude()
 
   const { data, isLoading: referralsVolumeLoading } = useReferralsTotalVolume()
+
+  const onRefLinkCopy = () => {
+    trackClicked(ClickEvent.CopyReferralClicked, {
+      // @ts-ignore
+      from: 'Invite Friend Page',
+    })
+  }
 
   const statisticsData = [
     {
@@ -105,7 +112,12 @@ export default function InviteFriendsPage() {
       </Text>
       <HStack w='full' gap='16px' mt='8px'>
         <Input variant='grey' disabled value={refLink} />
-        <ReferralLinkButton />
+        <CopyButton
+          link={refLink}
+          variant='contained'
+          w={isMobile ? '112px' : '90px'}
+          onCopyClicked={onRefLinkCopy}
+        />
       </HStack>
       <Divider my='24px' />
       <HStack w='full' gap='8px' flexDirection={isMobile ? 'column' : 'row'}>
