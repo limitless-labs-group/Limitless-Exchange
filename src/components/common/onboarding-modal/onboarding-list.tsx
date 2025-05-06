@@ -137,7 +137,6 @@ export const OnboardingList = ({ isFinished, onFinish, mobile }: OnboardingListP
             />
           )
         })}
-        <OnboardRow title='Finish onboarding and get +10 points' />
       </Stack>
     </Stack>
   )
