@@ -12,6 +12,7 @@ export interface Profile {
   isCreator: boolean
   isAdmin: boolean
   socialUrl?: string | null
+  isOnboarded: boolean
   referralCode: string
   referralData: Referee[]
   enrolledInPointsProgram: boolean

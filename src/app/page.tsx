@@ -21,8 +21,11 @@ import Loader from '@/components/common/loader'
 import { MarketCategoryHeader } from '@/components/common/markets/market-category-header'
 import MarketsSection from '@/components/common/markets/markets-section'
 import TopMarkets from '@/components/common/markets/top-markets'
+import { Modal } from '@/components/common/modals/modal'
+import { WelcomeModal } from '@/components/common/welcome-modal'
 import CategoriesDesktop from '@/components/layouts/categories-desktop'
 import { sortAtom } from '@/atoms/market-sort'
+import { welcomeModalAtom } from '@/atoms/onboard'
 import { MainLayout } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import { useUrlParams } from '@/hooks/use-url-param'
@@ -32,17 +35,21 @@ import {
   DashboardName,
   useAmplitude,
   useTradingService,
+  useAccount,
+  ChangeEvent,
   useCategories,
 } from '@/services'
 import { useBanneredMarkets, useMarket, useSortedMarkets } from '@/services/MarketsService'
 import { h3Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Dashboard, Market, MarketType, Sort, SortStorageName } from '@/types'
+import { ONBOARDING } from '@/utils/consts'
 import { getSortValue } from '@/utils/market-sorting'
 
 const MainPage = () => {
   const { getParam } = useUrlParams()
   const market = getParam('market')
   const dashboardSearch = getParam('dashboard')
+  const referralCode = getParam('r')
   const category = getParam('category')
 
   const { data: categories } = useCategories()
@@ -53,11 +60,13 @@ const MainPage = () => {
     market: selectedMarket,
     groupMarket,
   } = useTradingService()
-  const { trackOpened } = useAmplitude()
+  const { referralCode: ownRefCode, isLoggedIn } = useAccount()
+  const { trackOpened, trackChanged } = useAmplitude()
   const { data: marketData } = useMarket(market ?? undefined)
   const { data: banneredMarkets, isFetching: isBanneredLoading } = useBanneredMarkets(null)
   const { selectedCategory, handleCategory, dashboard, handleDashboard } = useTokenFilter()
   const [selectedSort, setSelectedSort] = useAtom(sortAtom)
+  const [onboardModal, setOnboardModal] = useAtom(welcomeModalAtom)
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useSortedMarkets({
     categoryId: selectedCategory?.id,
     sortBy: getSortValue(selectedSort.sort),
@@ -121,6 +130,14 @@ const MainPage = () => {
     }
   }, [])
 
+  useEffect(() => {
+    if (typeof window !== 'undefined' && referralCode) {
+      const isOnboarded = window.localStorage.getItem(ONBOARDING)
+      if (isOnboarded && isOnboarded === 'true') return
+      setOnboardModal(true)
+    }
+  }, [referralCode])
+
   const handleSelectSort = (options: Sort, name: SortStorageName) => {
     window.localStorage.setItem(name, JSON.stringify(options))
     setSelectedSort({ sort: options ?? Sort.DEFAULT })
@@ -144,6 +161,10 @@ const MainPage = () => {
       onCloseMarketPage()
     }
   }, [])
+
+  const isWelcomeShown = useMemo(() => {
+    return onboardModal && referralCode && referralCode !== ownRefCode && !isLoggedIn
+  }, [onboardModal, referralCode, ownRefCode, isLoggedIn])
 
   const headerContent = useMemo(() => {
     if (selectedCategory?.name === 'Crypto') return
@@ -320,6 +341,17 @@ const MainPage = () => {
           </Box>
         )}
       </VStack>
+      {isWelcomeShown ? (
+        <Modal
+          isOpen={onboardModal}
+          onClose={() => {
+            trackChanged(ChangeEvent.ReferralWelcomeClosed)
+            setOnboardModal(false)
+          }}
+        >
+          <WelcomeModal onClose={() => setOnboardModal(false)} referralCode={referralCode ?? ''} />
+        </Modal>
+      ) : null}
     </MainLayout>
   )
 }

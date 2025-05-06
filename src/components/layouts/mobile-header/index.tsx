@@ -9,12 +9,14 @@ import {
   MenuList,
   Slide,
   Spacer,
+  Stack,
   Text,
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
 import { useFundWallet, usePrivy } from '@privy-io/react-auth'
 import BigNumber from 'bignumber.js'
+import { useAtom } from 'jotai'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useMemo, useState } from 'react'
@@ -25,15 +27,18 @@ import MobileDrawer from '@/components/common/drawer'
 import Loader from '@/components/common/loader'
 import { LoginButtons } from '@/components/common/login-button'
 import WrapModal from '@/components/common/modals/wrap-modal'
+import { OnboardingList } from '@/components/common/onboarding-modal/onboarding-list'
 import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
 import InviteFriendsPage from '@/components/layouts/invite-friends-page'
 import ThemeSwitcher from '@/components/layouts/theme-switcher'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
+import { onboardingStepsAtom } from '@/atoms/onboard'
 import { Profile } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import useClient from '@/hooks/use-client'
+import { usePointsActions } from '@/hooks/use-onboarding-points'
 import { usePriceOracle, useThemeProvider } from '@/providers'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import HeartIcon from '@/resources/icons/heart-icon.svg'
@@ -47,6 +52,7 @@ import SwapIcon from '@/resources/icons/sidebar/Wrap.svg'
 import SunIcon from '@/resources/icons/sun-icon.svg'
 import Dots from '@/resources/icons/three-horizontal-dots.svg'
 import {
+  ChangeEvent,
   ClickEvent,
   ClobPositionWithType,
   HistoryPositionWithType,
@@ -78,13 +84,34 @@ export default function MobileHeader() {
     account,
     loginToPlatform,
     referralData,
+    updateOnboardingStatus,
   } = useAccount()
   const { balanceOfSmartWallet } = useBalanceQuery()
-  const { trackClicked } = useAmplitude()
+  const { trackClicked, trackChanged } = useAmplitude()
   const { client } = useWeb3Service()
   const { isLoggedToPlatform } = useClient()
   const { mode, setLightTheme, setDarkTheme } = useThemeProvider()
   const { fundWallet } = useFundWallet()
+  const [steps, setSteps] = useAtom(onboardingStepsAtom)
+  const { data: points } = usePointsActions()
+
+  useEffect(() => {
+    if (points) {
+      setSteps((prevSteps) =>
+        prevSteps.map((step) => ({
+          ...step,
+          isChecked: points[step.id] ?? false,
+        }))
+      )
+    }
+  }, [points, setSteps])
+
+  const completedSteps = steps.filter((step) => step.isChecked).length
+  const isFinished = completedSteps === steps.length
+  const finish = async () => {
+    await updateOnboardingStatus.mutateAsync(true)
+    trackChanged(ChangeEvent.FinishedOnboarding)
+  }
 
   const {
     isOpen: isOpenUserMenu,
@@ -256,7 +283,20 @@ export default function MobileHeader() {
                   >
                     <SearchIcon width={16} height={16} />
                   </Button>
-                  <Box ml='8px'>
+                  <Box ml='8px' position='relative'>
+                    {profileData && profileData.isOnboarded === false && (
+                      <Box
+                        position='absolute'
+                        top='-2px'
+                        right='-2px'
+                        width='8px'
+                        height='8px'
+                        borderRadius='50%'
+                        bg='green.500'
+                        border='1px solid'
+                        borderColor='grey.50'
+                      />
+                    )}
                     <MenuIcon width={16} height={16} />
                   </Box>
                 </Button>
@@ -358,6 +398,16 @@ export default function MobileHeader() {
                           </Button>
                         </ButtonGroup>
                       </HStack>
+                      {profileData && !profileData.isOnboarded ? (
+                        <Stack
+                          mb='16px'
+                          border='1px solid'
+                          borderColor='grey.200'
+                          borderRadius='8px'
+                        >
+                          <OnboardingList onFinish={finish} isFinished={isFinished} mobile />
+                        </Stack>
+                      ) : null}
 
                       <VStack gap='24px' w='full' alignItems='start'>
                         <Divider borderColor='grey.200' />
