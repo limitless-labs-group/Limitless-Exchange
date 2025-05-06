@@ -47,7 +47,10 @@ const PortfolioPositionCardClob = ({ positionData, ...props }: PortfolioPosition
       p={isMobile ? '16px' : '8px'}
     >
       <HStack w='full' justifyContent='space-between'>
-        <Text {...paragraphMedium}>
+        <Text
+          {...paragraphMedium}
+          color={positionData.market.status === MarketStatus.RESOLVED ? 'white' : 'grey.800'}
+        >
           {positionData.market.group?.title || positionData.market.title}
         </Text>
         {isMobile && <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} />}
@@ -75,7 +78,11 @@ const PortfolioPositionCardClob = ({ positionData, ...props }: PortfolioPosition
         )}
       </HStack>
       {positionData.market.group?.title && (
-        <Text {...paragraphMedium} mt='24px'>
+        <Text
+          {...paragraphMedium}
+          color={positionData.market.status === MarketStatus.RESOLVED ? 'white' : 'grey.800'}
+          mt='24px'
+        >
           {positionData.market.title}
         </Text>
       )}
