@@ -7,12 +7,10 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const referralCode = searchParams.get('r')
 
-  const displayText = referralCode
-    ? `Join Limitless with referral code: ${referralCode}`
-    : 'Limitless Exchange'
+  const displayText = referralCode ? `You're invited to explore the future!` : `Limitless Exchange`
 
   const titleText = referralCode
-    ? 'Use this referral link to get started'
+    ? `Your invite code: ${referralCode}`
     : 'Forecast the future on Limitless, financial prediction market'
 
   const fontDataBold = await fetch(new URL('./assets/Inter-Bold.ttf', import.meta.url)).then(
@@ -73,14 +71,15 @@ export async function GET(request: Request) {
           <p
             style={{
               color: 'white',
-              fontSize: '42px',
+              fontSize: '52px',
               fontWeight: 700,
               textAlign: 'center',
               marginTop: '36px',
-              maxWidth: '900px',
+              maxWidth: '1000px',
               lineHeight: '1.2',
               textShadow: '0 2px 4px rgba(0,0,0,0.3)',
               fontFamily: 'Inter Bold',
+              whiteSpace: 'nowrap',
             }}
           >
             {displayText}
@@ -89,8 +88,7 @@ export async function GET(request: Request) {
             style={{
               display: 'flex',
               gap: '8px',
-              marginTop: '36px',
-              padding: '12px 24px',
+              marginTop: '13px',
               borderRadius: '8px',
               color: 'rgba(255, 255, 255, 0.4)',
               alignItems: 'center',
@@ -99,7 +97,7 @@ export async function GET(request: Request) {
             <span
               style={{
                 color: 'rgba(255, 255, 255, 0.4)',
-                fontSize: '24px',
+                fontSize: '34px',
                 fontWeight: '500',
                 fontFamily: 'Inter Thin',
               }}

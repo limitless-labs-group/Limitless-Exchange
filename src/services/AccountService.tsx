@@ -268,23 +268,25 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
             web3Wallet: walletClient,
             r,
           })
-          if (!isDev) {
-            spindl.attribute(client.account?.address)
-          }
-          pushGA4Event(GAEvents.WalletConnected)
           if (isNewUser) {
             trackSignUp(SignInEvent.SignedUp, {
               signedIn: true,
-              account: client.account?.address ?? '',
+              account: connectedWallet.address,
+              walletType: 'smart wallet',
               ...referral,
             })
             return
           }
           trackSignIn(SignInEvent.SignedIn, {
             signedIn: true,
-            account: client.account?.address ?? '',
+            account: connectedWallet.address,
+            walletType: 'smart wallet',
             ...referral,
           })
+          if (!isDev) {
+            spindl.attribute(client.account?.address)
+          }
+          pushGA4Event(GAEvents.WalletConnected)
           return
         }
         await login({
@@ -293,16 +295,26 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
           web3Wallet: walletClient,
           r,
         })
+        if (isNewUser) {
+          trackSignUp(SignInEvent.SignedUp, {
+            signedIn: true,
+            account: connectedWallet.address,
+            walletType: 'EOA wallet',
+            ...referral,
+          })
+          return
+        }
+        trackSignIn(SignInEvent.SignedIn, {
+          signedIn: true,
+          account: connectedWallet.address,
+          walletType: 'EOA wallet',
+          ...referral,
+        })
         if (!isDev) {
           spindl.attribute(connectedWallet.address)
         }
         pushGA4Event(GAEvents.WalletConnected)
         await handleRedirect()
-        trackSignIn(SignInEvent.SignedIn, {
-          signedIn: true,
-          account: connectedWallet.address ?? '',
-          ...referral,
-        })
         // setIsLogged(true)
         return
       }
