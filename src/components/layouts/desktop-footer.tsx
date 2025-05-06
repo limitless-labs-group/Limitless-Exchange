@@ -1,5 +1,4 @@
-import { BoxProps, HStack, Icon, Link, Text } from '@chakra-ui/react'
-import { PropsWithChildren } from 'react'
+import { Box, Divider, HStack, Icon, Link, Text } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
 import FarcasterIcon from '@/resources/icons/Farcaster.svg'
 import XIcon from '@/resources/icons/X.svg'
@@ -7,7 +6,7 @@ import BookIcon from '@/resources/icons/book-icon.svg'
 import DiscordIcon from '@/resources/icons/discord-icon.svg'
 import { ClickEvent, useAmplitude } from '@/services'
 import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { captionRegular, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { SOCIAL_LINKS } from '@/utils/consts'
 
 const ICON_PROPS = {
@@ -22,55 +21,55 @@ const ICON_WITHOUT_TEXT_PROPS = {
   _hover: { color: 'grey.800' },
 }
 
-export default function SocialsFooter({ ...props }: PropsWithChildren<BoxProps>) {
+export default function DesktopFooter() {
   const { trackClicked } = useAmplitude()
   const { pushGA4Event } = useGoogleAnalytics()
-
   return (
-    <HStack justifyContent='space-between' spacing={4} w='full' mt='4px' px='8px' {...props}>
-      <Link
-        href={SOCIAL_LINKS.DOCS}
-        target='_blank'
-        rel='noopener noreferrer'
-        onClick={() => {
-          trackClicked(ClickEvent.LimitlessLinksClicked, {
-            platform: isMobile ? 'mobile' : 'desktop',
-            option: 'docs',
-          })
-        }}
-        _hover={{
-          textDecoration: 'unset',
-        }}
-      >
-        <HStack
-          gap='4px'
-          color='grey.500'
-          _hover={{
-            color: 'grey.800',
-          }}
-        >
-          <Icon as={BookIcon} {...ICON_PROPS} />
-          <Text {...paragraphMedium} color='inherit'>
-            Docs
-          </Text>
-        </HStack>
-      </Link>
-
+    <HStack
+      w='full'
+      position='fixed'
+      bottom={0}
+      borderTop='1px solid'
+      borderColor='grey.100'
+      zIndex={2500}
+      py='4px'
+      px='12px'
+      justifyContent='space-between'
+      bg='grey.50'
+    >
+      <HStack gap='8px'>
+        <Box w='6px' h='6px' rounded='full' bg='green.500' />
+        <Text {...captionRegular}>Operational</Text>
+      </HStack>
       <HStack gap='8px'>
         <Link
-          href={SOCIAL_LINKS.DISCORD}
+          href={SOCIAL_LINKS.DOCS}
           target='_blank'
           rel='noopener noreferrer'
           onClick={() => {
             trackClicked(ClickEvent.LimitlessLinksClicked, {
               platform: isMobile ? 'mobile' : 'desktop',
-              option: 'discord',
+              option: 'docs',
             })
-            pushGA4Event(GAEvents.SocialDiscord)
+          }}
+          _hover={{
+            textDecoration: 'unset',
           }}
         >
-          <Icon as={DiscordIcon} {...ICON_WITHOUT_TEXT_PROPS} />
+          <HStack
+            gap='4px'
+            color='grey.500'
+            _hover={{
+              color: 'grey.800',
+            }}
+          >
+            <Icon as={BookIcon} w='16px' h='16px' />
+            <Text {...paragraphMedium} color='inherit'>
+              Docs
+            </Text>
+          </HStack>
         </Link>
+        <Divider orientation='vertical' h='16px' />
         <Link
           href={SOCIAL_LINKS.FARCASTER}
           target='_blank'
@@ -85,6 +84,20 @@ export default function SocialsFooter({ ...props }: PropsWithChildren<BoxProps>)
           }}
         >
           <Icon as={FarcasterIcon} {...ICON_WITHOUT_TEXT_PROPS} />
+        </Link>
+        <Link
+          href={SOCIAL_LINKS.DISCORD}
+          target='_blank'
+          rel='noopener noreferrer'
+          onClick={() => {
+            trackClicked(ClickEvent.LimitlessLinksClicked, {
+              platform: isMobile ? 'mobile' : 'desktop',
+              option: 'discord',
+            })
+            pushGA4Event(GAEvents.SocialDiscord)
+          }}
+        >
+          <Icon as={DiscordIcon} {...ICON_WITHOUT_TEXT_PROPS} />
         </Link>
         <Link
           href={SOCIAL_LINKS.X}

@@ -11,6 +11,7 @@ export type MarketTimerProps = TextProps & {
   topMarket?: boolean
   deadlineText: string
   hideText?: boolean
+  ended: boolean
 }
 
 const formatTime = ({

@@ -9,7 +9,7 @@ import MarketFeedCardContainer from '@/components/feed/components/market-feed-ca
 import { ClickEvent, useAmplitude, useTradingService } from '@/services'
 import { useMarket } from '@/services/MarketsService'
 import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { GroupFeedData, FeedEntity } from '@/types'
+import { GroupFeedData, FeedEntity, MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 interface FeedGroupClosedProps {
@@ -98,6 +98,7 @@ export default function FeedGroupClosed({ data }: FeedGroupClosedProps) {
           color='grey.500'
           showDays={false}
           hideText={false}
+          ended={true}
         />
         <HStack gap='4px'>
           <Text {...paragraphRegular} color='grey.500'>

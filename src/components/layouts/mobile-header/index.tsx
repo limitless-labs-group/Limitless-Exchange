@@ -4,6 +4,9 @@ import {
   ButtonGroup,
   Divider,
   HStack,
+  Menu,
+  MenuButton,
+  MenuList,
   Slide,
   Spacer,
   Text,
@@ -15,7 +18,6 @@ import BigNumber from 'bignumber.js'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useMemo, useState } from 'react'
-import CopyToClipboard from 'react-copy-to-clipboard'
 import { v4 as uuidv4 } from 'uuid'
 import { formatUnits, isAddress } from 'viem'
 import Avatar from '@/components/common/avatar'
@@ -25,6 +27,8 @@ import { LoginButtons } from '@/components/common/login-button'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
+import InviteFriendsPage from '@/components/layouts/invite-friends-page'
+import ThemeSwitcher from '@/components/layouts/theme-switcher'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
 import { Profile } from '@/components'
@@ -41,6 +45,7 @@ import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
 import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
 import SwapIcon from '@/resources/icons/sidebar/Wrap.svg'
 import SunIcon from '@/resources/icons/sun-icon.svg'
+import Dots from '@/resources/icons/three-horizontal-dots.svg'
 import {
   ClickEvent,
   ClobPositionWithType,
@@ -54,7 +59,7 @@ import {
   usePosition,
 } from '@/services'
 import { useWeb3Service } from '@/services/Web3Service'
-import { captionMedium, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
 export default function MobileHeader() {
@@ -72,7 +77,6 @@ export default function MobileHeader() {
     displayName,
     account,
     loginToPlatform,
-    refLink,
     referralData,
   } = useAccount()
   const { balanceOfSmartWallet } = useBalanceQuery()
@@ -103,14 +107,6 @@ export default function MobileHeader() {
       }
     }
   }, [refCopied])
-
-  const onRefLinkCopy = () => {
-    trackClicked(ClickEvent.CopyReferralClicked, {
-      // @ts-ignore
-      from: 'Mobile Header',
-    })
-    setRefCopied(true)
-  }
 
   const balanceInvested = useMemo(() => {
     const ammPositions = positions?.positions.filter(
@@ -179,6 +175,19 @@ export default function MobileHeader() {
     }
   }
 
+  const handleInviteFriendsClicked = () => {
+    trackClicked(ClickEvent.InviteFriendsPageClicked, {
+      platform: 'mobile',
+    })
+    onCloseUserMenu()
+  }
+
+  const handleThemeSwitchMenuClicked = () => {
+    trackClicked(ClickEvent.HeaderThemeSwitchMenuClicked, {
+      platform: 'mobile',
+    })
+  }
+
   return (
     <>
       <Box
@@ -189,7 +198,7 @@ export default function MobileHeader() {
         position='fixed'
         top={0}
         bg='grey.50'
-        zIndex={2000}
+        zIndex={2500}
       >
         <HStack justifyContent='space-between' alignItems='center'>
           <Box
@@ -352,29 +361,27 @@ export default function MobileHeader() {
 
                       <VStack gap='24px' w='full' alignItems='start'>
                         <Divider borderColor='grey.200' />
-                        {/*//@ts-ignore*/}
-                        <CopyToClipboard text={refLink} onCopy={onRefLinkCopy}>
-                          <VStack
-                            justifyContent='space-between'
-                            w='full'
-                            alignItems='start'
-                            gap='2px'
-                          >
-                            <HStack gap='4px' p='4px'>
-                              <HeartIcon width={16} height={16} />
-                              <Text {...paragraphMedium}>
-                                {refCopied ? 'Referral link copied!' : 'Invite friends'}
-                              </Text>
+                        <MobileDrawer
+                          variant='common'
+                          trigger={
+                            <HStack
+                              justifyContent='space-between'
+                              w='full'
+                              onClick={handleInviteFriendsClicked}
+                            >
+                              <HStack gap='4px' p='4px'>
+                                <HeartIcon width={16} height={16} />
+                                <Text {...paragraphMedium}>
+                                  {refCopied ? 'Referral link copied!' : 'Invite friends'}
+                                </Text>
+                              </HStack>
+
+                              <Text {...paragraphMedium}>{referralData?.refereeCount || 0}</Text>
                             </HStack>
-                            {!refCopied &&
-                            referralData?.refereeCount &&
-                            referralData?.refereeCount > 0 ? (
-                              <Text {...captionMedium} color='grey.500' ml='24px'>
-                                {`Invited: ${referralData.refereeCount}`}
-                              </Text>
-                            ) : null}
-                          </VStack>
-                        </CopyToClipboard>
+                          }
+                        >
+                          <InviteFriendsPage />
+                        </MobileDrawer>
                         <Divider borderColor='grey.200' />
                       </VStack>
 
@@ -571,7 +578,17 @@ export default function MobileHeader() {
                 </Slide>
               </>
             ) : (
-              <LoginButtons login={loginToPlatform} />
+              <HStack gap='8px'>
+                <Menu variant='transparent' placement='top'>
+                  <MenuButton onClick={handleThemeSwitchMenuClicked}>
+                    <Dots />
+                  </MenuButton>
+                  <MenuList w='254px'>
+                    <ThemeSwitcher />
+                  </MenuList>
+                </Menu>
+                <LoginButtons login={loginToPlatform} />
+              </HStack>
             )}
           </HStack>
         </HStack>
