@@ -16,7 +16,6 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import Avatar from '@/components/common/avatar'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import Skeleton from '@/components/common/skeleton'
-import SocialsFooter from '@/components/common/socials-footer'
 import ThemeSwitcher from '@/components/layouts/theme-switcher'
 import BaseWhiteIcon from '@/resources/icons/base-icon-white.svg'
 import CheckedIcon from '@/resources/icons/checked-icon.svg'
@@ -35,33 +34,22 @@ import {
   useBalanceQuery,
   useBalanceService,
 } from '@/services'
-import {
-  h2Regular,
-  captionMedium,
-  paragraphMedium,
-  paragraphRegular,
-} from '@/styles/fonts/fonts.styles'
+import { h2Regular, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
 interface UserMenuDesktopProps {
   handleOpenWalletPage: () => void
   handleOpenProfile: () => void
+  handleOpenReferralPage: () => void
 }
 
 export default function UserMenuDesktop({
   handleOpenWalletPage,
   handleOpenProfile,
+  handleOpenReferralPage,
 }: UserMenuDesktopProps) {
   const { trackClicked } = useAmplitude()
-  const {
-    disconnectFromPlatform,
-    profileData,
-    profileLoading,
-    account,
-    web3Client,
-    refLink,
-    referralData,
-  } = useAccount()
+  const { disconnectFromPlatform, profileData, profileLoading, account, web3Client } = useAccount()
   const {
     isOpen: isOpenAuthMenu,
     onToggle: onToggleAuthMenu,
@@ -87,7 +75,6 @@ export default function UserMenuDesktop({
   const handleOpenWrapModal = useCallback(() => onOpenWrapModal(), [])
 
   const [copied, setCopied] = useState(false)
-  const [refCopied, setRefCopied] = useState(false)
 
   const onClickCopy = () => {
     trackClicked(ClickEvent.CopyAddressClicked, {
@@ -95,13 +82,6 @@ export default function UserMenuDesktop({
       from: 'Header',
     })
     setCopied(true)
-  }
-  const onRefLinkCopy = () => {
-    trackClicked(ClickEvent.CopyReferralClicked, {
-      // @ts-ignore
-      from: 'Header',
-    })
-    setRefCopied(true)
   }
 
   useEffect(() => {
@@ -119,22 +99,6 @@ export default function UserMenuDesktop({
       }
     }
   }, [copied])
-
-  useEffect(() => {
-    let hideRefCopiedMessage: NodeJS.Timeout | undefined
-
-    if (refCopied) {
-      hideRefCopiedMessage = setTimeout(() => {
-        setRefCopied(false)
-      }, 2000)
-    }
-
-    return () => {
-      if (hideRefCopiedMessage) {
-        clearTimeout(hideRefCopiedMessage)
-      }
-    }
-  }, [refCopied])
 
   const walletTypeActionButton = useMemo(() => {
     return web3Client !== 'eoa' ? (
@@ -251,34 +215,25 @@ export default function UserMenuDesktop({
                 </HStack>
               </CopyToClipboard>
             </HStack>
-            <VStack gap='16px' alignItems='center'>
-              <Divider mt='16px' />
-              <HStack justifyContent='space-between' w='full' alignItems='start'>
-                <VStack gap='2px' alignItems='start'>
-                  <HStack gap='8px'>
-                    <HeartIcon width={16} height={16} />
-                    <Text {...paragraphMedium}>{refCopied ? 'Copied!' : 'Referral code'}</Text>
-                  </HStack>
-                  {!refCopied && referralData?.refereeCount && referralData?.refereeCount > 0 ? (
-                    <Box justifyContent='start' w='full'>
-                      <Text
-                        {...captionMedium}
-                        ml='24px'
-                        color='grey.500'
-                      >{`Invited: ${referralData?.refereeCount}`}</Text>
-                    </Box>
-                  ) : null}
-                </VStack>
-                {/*//@ts-ignore*/}
-                <CopyToClipboard text={refLink} onCopy={onRefLinkCopy}>
-                  <CopyIcon width='16px' height='16px' cursor='pointer' />
-                </CopyToClipboard>
-              </HStack>
-            </VStack>
-            <Divider my='16px' />
           </Box>
+          <Divider my='16px' />
           <VStack gap='12px' alignItems='flex-start'>
             {walletTypeActionButton}
+            <Button
+              variant='transparent'
+              onClick={() => {
+                handleOpenReferralPage()
+                onCloseAuthMenu()
+              }}
+              justifyContent='space-between'
+              w='full'
+            >
+              <HStack gap='8px'>
+                <HeartIcon width={16} height={16} />
+                <Text {...paragraphMedium}>Invite Friends</Text>
+              </HStack>
+              {profileData?.referralData?.length || 0}
+            </Button>
             <Button
               variant='transparent'
               onClick={() => {
@@ -308,8 +263,6 @@ export default function UserMenuDesktop({
               <LogoutIcon width={16} height={16} />
               Log Out
             </Button>
-            <Divider mt='4px' />
-            <SocialsFooter />
           </VStack>
         </MenuList>
       </Menu>

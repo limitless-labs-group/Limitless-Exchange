@@ -10,6 +10,7 @@ import { MarketProgressBar } from './market-progress-bar'
 import { SpeedometerProgress } from './speedometer-progress'
 import { ClickEvent, useAccount, useAmplitude, useTradingService } from '@/services'
 import { captionMedium, headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 import OpenInterestTooltip from '../open-interest-tooltip'
 
@@ -19,15 +20,14 @@ export default function MarketCardTriggerSingle({
   markets,
   analyticParams,
 }: MarketCardProps) {
-  const { setProfilePageOpened, setWalletPageOpened } = useAccount()
+  const { closeAllAuthSidebarPages } = useAccount()
   const { onOpenMarketPage, setMarkets, setClobOutcome } = useTradingService()
   const router = useRouter()
 
   const { trackClicked } = useAmplitude()
 
   const handleMarketPageOpened = () => {
-    setWalletPageOpened(false)
-    setProfilePageOpened(false)
+    closeAllAuthSidebarPages()
     trackClicked(ClickEvent.MediumMarketBannerClicked, {
       ...analyticParams,
     })
@@ -57,6 +57,7 @@ export default function MarketCardTriggerSingle({
             deadlineText={market.expirationDate}
             {...paragraphRegular}
             color='grey.500'
+            ended={market.status === MarketStatus.RESOLVED}
           />
         </Box>
         <VStack w='full' gap='16px' justifyContent='space-between'>

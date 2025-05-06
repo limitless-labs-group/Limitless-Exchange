@@ -51,7 +51,7 @@ import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
 import { ChangeEvent, ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
 import { h1Regular, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market } from '@/types'
+import { Market, MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export interface MarketPageProps {
@@ -287,6 +287,7 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
                 deadline={market.expirationTimestamp}
                 deadlineText={market.expirationDate}
                 color='grey.500'
+                ended={market.status === MarketStatus.RESOLVED}
               />
             )}
             {!market ? (
