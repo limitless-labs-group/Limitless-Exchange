@@ -1,7 +1,7 @@
 import { tabsAnatomy } from '@chakra-ui/anatomy'
 import { createMultiStyleConfigHelpers } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
-import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { paragraphBold, paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 // import utility to set light and dark mode props
 
@@ -22,7 +22,7 @@ const common = definePartsStyle(() => {
         borderColor: 'inherit',
         borderBottom: 'none',
       },
-      borderBottom: isMobile ? '1px solid' : 'unset',
+      borderBottom: 'unset',
       borderColor: 'grey.500',
     },
     tablist: {
@@ -38,8 +38,35 @@ const common = definePartsStyle(() => {
   }
 })
 
+const transparent = definePartsStyle(() => {
+  return {
+    root: {
+      overflowX: 'auto',
+    },
+    tab: {
+      ...paragraphBold,
+      padding: 0,
+      color: 'grey.500',
+      _selected: {
+        color: 'grey.800',
+        borderColor: 'inherit',
+        borderBottom: 'none',
+      },
+      borderBottom: 'unset',
+    },
+    tablist: {
+      gap: '8px',
+    },
+    tabpanel: {
+      p: 0,
+      mt: '12px',
+    },
+  }
+})
+
 const variants = {
   common,
+  transparent,
 }
 
 // export the component theme

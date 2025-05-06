@@ -1,4 +1,5 @@
 import { extendTheme as ChakraTheme, ThemeConfig } from '@chakra-ui/react'
+import { mode } from '@chakra-ui/theme-tools'
 import { Inter } from 'next/font/google'
 import { isMobile } from 'react-device-detect'
 import { accordionTheme } from '@/styles/accordion'
@@ -41,8 +42,21 @@ export const chakraTheme = ChakraTheme({
   // colors: mode(lightThemeColors, darkThemeColors)((props) => props),
   styles: {
     global: {
+      html: {
+        scrollbarWidth: 'none' /* Firefox */,
+        '-ms-overflow-style': 'none' /* IE and Edge */,
+        '&::-webkit-scrollbar': {
+          display: 'none' /* Chrome, Safari, Opera */,
+          width: '0px',
+          background: 'transparent',
+        },
+      },
       '.infinite-scroll-component__outerdiv': {
         width: '100%',
+      },
+      '*:focus': {
+        outline: 'none !important',
+        boxShadow: 'none !important',
       },
       body: {
         overflowX: 'hidden',
@@ -139,16 +153,19 @@ export const chakraTheme = ChakraTheme({
       '.w3a-text-field': {
         backgroundColor: 'unset !important',
         color: 'grey.800 !important',
-        borderColor: 'transparent.200 !important',
+        borderColor: 'whiteAlpha.20 !important',
         borderRadius: '8px solid',
         _hover: {
-          borderColor: 'transparent.700 !important',
+          borderColor: 'whiteAlpha.70 !important',
         },
         _focus: {
           borderColor: 'grey.800 !important',
         },
       },
     },
+  },
+  zIndices: {
+    tooltip: 3000,
   },
   components: {
     Button: {
@@ -165,11 +182,20 @@ export const chakraTheme = ChakraTheme({
         },
       },
       variants: {
-        outline: {
-          borderWidth: 0,
-          bg: 'grey.100',
-          color: 'black',
-          height: '52px',
+        outlined: {
+          ...commonButtonProps,
+          h: '26px',
+          bg: 'unset',
+          color: 'grey.800',
+          border: '1px solid',
+          borderColor: 'grey.200',
+          _disabled: {
+            color: 'grey.500',
+            bg: 'grey.300',
+          },
+          _hover: {
+            bg: 'grey.100',
+          },
         },
         contained: {
           ...commonButtonProps,
@@ -188,8 +214,12 @@ export const chakraTheme = ChakraTheme({
             pointerEvents: 'none',
           },
         },
-        white: {
+        white: (props: Record<string, unknown>) => ({
           ...commonButtonProps,
+          h: '26px',
+          border: mode('1px solid', 'none')(props),
+          borderColor: mode('grey.200', 'transparent')(props),
+          boxShadow: '0px 1px 4px 0px rgba(2, 6, 23, 0.05)',
           px: isMobile ? '12px' : '8px',
           bg: 'white',
           color: 'black',
@@ -201,7 +231,7 @@ export const chakraTheme = ChakraTheme({
             color: 'grey.500',
             pointerEvents: 'none',
           },
-        },
+        }),
         grey: {
           ...commonButtonProps,
           bg: 'grey.300',
@@ -236,7 +266,7 @@ export const chakraTheme = ChakraTheme({
           color: 'grey.800',
           gap: '8px',
           border: '1px dashed',
-          borderColor: 'blackTransparent.200',
+          borderColor: 'blackAlpha.20',
         },
         transparent: {
           background: 'unset',
@@ -253,14 +283,14 @@ export const chakraTheme = ChakraTheme({
         },
         transparentLight: {
           ...commonButtonProps,
-          bg: 'transparent.200',
+          bg: 'whiteAlpha.20',
           p: isMobile ? '8px 12px' : '4px 8px',
           height: 'unset',
           ...(isMobile
             ? {}
             : {
                 _hover: {
-                  bg: 'transparent.300',
+                  bg: 'whiteAlpha.30',
                 },
               }),
         },
@@ -319,6 +349,16 @@ export const chakraTheme = ChakraTheme({
         borderColor: 'grey.100',
         bg: 'grey.100',
       },
+      variants: {
+        dark: {
+          borderColor: 'grey.200',
+          bg: 'grey.200',
+        },
+        transparent: {
+          borderColor: 'whiteAlpha.20',
+          bg: 'whiteAlpha.20',
+        },
+      },
     },
     Slider: sliderTheme,
     Select: selectTheme,
@@ -335,7 +375,7 @@ export const chakraTheme = ChakraTheme({
             bg: 'white',
           },
           track: {
-            bg: 'transparent.200',
+            bg: 'whiteAlpha.20',
           },
         },
         green: {
@@ -344,7 +384,17 @@ export const chakraTheme = ChakraTheme({
             height: '4px',
           },
           track: {
-            bg: 'var(--chakra-colors-grey-200)',
+            bg: 'var(--chakra-colors-grey-300)',
+            height: '4px',
+          },
+        },
+        greenAndWhiteTrack: {
+          filledTrack: {
+            bg: 'var(--chakra-colors-green-500)',
+            height: '4px',
+          },
+          track: {
+            bg: 'var(--chakra-colors-white)',
             height: '4px',
           },
         },
@@ -354,7 +404,17 @@ export const chakraTheme = ChakraTheme({
             height: '4px',
           },
           track: {
-            bg: 'var(--chakra-colors-grey-200)',
+            bg: 'var(--chakra-colors-grey-300)',
+            height: '4px',
+          },
+        },
+        yellowAndWhiteTrack: {
+          filledTrack: {
+            bg: 'var(--chakra-colors-orange-500)',
+            height: '4px',
+          },
+          track: {
+            bg: 'var(--chakra-colors-white)',
             height: '4px',
           },
         },
@@ -364,7 +424,17 @@ export const chakraTheme = ChakraTheme({
             height: '4px',
           },
           track: {
-            bg: 'var(--chakra-colors-grey-200)',
+            bg: 'var(--chakra-colors-grey-300)',
+            height: '4px',
+          },
+        },
+        redAndWhiteTrack: {
+          filledTrack: {
+            bg: 'var(--chakra-colors-red-500)',
+            height: '4px',
+          },
+          track: {
+            bg: 'var(--chakra-colors-white)',
             height: '4px',
           },
         },

@@ -36,4 +36,5 @@ export interface ClobTradeEvent {
   tokenId: string
   takerAmount: string
   makerAmount: string
+  title: string
 }

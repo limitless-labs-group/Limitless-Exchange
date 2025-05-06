@@ -3,7 +3,8 @@ import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
-import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
+import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
+import MarketTimer from '@/components/common/markets/market-cards/market-timer'
 import MarketPage from '@/components/common/markets/market-page'
 import Paper from '@/components/common/paper'
 import ProgressBar from '@/components/common/progress-bar'
@@ -81,11 +82,12 @@ export default function MyMarketCard({ market }: MyMarketCardProps) {
     >
       <Box w='full'>
         <HStack w='full' justifyContent='space-between'>
-          <DailyMarketTimer
+          <MarketCountdown
             deadline={new Date(market.deadline).getTime()}
             deadlineText={formatMarketDeadline()}
             {...paragraphRegular}
             color='grey.500'
+            ended={market.status === MarketStatus.RESOLVED}
           />
           <HStack gap='4px'>
             <Box w='6px' h='6px' bg={statusColor} borderRadius='100%' />
@@ -124,7 +126,7 @@ export default function MyMarketCard({ market }: MyMarketCardProps) {
           <ProgressBar variant={'market'} value={fullMarket.prices[0]} />
         </Box>
       )}
-      <Divider my='16px' borderColor='grey.200' color='grey.200' />
+      <Divider my='16px' />
       <HStack w='full' justifyContent='space-between'>
         <Box />
         <Text {...paragraphMedium} color='grey.500'>

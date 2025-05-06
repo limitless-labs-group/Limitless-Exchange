@@ -12,8 +12,12 @@ import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { ClobTradeEvent } from '@/types/orders'
 
 export default function ActivityClob() {
-  const { market } = useTradingService()
-  const { data: activityData, fetchNextPage, hasNextPage } = useMarketClobInfinityFeed(market?.slug)
+  const { market, groupMarket } = useTradingService()
+  const {
+    data: activityData,
+    fetchNextPage,
+    hasNextPage,
+  } = useMarketClobInfinityFeed(groupMarket?.negRiskMarketId ? groupMarket?.slug : market?.slug)
 
   // @ts-ignore
   const activity = activityData?.pages.flatMap((page) => page.data.events)
@@ -24,7 +28,16 @@ export default function ActivityClob() {
   )
 
   return !!activity?.length ? (
-    <Box className='feed-container'>
+    <Box
+      id='scrollableDiv'
+      h={activity?.length < 10 ? 'unset' : '325px'}
+      overflow='auto'
+      sx={{
+        '& > div': {
+          width: '100% !important',
+        },
+      }}
+    >
       <InfiniteScroll
         dataLength={activity?.length ?? 0}
         next={getNextPage}
@@ -35,6 +48,8 @@ export default function ActivityClob() {
             <Text {...paragraphRegular}>Loading more events</Text>
           </HStack>
         }
+        scrollableTarget='scrollableDiv'
+        scrollThreshold='20px'
       >
         {activity.map((activityItem: ClobTradeEvent) => (
           <ActivityClobItem key={activityItem.createdAt} data={activityItem} />

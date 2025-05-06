@@ -1,23 +1,13 @@
 import { tableAnatomy } from '@chakra-ui/anatomy'
 import { createMultiStyleConfigHelpers } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
-import { paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpers(
   tableAnatomy.keys
 )
 
 const baseStyle = definePartsStyle({
-  tr: {
-    'td:first-child': {
-      borderTopLeftRadius: 'full',
-      borderBottomLeftRadius: 'full',
-    },
-    'td:last-child': {
-      borderTopRightRadius: 'full',
-      borderBottomRightRadius: 'full',
-    },
-  },
   th: {
     '&[data-is-numeric=true]': {},
     fontFamily: 'Inter, sans-serif',
@@ -30,21 +20,21 @@ const baseStyle = definePartsStyle({
   thead: {
     th: {
       padding: isMobile ? '12px' : '8px',
-      ...paragraphRegular,
-      color: 'grey.100 !important',
-      borderColor: 'grey.100',
+      ...paragraphMedium,
+      color: 'grey.500 !important',
+      borderColor: 'grey.200 !important',
       textTransform: 'unset',
       '&[data-is-numeric=true]': {
         textAlign: 'start',
       },
-      bg: 'grey.50',
+      bg: 'unset',
     },
   },
   tbody: {
     td: {
       ...paragraphRegular,
       borderBottomWidth: '1px',
-      borderColor: 'grey.100',
+      borderColor: 'grey.200',
       padding: isMobile ? '12px' : '7.5px 8px',
       '&[data-is-numeric=true]': {
         textAlign: 'start',
@@ -61,16 +51,6 @@ const baseStyle = definePartsStyle({
 })
 
 const noPaddingsOnSides = definePartsStyle({
-  tr: {
-    'td:first-child': {
-      borderTopLeftRadius: 'full',
-      borderBottomLeftRadius: 'full',
-    },
-    'td:last-child': {
-      borderTopRightRadius: 'full',
-      borderBottomRightRadius: 'full',
-    },
-  },
   th: {
     '&[data-is-numeric=true]': {},
     fontFamily: 'Inter, sans-serif',
@@ -83,9 +63,9 @@ const noPaddingsOnSides = definePartsStyle({
   thead: {
     th: {
       padding: isMobile ? '12px' : '8px',
-      ...paragraphRegular,
-      color: 'grey.100 !important',
-      borderColor: 'grey.100',
+      ...paragraphMedium,
+      color: 'grey.500',
+      borderColor: 'grey.200',
       textTransform: 'unset',
       '&[data-is-numeric=true]': {
         textAlign: 'end',
@@ -103,8 +83,7 @@ const noPaddingsOnSides = definePartsStyle({
   tbody: {
     td: {
       ...paragraphRegular,
-      borderBottomWidth: '1px',
-      borderColor: 'grey.100',
+      borderBottomWidth: '0px',
       padding: isMobile ? '12px' : '7.5px 8px',
       '&[data-is-numeric=true]': {
         textAlign: 'start',

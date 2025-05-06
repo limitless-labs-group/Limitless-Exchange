@@ -48,8 +48,8 @@ export default function OrdersTooltip({
       <HStack w='160px' justifyContent='space-between' mb='8px'>
         <Text {...paragraphMedium}>Filled</Text>
         <Text>
-          {NumberUtil.formatThousands(formatUnits(BigInt(totalRemainingSize), decimals), 0)}/
-          {NumberUtil.formatThousands(formatUnits(BigInt(originalSize), decimals), 0)}
+          {NumberUtil.convertWithDenomination(formatUnits(BigInt(totalRemainingSize), decimals), 2)}
+          /{NumberUtil.convertWithDenomination(formatUnits(BigInt(originalSize), decimals), 2)}
         </Text>
       </HStack>
       <ProgressBar value={filledPercentage} variant={side === 'ask' ? 'red' : 'green'} />
@@ -57,7 +57,7 @@ export default function OrdersTooltip({
   )
   return (
     <Tooltip
-      bg='background.90'
+      bg='transparent.70'
       border='unset'
       label={label}
       placement={placement}

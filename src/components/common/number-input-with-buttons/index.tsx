@@ -1,10 +1,19 @@
 import { Box, Input, InputGroup, InputProps, InputRightElement } from '@chakra-ui/react'
 import { isNumber } from '@chakra-ui/utils'
+import { keyframes } from '@emotion/react'
 import BigNumber from 'bignumber.js'
-import React from 'react'
+import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import MinusIcon from '@/resources/icons/minus-icon.svg'
 import PlusIcon from '@/resources/icons/plus-icon.svg'
+
+const shakeAnimation = keyframes`
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+`
 
 type NumberInputWithButtonsProps = InputProps & {
   handleInputChange: (val: string) => void
@@ -30,6 +39,8 @@ const NumberInputWithButtons = React.forwardRef<HTMLInputElement, NumberInputWit
     }: NumberInputWithButtonsProps,
     ref
   ) => {
+    const [isShaking, setIsShaking] = useState(false)
+    const MAX_CHARS = 9
     const handlePlusIconClicked = () => {
       if (isNumber(max)) {
         if (+(value as string) + (step as number) > +max) {
@@ -66,16 +77,26 @@ const NumberInputWithButtons = React.forwardRef<HTMLInputElement, NumberInputWit
           ref={ref}
           variant='grey'
           autoComplete='off'
-          onChange={(e) => handleInputChange(e.target.value.replace(/^0+/, '0').replace(',', '.'))}
+          onChange={(e) => {
+            const newValue = e.target.value.replace(/^0+/, '0').replace(',', '.')
+            if (newValue.length > MAX_CHARS) {
+              setIsShaking(true)
+              return
+            }
+            handleInputChange(newValue)
+          }}
           value={value}
           type={inputType}
           inputMode='decimal'
           pattern='[0-9,.]*'
+          animation={isShaking ? `${shakeAnimation} 0.5s ease-in-out` : undefined}
+          onAnimationEnd={() => setIsShaking(false)}
+          maxLength={MAX_CHARS}
         />
         {value && symbol && (
           <Box
             position='absolute'
-            left={`${(value?.toString().length || 0) * 8 + 12}px`}
+            left={`${(value?.toString().length || 0) * 8 + (isMobile ? 20 : 12)}px`}
             top='53%'
             transform='translateY(-50%)'
             pointerEvents='none'
@@ -113,7 +134,13 @@ const NumberInputWithButtons = React.forwardRef<HTMLInputElement, NumberInputWit
           </>
         )}
         {endAdornment && (
-          <InputRightElement h='16px' top='8px' right={isMobile ? '8px' : '12px'} w='fit'>
+          <InputRightElement
+            h='16px'
+            top='8px'
+            right={isMobile ? '8px' : '12px'}
+            w='fit'
+            color='grey.500'
+          >
             {endAdornment}
           </InputRightElement>
         )}

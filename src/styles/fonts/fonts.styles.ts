@@ -27,7 +27,7 @@ export const h1Bold = {
 export const h2Regular = {
   fontSize: '24px',
   fontStyle: 'normal',
-  fontWeight: isMobile ? 400 : 500,
+  fontWeight: 500,
   lineHeight: '28px',
   color: 'grey.800',
 }
@@ -59,7 +59,7 @@ export const h3Regular = {
 export const h3Medium = {
   fontSize: isMobile ? '22px' : '20px',
   fontStyle: 'normal',
-  fontWeight: isMobile ? 500 : 700,
+  fontWeight: 500,
   lineHeight: '24px',
   color: 'grey.800',
 }
@@ -91,7 +91,7 @@ export const headline = {
 export const headlineBold = {
   fontSize: isMobile ? '20px' : '16px',
   fontStyle: 'normal',
-  fontWeight: isMobile ? 700 : 500,
+  fontWeight: 700,
   lineHeight: '20px',
   color: 'grey.800',
 }
@@ -145,9 +145,9 @@ export const captionMedium = {
 }
 
 export const headLineLarge = {
-  fontSize: isMobile ? '24px' : '48px',
+  fontSize: '24px',
   fontStyle: 'normal',
   fontWeight: 700,
-  lineHeight: isMobile ? '22px' : '44px',
-  color: 'black',
+  lineHeight: '28px',
+  color: 'grey.800',
 }

@@ -1,7 +1,7 @@
 import { Box, HStack, Text } from '@chakra-ui/react'
 import React from 'react'
 import PortfolioPositionCardClob from '@/app/portfolio/components/PortfolioPositionCardClob'
-import { usePosition, useTradingService } from '@/services'
+import { ClobPositionWithType, usePosition, useTradingService } from '@/services'
 import { h3Regular, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 const unhoveredColors = {
@@ -14,8 +14,9 @@ export default function ClobPortfolio() {
   const { data: allPositions } = usePosition()
   const { market } = useTradingService()
 
-  const currentPosition = allPositions
+  const currentPosition = allPositions?.positions
     ?.filter((position) => position.type === 'clob')
+    .filter((position) => !!+position.tokensBalance.yes || !!+position.tokensBalance.no)
     .find((position) => position.market.slug === market?.slug)
 
   return (
@@ -25,7 +26,7 @@ export default function ClobPortfolio() {
       </HStack>
       <Box mt='12px'>
         {currentPosition ? (
-          <PortfolioPositionCardClob positionData={currentPosition} cardColors={unhoveredColors} />
+          <PortfolioPositionCardClob positionData={currentPosition as ClobPositionWithType} />
         ) : (
           <Text {...paragraphRegular}>No positions.</Text>
         )}

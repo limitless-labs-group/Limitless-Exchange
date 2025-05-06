@@ -1,24 +1,15 @@
 import React from 'react'
-import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
+import MarketCardTrigger from '@/components/common/markets/market-cards/market-card-trigger'
 import MarketPage from '@/components/common/markets/market-page'
-import { MarketCardLayout } from './market-card'
-import { MarketCardTrigger } from './market-card-trigger'
+import { MarketCardProps } from './market-card'
 import { useTradingService } from '@/services'
-import { Market } from '@/types'
-
-export interface MarketCardProps {
-  market: Market
-  analyticParams: { bannerPosition: number; bannerPaginationPage: number }
-  markets: Market[]
-  variant?: MarketCardLayout
-}
 
 export default function MarketCardMobile({
   variant,
   market,
-  markets,
   analyticParams,
+  markets,
 }: MarketCardProps) {
   const { onCloseMarketPage } = useTradingService()
 
@@ -35,6 +26,7 @@ export default function MarketCardMobile({
       }
       onClose={onCloseMarketPage}
       variant='black'
+      renderPrevNext={true}
     >
       <MarketPage />
     </MobileDrawer>

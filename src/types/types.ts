@@ -1,8 +1,17 @@
 import { AxiosError } from 'axios'
 import { Hash, Address } from 'viem'
+import { DraftMarketType, DraftMetadata } from './draft'
 import { Profile } from './profiles'
 
 export type { Hash, Address }
+
+export enum PointsActionType {
+  ENROLL_IN_PROGRAM = 'ENROLL_IN_PROGRAM',
+  TRADE_VOLUME = 'TRADE_VOLUME',
+  REFERRAL_ONBOARD = 'REFERRAL_ONBOARD',
+  HAS_TRADED = 'HAS_TRADED',
+  HOLDING_TILL_RESOLVED = 'HOLDING_TILL_RESOLVED',
+}
 
 export type Token = {
   address: Address
@@ -17,7 +26,10 @@ export type Token = {
 export type Category = {
   id: number
   name: string
+  priority?: number | null
 }
+
+export type Dashboard = 'marketwatch'
 
 export type MarketsResponse = {
   data: Market[]
@@ -26,22 +38,16 @@ export type MarketsResponse = {
 
 export interface Creator {
   name: string
-  imageURI?: string
-  imageUrl?: string // TODO: unify imageURI and imageUrl from backend
-  link?: string
+  imageURI: string | null
+  imageUrl: string | null
+  link: string | null
   address?: string
-}
-
-export type DraftMetadata = {
-  fee: number
-  liquidity: number
-  initialProbability: number
 }
 
 export interface Market {
   id: number
   address: Address | null
-  category: Category | string
+  categories: string[]
   collateralToken: {
     address: Address
     decimals: number
@@ -50,11 +56,13 @@ export interface Market {
   conditionId: string
   createdAt: string
   creator: Creator
-  deadline: string
   description: string
+  deadline: string
   expirationDate: string
   expirationTimestamp: number
   expired: boolean
+  negRiskMarketId?: string
+  negRiskRequestId?: string
   liquidity: string
   liquidityFormatted: string
   ogImageURI: string
@@ -67,25 +75,79 @@ export interface Market {
   winningOutcomeIndex: number | null
   prices: number[]
   slug: string
-  group?: {
+  group?: Market & {
     id: number
-    slug: string
-    title: string
+  }
+  tradePrices?: {
+    buy: {
+      market: number[]
+      limit: number[]
+    }
+    sell: {
+      market: number[]
+      limit: number[]
+    }
   }
   openInterest: string
   openInterestFormatted: string
   metadata: {
     isBannered: boolean
   }
+  settings?: Settings
   priorityIndex: number
   tokens: {
     yes: string
     no: string
   }
-  marketType: 'single' | 'group'
-  tradeType: 'clob' | 'amm'
+  yesPositionId?: string
+  noPositionId?: string
+  trends?: {
+    [interval in Intervals]?: {
+      value: number
+      rank: number
+    }
+  }
+  marketType: MarketType
+  tradeType: MarketTradeType
   isRewardable: boolean
+  markets?: (Market & { orderInGroup?: number })[]
 }
+
+export interface Settings {
+  priorityIndex?: number
+  rewardsEpoch?: number
+  maxSpread?: number
+  minSize?: number
+  c?: number
+  createdAt?: string
+  updatedAt?: string
+  dailyReward?: number
+}
+
+export type MarketType = 'single' | 'group'
+
+export type MarketTradeType = 'clob' | 'amm'
+
+export interface ApiResponse {
+  data: Market[]
+  totalMarketsCount: number
+}
+
+export interface MarketPage {
+  data: {
+    markets: Market[]
+    totalAmount: number
+  }
+  next: number
+}
+
+export interface AnalyticsParams {
+  bannerPosition: number
+  bannerPaginationPage: number
+  fromCategory?: string
+}
+
+export type Intervals = 'hourly' | 'last30days'
 
 export interface UserMarket {
   title: string
@@ -160,33 +222,9 @@ export type UserCreatedMarket = {
   slug: string
 }
 
-export interface MarketGroup {
-  slug: string
-  hidden: boolean
-  outcomeTokens: string[]
-  title: string
-  ogImageURI: string
-  expirationDate: string
-  expired: boolean
-  expirationTimestamp: number
-  creator: Creator
-}
-
 export interface DraftMarket extends Market {
   draftMetadata: DraftMetadata
-}
-
-export interface MarketGroup {
-  category: Category
-  collateralToken: {
-    symbol: string
-    address: Address
-    decimals: number
-  }
-  tags: string[]
-  createdAt: string
-  status: MarketStatus
-  markets: Market[]
+  type?: DraftMarketType
 }
 
 export type GetBalanceResult = {
@@ -223,13 +261,20 @@ export enum MarketTokensIds {
 }
 
 export enum Sort {
-  BASE = '',
+  DEFAULT = '🔥 Trending',
   NEWEST = 'Newest',
   ENDING_SOON = 'Ending Soon',
-  HIGHEST_LIQUIDITY = 'High Liquidity',
   HIGHEST_VALUE = 'High Value',
-  HIGHEST_VOLUME = 'High Volume',
+  TRENDING = '🔥 Trending',
   LP_REWARDS = '💎 LP Rewards',
+}
+export enum MarketSortOption {
+  DEFAULT = 'trending',
+  TRENDING = 'trending',
+  ENDING_SOON = 'ending_soon',
+  HIGH_VALUE = 'high_value',
+  NEWEST = 'newest',
+  LP_REWARDS = 'lp_rewards',
 }
 
 export enum SortStorageName {
@@ -270,64 +315,8 @@ export interface ColorScheme {
     600: string
     700: string
     800: string
-    white: string
-  }
-  blue: {
-    50: string
-    100: string
-    200: string
-    300: string
-    400: string
-    500: string
-    600: string
-    700: string
-    800: string
-  }
-  green: {
-    50: string
-    100: string
-    200: string
-    300: string
-    400: string
-    500: string
-    600: string
-    700: string
-    800: string
   }
   red: {
-    50: string
-    100: string
-    200: string
-    300: string
-    400: string
-    500: string
-    600: string
-    700: string
-    800: string
-  }
-  lime: {
-    50: string
-    100: string
-    200: string
-    300: string
-    400: string
-    500: string
-    600: string
-    700: string
-    800: string
-  }
-  cyan: {
-    50: string
-    100: string
-    200: string
-    300: string
-    400: string
-    500: string
-    600: string
-    700: string
-    800: string
-  }
-  purple: {
     50: string
     100: string
     200: string
@@ -371,7 +360,51 @@ export interface ColorScheme {
     700: string
     800: string
   }
+  lime: {
+    50: string
+    100: string
+    200: string
+    300: string
+    400: string
+    500: string
+    600: string
+    700: string
+    800: string
+  }
+  green: {
+    50: string
+    100: string
+    200: string
+    300: string
+    400: string
+    500: string
+    600: string
+    700: string
+    800: string
+  }
   mint: {
+    50: string
+    100: string
+    200: string
+    300: string
+    400: string
+    500: string
+    600: string
+    700: string
+    800: string
+  }
+  cyan: {
+    50: string
+    100: string
+    200: string
+    300: string
+    400: string
+    500: string
+    600: string
+    700: string
+    800: string
+  }
+  blue: {
     50: string
     100: string
     200: string
@@ -393,27 +426,44 @@ export interface ColorScheme {
     700: string
     800: string
   }
-  transparent: {
+  purple: {
+    50: string
+    100: string
     200: string
     300: string
-    700: string
-  }
-  blackTransparent: {
-    200: string
+    400: string
+    500: string
     600: string
+    700: string
+    800: string
+  }
+  transparent: {
+    70: string
+    50: string
+    30: string
+    20: string
+  }
+  transparentDark: {
+    70: string
+    50: string
+    30: string
+    20: string
+  }
+  whiteAlpha: {
+    70: string
+    50: string
+    30: string
+    20: string
+  }
+  blackAlpha: {
+    70: string
+    50: string
+    30: string
+    20: string
   }
   greyTransparent: {
     200: string
     600: string
-  }
-  blackStale: {
-    200: string
-  }
-  background: {
-    80: string
-    90: string
-    95: string
-    97: string
   }
   greenTransparent: {
     100: string
@@ -423,9 +473,7 @@ export interface ColorScheme {
   }
   blueTransparent: {
     100: string
-  }
-  text: {
-    100: string
+    200: string
   }
   skeleton: {
     dark: string
@@ -440,6 +488,7 @@ export interface ColorScheme {
     widgetBgGrey: string
   }
   draftCard: {
+    background: string
     bg: string
     border: string
     selectedBg: string
@@ -451,7 +500,7 @@ export interface RedeemParams {
   marketAddress: Address
   collateralAddress: Address
   conditionId: Address
-  type: 'amm' | 'clob'
+  type: MarketType
 }
 
 export interface UpdateProfileData {

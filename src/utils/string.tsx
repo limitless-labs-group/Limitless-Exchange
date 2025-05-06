@@ -1,6 +1,7 @@
 import { Link } from '@chakra-ui/react'
 
 export const cutUsername = (username: string, value = 10) => {
+  if (!username) return ''
   if (username.length <= value) {
     return username
   }

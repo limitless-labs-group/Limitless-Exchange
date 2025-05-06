@@ -19,14 +19,14 @@ export function LoadingForm({ outcomeIndex }: LoadingFormProps) {
   return (
     <VStack my='40px' w='full'>
       <Spinner
-        color='var(--chakra-colors-text-100)'
+        color='var(--chakra-colors-grey-800)'
         size='lg'
         emptyColor='rgba(255, 255, 255, 0.2)'
       />
-      <Text fontWeight={500} color='var(--chakra-colors-text-100)'>
+      <Text fontWeight={500} color='var(--chakra-colors-grey-800)'>
         You&lsquo;re {strategy === 'Buy' ? 'buying' : 'selling'}
       </Text>
-      <HStack gap='4px' color='var(--chakra-colors-text-100)'>
+      <HStack gap='4px' color='var(--chakra-colors-grey-800)'>
         {outcomeIndex ? (
           <ThumbsDownIcon width={16} height={16} />
         ) : (
@@ -35,7 +35,7 @@ export function LoadingForm({ outcomeIndex }: LoadingFormProps) {
         <Text fontWeight={500}>{outcomeIndex ? 'No' : 'Yes'} Contracts</Text>
       </HStack>
 
-      <Text fontWeight={500} color='var(--chakra-colors-text-100)'>
+      <Text fontWeight={500} color='var(--chakra-colors-grey-800)'>
         For {amount} {market?.collateralToken.symbol}
       </Text>
     </VStack>

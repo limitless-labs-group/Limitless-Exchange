@@ -24,7 +24,7 @@
   width: fit-content !important;
 }
 
-.feed-container .infinite-scroll-component__outerdiv {
+.full-container .infinite-scroll-component__outerdiv {
   width: 100% !important;
 }
 
@@ -48,7 +48,7 @@
 }
 
 .draft .ql-editor {
-  background: var(--chakra-colors-grey-100) !important;
+  background: var(--chakra-colors-draftCard-background) !important;
   min-height: unset;
   font-size: 16px;
 }
@@ -58,7 +58,7 @@
 }
 
 .draft.checked .ql-editor {
-  background: var(--chakra-colors-draftCard-bg) !important;
+  background: var(--chakra-colors-grey-200) !important;
 }
 
 .draft.checked.hover .ql-editor {
@@ -213,6 +213,19 @@ body {
   --privy-color-success: var(--chakra-colors-green-500);
   --privy-color-error: var(--chakra-colors-red-500);
   --privy-color-accent-dark: var(--chakra-colors-blue-500);
+}
+
+.chakra-popover__popper {
+  z-index: 99999 !important;
+}
+
+.intercom-lightweight-app-launcher {
+  bottom: 40px !important;
+  right: 16px !important;
+}
+[class^='intercom-with-namespace'] {
+  bottom: 40px !important;
+  right: 16px !important;
 }
 
 @media (max-width: 1024px) {

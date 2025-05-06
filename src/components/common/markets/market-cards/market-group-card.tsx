@@ -1,163 +1,184 @@
-import { Box, Divider, HStack, Text, VStack } from '@chakra-ui/react'
+import { Box, HStack, Text, VStack } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import MobileDrawer from '@/components/common/drawer'
-import MarketPage from '@/components/common/markets/market-page'
-import Paper from '@/components/common/paper'
-import { MarketCardLink } from './market-card-link'
-import LiquidityIcon from '@/resources/icons/liquidity-icon.svg'
-import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import { useTradingService } from '@/services'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { MarketGroup } from '@/types'
+import Avatar from '@/components/common/avatar'
+import { MarketCardProps } from '@/components/common/markets'
+import { MarketCardLink } from '@/components/common/markets/market-cards/market-card-link'
+import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
+import { MIN_CARD_HEIGHT } from '@/components/common/markets/market-cards/market-single-card'
+import MarketGroupRow from '@/components/common/markets/market-group-row'
+import { useMarketFeed } from '@/hooks/use-market-feed'
+import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
+import {
+  ClickEvent,
+  QuickBetClickedMetadata,
+  useAccount,
+  useAmplitude,
+  useTradingService,
+} from '@/services'
+import { headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { Market, MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
-interface MarketGroupCardProps {
-  marketGroup: MarketGroup
-}
+export const MarketGroupCard = ({
+  variant = 'groupRow',
+  market,
+  analyticParams,
+}: MarketCardProps) => {
+  const [hovered, setHovered] = useState(false)
 
-const defaultColors = {
-  main: 'var(--chakra-colors-grey-800)',
-  secondary: 'var(--chakra-colors-grey-500)',
-  chartBg: 'var(--chakra-colors-grey-300)',
-  divider: 'var(--chakra-colors-grey-400)',
-}
-
-const hoverColors = {
-  main: 'var(--chakra-colors-white)',
-  secondary: 'var(--chakra-colors-transparent-700)',
-  chartBg: 'var(--chakra-colors-transparent-300)',
-  divider: 'var(--chakra-colors-transparent-300)',
-}
-
-export const MarketGroupCard = ({ marketGroup }: MarketGroupCardProps) => {
-  const [colors, setColors] = useState(defaultColors)
+  const {
+    onOpenMarketPage,
+    market: selectedMarket,
+    marketPageOpened,
+    setMarket,
+    setGroupMarket,
+    setClobOutcome,
+    setMarketPageOpened,
+  } = useTradingService()
+  const { data: marketFeedData } = useMarketFeed(market)
+  const uniqueUsersTrades = useUniqueUsersTrades(marketFeedData)
   const router = useRouter()
+  const { trackClicked } = useAmplitude()
+  const { closeAllAuthSidebarPages } = useAccount()
 
-  const { onOpenMarketPage, onCloseMarketPage } = useTradingService()
+  const isShortCard = variant === 'grid'
 
-  const totalLiquidity = marketGroup.markets.reduce((a, b) => {
-    return +a + +b.liquidityFormatted
-  }, 0)
-
-  const totalVolume = marketGroup.markets.reduce((a, b) => {
-    return +a + +b.volumeFormatted
-  }, 0)
-
-  const trackMarketClicked = (e: React.MouseEvent<HTMLDivElement>) => {
+  const onClickRedirectToMarket = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.metaKey || e.ctrlKey || e.button === 2) {
       return
     }
-    if (!isMobile) e.preventDefault()
+    !isMobile && e.preventDefault()
+    const searchParams = new URLSearchParams(window.location.search)
+    searchParams.set('market', market.slug)
+    router.push(`?${searchParams.toString()}`, { scroll: false })
+    closeAllAuthSidebarPages()
+    trackClicked(ClickEvent.MediumMarketBannerClicked, {
+      marketCategory: market.categories,
+      marketAddress: market.slug,
+      marketType: 'group',
+      marketTags: market.tags,
+      ...analyticParams,
+    })
 
-    router.push(`?slug=${marketGroup.slug}`, { scroll: false })
-    onOpenMarketPage(marketGroup)
+    !isMobile && onOpenMarketPage(market)
+  }
+
+  const handleOutcomeClicked = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    marketToSet: Market,
+    outcome: number
+  ) => {
+    trackClicked<QuickBetClickedMetadata>(ClickEvent.QuickBetClicked, {
+      source: 'Main Page market group card',
+      value: outcome ? 'small no button' : 'small yes button',
+    })
+    if (e.metaKey || e.ctrlKey || e.button === 2) {
+      return
+    }
+    if (!isMobile) {
+      e.stopPropagation()
+      e.preventDefault()
+    }
+    const searchParams = new URLSearchParams(window.location.search)
+    searchParams.set('market', market.slug)
+    router.push(`?${searchParams.toString()}`, { scroll: false })
+    closeAllAuthSidebarPages()
+    setGroupMarket(market)
+    setMarket(marketToSet)
+    setClobOutcome(outcome)
+    if (!marketPageOpened) {
+      setMarketPageOpened(true)
+    }
   }
 
   const content = (
-    <Paper
-      w={'full'}
-      justifyContent={'space-between'}
-      cursor='pointer'
-      position='relative'
-      _hover={{ ...(!isMobile ? { bg: 'blue.500' } : {}) }}
+    <Box
+      w='full'
+      bg={hovered ? 'grey.100' : 'unset'}
+      rounded='12px'
+      border='3px solid var(--chakra-colors-grey-100)'
+      p='2px'
+      minH={MIN_CARD_HEIGHT[variant]}
+      h='full'
       onMouseEnter={() => {
-        if (!isMobile) {
-          setColors(hoverColors)
-        }
+        setHovered(true)
       }}
       onMouseLeave={() => {
-        if (!isMobile) {
-          setColors(defaultColors)
+        if (selectedMarket?.slug !== market.slug) {
+          setHovered(false)
         }
       }}
-      onClick={(e) => trackMarketClicked(e)}
+      onClick={(event) => {
+        onClickRedirectToMarket(event)
+      }}
+      position='relative'
+      overflow='hidden'
     >
-      <HStack justifyContent='space-between' mb='12px'>
-        <Text {...paragraphMedium} color={colors.main} lineHeight={'20px'}>
-          {marketGroup.title ?? 'Noname market'}
-        </Text>
-      </HStack>
-      <HStack
-        gap={isMobile ? '8px' : '16px'}
-        mt={isMobile ? '16px' : '8px'}
-        flexDirection={isMobile ? 'column' : 'row'}
-      >
-        <HStack
-          w={isMobile ? '100%' : 'unset'}
-          justifyContent={isMobile ? 'space-between' : 'unset'}
-        >
-          <HStack color={colors.secondary} gap='4px'>
-            <LiquidityIcon width={16} height={16} />
-            <Text {...paragraphMedium} color={colors.secondary}>
-              Liquidity
-            </Text>
-          </HStack>
-          <Text {...paragraphRegular} color={colors.main}>
-            {NumberUtil.formatThousands(totalLiquidity, 6)} {marketGroup.collateralToken.symbol}
-          </Text>
-        </HStack>
-        <HStack
-          w={isMobile ? '100%' : 'unset'}
-          justifyContent={isMobile ? 'space-between' : 'unset'}
-        >
-          <HStack color={colors.secondary} gap='4px'>
-            <VolumeIcon width={16} height={16} />
-            <Text {...paragraphMedium} color={colors.secondary}>
-              Volume
-            </Text>
-          </HStack>
-          <Text {...paragraphRegular} color={colors.main}>
-            {NumberUtil.formatThousands(totalVolume, 6)} {marketGroup.collateralToken.symbol}
-          </Text>
-        </HStack>
-      </HStack>
-      <Box my='8px'>
-        <Divider color={colors.divider} />
-      </Box>
-      <VStack gap={isMobile ? '8px' : '4px'} alignItems='start'>
-        {marketGroup.markets.slice(0, 3).map((market) => (
-          <HStack justifyContent='space-between' key={market.address} w='full'>
-            <Text {...paragraphMedium} color={colors.main}>
-              {market.title}
-            </Text>
-            <HStack gap={1} color={colors.main}>
-              <Text {...paragraphMedium} color={colors.main}>
-                {market.prices[0]}%
-              </Text>
-              <Box w='16px' h='16px' display='flex' alignItems='center' justifyContent='center'>
-                <Box
-                  h='100%'
-                  w='100%'
-                  borderRadius='100%'
-                  bg={`conic-gradient(${colors.main} ${market.prices[0]}% 10%, ${colors.chartBg} ${market.prices[0]}% 100%)`}
-                />
-              </Box>
-            </HStack>
-          </HStack>
+      <Text {...headline} p='16px' textAlign='left'>
+        {market.title}
+      </Text>
+      <VStack maxH='86px' px='16px' overflowY='auto' gap='8px' pt={0}>
+        {market.markets?.map((marketInGroup) => (
+          <MarketGroupRow
+            market={marketInGroup}
+            key={marketInGroup.slug}
+            handleOutcomeClicked={handleOutcomeClicked}
+          />
         ))}
-        {marketGroup.markets.length > 3 && (
-          <Text {...paragraphMedium} color={colors.secondary}>
-            +{marketGroup.markets.length - 3} more
-          </Text>
-        )}
       </VStack>
-    </Paper>
+      <HStack
+        bg={hovered ? 'grey.100' : 'grey.50'}
+        width='full'
+        p='16px'
+        justifyContent='space-between'
+      >
+        <MarketCountdown
+          deadline={market.expirationTimestamp}
+          deadlineText={market.expirationDate}
+          color='grey.500'
+          showDays={false}
+          hideText={isMobile || isShortCard}
+          ended={market.status === MarketStatus.RESOLVED}
+        />
+        <HStack gap='4px'>
+          <HStack gap='4px'>
+            <>
+              {!isShortCard ? (
+                <HStack gap={0}>
+                  {uniqueUsersTrades?.map(({ user }, index) => (
+                    <Avatar
+                      account={user.account || ''}
+                      avatarUrl={user.imageURI}
+                      key={user.account}
+                      borderColor='grey.100'
+                      zIndex={100 + index}
+                      border='2px solid'
+                      color='grey.100 !important'
+                      showBorder
+                      bg='grey.100'
+                      size='20px'
+                      style={{
+                        border: '2px solid',
+                        marginLeft: index > 0 ? '-6px' : 0,
+                      }}
+                    />
+                  ))}
+                </HStack>
+              ) : null}
+              <Text {...paragraphRegular} color='grey.500'>
+                Volume
+              </Text>
+              <Text {...paragraphRegular} color='grey.500' whiteSpace='nowrap'>
+                {NumberUtil.convertWithDenomination(market.volumeFormatted || '0', 0)}{' '}
+                {market.collateralToken?.symbol}
+              </Text>
+            </>
+          </HStack>
+        </HStack>
+      </HStack>
+    </Box>
   )
-
-  return isMobile ? (
-    <MobileDrawer
-      id={marketGroup.slug}
-      trigger={content}
-      variant='black'
-      onClose={onCloseMarketPage}
-    >
-      <MarketPage />
-    </MobileDrawer>
-  ) : (
-    <MarketCardLink marketAddress={marketGroup.slug} group>
-      {content}
-    </MarketCardLink>
-  )
+  return isMobile ? content : <MarketCardLink marketAddress={market.slug}>{content}</MarketCardLink>
 }

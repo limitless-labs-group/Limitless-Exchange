@@ -26,7 +26,6 @@ interface ConfirmButtonProps {
   analyticParams?: { source: string }
   marketAddress: Address
   outcome: 'Yes' | 'No'
-  marketType: 'single' | 'group'
   showFullInfo: boolean
 }
 
@@ -39,7 +38,6 @@ export default function ConfirmButton({
   analyticParams,
   marketAddress,
   outcome,
-  marketType,
   showFullInfo,
 }: ConfirmButtonProps) {
   const [isHovered, setIsHovered] = useState(false)
@@ -63,7 +61,6 @@ export default function ConfirmButton({
       outcome,
       strategy: 'Buy',
       walletType: client,
-      marketType,
     })
     setStatus('initial')
   }

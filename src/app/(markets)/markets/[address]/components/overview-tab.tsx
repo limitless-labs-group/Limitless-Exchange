@@ -3,11 +3,10 @@ import NextLink from 'next/link'
 import { isMobile } from 'react-device-detect'
 import TextEditor from '@/components/common/text-editor'
 import { paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market, MarketGroup } from '@/types'
+import { Market } from '@/types'
 
 interface MarketOverviewTabProps {
-  market?: Market
-  marketGroup?: MarketGroup
+  market: Market | null
 }
 
 function MarketOverviewTab({ market }: MarketOverviewTabProps) {

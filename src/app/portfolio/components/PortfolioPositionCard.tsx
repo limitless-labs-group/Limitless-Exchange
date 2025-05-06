@@ -1,21 +1,21 @@
 import { HStack, Stack, Text, Box, Icon, VStack, Divider } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
-import { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
 import ClaimButton from '@/components/common/markets/claim-button'
+import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import MarketPage from '@/components/common/markets/market-page'
-import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
-import useMarketGroup from '@/hooks/use-market-group'
 import ActiveIcon from '@/resources/icons/active-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import ClosedIcon from '@/resources/icons/close-rounded-icon.svg'
 import { ClickEvent, HistoryPosition, useAmplitude, useTradingService } from '@/services'
-import { useAllMarkets, useMarket } from '@/services/MarketsService'
+import { useMarket } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export interface IPortfolioPositionCard {
@@ -29,11 +29,6 @@ export interface IPortfolioPositionCard {
 const unhoveredColors = {
   main: 'grey.800',
   secondary: 'grey.500',
-}
-
-const hoverColors = {
-  main: 'white',
-  secondary: 'transparent.700',
 }
 
 const StatusIcon = ({ isClosed, color }: { isClosed: boolean | undefined; color: string }) => {
@@ -55,14 +50,18 @@ const StatusIcon = ({ isClosed, color }: { isClosed: boolean | undefined; color:
 }
 
 const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => {
-  const [colors, setColors] = useState(unhoveredColors)
-
   const { trackClicked } = useAmplitude()
-  const { onOpenMarketPage, setMarket, setMarketGroup } = useTradingService()
+  const { onOpenMarketPage, setMarket } = useTradingService()
 
-  const allMarkets = useAllMarkets()
+  const date = new Date(position.market.expirationDate)
 
-  const targetMarket = allMarkets.find((market) => market.address === position.market.id)
+  const formatted = date
+    .toLocaleDateString('en-US', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    })
+    .replace(',', '')
 
   const contractPrice = new BigNumber(prices?.prices?.[position.outcomeIndex] ?? 1)
     .dividedBy(100)
@@ -85,19 +84,19 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
     }
     if (contractPrice < 1) {
       return (
-        <Text {...paragraphMedium} color={colors.main === 'white' ? 'white' : 'red.500'}>
+        <Text {...paragraphMedium} color={unhoveredColors.main === 'white' ? 'white' : 'red.500'}>
           &#x2193;
           {price}%
         </Text>
       )
     }
     return (
-      <Text {...paragraphMedium} color={colors.main === 'white' ? 'white' : 'green.500'}>
+      <Text {...paragraphMedium} color={unhoveredColors.main === 'white' ? 'white' : 'green.500'}>
         &#x2191;
         {price}%
       </Text>
     )
-  }, [contractPrice, colors.main])
+  }, [contractPrice, unhoveredColors.main])
 
   const getOutcomeNotation = () => {
     const outcomeTokenId = position.outcomeIndex ?? 0
@@ -107,11 +106,6 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
   }
 
   const { data: oneMarket, refetch: refetchMarket } = useMarket(position.market.id, false, false)
-  const { data: marketGroup, refetch: refetchMarketGroup } = useMarketGroup(
-    targetMarket?.group?.slug,
-    false,
-    false
-  )
 
   const handleOpenMarketPage = async () => {
     if (position.market?.id) {
@@ -120,9 +114,9 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
         if (fetchedMarket) {
           onOpenMarketPage(fetchedMarket)
           trackClicked(ClickEvent.PortfolioMarketClicked, {
-            marketCategory: fetchedMarket.category,
+            marketCategory: fetchedMarket.categories,
             marketAddress: fetchedMarket.slug,
-            marketType: 'single',
+            marketType: fetchedMarket.marketType,
             marketTags: fetchedMarket.tags,
             type: 'Portolio',
           })
@@ -130,23 +124,12 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
       } else {
         onOpenMarketPage(oneMarket)
         trackClicked(ClickEvent.PortfolioMarketClicked, {
-          marketCategory: oneMarket.category,
+          marketCategory: oneMarket.categories,
           marketAddress: oneMarket.slug,
-          marketType: 'single',
+          marketType: oneMarket.marketType,
           marketTags: oneMarket.tags,
           type: 'Portolio',
         })
-      }
-    }
-
-    if (targetMarket?.group?.slug) {
-      if (!marketGroup) {
-        const { data: fetchedMarketGroup } = await refetchMarketGroup()
-        if (fetchedMarketGroup) {
-          onOpenMarketPage(fetchedMarketGroup)
-        }
-      } else {
-        onOpenMarketPage(marketGroup)
       }
     }
   }
@@ -155,28 +138,34 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
     if (position.market.closed) {
       return {
         main: 'white',
-        secondary: isMobile ? 'white' : 'transparent.700',
+        secondary: isMobile ? 'white' : 'whiteAlpha.70',
       }
     }
     return {
-      main: colors.main,
-      secondary: colors.secondary,
+      main: unhoveredColors.main,
+      secondary: unhoveredColors.secondary,
     }
-  }, [position, colors])
+  }, [position, unhoveredColors])
 
   return isMobile ? (
     <MobileDrawer
       trigger={
-        <Paper
+        <Box
           onClick={handleOpenMarketPage}
+          cursor='pointer'
+          border='2px solid'
+          borderColor={position.market?.closed ? 'green.500' : 'grey.100'}
           w={'full'}
-          bg={position.market?.closed ? 'green.500' : 'grey.200'}
-          p={'16px'}
           borderRadius='8px'
+          _hover={{
+            bg: position.market?.closed ? 'green.500' : 'grey.100',
+          }}
+          bg={position.market?.closed ? 'green.500' : 'unset'}
+          p={isMobile ? '16px' : '8px'}
         >
           <Stack spacing={'8px'}>
             <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
-              <Text {...paragraphMedium} color={cardColors.main}>
+              <Text {...paragraphMedium} color={cardColors.main} textAlign='left'>
                 {position.market.title}
               </Text>
               <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} color={cardColors.main} />
@@ -185,7 +174,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
               {position.market?.closed ? (
                 <Text {...paragraphMedium} color={cardColors.main}>
                   {`Won ${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} ${
-                    position.market.collateral?.symbol
+                    position.market.collateralToken?.symbol
                   }`}
                 </Text>
               ) : (
@@ -203,7 +192,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
                           )
                           .toString(),
                         6
-                      )} ${position.market?.collateral?.symbol}`}
+                      )} ${position.market?.collateralToken?.symbol}`}
                     </Text>
                   )}
                   <Box gap={0} fontSize={'16px'} fontWeight={500}>
@@ -216,23 +205,24 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
               <HStack gap={1}>
                 {<StatusIcon isClosed={position?.market?.closed} color={cardColors.secondary} />}
               </HStack>
-              <HStack gap={1} color={cardColors.secondary}>
-                <CalendarIcon width={'16px'} height={'16px'} />
-                <Text {...paragraphMedium} color={cardColors.secondary}>
-                  {position?.market.expirationDate}
-                </Text>
-              </HStack>
+              <MarketCountdown
+                deadline={date.getTime()}
+                deadlineText={formatted}
+                showDays={false}
+                hideText
+                color={position?.market?.closed ? 'whiteAlpha.70' : 'grey.500'}
+                ended={position?.market?.closed || false}
+              />
             </HStack>
             <HStack>
               {position.market?.closed && (
                 <ClaimButton
-                  conditionId={position.market.condition_id as Address}
-                  collateralAddress={position.market.collateral?.id as Address}
+                  conditionId={position.market.conditionId as Address}
+                  collateralAddress={position.market.collateralToken?.id as Address}
                   marketAddress={position.market.id}
-                  outcomeIndex={position.latestTrade?.outcomeIndex as number}
                   marketType='amm'
                   amountToClaim={position.outcomeTokenAmount as string}
-                  symbol={position.market.collateral?.symbol as string}
+                  symbol={position.market.collateralToken?.symbol as string}
                 />
               )}
             </HStack>
@@ -257,33 +247,33 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
               </Text>
               <Text color={cardColors.main} lineHeight={'20px'} fontWeight={400} fontSize={'16px'}>
                 {`${NumberUtil.toFixed(position.collateralAmount, 6)} ${
-                  position.market?.collateral?.symbol
+                  position.market?.collateralToken?.symbol
                 }`}
               </Text>
             </HStack>
           </Stack>
-        </Paper>
+        </Box>
       }
       variant='black'
       onClose={() => {
         setMarket(null)
-        setMarketGroup(null)
       }}
     >
       <MarketPage />
     </MobileDrawer>
   ) : (
-    <Paper
-      w={'full'}
-      bg={position.market?.closed ? 'green.500' : 'grey.200'}
-      _hover={{
-        bg: position.market?.closed ? 'green.600' : 'blue.500',
-      }}
+    <Box
       cursor='pointer'
-      onMouseEnter={() => setColors(hoverColors)}
-      onMouseLeave={() => setColors(unhoveredColors)}
-      onClick={handleOpenMarketPage}
+      border='2px solid'
+      borderColor={position.market?.closed ? 'green.500' : 'grey.100'}
+      w={'full'}
       borderRadius='8px'
+      _hover={{
+        bg: position.market?.closed ? 'green.500' : 'grey.100',
+      }}
+      bg={position.market?.closed ? 'green.500' : 'unset'}
+      p={isMobile ? '16px' : '8px'}
+      onClick={handleOpenMarketPage}
     >
       <Stack direction='row'>
         <HStack w={'full'} spacing={1} justifyContent={'space-between'}>
@@ -296,13 +286,12 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
           <HStack>
             {position.market?.closed ? (
               <ClaimButton
-                conditionId={position.market.condition_id as Address}
-                collateralAddress={position.market.collateral?.id as Address}
+                conditionId={position.market.conditionId as Address}
+                collateralAddress={position.market.collateralToken?.id as Address}
                 marketAddress={position.market.id}
-                outcomeIndex={position.latestTrade?.outcomeIndex as number}
                 marketType='amm'
                 amountToClaim={position.outcomeTokenAmount as string}
-                symbol={position.market.collateral?.symbol as string}
+                symbol={position.market.collateralToken?.symbol as string}
               />
             ) : (
               <>
@@ -321,8 +310,8 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
                             )
                           )
                           .toString(),
-                        position.market.collateral?.symbol === 'USDC' ? 2 : 6
-                      )} ${position.market?.collateral?.symbol}`}
+                        position.market.collateralToken?.symbol === 'USDC' ? 2 : 6
+                      )} ${position.market?.collateralToken?.symbol}`}
                     </Text>
                     <Box gap={0}>{contractPriceChanged}</Box>
                   </>
@@ -356,8 +345,8 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
               ) : (
                 `${NumberUtil.toFixed(
                   position.collateralAmount,
-                  position.market?.collateral?.symbol === 'USDC' ? 2 : 6
-                )} ${position.market?.collateral?.symbol}`
+                  position.market?.collateralToken?.symbol === 'USDC' ? 2 : 6
+                )} ${position.market?.collateralToken?.symbol}`
               )}
             </Text>
           </VStack>
@@ -379,7 +368,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
           </HStack>
         </HStack>
       </Stack>
-    </Paper>
+    </Box>
   )
 }
 

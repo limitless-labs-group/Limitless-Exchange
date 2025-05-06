@@ -1,32 +1,29 @@
 'use client'
 
 import { Box, Button, Flex, Spinner, VStack } from '@chakra-ui/react'
-import { useQuery } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import React, { useMemo, useState } from 'react'
 import { Toast } from '@/components/common/toast'
-import { DraftMarket, DraftMarketCard } from '@/app/draft/components/draft-card'
+import { DraftMarketCard } from '@/app/draft/components/draft-card'
 import { SelectedMarkets } from './selected-markets'
 import { useToast } from '@/hooks'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
-import { DraftMarketResponse } from '@/types/draft'
+import { DraftMarket, DraftMarketType } from '@/types/draft'
 
-export const DraftMarketsQueue = () => {
+export type DraftMarketsQueueProps = {
+  marketType?: DraftMarketType
+  markets?: DraftMarket[]
+}
+
+export const DraftMarketsQueue = ({ marketType = 'amm', markets = [] }: DraftMarketsQueueProps) => {
   const [isCreating, setIsCreating] = useState<boolean>(false)
-
+  const queryClient = useQueryClient()
   const privateClient = useAxiosPrivateClient()
 
   const router = useRouter()
-  const { data: draftMarkets } = useQuery({
-    queryKey: ['draftMarkets-amm'],
-    queryFn: async () => {
-      const response = await privateClient.get(`/markets/drafts`)
 
-      return response.data.filter(
-        (market: DraftMarketResponse) => !market.type || market?.type === 'amm'
-      )
-    },
-  })
+  const draftMarkets = markets
 
   const [selectedMarketIds, setSelectedMarketIds] = useState<number[]>([])
 
@@ -48,17 +45,27 @@ export const DraftMarketsQueue = () => {
   }, [selectedMarketIds, draftMarkets])
 
   const handleClick = (marketId: number) => {
-    router.push(`/draft/?market=${marketId}`)
+    router.push(`/draft/?draft-market=${marketId}&marketType=${marketType}`)
   }
-
+  const getPostData = (marketType: DraftMarketType) => {
+    switch (marketType) {
+      case 'clob':
+        return { url: `/markets/clob/create-batch`, ids: { marketsIds: selectedMarketIds } }
+      case 'group':
+        return { url: `/markets/group/create-batch`, ids: { groupIds: selectedMarketIds } }
+      default:
+        return { url: `/markets/create-batch`, ids: { marketsIds: selectedMarketIds } }
+    }
+  }
   const toast = useToast()
 
   const createMarketsBatch = () => {
     setIsCreating(true)
+    const { url, ids } = getPostData(marketType)
     privateClient
       .post(
-        `/markets/create-batch`,
-        { marketsIds: selectedMarketIds },
+        url,
+        { ...ids },
         {
           headers: {
             'Content-Type': 'application/json',
@@ -66,7 +73,7 @@ export const DraftMarketsQueue = () => {
         }
       )
       .then((res) => {
-        if (res.status === 201) {
+        if (res.status === 201 && marketType === 'amm') {
           const newTab = window.open('', '_blank')
           if (newTab) {
             newTab.location.href = res.data.multisigTxLink
@@ -75,13 +82,20 @@ export const DraftMarketsQueue = () => {
             window.location.href = res.data.multisigTxLink
           }
         }
+        const id = toast({
+          render: () => <Toast title={`Created successfully`} id={id} />,
+        })
       })
       .catch((res) => {
         const id = toast({
           render: () => <Toast title={`Error: ${res.message}`} id={id} />,
         })
       })
-      .finally(() => {
+      .finally(async () => {
+        await queryClient.refetchQueries({
+          queryKey: ['allDraftMarkets'],
+        })
+        setSelectedMarketIds([])
         setIsCreating(false)
       })
   }
@@ -97,6 +111,7 @@ export const DraftMarketsQueue = () => {
               isChecked={selectedMarketIds.includes(market.id)}
               onToggle={() => handleToggle(market.id)}
               onClick={() => handleClick(market.id)}
+              param='queue'
             />
           )
         })}
@@ -114,7 +129,7 @@ export const DraftMarketsQueue = () => {
       <Box
         position='fixed'
         right='24px'
-        top='80px'
+        top='100px'
         maxWidth='350px'
         w='full'
         display={selectedMarket.length > 0 ? 'block' : 'none'}

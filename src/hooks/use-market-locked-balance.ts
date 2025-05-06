@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useAccount } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 
-interface LockedBalanceResponse {
+export interface LockedBalanceResponse {
   collateral: {
     balance: number
     symbol: string

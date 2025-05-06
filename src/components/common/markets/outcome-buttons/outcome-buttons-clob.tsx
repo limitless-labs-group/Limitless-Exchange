@@ -1,10 +1,11 @@
 import { Box, Button, HStack, Text, VStack } from '@chakra-ui/react'
+import { useAtom } from 'jotai'
 import { formatUnits } from 'viem'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
+import { blockTradeAtom } from '@/atoms/trading'
 import {
   ChangeEvent,
   OrderBookSideChangedMetadata,
-  StrategyChangedMetadata,
   useAmplitude,
   useTradingService,
 } from '@/services'
@@ -13,9 +14,10 @@ import { MarketOrderType } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export default function OutcomeButtonsClob() {
-  const { strategy, market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
+  const { market, clobOutcome: outcome, setClobOutcome: setOutcome, strategy } = useTradingService()
   const { trackChanged } = useAmplitude()
-  const { orderType, yesPrice, noPrice, setPrice, sharesAvailable } = useClobWidget()
+  const { orderType, yesPrice, noPrice, sharesAvailable } = useClobWidget()
+  const [, setTradingBlocked] = useAtom(blockTradeAtom)
 
   const getShares = (sharesAmount?: bigint) => {
     if (!sharesAmount) {
@@ -30,40 +32,11 @@ export default function OutcomeButtonsClob() {
       marketAddress: market?.slug as string,
     })
     setOutcome(outcome)
+    setTradingBlocked(false)
     if (orderType === MarketOrderType.LIMIT) {
-      const selectedPrice = outcome ? noPrice : yesPrice
-      setPrice(selectedPrice === 0 ? '' : String(selectedPrice))
+      const selectedPrice = outcome ? 100 - yesPrice : 100 - noPrice
+      // setPrice(selectedPrice === 0 ? '' : String(selectedPrice))
     }
-  }
-
-  if (strategy === 'Buy') {
-    return (
-      <Box mb='24px'>
-        <Text {...paragraphMedium} mb='8px'>
-          Select outcome
-        </Text>
-        <HStack w='full' gap='8px'>
-          <Button
-            flex={1}
-            color={!outcome ? 'white' : 'green.500'}
-            bg={!outcome ? 'green.500' : 'greenTransparent.100'}
-            onClick={() => handleOutcomeChanged(0)}
-            h='64px'
-          >
-            Yes {yesPrice}¢
-          </Button>
-          <Button
-            flex={1}
-            color={outcome ? 'white' : 'red.500'}
-            bg={outcome ? 'red.500' : 'redTransparent.100'}
-            onClick={() => handleOutcomeChanged(1)}
-            h='64px'
-          >
-            No {noPrice}¢
-          </Button>
-        </HStack>
-      </Box>
-    )
   }
 
   return (
@@ -86,9 +59,11 @@ export default function OutcomeButtonsClob() {
             <Text color={!outcome ? 'white' : 'green.500'} fontSize='16px' fontWeight={700}>
               Yes {yesPrice}¢
             </Text>
-            <Text {...paragraphRegular} color={!outcome ? 'white' : 'green.500'}>
-              {NumberUtil.toFixed(getShares(sharesAvailable['yes']), 6)} Contracts
-            </Text>
+            {strategy === 'Sell' && (
+              <Text {...paragraphRegular} color={!outcome ? 'white' : 'green.500'}>
+                {NumberUtil.convertWithDenomination(getShares(sharesAvailable['yes']), 2)} Contracts
+              </Text>
+            )}
           </VStack>
         </Button>
         <Button
@@ -105,9 +80,11 @@ export default function OutcomeButtonsClob() {
             <Text color={outcome ? 'white' : 'red.500'} fontSize='16px' fontWeight={700}>
               No {noPrice}¢
             </Text>
-            <Text {...paragraphRegular} color={outcome ? 'white' : 'red.500'}>
-              {NumberUtil.toFixed(getShares(sharesAvailable['no']), 6)} Contracts
-            </Text>
+            {strategy === 'Sell' && (
+              <Text {...paragraphRegular} color={outcome ? 'white' : 'red.500'}>
+                {NumberUtil.convertWithDenomination(getShares(sharesAvailable['no']), 2)} Contracts
+              </Text>
+            )}
           </VStack>
         </Button>
       </HStack>

@@ -41,8 +41,24 @@ export const createMarketShareUrls = (
   outcomeTokensPercent: number[] | undefined,
   creatorName?: string
 ): ShareURI => {
-  // const formatOutcomeTokenPercent = (index: number) =>
-  //   `${Number(outcomeTokensPercent?.[index] ?? 50).toFixed(2)}%`
+  const formatOutcomeTokenPercent = (index: number) => {
+    if (!outcomeTokensPercent || !outcomeTokensPercent[index]) return '51.00%'
+    if (index < 0 || index >= outcomeTokensPercent.length) {
+      console.warn('Invalid index provided to formatOutcomeTokenPercent')
+      return '50.00%'
+    }
+
+    const currentValue = Math.max(0, outcomeTokensPercent[index])
+    const sum = outcomeTokensPercent.reduce((acc, curr) => acc + Math.max(0, curr), 0)
+    if (sum <= 0) {
+      return '50.00%'
+    } else if (sum > 100) {
+      const normalizedValue = (currentValue * 100) / sum
+      return `${normalizedValue.toFixed(2)}%`
+    }
+
+    return `${currentValue.toFixed(2)}%`
+  }
 
   // const baseMessage = `"${
   //   market?.proxyTitle ?? market?.title

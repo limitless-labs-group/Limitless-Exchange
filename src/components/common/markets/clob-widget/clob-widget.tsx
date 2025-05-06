@@ -1,136 +1,151 @@
-import { Box, Button, HStack, Text } from '@chakra-ui/react'
-import React from 'react'
+import { Box, HStack, Tab, TabIndicator, TabList, Tabs, Text } from '@chakra-ui/react'
+import { useAtom } from 'jotai'
+import React, { useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address } from 'viem'
 import ClobLimitTradeForm from '@/components/common/markets/clob-widget/clob-limit-trade-form'
 import ClobMarketTradeForm from '@/components/common/markets/clob-widget/clob-market-trade-form'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
+import OrderTypeSelectMenu from '@/components/common/markets/clob-widget/order-type-select-menu'
 import SharesActionsClob from '@/components/common/markets/clob-widget/shares-actions-clob'
 import TradeStepperMenu from '@/components/common/markets/clob-widget/trade-stepper-menu'
 import OutcomeButtonsClob from '@/components/common/markets/outcome-buttons/outcome-buttons-clob'
 import { Overlay } from '@/components/common/overlay'
 import Paper from '@/components/common/paper'
+import { blockTradeAtom } from '@/atoms/trading'
 import { ChangeEvent, StrategyChangedMetadata, useAmplitude, useTradingService } from '@/services'
-import { controlsMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { PendingTradeData } from '@/services/PendingTradeService'
+import { headLineLarge, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketOrderType } from '@/types'
 
 export default function ClobWidget() {
   const { trackChanged } = useAmplitude()
-  const { clobOutcome: outcome, strategy, setStrategy, market } = useTradingService()
+  const {
+    setStrategy,
+    market,
+    groupMarket,
+    strategy,
+    setClobOutcome: setOutcome,
+  } = useTradingService()
 
   const {
-    setPrice,
-    price,
-    sharesAmount,
-    setSharesAmount,
     isBalanceNotEnough,
     orderType,
     setOrderType,
     tradeStepperOpen,
     onToggleTradeStepper,
-    yesPrice,
-    noPrice,
+    setPrice,
   } = useClobWidget()
+  const [tradingBlocked, setTradingBlocked] = useAtom(blockTradeAtom)
 
-  const handleOrderTypeChanged = (order: MarketOrderType) => {
-    setOrderType(order)
-    if (order === MarketOrderType.MARKET) {
-      setPrice(sharesAmount)
-      setSharesAmount('')
-    } else {
-      const selectedPrice = outcome ? noPrice : yesPrice
-      setPrice(selectedPrice === 0 ? '' : String(selectedPrice))
-      setSharesAmount(price)
+  const handlePendingTradeData = () => {
+    const pendingTradeData = localStorage.getItem('pendingTrade')
+
+    if (!pendingTradeData) return
+
+    try {
+      const parsedData: PendingTradeData = JSON.parse(pendingTradeData)
+      const { price, strategy, outcome, orderType, marketSlug } = parsedData
+
+      if (marketSlug === market?.slug) {
+        setPrice(price)
+        setOrderType(orderType)
+        setOutcome(outcome)
+        setStrategy(strategy)
+        localStorage.removeItem('pendingTrade')
+      }
+    } catch (error) {
+      console.error('Error processing pending trade data:', error)
+      localStorage.removeItem('pendingTrade')
     }
-    trackChanged(ChangeEvent.ClobWidgetModeChanged, {
-      mode: order === MarketOrderType.MARKET ? 'amm on' : 'clob on',
-    })
-    tradeStepperOpen && onToggleTradeStepper()
   }
+
+  useEffect(() => {
+    handlePendingTradeData()
+  }, [market?.slug, setPrice, setOrderType, setOutcome, setStrategy])
+
+  const tabs = [
+    {
+      title: 'Buy',
+    },
+    {
+      title: 'Sell',
+    },
+  ]
+
+  const handleTabChanged = (tab: 'Buy' | 'Sell') => {
+    trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
+      type: `${tab} selected`,
+      marketAddress: market?.slug as Address,
+      marketMarketType: 'CLOB',
+    })
+    setStrategy(tab)
+  }
+
+  useEffect(() => {
+    setStrategy(strategy)
+    setTradingBlocked(false)
+  }, [strategy])
 
   return (
     <Box>
-      <HStack w='full' justifyContent='center'>
-        <Button
-          bg={orderType === MarketOrderType.MARKET ? 'grey.100' : 'unset'}
-          h='32px'
-          borderBottomRadius={0}
-          onClick={() => handleOrderTypeChanged(MarketOrderType.MARKET)}
-        >
-          Market
-        </Button>
-        <Button
-          onClick={() => handleOrderTypeChanged(MarketOrderType.LIMIT)}
-          bg={orderType === MarketOrderType.LIMIT ? 'grey.100' : 'unset'}
-          h='32px'
-          borderBottomRadius={0}
-        >
-          Limit Order
-        </Button>
-      </HStack>
       <Box position='relative' borderRadius='8px' overflow='hidden'>
         <Overlay show={tradeStepperOpen} onClose={onToggleTradeStepper} />
         {tradeStepperOpen && <TradeStepperMenu />}
         <Paper bg='grey.100' borderRadius='8px' p='8px' position='relative'>
-          <HStack w='full' justifyContent='center' mb='16px'>
-            <HStack w={'236px'} mx='auto' bg='grey.200' borderRadius='8px' py='2px' px={'2px'}>
-              <Button
-                h={isMobile ? '28px' : '20px'}
-                flex='1'
-                py='2px'
-                borderRadius='6px'
-                bg={strategy === 'Buy' ? 'grey.50' : 'unset'}
-                color='grey.800'
-                _hover={{
-                  backgroundColor: strategy === 'Buy' ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
-                }}
-                onClick={() => {
-                  trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
-                    type: 'Buy selected',
-                    marketAddress: market?.slug as Address,
-                    marketMarketType: 'CLOB',
-                  })
-                  setStrategy('Buy')
-                }}
-              >
-                <Text {...controlsMedium} color={strategy == 'Buy' ? 'font' : 'fontLight'}>
-                  Buy
-                </Text>
-              </Button>
-              <Button
-                h={isMobile ? '28px' : '20px'}
-                flex='1'
-                borderRadius='6px'
-                py='2px'
-                bg={strategy === 'Sell' ? 'grey.50' : 'unset'}
-                color='grey.800'
-                _hover={{
-                  backgroundColor: strategy === 'Sell' ? 'grey.50' : 'rgba(255, 255, 255, 0.10)',
-                }}
-                _disabled={{
-                  opacity: '50%',
-                  pointerEvents: 'none',
-                }}
-                onClick={() => {
-                  trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
-                    type: 'Sell selected',
-                    marketAddress: market?.slug as Address,
-                    marketMarketType: 'CLOB',
-                  })
-                  setStrategy('Sell')
-                }}
-              >
-                <Text {...controlsMedium} color={strategy == 'Sell' ? 'font' : 'fontLight'}>
-                  Sell
-                </Text>
-              </Button>
+          {groupMarket && (
+            <>
+              <Text {...headLineLarge} mb='8px'>
+                {market?.proxyTitle || market?.title}
+              </Text>
+              <Text {...paragraphRegular} color='grey.500' mb='24px'>
+                {groupMarket.proxyTitle || groupMarket.title}
+              </Text>
+            </>
+          )}
+          <HStack
+            w='full'
+            justifyContent='space-between'
+            gap={0}
+            mb='24px'
+            borderBottom='1px solid'
+            borderColor='grey.500'
+          >
+            <Tabs
+              position='relative'
+              variant='common'
+              minW={isMobile ? '104px' : '120px'}
+              index={strategy === 'Buy' ? 0 : 1}
+            >
+              <TabList>
+                {tabs.map((tab) => (
+                  <Tab
+                    key={tab.title}
+                    onClick={() => handleTabChanged(tab.title as 'Buy' | 'Sell')}
+                    minW='52px'
+                  >
+                    <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
+                      <>{tab.title}</>
+                    </HStack>
+                  </Tab>
+                ))}
+              </TabList>
+              <TabIndicator
+                mt='-1px'
+                height='2px'
+                bg='grey.800'
+                transitionDuration='200ms !important'
+              />
+            </Tabs>
+            <HStack w='full' justifyContent='flex-end' paddingBottom={isMobile ? '8px' : 0}>
+              <OrderTypeSelectMenu />
             </HStack>
           </HStack>
           <OutcomeButtonsClob />
           {orderType === MarketOrderType.MARKET ? <ClobMarketTradeForm /> : <ClobLimitTradeForm />}
           {isBalanceNotEnough && (
             <Text my='8px' {...paragraphRegular} color='grey.500' textAlign={'center'}>
-              Not enough funds
+              Not enough {strategy === 'Buy' ? 'funds' : 'shares'}
             </Text>
           )}
         </Paper>

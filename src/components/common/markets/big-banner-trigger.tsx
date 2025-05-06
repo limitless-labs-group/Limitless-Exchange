@@ -1,31 +1,90 @@
-import { Box, Divider, HStack, Text, VStack } from '@chakra-ui/react'
-import { ethers } from 'ethers'
-import { AnimatePresence, motion } from 'framer-motion'
+import { Box, Button, Flex, HStack, Text, VStack } from '@chakra-ui/react'
+import BigNumber from 'bignumber.js'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Avatar from '@/components/common/avatar'
-import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
-import ProgressBar from '@/components/common/progress-bar'
-import { BigBannerProps } from './big-banner'
+import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
+import { MarketProgressBar } from '@/components/common/markets/market-cards/market-progress-bar'
+import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
+import Paper from '@/components/common/paper'
 import { MarketFeedData, useMarketFeed } from '@/hooks/use-market-feed'
 import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
-import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import { ClickEvent, QuickBetClickedMetadata, useAmplitude, useTradingService } from '@/services'
 import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
-import { h1Bold, h2Bold, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { NumberUtil, truncateEthAddress } from '@/utils'
-import { cutUsername } from '@/utils/string'
+import { captionMedium, headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { Market, MarketStatus } from '@/types'
+import { NumberUtil } from '@/utils'
 
-// @ts-ignore
-const MotionBox = motion(Box)
+export interface BigBannerProps {
+  market: Market
+  markets: Market[]
+  index: number
+}
 
-export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps) => {
+export const BigBannerTrigger = React.memo(({ market, markets, index }: BigBannerProps) => {
   const [feedMessage, setFeedMessage] = useState<MarketFeedData | null>(null)
-  const { onOpenMarketPage, setMarkets } = useTradingService()
+  const {
+    onOpenMarketPage,
+    setMarkets,
+    setClobOutcome,
+    setMarket,
+    marketPageOpened,
+    setMarketPageOpened,
+    setGroupMarket,
+  } = useTradingService()
   const { data: marketFeedData } = useMarketFeed(market)
   const router = useRouter()
   const { trackClicked } = useAmplitude()
   const { pushGA4Event } = useGoogleAnalytics()
+  const [yesHovered, setYesHovered] = useState(false)
+  const [noHovered, setNoHovered] = useState(false)
+  const isGroup = market.marketType === 'group'
+
+  const imageBackgrounds = [
+    '/assets/images/banners/background-1.svg',
+    '/assets/images/banners/background-2.svg',
+    '/assets/images/banners/background-3.svg',
+    '/assets/images/banners/background-4.svg',
+    '/assets/images/banners/background-5.svg',
+    '/assets/images/banners/background-6.svg',
+    '/assets/images/banners/background-7.svg',
+    '/assets/images/banners/background-8.svg',
+    '/assets/images/banners/background-9.svg',
+    '/assets/images/banners/background-10.svg',
+    '/assets/images/banners/background-11.svg',
+    '/assets/images/banners/background-12.svg',
+  ]
+
+  const cardBackgrounds = [
+    'linear-gradient(247deg, #822E25 0%, #010101 64.82%)',
+    'linear-gradient(247deg, #5041A3 0%, #010101 64.82%)',
+    'linear-gradient(247deg, #418D8B 0%, #010101 64.82%)',
+    'linear-gradient(247deg, #C28732 0%, #010101 64.82%)',
+    'linear-gradient(247deg, #275D38 0%, #010101 64.82%)',
+    'linear-gradient(247deg, #A34924 0%, #010101 64.82%)',
+    'linear-gradient(247deg, #2C69A3 0%, #010101 64.82%)',
+    'linear-gradient(247deg, #753379 0%, #010101 64.82%)',
+    'linear-gradient(247deg, #2A636E 0%, #010101 64.82%)',
+    'linear-gradient(247deg, #5041A3 0%, #010101 64.82%)',
+    'linear-gradient(247deg, #B2682B 0%, #010101 64.82%)',
+    'linear-gradient(247deg, #B04F50 0%, #010101 64.82%)',
+  ]
+
+  const cardBorders = [
+    'rgba(130, 46, 37, 0.25)',
+    'rgba(80, 65, 163, 0.25)',
+    'rgba(65, 141, 139, 0.25)',
+    'rgba(194, 135, 50, 0.25)',
+    'rgba(39, 93, 56, 0.25)',
+    'rgba(163, 73, 36, 0.25)',
+    'rgba(44, 105, 163, 0.25)',
+    'rgba(117, 51, 121, 0.25)',
+    'rgba(42, 99, 110, 0.25)',
+    'rgba(80, 65, 163, 0.25)',
+    'rgba(178, 104, 43, 0.25)',
+    'rgba(176, 79, 80, 0.25)',
+  ]
 
   const onClickRedirectToMarket = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.metaKey || e.ctrlKey || e.button === 2) {
@@ -37,13 +96,47 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
     router.push(`?market=${market.slug}`, { scroll: false })
     trackClicked(ClickEvent.BigBannerClicked, {
       marketAddress: market.slug,
-      marketType: 'single',
+      marketType: market.marketType,
       marketTags: market.tags,
     })
     pushGA4Event(GAEvents.ClickSection)
     onOpenMarketPage(market)
     if (isMobile) {
       setMarkets(markets)
+    }
+  }
+
+  const handleOutcomeClicked = (e: React.MouseEvent<HTMLButtonElement>, outcome: number) => {
+    const getValue = () => {
+      if (isGroup) return 'predict button'
+      return outcome ? 'small no button' : 'small yes button'
+    }
+
+    trackClicked<QuickBetClickedMetadata>(ClickEvent.QuickBetClicked, {
+      source: 'Main page' + ' ' + market.tradeType + 'card',
+      value: getValue(),
+    })
+    if (e.metaKey || e.ctrlKey || e.button === 2) {
+      return
+    }
+    if (!isMobile) {
+      e.stopPropagation()
+      e.preventDefault()
+    }
+    const searchParams = new URLSearchParams(window.location.search)
+    searchParams.set('market', market.slug)
+    router.push(`?${searchParams.toString()}`, { scroll: false })
+    if (market.negRiskMarketId) {
+      setGroupMarket(market)
+      setMarket(market?.markets?.[0] || null)
+    } else {
+      setMarket(market)
+    }
+    if (!isGroup) {
+      setClobOutcome(outcome)
+    }
+    if (!marketPageOpened) {
+      setMarketPageOpened(true)
     }
   }
 
@@ -62,147 +155,160 @@ export const BigBannerTrigger = React.memo(({ market, markets }: BigBannerProps)
     }
   }, [feedMessage, marketFeedData])
 
-  const fetMarketFeedTitle = (message: MarketFeedData | null) => {
-    if (message && feedMessage === message) {
-      const title = message.data.strategy === 'Buy' ? 'bought' : 'sold'
-      const outcome = message.data.outcome
-      return `${
-        ethers.utils.isAddress(feedMessage?.user?.name ?? '')
-          ? truncateEthAddress(feedMessage?.user?.account)
-          : feedMessage?.user?.name
-          ? cutUsername(feedMessage.user.name, 25)
-          : truncateEthAddress(feedMessage?.user?.account)
-      }
-         ${title} ${outcome} outcome for ${NumberUtil.convertWithDenomination(
-        Math.abs(+message.data.tradeAmount),
-        6
-      )} ${message.data.symbol}.`
-    }
-  }
-
   const uniqueUsersTrades = useUniqueUsersTrades(marketFeedData)
 
   return (
-    <VStack
+    <Box
       w='full'
-      justifyContent='space-between'
-      backgroundImage='url("/assets/images/top-market-bg.png")'
-      backgroundSize='100% 100%'
-      p='16px'
-      borderRadius='8px'
-      h={isMobile ? '232px' : '324px'}
-      cursor='pointer'
-      onClick={(e) => onClickRedirectToMarket(e)}
+      rounded='12px'
+      h='180px'
+      onClick={(event) => {
+        onClickRedirectToMarket(event)
+      }}
+      border='2px solid'
+      borderColor={cardBorders[index]}
+      overflow='hidden'
+      // bg={cardBackgrounds[index]}
     >
-      <Box w='full'>
-        <DailyMarketTimer
-          deadline={market.expirationTimestamp}
-          deadlineText={market.expirationDate}
-          topMarket={true}
-          {...paragraphRegular}
-          color='transparent.700'
-        />
-      </Box>
-      <Text {...(isMobile ? h2Bold : h1Bold)} color='white' textAlign='left'>
-        {market.proxyTitle ?? market.title ?? 'Noname market'}
-      </Text>
-      <Box w='full' h='38px'></Box>
-      <Box w='full'>
-        <HStack w='full' justifyContent='space-between' mb='4px'>
-          <Text {...paragraphMedium} color='white'>
-            Yes {market.prices[0]}%
-          </Text>
-          <Text {...paragraphMedium} color='white'>
-            No {market.prices[1]}%
-          </Text>
-        </HStack>
-        <ProgressBar value={market.prices[0]} variant='white' />
-        {!isMobile && (
-          <Divider
-            orientation='horizontal'
-            mt={'12px'}
-            mb='8px'
-            w='full'
-            bg='transparent.200'
-            borderColor='transparent.200'
+      <Paper
+        flex={1}
+        p='16px'
+        w='101%'
+        position='relative'
+        cursor='pointer'
+        h='full'
+        bg={cardBackgrounds[index]}
+        backgroundImage={imageBackgrounds[index]}
+        backgroundSize='cover'
+        backgroundPosition='center'
+        backgroundRepeat='no-repeat'
+        borderRadius={0}
+        ml='-1px'
+      >
+        <Box w='full'>
+          <MarketCountdown
+            hideText={false}
+            deadline={market.expirationTimestamp}
+            deadlineText={market.expirationDate}
+            {...paragraphRegular}
+            color='whiteAlpha.50'
+            ended={market.status === MarketStatus.RESOLVED}
           />
-        )}
-        {isMobile ? (
-          <HStack w='full' justifyContent='space-between'>
-            <HStack gap='4px' mt='8px'>
-              <HStack gap={0}>
-                {uniqueUsersTrades?.map(({ user }, index) => (
-                  <Avatar
-                    account={user.account || ''}
-                    avatarUrl={user.imageURI}
-                    key={index}
-                    borderColor='#4905a1'
-                    zIndex={100 + index}
-                    border='2px solid'
-                    size='20px'
-                    color='#4905a1 !important'
-                    showBorder
-                    bg='#4905a1'
-                    style={{
-                      border: '2px solid',
-                      marginLeft: index > 0 ? '-6px' : 0,
-                    }}
-                  />
-                ))}
-              </HStack>
-              <Text {...paragraphRegular} color='transparent.700'>
-                Volume
-              </Text>
-            </HStack>
-            <Text {...paragraphRegular} color='transparent.700'>
-              {NumberUtil.convertWithDenomination(market.volumeFormatted, 6)}{' '}
-              {market.collateralToken.symbol}
+        </Box>
+        <VStack w='full' h='calc(100% - 18px)' gap={0} justifyContent='space-between'>
+          <Flex
+            w='full'
+            alignItems='center'
+            marginTop='8px'
+            gap='12px'
+            justifyContent='space-between'
+          >
+            <Text {...headline} color='white' textAlign='left'>
+              {market.title}
             </Text>
-          </HStack>
-        ) : (
-          <HStack w='full' justifyContent='space-between'>
-            {feedMessage && (
-              <Box>
-                <AnimatePresence>
-                  <MotionBox
-                    width='100%'
-                    display='flex'
-                    alignItems='center'
-                    gap='8px'
-                    key={feedMessage.bodyHash}
-                  >
-                    <HStack gap='4px' alignItems='end'>
-                      <Avatar
-                        account={feedMessage?.user?.account ?? ''}
-                        avatarUrl={feedMessage?.user?.imageURI}
-                      />
-                      <Text {...paragraphMedium} color='white' mt='-2px'>
-                        {fetMarketFeedTitle(feedMessage)}
-                      </Text>
-                    </HStack>
-                  </MotionBox>
-                </AnimatePresence>
-              </Box>
-            )}
-            {
+          </Flex>
+          <Box w='full'>
+            {!isGroup ? (
+              <MarketProgressBar
+                isClosed={market.expired}
+                value={market.prices[0]}
+                noColor='whiteAlpha.50'
+                variant='white'
+              />
+            ) : null}
+            <HStack w='full' mt='16px' justifyContent='space-between'>
               <HStack gap='4px'>
-                <Text {...paragraphRegular} color='transparent.700'>
-                  {market.tradeType === 'amm' ? 'Value' : 'Volume'}{' '}
-                  {market.tradeType === 'amm'
-                    ? NumberUtil.convertWithDenomination(
-                        Number(market.openInterestFormatted || 0) +
-                          Number(market.liquidityFormatted || 0),
-                        6
-                      )
-                    : NumberUtil.convertWithDenomination(Number(market.volumeFormatted), 6)}{' '}
-                  {market.collateralToken.symbol}
-                </Text>
+                <HStack gap='4px'>
+                  <>
+                    <HStack gap={0}>
+                      {uniqueUsersTrades?.map(({ user }, index) => {
+                        return (
+                          <Avatar
+                            account={user.account}
+                            avatarUrl={user.imageURI}
+                            key={user.account}
+                            zIndex={100 + index}
+                            boxShadow='-1px 0px 0px 1px rgba(0,0,0,1)'
+                            color='unset !important'
+                            showBorder={false}
+                            bg='black'
+                            size='20px'
+                            style={{
+                              marginLeft: index > 0 ? '-6px' : 0,
+                            }}
+                          />
+                        )
+                      })}
+                    </HStack>
+                    <Text {...paragraphRegular} color='grey.500'>
+                      {market.tradeType === 'clob' ? 'Volume' : 'Value'}
+                    </Text>
+                    <Text {...paragraphRegular} color='grey.500' whiteSpace='nowrap'>
+                      {NumberUtil.convertWithDenomination(
+                        market.tradeType === 'clob'
+                          ? market.volumeFormatted
+                          : +market.openInterestFormatted + +market.liquidityFormatted,
+                        0
+                      )}{' '}
+                      {market.collateralToken.symbol}
+                    </Text>
+                    {market.tradeType !== 'clob' && <OpenInterestTooltip iconColor='grey.500' />}
+                  </>
+                </HStack>
               </HStack>
-            }
-          </HStack>
-        )}
-      </Box>
-    </VStack>
+              <HStack gap='8px'>
+                {isGroup ? (
+                  <Button
+                    {...captionMedium}
+                    h='20px'
+                    px='8px'
+                    py='4px'
+                    color='white'
+                    bg={'whiteAlpha.20'}
+                    onClick={(e) => handleOutcomeClicked(e, 0)}
+                  >
+                    Predict
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      {...captionMedium}
+                      h='20px'
+                      px='4px'
+                      py='2px'
+                      color={yesHovered ? 'white' : 'green.500'}
+                      bg={yesHovered ? 'green.500' : 'greenTransparent.100'}
+                      onMouseEnter={() => setYesHovered(true)}
+                      onMouseLeave={() => setYesHovered(false)}
+                      onClick={(e) => handleOutcomeClicked(e, 0)}
+                    >
+                      {yesHovered
+                        ? `${new BigNumber(market.prices[0]).decimalPlaces(0).toString()}%`
+                        : 'YES'}
+                    </Button>
+                    <Button
+                      {...captionMedium}
+                      h='20px'
+                      px='4px'
+                      py='2px'
+                      color={noHovered ? 'white' : 'red.500'}
+                      bg={noHovered ? 'red.500' : 'redTransparent.100'}
+                      onMouseEnter={() => setNoHovered(true)}
+                      onMouseLeave={() => setNoHovered(false)}
+                      onClick={(e) => handleOutcomeClicked(e, 1)}
+                    >
+                      {noHovered
+                        ? `${new BigNumber(market.prices[1]).decimalPlaces(0).toString()}%`
+                        : 'NO'}
+                    </Button>
+                  </>
+                )}
+              </HStack>
+            </HStack>
+          </Box>
+        </VStack>
+      </Paper>
+    </Box>
   )
 })
 

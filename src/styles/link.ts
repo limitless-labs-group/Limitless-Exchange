@@ -11,14 +11,10 @@ const transparent = defineStyle({
   background: 'unset',
   px: '8px',
   gap: '8px',
-  ...(isMobile
-    ? {}
-    : {
-        _hover: {
-          bg: 'grey.100',
-          textDecoration: 'none',
-        },
-      }),
+  _hover: {
+    bg: 'grey.100',
+    textDecoration: 'none',
+  },
 })
 
 const blueLink = defineStyle({
@@ -36,14 +32,13 @@ const textLink = defineStyle({
   textDecoration: 'none',
   background: 'unset',
   borderBottom: '1px solid',
-  borderColor: 'blackTransparent.200',
+  borderColor: 'transparent.20',
   ...(isMobile
     ? {}
     : {
         _hover: {
           bg: 'grey.100',
-          textDecoration: 'none',
-          borderColor: 'blackTransparent.600',
+          borderColor: 'transparent.70',
           background: 'unset',
         },
       }),
@@ -51,17 +46,15 @@ const textLink = defineStyle({
 
 const textLinkSecondary = defineStyle({
   ...paragraphMedium,
-  textDecoration: 'none',
   background: 'unset',
-  borderBottom: '1px solid',
-  borderColor: 'greyTransparent.200',
+  textDecoration: 'underline',
+  textDecorationColor: 'greyTransparent.200',
   color: 'grey.500',
   ...(isMobile
     ? {}
     : {
         _hover: {
-          textDecoration: 'none',
-          borderColor: 'greyTransparent.600',
+          textDecorationColor: 'greyTransparent.600',
           background: 'unset',
         },
       }),

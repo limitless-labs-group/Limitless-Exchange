@@ -13,7 +13,8 @@ export const SelectedMarkets = ({ market }: SelectedMarketsProps) => {
     <List
       display='flex'
       bg={'var(--chakra-colors-draftCard-selectedBg)'}
-      p='5px'
+      px='10px'
+      py='5px'
       gap='5px'
       flexDirection='column'
       color='grey.800'

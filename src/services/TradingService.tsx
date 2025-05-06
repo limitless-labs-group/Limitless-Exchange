@@ -14,6 +14,7 @@ import {
 } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address, formatUnits, getAddress, getContract, Hash, parseUnits, zeroHash } from 'viem'
+import ConvertModal from '@/components/common/markets/convert-modal'
 import { Toast } from '@/components/common/toast'
 import { conditionalTokensABI, fixedProductMarketMakerABI } from '@/contracts'
 import { useMarketData, useToast } from '@/hooks'
@@ -21,18 +22,18 @@ import {
   getConditionalTokenAddress,
   useConditionalTokensAddr,
 } from '@/hooks/use-conditional-tokens-addr'
+import { useNegriskClaimApprove } from '@/hooks/use-negrisk-claim-approve'
+import { useUrlParams } from '@/hooks/use-url-param'
 import { publicClient } from '@/providers/Privy'
 import { useAccount } from '@/services/AccountService'
 import { useWeb3Service } from '@/services/Web3Service'
-import { Market, MarketGroup, RedeemParams } from '@/types'
+import { Market, MarketType, RedeemParams } from '@/types'
 import { NumberUtil, calcSellAmountInCollateral } from '@/utils'
 import { DISCORD_LINK } from '@/utils/consts'
 
 interface ITradingServiceContext {
   market: Market | null
   setMarket: (market: Market | null) => void
-  marketGroup: MarketGroup | null
-  setMarketGroup: (marketGroup: MarketGroup | null) => void
   strategy: 'Buy' | 'Sell'
   setStrategy: (side: 'Buy' | 'Sell') => void
   balanceOfCollateralToSellYes: string
@@ -56,11 +57,9 @@ interface ITradingServiceContext {
     slippage: string
   }) => Promise<string | undefined>
   trade: (outcomeTokenId: number, slippage: string) => Promise<string | undefined>
-  redeem: (params: RedeemParams) => Promise<string | undefined>
   status: TradingServiceStatus
   tradeStatus: TradingServiceStatus
   approveBuy: () => Promise<void>
-  isLoadingRedeem: boolean
   resetQuotes: () => void
   approveSellMutation: UseMutationResult<void, Error, void, unknown>
   checkApprovedForSell: () => Promise<boolean>
@@ -68,60 +67,68 @@ interface ITradingServiceContext {
   marketPageOpened: boolean
   setMarketPageOpened: Dispatch<SetStateAction<boolean>>
   onCloseMarketPage: () => void
-  onOpenMarketPage: (market: Market | MarketGroup) => void
+  onOpenMarketPage: (market: Market, outcome?: number, index?: number, source?: string) => void
   refetchMarkets: () => Promise<void>
   markets?: Market[]
   setMarkets: (markets: Market[]) => void
   sellBalanceLoading: boolean
   clobOutcome: number
   setClobOutcome: (val: number) => void
+  convertModalOpened: boolean
+  setConvertModalOpened: (val: boolean) => void
+  setGroupMarket: (val: Market | null) => void
+  groupMarket: Market | null
+  negriskApproved: boolean
+  setNegRiskApproved: (val: boolean) => void
+  negriskApproveStatusLoading: boolean
 }
 
 const TradingServiceContext = createContext({} as ITradingServiceContext)
 
 export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
-  /**
-   * UI HELPERS
-   */
   const toast = useToast()
 
-  /**
-   * SERVICES
-   */
   const queryClient = useQueryClient()
-  const { account } = useAccount()
+  const { account, referralCode } = useAccount()
 
-  /**
-   * OPTIONS
-   */
   const [market, setMarket] = useState<Market | null>(null)
-  const [marketGroup, setMarketGroup] = useState<MarketGroup | null>(null)
+  const [groupMarket, setGroupMarket] = useState<Market | null>(null)
   const [markets, setMarkets] = useState<Market[] | undefined>()
   const [strategy, setStrategy] = useState<'Buy' | 'Sell'>('Buy')
   const [marketFee, setMarketFee] = useState(0)
   const [marketPageOpened, setMarketPageOpened] = useState(false)
-  // Todo adjust it to amm markets with refactored sell widget
-  const [clobOutcome, setClobOutcome] = useState(0)
 
+  const {
+    negriskApproved,
+    setNegRiskApproved,
+    isLoading: negriskApproveStatusLoading,
+  } = useNegriskClaimApprove()
+
+  /**
+   * CLOB
+   */
+  const [clobOutcome, setClobOutcome] = useState(0)
+  const [convertModalOpened, setConvertModalOpened] = useState(false)
+
+  const { updateParams } = useUrlParams()
   const onCloseMarketPage = () => {
     setMarketPageOpened(false)
     setMarkets(undefined)
+    setMarket(null)
+    setGroupMarket(null)
   }
 
-  const onOpenMarketPage = (market: Market | MarketGroup) => {
+  const onOpenMarketPage = (market: Market, outcome?: number, groupIndex?: number) => {
     setMarket(null)
-    setMarketGroup(null)
-    // @ts-ignore
-    // if (market.slug) {
-    //   setMarketGroup(market as MarketGroup)
-    //   setMarket((market as MarketGroup).markets[0])
-    //   !isMobile && setMarketPageOpened(true)
-    //   return
-    // }
-    setMarket(market as Market)
-    setMarketGroup(null)
-    setClobOutcome(0)
+    setGroupMarket(null)
+    const marketToSet =
+      market.marketType === 'group' ? market.markets?.[groupIndex || 0] || null : market
+    setMarket(marketToSet)
+    if (market.marketType === 'group') {
+      setGroupMarket(market)
+    }
     !isMobile && setMarketPageOpened(true)
+    updateParams({ market: market.slug, ...(referralCode ? { rv: referralCode } : {}) })
   }
 
   const { data: conditionalTokensAddress, refetch: getConditionalTokensAddress } =
@@ -384,6 +391,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     return
   }
 
+  // Todo use {signal} prop and remove debounce logic
   useQuery({
     queryKey: [
       'tradeQuotesYes',
@@ -452,6 +460,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
+  // Todo use {signal} prop and remove debounce logic
   useQuery({
     queryKey: [
       'tradeQuotesNo',
@@ -610,7 +619,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
           market.collateralToken.address,
           collateralAmountBI
         )
-        await sleep(3)
+        await sleep(2)
         const id = toast({
           render: () => <Toast title={`Successfully approved. Proceed with buy now.`} id={id} />,
         })
@@ -634,7 +643,7 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
       })
       try {
         await approveAllowanceForAll(market.address as Address, conditionalTokensAddress!)
-        await sleep(3)
+        await sleep(2)
         const id = toast({
           render: () => <Toast title={`Successfully approved. Proceed with sell now.`} id={id} />,
         })
@@ -742,63 +751,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     })
   }
 
-  /**
-   * REDEEM / CLAIM
-   */
-  const { mutateAsync: redeem, isPending: isLoadingRedeem } = useMutation({
-    mutationFn: async ({
-      outcomeIndex,
-      marketAddress,
-      collateralAddress,
-      conditionId,
-      type,
-    }: RedeemParams) => {
-      const conditionalTokenAddress =
-        type === 'amm' ? await getConditionalTokenAddress(getAddress(marketAddress)) : marketAddress
-
-      const receipt = await redeemPositions(
-        conditionalTokenAddress,
-        collateralAddress,
-        zeroHash,
-        conditionId,
-        [1 << outcomeIndex]
-      )
-
-      if (!receipt) {
-        const id = toast({
-          render: () => (
-            <Toast
-              title={`Unsuccessful transaction`}
-              text={'Please contact our support.'}
-              link={DISCORD_LINK}
-              linkText='Open Discord'
-              id={id}
-            />
-          ),
-        })
-        return
-      }
-
-      await refetchChain()
-
-      const id = toast({
-        render: () => <Toast title={`Successfully redeemed`} id={id} />,
-      })
-
-      await sleep(1)
-
-      const updateId = toast({
-        render: () => <Toast title={`Updating portfolio...`} id={updateId} />,
-      })
-
-      // TODO: redesign subgraph refetch logic
-      sleep(10).then(() => refetchSubgraph())
-
-      await refetchHistory()
-      return receipt
-    },
-  })
-
   const trade = useCallback(
     // (outcomeTokenId: number) => buy(outcomeTokenId),
     (outcomeTokenId: number, slippage: string) =>
@@ -812,14 +764,14 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
    * STATUS
    */
   const status = useMemo<TradingServiceStatus>(() => {
-    if (isLoadingBuy || isLoadingSell || isLoadingRedeem || isLoadingApproveBuy) {
+    if (isLoadingBuy || isLoadingSell || isLoadingApproveBuy) {
       return 'Loading'
     }
     if (isInvalidCollateralAmount) {
       return 'InvalidAmount'
     }
     return 'Ready'
-  }, [isInvalidCollateralAmount, isLoadingBuy, isLoadingSell, isLoadingRedeem, isLoadingApproveBuy])
+  }, [isInvalidCollateralAmount, isLoadingBuy, isLoadingSell, isLoadingApproveBuy])
 
   const tradeStatus = useMemo<TradingServiceStatus>(() => {
     if (isLoadingBuy || isLoadingSell) {
@@ -830,8 +782,6 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
 
   const contextProviderValue: ITradingServiceContext = {
     market,
-    marketGroup,
-    setMarketGroup,
     checkApprovedForSell,
     setMarket,
     strategy,
@@ -845,12 +795,10 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     buy,
     sell,
     trade,
-    redeem,
     status,
     tradeStatus,
     approveBuy,
     approveSellMutation,
-    isLoadingRedeem,
     resetQuotes,
     marketFee,
     marketPageOpened,
@@ -863,11 +811,21 @@ export const TradingServiceProvider = ({ children }: PropsWithChildren) => {
     sellBalanceLoading,
     clobOutcome,
     setClobOutcome,
+    setGroupMarket,
+    groupMarket,
+    convertModalOpened,
+    setConvertModalOpened,
+    negriskApproved,
+    setNegRiskApproved,
+    negriskApproveStatusLoading,
   }
 
   return (
     <TradingServiceContext.Provider value={contextProviderValue}>
-      {children}
+      <>
+        {children}
+        <ConvertModal />
+      </>
     </TradingServiceContext.Provider>
   )
 }

@@ -2,8 +2,8 @@ import { Box, Button, HStack, InputGroup, Text } from '@chakra-ui/react'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
-import React, { useEffect, useMemo, useState } from 'react'
-import { isMobile } from 'react-device-detect'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { isMobile, isTablet } from 'react-device-detect'
 import { Address, formatUnits, parseUnits } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
@@ -21,12 +21,14 @@ interface MergeSharesModalProps {
 export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalProps) {
   const [displayAmount, setDisplayAmount] = useState('')
   const [isApproved, setIsApproved] = useState<boolean>(false)
+  const [modalHeight, setModalHeight] = useState(0)
   const { market } = useTradingService()
   const { checkAllowanceForAll, client, approveAllowanceForAll, mergeShares } = useWeb3Service()
   const { web3Wallet } = useAccount()
-  const { sharesAvailable } = useClobWidget()
   const queryClient = useQueryClient()
   const { trackClicked } = useAmplitude()
+  const { sharesAvailable } = useClobWidget()
+  const inputRef = useRef<HTMLInputElement | null>(null)
 
   const sharesAvailableBalance = useMemo(() => {
     if (!sharesAvailable) {
@@ -61,23 +63,44 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
       conditionId: market?.conditionId as string,
       contractAddress: market?.collateralToken.address as Address,
     })
-    await queryClient.refetchQueries({
-      queryKey: ['market-shares', market?.slug],
-    })
+  }
+
+  const handleFocus = () => {
+    if ((isMobile || isTablet) && inputRef.current) {
+      setModalHeight(612)
+      setTimeout(() => {
+        inputRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
+      }, 300)
+    }
+  }
+
+  const handleBlur = () => {
+    if ((isMobile || isTablet) && inputRef.current) {
+      setModalHeight(0)
+    }
   }
 
   const checkMergeAllowance = async () => {
+    const operator = market?.negRiskRequestId
+      ? process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+      : process.env.NEXT_PUBLIC_CTF_CONTRACT
     const isApproved = await checkAllowanceForAll(
-      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+      operator as Address,
       process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
     )
     setIsApproved(isApproved)
   }
 
   const onResetAfterMerge = async () => {
-    await sleep(2)
+    await sleep(1)
     await queryClient.refetchQueries({
       queryKey: ['market-shares', market?.slug, market?.tokens],
+    })
+    await queryClient.refetchQueries({
+      queryKey: ['positions'],
     })
     mergeSharesMutation.reset()
   }
@@ -96,7 +119,12 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
     }) => {
       try {
         const value = parseUnits(amount, decimals)
-        await mergeShares(contractAddress, conditionId, value)
+        await mergeShares(
+          contractAddress,
+          conditionId,
+          value,
+          market?.negRiskRequestId ? 'negrisk' : 'common'
+        )
       } catch (e) {
         // @ts-ignore
         throw new Error(e)
@@ -104,16 +132,30 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
     },
   })
 
+  const isLowerThanMinAmount = useMemo(() => {
+    if (+displayAmount && mergeSharesMutation.status === 'idle') {
+      return +displayAmount < 1
+    }
+    return false
+  }, [displayAmount, mergeSharesMutation.status])
+
   const approveContractMutation = useMutation({
     mutationFn: async () => {
+      const operator = market?.negRiskRequestId
+        ? process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+        : process.env.NEXT_PUBLIC_CTF_CONTRACT
       await approveAllowanceForAll(
-        process.env.NEXT_PUBLIC_CTF_CONTRACT as Address,
+        operator as Address,
         process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
       )
-      await sleep(3)
-      await checkMergeAllowance()
     },
   })
+
+  const onResetAfterApprove = async () => {
+    await sleep(1)
+    await checkMergeAllowance()
+    approveContractMutation.reset()
+  }
 
   const handleMaxClicked = () => {
     trackClicked(ClickEvent.MergeSharesModalMaxSharesClicked, {
@@ -128,7 +170,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
         <ButtonWithStates
           variant='contained'
           w={isMobile ? 'full' : '94px'}
-          isDisabled={!+displayAmount || isExceedsBalance}
+          isDisabled={!+displayAmount || isExceedsBalance || isLowerThanMinAmount}
           onClick={handleMergeClicked}
           status={mergeSharesMutation.status}
           onReset={onResetAfterMerge}
@@ -142,9 +184,10 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
         <ButtonWithStates
           variant='contained'
           w={isMobile ? 'full' : '94px'}
-          isDisabled={!+displayAmount || isExceedsBalance}
+          isDisabled={!+displayAmount || isExceedsBalance || isLowerThanMinAmount}
           onClick={() => approveContractMutation.mutateAsync()}
           status={approveContractMutation.status}
+          onReset={onResetAfterApprove}
         >
           Approve
         </ButtonWithStates>
@@ -154,7 +197,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
       <ButtonWithStates
         variant='contained'
         w={isMobile ? 'full' : '94px'}
-        isDisabled={!+displayAmount || isExceedsBalance}
+        isDisabled={!+displayAmount || isExceedsBalance || isLowerThanMinAmount}
         onClick={handleMergeClicked}
         status={mergeSharesMutation.status}
         onReset={onResetAfterMerge}
@@ -180,7 +223,7 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
   }, [market, web3Wallet])
 
   const modalContent = (
-    <Box>
+    <Box h={modalHeight ? `${modalHeight}px` : 'unset'}>
       <Text {...paragraphBold} mt='24px'>
         Combine equal amounts of &quot;Yes&quot; and &quot;No&quot; shares to reclaim USDC.
       </Text>
@@ -189,7 +232,9 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
       </Text>
       <InputGroup display='block' mt='16px'>
         <HStack justifyContent='space-between' mb='8px'>
-          <Text {...paragraphMedium}>Enter Amount</Text>
+          <Text {...paragraphMedium} color='grey.500'>
+            Enter Amount
+          </Text>
           <Button
             {...paragraphRegular}
             p='0'
@@ -202,8 +247,8 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
             borderBottom='1px dotted'
             borderColor='rgba(132, 132, 132, 0.5)'
             _hover={{
-              borderColor: 'var(--chakra-colors-text-100)',
-              color: 'var(--chakra-colors-text-100)',
+              borderColor: 'grey.600',
+              color: 'grey.600',
             }}
           >
             Available: {sharesAvailableBalance}
@@ -216,6 +261,9 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
           showIncrements={false}
           inputType='number'
           endAdornment={<Text {...paragraphMedium}>Contracts</Text>}
+          ref={inputRef}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         />
       </InputGroup>
       <HStack
@@ -227,6 +275,11 @@ export default function MergeSharesModal({ isOpen, onClose }: MergeSharesModalPr
         {!+displayAmount && mergeSharesMutation.status === 'idle' && (
           <Text {...paragraphRegular} color='grey.500'>
             Enter amount
+          </Text>
+        )}
+        {isLowerThanMinAmount && (
+          <Text {...paragraphRegular} color='grey.500'>
+            Min. amount is 1
           </Text>
         )}
         {mergeSharesMutation.isPending && (

@@ -12,31 +12,36 @@ import {
   TabPanels,
   Tabs,
   Text,
+  VStack,
 } from '@chakra-ui/react'
-import NextLink from 'next/link'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import { Address } from 'viem'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
+import ClobWidget from '@/components/common/markets/clob-widget/clob-widget'
 import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-price-chart'
-import DailyMarketTimer from '@/components/common/markets/market-cards/daily-market-timer'
+import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import MarketPageOverviewTab from '@/components/common/markets/market-page-overview-tab'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import MarketPositionsAmm from '@/components/common/markets/positions/market-positions-amm'
 import ShareMenu from '@/components/common/markets/share-menu'
 import MarketClosedWidget from '@/components/common/markets/trading-widgets/market-closed-widget'
-import TradingWidgetAdvanced from '@/components/common/markets/trading-widgets/trading-widget-advanced'
 import TradingWidgetSimple from '@/components/common/markets/trading-widgets/trading-widget-simple'
+import WinnerTakeAllTooltip from '@/components/common/markets/winner-take-all-tooltip'
+import SideBarPage from '@/components/common/side-bar-page'
+import Skeleton from '@/components/common/skeleton'
 import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
 import ClobPositions from '@/app/(markets)/markets/[address]/components/clob/clob-positions'
 import Orderbook from '@/app/(markets)/markets/[address]/components/clob/orderbook'
+import GroupMarketsSection from '@/app/(markets)/markets/[address]/components/group-markets-section'
+import { PriceChartContainer } from '@/app/(markets)/markets/[address]/components/price-chart-container'
 import { LUMY_TOKENS } from '@/app/draft/components'
 import CommentTab from './comment-tab'
 import { MarketProgressBar } from './market-cards/market-progress-bar'
 import { UniqueTraders } from './unique-traders'
-import useMarketGroup from '@/hooks/use-market-group'
+import usePageName from '@/hooks/use-page-name'
+import { useUrlParams } from '@/hooks/use-url-param'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import CloseIcon from '@/resources/icons/close-icon.svg'
@@ -46,52 +51,58 @@ import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import OrderbookIcon from '@/resources/icons/orderbook.svg'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import { ChangeEvent, ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
+import {
+  ChangeEvent,
+  ClickEvent,
+  OpenEvent,
+  PageOpenedPage,
+  useAmplitude,
+  useTradingService,
+} from '@/services'
 import { useMarket } from '@/services/MarketsService'
-import { h2Bold, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { h2Bold, h2Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
+import { ReferralLink } from '../referral-link'
 
 export default function MarketPage() {
   const [activeChartTabIndex, setActiveChartTabIndex] = useState(0)
   const [activeActionsTabIndex, setActiveActionsTabIndex] = useState(0)
-
-  const scrollableBlockRef: LegacyRef<HTMLDivElement> | null = useRef(null)
 
   const {
     setMarket,
     onCloseMarketPage,
     market,
     setStrategy,
-    marketGroup,
-    setMarketGroup,
     refetchMarkets,
+    setGroupMarket,
+    groupMarket,
   } = useTradingService()
 
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const pathname = usePathname()
+  const { updateParams } = useUrlParams()
 
   const { trackClicked, trackOpened, trackChanged } = useAmplitude()
 
-  const marketAddress = useMemo(() => market?.slug, [market])
-  const marketGroupSlug = useMemo(() => marketGroup?.slug, [marketGroup])
+  const marketAddress = useMemo(() => {
+    return market?.marketType === 'group' ? groupMarket?.slug : market?.slug
+  }, [market, groupMarket])
 
   const { data: updatedMarket } = useMarket(marketAddress, !!market)
-  const { data: updatedMarketGroup } = useMarketGroup(marketGroupSlug, !!marketGroup)
 
   useEffect(() => {
     if (updatedMarket) {
-      setMarket(updatedMarket)
+      if (updatedMarket.marketType === 'group') {
+        setGroupMarket(updatedMarket)
+        const updatedMarketInGroup = updatedMarket.markets?.find(
+          (updatedM) => market?.id === updatedM.id
+        )
+        setMarket(updatedMarketInGroup || market)
+      } else {
+        setMarket(updatedMarket)
+      }
       refetchMarkets()
     }
   }, [updatedMarket])
-
-  useEffect(() => {
-    if (updatedMarketGroup) {
-      setMarketGroup(updatedMarketGroup)
-      refetchMarkets()
-    }
-  }, [updatedMarketGroup])
 
   const isLumy = market?.tags?.includes('Lumy')
 
@@ -99,33 +110,39 @@ export default function MarketPage() {
     isLumy && LUMY_TOKENS.some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
 
   const chartTabs = useMemo(() => {
-    const tabs = []
+    const tabs = [
+      {
+        title: 'Chart',
+        icon: <LineChartIcon width={16} height={16} />,
+        analyticEvent: '',
+      },
+    ]
     if (market?.tradeType === 'clob') {
       tabs.push({
-        title: 'Orderbook',
+        title: 'Order book',
         icon: <OrderbookIcon width='16px' height='16px' />,
         analyticEvent: ClickEvent.OrderBookOpened,
       })
     }
-    tabs.push({
-      title: 'Chart',
-      icon: <LineChartIcon width={16} height={16} />,
-    })
     if (isLivePriceSupportedMarket) {
       tabs.push({
         title: 'Assets price',
         icon: <CandlestickIcon width={16} height={16} />,
+        analyticEvent: '',
       })
     }
     return tabs
   }, [isLivePriceSupportedMarket, market?.tradeType])
 
+  const priceChart = useMemo(() => {
+    return <MarketPriceChart key={uuidv4()} />
+  }, [])
+
   const chartsTabPanels = useMemo(() => {
-    const tabPanels = []
+    const tabPanels = [priceChart]
     if (market?.tradeType === 'clob') {
       tabPanels.push(<Orderbook key={uuidv4()} variant='small' />)
     }
-    tabPanels.push(<MarketPriceChart key={uuidv4()} />)
     if (isLivePriceSupportedMarket) {
       tabPanels.push(
         <MarketAssetPriceChart
@@ -160,17 +177,9 @@ export default function MarketPage() {
     ]
   }, [activeActionsTabIndex])
 
-  const removeMarketQuery = () => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.delete('market')
-    const newQuery = params.toString()
-    router.replace(newQuery ? `${pathname}/?${newQuery}` : pathname)
-  }
-
   const handleCloseMarketPageClicked = () => {
     setMarket(null)
-    setMarketGroup(null)
-    removeMarketQuery()
+    updateParams({ market: null, r: null })
     onCloseMarketPage()
     trackClicked(ClickEvent.CloseMarketClicked, {
       marketAddress: market?.slug as Address,
@@ -199,11 +208,24 @@ export default function MarketPage() {
   const trackedMarketsRef = useRef(new Set<string>())
 
   const tradingWidget = useMemo(() => {
+    if (!market) {
+      return <Skeleton height={isMobile ? 354 : 481} />
+    }
     if (market?.expired) {
       return <MarketClosedWidget handleCloseMarketPageClicked={handleCloseMarketPageClicked} />
     }
-    return market?.tradeType === 'clob' ? <TradingWidgetAdvanced /> : <TradingWidgetSimple />
+    return market?.tradeType === 'clob' ? <ClobWidget /> : <TradingWidgetSimple />
   }, [market])
+
+  const chart = useMemo(() => {
+    return groupMarket?.negRiskMarketId ? (
+      <Box mb='24px'>
+        <PriceChartContainer />
+      </Box>
+    ) : null
+  }, [groupMarket?.negRiskMarketId])
+
+  const page = usePageName()
 
   useEffect(() => {
     //avoid triggering amplitude call twice
@@ -213,35 +235,12 @@ export default function MarketPage() {
         marketAddress: market.slug,
         marketTags: market.tags,
         marketType: 'single',
-        category: market.category,
+        category: market.categories,
         marketMakerType: market.tradeType.toUpperCase(),
+        page: page as PageOpenedPage,
       })
     }
   }, [market?.slug])
-
-  useEffect(() => {
-    const handleMouseEnter = () => {
-      document.body.style.overflow = 'hidden'
-    }
-
-    const handleMouseLeave = () => {
-      document.body.style.overflow = ''
-    }
-
-    const scrollContainer = scrollableBlockRef.current
-    if (scrollContainer) {
-      scrollContainer.addEventListener('mouseenter', handleMouseEnter)
-      scrollContainer.addEventListener('mouseleave', handleMouseLeave)
-    }
-
-    return () => {
-      if (scrollContainer) {
-        scrollContainer.removeEventListener('mouseenter', handleMouseEnter)
-        scrollContainer.removeEventListener('mouseleave', handleMouseLeave)
-      }
-      document.body.style.overflow = '' // Clean up on unmount
-    }
-  }, [])
 
   useEffect(() => {
     setActiveActionsTabIndex(0)
@@ -249,37 +248,20 @@ export default function MarketPage() {
   }, [market])
 
   return (
-    <Box
-      bg='var(--chakra-colors-background-97)'
-      borderLeft={isMobile ? 'unset' : '1px solid'}
-      borderColor='grey.100'
-      w={isMobile ? 'full' : '488px'}
-      position={isMobile ? 'relative' : 'fixed'}
-      height={isMobile ? 'calc(100dvh - 21px)' : 'calc(100vh - 21px)'}
-      top='20px'
-      right={0}
-      overflowY='auto'
-      p={isMobile ? '12px' : '16px'}
-      pt={isMobile ? 0 : '16px'}
-      ref={scrollableBlockRef}
-      id='side-menu-scroll-container'
-      boxShadow='-4px 0px 8px 0px rgba(0, 0, 0, 0.05)'
-      backdropFilter='blur(7.5px)'
-      zIndex='200'
-    >
+    <SideBarPage>
       {!isMobile && (
         <HStack w='full' justifyContent='space-between'>
           <HStack gap='16px'>
-            <Button variant='grey' onClick={handleCloseMarketPageClicked}>
+            <Button variant='outlined' onClick={handleCloseMarketPageClicked}>
               <CloseIcon width={16} height={16} />
               Close
             </Button>
-            <NextLink href={`/markets/${market?.slug}`}>
-              <Button variant='grey' onClick={handleFullPageClicked}>
+            <ReferralLink href={`/markets/${groupMarket?.slug || market?.slug}`}>
+              <Button variant='outlined' onClick={handleFullPageClicked}>
                 <ExpandIcon width={16} height={16} />
                 Full page
               </Button>
-            </NextLink>
+            </ReferralLink>
           </HStack>
           <ShareMenu />
         </HStack>
@@ -292,11 +274,12 @@ export default function MarketPage() {
         flexWrap='wrap'
       >
         {market && (
-          <DailyMarketTimer
+          <MarketCountdown
             deadline={market.expirationTimestamp}
             deadlineText={market.expirationDate}
             {...paragraphRegular}
             color='grey.500'
+            ended={market.status === MarketStatus.RESOLVED}
           />
         )}
         <HStack gap='6px' flexWrap='wrap'>
@@ -306,83 +289,131 @@ export default function MarketPage() {
           <ChakraImage
             width={6}
             height={6}
-            src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
+            src={
+              groupMarket?.creator.imageURI || market?.creator.imageURI || '/assets/images/logo.svg'
+            }
             alt='creator'
             borderRadius={'2px'}
           />
-          <Link href={market?.creator.link} variant='textLinkSecondary' fontWeight={400}>
-            {market?.creator.name}
+          <Link
+            href={groupMarket?.creator.link || market?.creator.link || ''}
+            variant='textLinkSecondary'
+            fontWeight={400}
+          >
+            {groupMarket?.creator.name || market?.creator.name}
           </Link>
         </HStack>
       </HStack>
       <HStack w='full' justifyContent='space-between' alignItems='flex-start'>
-        <Text {...h2Bold}>{marketGroup?.title || market?.proxyTitle || market?.title}</Text>
+        <Text {...h2Bold}>{groupMarket?.title || market?.proxyTitle || market?.title}</Text>
         {isMobile && <ShareMenu />}
       </HStack>
-      <Box w='full' mt={isMobile ? '56px' : '24px'}>
-        <MarketProgressBar isClosed={market?.expired} value={market ? market.prices[0] : 50} />
-        <HStack gap='8px' justifyContent='space-between' mt='8px' flexWrap='wrap'>
-          <HStack w={isMobile ? 'full' : 'unset'} gap='4px' color='grey.500'>
-            <VolumeIcon width={16} height={16} />
-            <Text {...paragraphRegular} color='grey.500'>
-              Volume
-            </Text>
-            <Text {...paragraphRegular} color='grey.500'>
-              {NumberUtil.convertWithDenomination(market?.volumeFormatted || '0', 6)}{' '}
-              {market?.collateralToken.symbol}
-            </Text>
-          </HStack>
+      <Box w='full' mt='24px'>
+        {market?.marketType === 'single' && (
+          <MarketProgressBar isClosed={market?.expired} value={market ? market.prices[0] : 50} />
+        )}
+        <HStack gap='8px' mt={'8px'} flexWrap='wrap'>
+          {market?.tradeType !== 'amm' && (
+            <HStack gap='12px' w='full' justifyContent='space-between'>
+              {groupMarket?.negRiskMarketId && <WinnerTakeAllTooltip />}
+              <HStack gap='4px' color='grey.500'>
+                <VolumeIcon width={16} height={16} />
+                <Text {...paragraphRegular} color='grey.500'>
+                  Volume
+                </Text>
+                <Text {...paragraphRegular} color='grey.500'>
+                  {NumberUtil.convertWithDenomination(
+                    groupMarket ? groupMarket.volumeFormatted : market?.volumeFormatted || '0',
+                    0
+                  )}{' '}
+                  {market?.collateralToken.symbol}
+                </Text>
+              </HStack>
+            </HStack>
+          )}
           {market?.tradeType === 'amm' && (
-            <HStack w={isMobile ? 'full' : 'unset'} gap='4px'>
-              <UniqueTraders color='grey.50' />
-              <Text {...paragraphRegular} color='grey.500'>
-                Value
-              </Text>
-              <Text {...paragraphRegular} color='grey.500'>
-                {NumberUtil.convertWithDenomination(
-                  market ? +market.openInterestFormatted + +market.liquidityFormatted : 0,
-                  6
-                )}{' '}
-                {market?.collateralToken.symbol}
-              </Text>
-              <OpenInterestTooltip iconColor='grey.500' />
+            <HStack w='full' gap='4px' justifyContent='space-between'>
+              <HStack gap='4px' color='grey.500'>
+                <VolumeIcon width={16} height={16} />
+                <Text {...paragraphRegular} color='grey.500'>
+                  Volume
+                </Text>
+                <Text {...paragraphRegular} color='grey.500'>
+                  {NumberUtil.convertWithDenomination(market?.volumeFormatted || '0', 0)}{' '}
+                  {market?.collateralToken.symbol}
+                </Text>
+              </HStack>
+              <HStack>
+                <UniqueTraders color='grey.50' />
+                <Text {...paragraphRegular} color='grey.500'>
+                  Value
+                </Text>
+                <Text {...paragraphRegular} color='grey.500'>
+                  {NumberUtil.convertWithDenomination(
+                    market ? +market.openInterestFormatted + +market.liquidityFormatted : 0,
+                    0
+                  )}{' '}
+                  {market?.collateralToken.symbol}
+                </Text>
+                <OpenInterestTooltip iconColor='grey.500' />
+              </HStack>
             </HStack>
           )}
         </HStack>
-        <Divider my={isMobile ? '24px' : '16px'} />
+        <Divider my='24px' />
       </Box>
+      {chart}
       {tradingWidget}
-      <Tabs
-        position='relative'
-        variant='common'
-        my='20px'
-        onChange={(index) => setActiveChartTabIndex(index)}
-        index={activeChartTabIndex}
-      >
-        <TabList>
-          {chartTabs.map((tab) => (
-            <Tab key={tab.title} onClick={() => handleChartTabClicked(tab.title)}>
-              <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
-                {tab.icon}
-                <>{tab.title}</>
-              </HStack>
-            </Tab>
-          ))}
-        </TabList>
-        <TabIndicator mt='-2px' height='2px' bg='grey.800' transitionDuration='200ms !important' />
-        <TabPanels>
-          {chartsTabPanels.map((panel, index) => (
-            <TabPanel key={index}>{panel}</TabPanel>
-          ))}
-        </TabPanels>
-      </Tabs>
-
-      {market?.tradeType === 'clob' ? (
-        <ClobPositions marketType='sidebar' />
+      {groupMarket?.negRiskMarketId ? (
+        <>
+          <Text {...h2Medium} mt='24px'>
+            Outcomes
+          </Text>
+          <VStack gap='8px' w='full' mb='24px' mt='8px'>
+            <GroupMarketsSection mobileView={true} />
+          </VStack>
+        </>
       ) : (
-        <MarketPositionsAmm />
+        <Tabs
+          position='relative'
+          variant='common'
+          my='20px'
+          onChange={(index) => setActiveChartTabIndex(index)}
+          index={activeChartTabIndex}
+        >
+          <TabList>
+            {chartTabs.map((tab) => (
+              <Tab key={tab.title} onClick={() => handleChartTabClicked(tab.title)}>
+                <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
+                  {tab.icon}
+                  <>{tab.title}</>
+                </HStack>
+              </Tab>
+            ))}
+          </TabList>
+          <TabIndicator
+            mt='-2px'
+            height='2px'
+            bg='grey.800'
+            transitionDuration='200ms !important'
+          />
+          <TabPanels>
+            {chartsTabPanels.map((panel, index) => (
+              <TabPanel key={index}>{panel}</TabPanel>
+            ))}
+          </TabPanels>
+        </Tabs>
       )}
 
+      {market?.marketType !== 'group' && (
+        <>
+          {market?.tradeType === 'clob' ? (
+            <ClobPositions marketType='sidebar' />
+          ) : (
+            <MarketPositionsAmm />
+          )}
+        </>
+      )}
       <Tabs
         position='relative'
         variant='common'
@@ -406,6 +437,6 @@ export default function MarketPage() {
           ))}
         </TabPanels>
       </Tabs>
-    </Box>
+    </SideBarPage>
   )
 }

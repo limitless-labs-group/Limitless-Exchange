@@ -1,7 +1,6 @@
 import { Box, Button, HStack, useDisclosure } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
 import MobileDrawer from '@/components/common/drawer'
-import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import MergeSharesModal from '@/components/common/modals/merge-shares-modal'
 import SplitSharesModal from '@/components/common/modals/split-shares-modal'
 import Paper from '@/components/common/paper'
@@ -12,10 +11,10 @@ import { ClickEvent, useAccount, useAmplitude, useTradingService } from '@/servi
 export default function SharesActionsClob() {
   const { isOpen: splitModalOpened, onToggle: onToggleSplitModal } = useDisclosure()
   const { isOpen: mergeModalOpened, onToggle: onToggleMergeModal } = useDisclosure()
-  const { sharesAvailable } = useClobWidget()
   const { account } = useAccount()
   const { trackClicked } = useAmplitude()
   const { market } = useTradingService()
+  // const { sharesAvailable } = useClobWidget()
 
   const handleSplitClicked = () => {
     onToggleSplitModal()
@@ -42,7 +41,7 @@ export default function SharesActionsClob() {
     <Button
       variant='transparentGreyText'
       onClick={handleMergeClicked}
-      isDisabled={sharesAvailable['yes'] === 0n || sharesAvailable['no'] === 0n || !account}
+      // isDisabled={sharesAvailable['yes'] === 0n || sharesAvailable['no'] === 0n || !account}
     >
       <MergeIcon />
       Merge Contracts

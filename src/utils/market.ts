@@ -3,8 +3,23 @@ import { Multicall } from 'ethereum-multicall'
 import { ethers } from 'ethers'
 import { Address, formatUnits, parseUnits } from 'viem'
 import { defaultChain } from '@/constants'
+import { LIMIT_PER_PAGE } from '@/constants/application'
 import { fixedProductMarketMakerABI } from '@/contracts'
-import { OddsData } from '@/types'
+import { AnalyticsParams, OddsData } from '@/types'
+import { MarketInput } from '@/types/draft'
+
+export const getAnalyticsParams = (
+  index: number,
+  offset = 0,
+  additionalParams?: Record<string, any>
+): AnalyticsParams => {
+  const position = index + 1 + offset
+  return {
+    bannerPosition: position,
+    bannerPaginationPage: Math.floor((index + offset) / LIMIT_PER_PAGE) + 1,
+    ...(additionalParams || {}),
+  }
+}
 
 export const defineOpenInterestOverVolume = (
   openInterestFormatted: string,
@@ -19,8 +34,31 @@ export const defineOpenInterestOverVolume = (
   }
 }
 
-export async function getPrices(data: { address: `0x${string}`; decimals: number }[]) {
-  const contractCallContext = data.map((market: { address: `0x${string}`; decimals: number }) => {
+export const calculateMarketPrice = (price: number | undefined): number => {
+  if (!price) return 50
+
+  const calculated = new BigNumber(price).multipliedBy(100).decimalPlaces(0).toNumber()
+
+  return Number.isNaN(calculated) ? 50 : calculated
+}
+
+export const findDuplicateMarketGroupTitles = (markets: MarketInput[]) => {
+  const map = new Map()
+  const duplicates = []
+  const marketTitles = markets.map((market) => market.title)
+
+  for (const str of marketTitles) {
+    map.set(str, (map.get(str) || 0) + 1)
+    if (map.get(str) === 2) {
+      duplicates.push(str)
+    }
+  }
+
+  return duplicates
+}
+
+export async function getPrices(data: { address: Address; decimals: number }[]) {
+  const contractCallContext = data.map((market: { address: Address; decimals: number }) => {
     const collateralDecimals = market.decimals
     const collateralAmount = collateralDecimals <= 6 ? '0.0001' : '0.0000001'
     const collateralAmountBI = parseUnits(collateralAmount, collateralDecimals)
@@ -114,12 +152,38 @@ export async function getPrices(data: { address: `0x${string}`; decimals: number
   return result
 }
 
-export const calculateDisplayRange = (adjustedMidpoint?: number, spread?: string) => {
+export const calculateDisplayRange = (
+  outcome: number,
+  adjustedMidpoint?: number,
+  spread?: string
+) => {
   const midpoint = new BigNumber(adjustedMidpoint || '0').multipliedBy(100)
-  const lowerBound = midpoint.minus(spread ? +spread * 100 : 5).decimalPlaces(1)
-  const upperBound = midpoint.plus(spread ? +spread * 100 : 5).decimalPlaces(1)
+  const midPointFormatted = outcome ? new BigNumber(100).minus(midpoint) : midpoint
+  const lowerBound = midPointFormatted.minus(spread ? +spread * 100 : 5).decimalPlaces(1)
+  const upperBound = midPointFormatted.plus(spread ? +spread * 100 : 5).decimalPlaces(1)
   return {
     lower: lowerBound.isNegative() ? '0' : lowerBound.toString(),
     upper: upperBound.isGreaterThan(100) ? '100' : upperBound.toString(),
+  }
+}
+
+export const appendReferralCode = (url: string, referralCode: string): string => {
+  try {
+    const urlObj = new URL(url)
+
+    if (urlObj.searchParams.has('rv')) {
+      return url
+    }
+
+    urlObj.searchParams.set('rv', referralCode)
+    return urlObj.toString()
+  } catch (e) {
+    // For invalid URLs, check manually if it already has an 'rv' parameter
+    const hasRvParam = /[?&]rv=/.test(url)
+    if (hasRvParam) {
+      return url
+    }
+    const separator = url.includes('?') ? '&' : '?'
+    return `${url}${separator}rv=${referralCode}`
   }
 }

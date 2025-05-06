@@ -31,10 +31,6 @@ interface ClobWidgetContextType {
   isBalanceNotEnough: boolean
   orderType: MarketOrderType
   setOrderType: (val: MarketOrderType) => void
-  sharesAmount: string
-  setSharesAmount: (val: string) => void
-  price: string
-  setPrice: (val: string) => void
   allowance: bigint
   isApprovedForSell: boolean
   checkMarketAllowance: () => Promise<void>
@@ -43,50 +39,30 @@ interface ClobWidgetContextType {
   yesPrice: number
   noPrice: number
   sharesPrice: string
+  sharesAmount: string
+  setSharesAmount: (val: string) => void
+  price: string
+  setPrice: (val: string) => void
   sharesAvailable: {
     yes: bigint
     no: bigint
   }
+  isApprovedNegRiskForSell: boolean
 }
 
 export function ClobWidgetProvider({ children }: PropsWithChildren) {
   const [orderType, setOrderType] = useState(MarketOrderType.MARKET)
-  const [sharesAmount, setSharesAmount] = useState('')
-  const [price, setPrice] = useState('')
   const [allowance, setAllowance] = useState<bigint>(0n)
+  const [isApprovedNegRiskForSell, setIsApprovedNegRiskForSell] = useState(false)
   const [isApprovedForSell, setIsApprovedForSell] = useState(false)
   const { web3Wallet } = useAccount()
   const { market, strategy, clobOutcome: outcome } = useTradingService()
   const { balanceOfSmartWallet } = useBalanceQuery()
+  const [sharesAmount, setSharesAmount] = useState('')
+  const [price, setPrice] = useState('')
+
   const { data: lockedBalance } = useMarketLockedBalance(market?.slug)
-  const { data: orderBook } = useOrderBook(market?.slug)
-  const { checkAllowance, checkAllowanceForAll } = useWeb3Service()
-  const { isOpen: tradeStepperOpen, onToggle: onToggleTradeStepper } = useDisclosure()
   const { data: sharesOwned } = useClobMarketShares(market?.slug, market?.tokens)
-
-  const checkMarketAllowance = async () => {
-    const allowance = await checkAllowance(
-      process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
-      market?.collateralToken.address as Address
-    )
-    const isApprovedNFT = await checkAllowanceForAll(
-      process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as Address,
-      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
-    )
-    setAllowance(allowance)
-    setIsApprovedForSell(isApprovedNFT)
-  }
-
-  const balance = useMemo(() => {
-    if (balanceOfSmartWallet) {
-      return (
-        balanceOfSmartWallet.find(
-          (balanceItem) => balanceItem.contractAddress === market?.collateralToken.address
-        )?.formatted || ''
-      )
-    }
-    return ''
-  }, [balanceOfSmartWallet, strategy, market])
 
   const sharesAvailable = useMemo(() => {
     if (sharesOwned && lockedBalance) {
@@ -116,6 +92,47 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
       no: 0n,
     }
   }, [lockedBalance, sharesOwned])
+
+  const { data: orderBook } = useOrderBook(market?.slug, market?.tradeType)
+  const { checkAllowance, checkAllowanceForAll } = useWeb3Service()
+  const { isOpen: tradeStepperOpen, onToggle: onToggleTradeStepper } = useDisclosure()
+
+  const checkMarketAllowance = async () => {
+    const contractAddress = market?.negRiskRequestId
+      ? process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE
+      : process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR
+    const allowance = await checkAllowance(
+      contractAddress as Address,
+      market?.collateralToken.address as Address
+    )
+    const operator = market?.negRiskRequestId
+      ? process.env.NEXT_PUBLIC_NEGRISK_ADAPTER
+      : process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR
+    const isApprovedNFT = await checkAllowanceForAll(
+      operator as Address,
+      process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+    )
+    if (market?.negRiskRequestId) {
+      const isAppovedNegRisk = await checkAllowanceForAll(
+        process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE as Address,
+        process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
+      )
+      setIsApprovedNegRiskForSell(isAppovedNegRisk)
+    }
+    setAllowance(allowance)
+    setIsApprovedForSell(isApprovedNFT)
+  }
+
+  const balance = useMemo(() => {
+    if (balanceOfSmartWallet) {
+      return (
+        balanceOfSmartWallet.find(
+          (balanceItem) => balanceItem.contractAddress === market?.collateralToken.address
+        )?.formatted || ''
+      )
+    }
+    return ''
+  }, [balanceOfSmartWallet, strategy, market])
 
   const isBalanceNotEnough = useMemo(() => {
     if (orderType === MarketOrderType.LIMIT) {
@@ -157,29 +174,56 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
     strategy,
   ])
 
-  const { yesPrice, noPrice } = useMemo(() => {
-    if (orderBook) {
-      if (strategy === 'Buy') {
-        const yesPrice = orderBook?.asks.sort((a, b) => a.price - b.price)[0]?.price * 100
-        const noPrice = (1 - orderBook?.bids.sort((a, b) => b.price - a.price)[0]?.price) * 100
-        return {
-          yesPrice: isNaN(yesPrice) ? 0 : +yesPrice.toFixed(),
-          noPrice: isNaN(noPrice) ? 0 : +noPrice.toFixed(),
-        }
-      }
-      const yesPrice = orderBook?.bids.sort((a, b) => b.price - a.price)[0]?.price * 100
-      const noPrice =
-        (1 - orderBook?.asks.sort((a, b) => b.price - a.price).reverse()[0]?.price) * 100
-      return {
-        yesPrice: isNaN(yesPrice) ? 0 : +yesPrice.toFixed(),
-        noPrice: isNaN(noPrice) ? 0 : +noPrice.toFixed(),
-      }
+  const yesPrice = useMemo(() => {
+    if (!market?.tradePrices) {
+      return 50
     }
-    return {
-      yesPrice: 0,
-      noPrice: 0,
+    if (strategy === 'Buy') {
+      return orderType === MarketOrderType.MARKET
+        ? new BigNumber(market.tradePrices.buy.market[0])
+            .multipliedBy(100)
+            .decimalPlaces(1)
+            .toNumber()
+        : new BigNumber(market.tradePrices.buy.limit[0])
+            .multipliedBy(100)
+            .decimalPlaces(1)
+            .toNumber()
     }
-  }, [strategy, orderBook])
+    return orderType === MarketOrderType.MARKET
+      ? new BigNumber(market.tradePrices.sell.market[0])
+          .multipliedBy(100)
+          .decimalPlaces(1)
+          .toNumber()
+      : new BigNumber(market.tradePrices.sell.limit[0])
+          .multipliedBy(100)
+          .decimalPlaces(1)
+          .toNumber()
+  }, [strategy, market?.tradePrices, orderType])
+  const noPrice = useMemo(() => {
+    if (!market?.tradePrices) {
+      return 50
+    }
+    if (strategy === 'Buy') {
+      return orderType === MarketOrderType.MARKET
+        ? new BigNumber(market.tradePrices.buy.market[1])
+            .multipliedBy(100)
+            .decimalPlaces(1)
+            .toNumber()
+        : new BigNumber(market.tradePrices.buy.limit[1])
+            .multipliedBy(100)
+            .decimalPlaces(1)
+            .toNumber()
+    }
+    return orderType === MarketOrderType.MARKET
+      ? new BigNumber(market.tradePrices.sell.market[1])
+          .multipliedBy(100)
+          .decimalPlaces(1)
+          .toNumber()
+      : new BigNumber(market.tradePrices.sell.limit[1])
+          .multipliedBy(100)
+          .decimalPlaces(1)
+          .toNumber()
+  }, [strategy, market?.tradePrices, orderType])
 
   const sharesPrice = useMemo(() => {
     if (orderType === MarketOrderType.LIMIT) {
@@ -207,10 +251,6 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
         orderType,
         isBalanceNotEnough,
         setOrderType,
-        price,
-        setPrice,
-        sharesAmount,
-        setSharesAmount,
         allowance,
         isApprovedForSell,
         checkMarketAllowance,
@@ -219,7 +259,12 @@ export function ClobWidgetProvider({ children }: PropsWithChildren) {
         yesPrice,
         noPrice,
         sharesPrice,
+        price,
+        setPrice,
+        sharesAmount,
+        setSharesAmount,
         sharesAvailable,
+        isApprovedNegRiskForSell,
       }}
     >
       {children}

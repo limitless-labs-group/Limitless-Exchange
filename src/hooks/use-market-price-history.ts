@@ -1,8 +1,10 @@
+import { isNumber } from '@chakra-ui/utils'
 import { useQuery } from '@tanstack/react-query'
 import axios, { AxiosResponse } from 'axios'
+import { Address } from 'viem'
 import { defaultChain, newSubgraphURI } from '@/constants'
 import { limitlessApi } from '@/services'
-import { Market } from '@/types'
+import { negriskHistoryMock } from '@/services/negrisk-history-mock'
 
 // Define the interface for the chart data
 interface YesBuyChartData {
@@ -63,18 +65,67 @@ const flattenPriceData = (data: YesBuyChartData[]): number[][] => {
   return flattenData
 }
 
-export function useMarketPriceHistory(market: Market | null) {
+export interface ClobPriceHistoryResponse {
+  title: string
+  prices: {
+    timestamp: number
+    price: number
+  }[]
+}
+
+export function useNegRiskPriceHistory(slug?: string) {
   return useQuery({
-    queryKey: ['prices', market?.slug],
+    queryKey: ['price-history-negrisk', slug],
     queryFn: async () => {
-      if (market?.tradeType === 'clob') {
-        const response: AxiosResponse<{ price: number; timestamp: number }[]> =
-          await limitlessApi.get(`/markets/${market.slug}/historical-price`)
-        return response.data.map((item) => {
-          return [item.timestamp, item.price * 100]
+      const response: AxiosResponse<ClobPriceHistoryResponse[]> = await limitlessApi.get(
+        `/markets/${slug}/historical-price`
+      )
+      // const response = negriskHistoryMock
+      return response.data.map((item) => {
+        const prices = item.prices.map((price) => ({
+          timestamp: price.timestamp,
+          price: +price.price * 100,
+        }))
+        if (prices.length) {
+          const lastPriceObject = {
+            timestamp: new Date().getTime(),
+            price: isNumber(+item.prices[0]?.price) ? +item.prices[0].price * 100 : 50,
+          }
+          return {
+            ...item,
+            prices: [...prices, lastPriceObject],
+          }
+        }
+        const lastPriceObject = {
+          timestamp: new Date().getTime(),
+          price: 50,
+        }
+        return {
+          ...item,
+          prices: [...prices, lastPriceObject],
+        }
+      })
+    },
+    staleTime: 1000 * 60 * 5,
+    enabled: Boolean(slug),
+    retry: false,
+  })
+}
+
+export function useMarketPriceHistory(slug?: string, address?: Address | null) {
+  return useQuery({
+    queryKey: ['prices', slug],
+    queryFn: async () => {
+      if (!address) {
+        const response: AxiosResponse<ClobPriceHistoryResponse> = await limitlessApi.get(
+          `/markets/${slug}/historical-price`
+        )
+        // const response = singleHistoryMock
+        return response.data.prices.map((item) => {
+          return [item.timestamp, +item.price * 100]
         })
       }
-      const marketId = market?.address
+      const marketId = address
       const query = `query prices {
           AutomatedMarketMakerPricing(where: { market_id: { _ilike: "${marketId}" } }) {
             yesBuyChartData
@@ -90,7 +141,7 @@ export function useMarketPriceHistory(market: Market | null) {
         })
       )
     },
-    staleTime: Infinity,
-    enabled: !!market,
+    staleTime: 10000,
+    enabled: !!slug,
   })
 }

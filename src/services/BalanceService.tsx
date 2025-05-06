@@ -1,9 +1,4 @@
-import {
-  UseMutateAsyncFunction,
-  useMutation,
-  UseMutationResult,
-  useQuery,
-} from '@tanstack/react-query'
+import { useMutation, UseMutationResult, useQuery } from '@tanstack/react-query'
 import { Multicall } from 'ethereum-multicall'
 import { ethers } from 'ethers'
 import { usePathname } from 'next/navigation'
@@ -280,8 +275,7 @@ export const useBalanceQuery = () => {
       try {
         const results = await multicall.call(contractCallContext)
 
-        //@ts-ignore
-        balanceResult = supportedTokens?.map((token) => {
+        const erc20Result = supportedTokens?.map((token) => {
           const result = results.results[token.address]
           const balance = BigInt(result.callsReturnContext[0].returnValues[0].hex)
           let formatted = formatUnits(balance, token.decimals)
@@ -303,6 +297,22 @@ export const useBalanceQuery = () => {
             price: marketTokensPrices ? marketTokensPrices[token.priceOracleId].usd : 0,
           } as GetBalanceResult
         })
+        const ethBalance = await publicClient.getBalance({
+          address: account as Address,
+        })
+        const ethBalanceResult = {
+          symbol: 'ETH',
+          id: 'ethereum',
+          name: 'Ethereum',
+          decimals: 18,
+          value: ethBalance,
+          formatted: formatUnits(ethBalance, 18),
+          image: 'https://assets.coingecko.com/coins/images/279/standard/ethereum.png?1696501628',
+          contractAddress: '',
+          price: marketTokensPrices ? marketTokensPrices['ethereum'].usd : 0,
+        }
+        //@ts-ignore
+        balanceResult = erc20Result && ethBalanceResult ? [...erc20Result, ethBalanceResult] : []
       } catch (err) {
         //@ts-ignore
         balanceResult = supportedTokens?.map((token) => {
@@ -320,14 +330,12 @@ export const useBalanceQuery = () => {
         })
       }
 
-      log.success('ON_BALANCE_SUCC', account, balanceResult)
-
       balanceResult.forEach((balance) => {
         if (!!balanceOfSmartWallet) {
           const currentBalance = balanceOfSmartWallet.find((currentBalanceEntity) => {
             return currentBalanceEntity.id === balance.id
           })
-          if (currentBalance && balance.value > currentBalance.value) {
+          if (currentBalance && balance.value > currentBalance.value && balance.symbol !== 'ETH') {
             const depositAmount = formatUnits(
               balance.value - currentBalance.value,
               currentBalance.decimals

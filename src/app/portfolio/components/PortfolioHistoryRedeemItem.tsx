@@ -1,13 +1,19 @@
 import { Box, HStack, Link, TableRowProps, Td, Text, Tr } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import MobileDrawer from '@/components/common/drawer'
 import MarketPage from '@/components/common/markets/market-page'
 import Skeleton from '@/components/common/skeleton'
 import { defaultChain } from '@/constants'
-import useMarketGroup from '@/hooks/use-market-group'
 import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
-import { ClickEvent, HistoryRedeem, useAmplitude, useTradingService } from '@/services'
+import {
+  ClickEvent,
+  HistoryAction,
+  HistoryRedeem,
+  useAmplitude,
+  useTradingService,
+} from '@/services'
 import { useAllMarkets, useMarketByConditionId } from '@/services/MarketsService'
 import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
@@ -24,18 +30,22 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
   const targetMarket = allMarkets.find((market) => market.conditionId === redeem.conditionId)
 
   const { market, refetchMarket } = useMarketByConditionId(redeem.conditionId, false)
-  const { data: marketGroup, refetch: refetchMarketGroup } = useMarketGroup(
-    targetMarket?.group?.slug,
-    false,
-    false
-  )
   const { onOpenMarketPage } = useTradingService()
   const { trackClicked } = useAmplitude()
 
-  const formattedAmount = NumberUtil.formatThousands(
-    Number(redeem.collateralAmount) ?? 0,
-    redeem.collateralSymbol === 'USDC' ? 2 : 6
-  )
+  const formattedAmountWithSymbol = useMemo(() => {
+    const precision = redeem.collateralSymbol === 'USDC' ? 2 : 6
+    const minDisplayValue = redeem.collateralSymbol === 'USDC' ? 0.01 : 0.000001
+
+    const rawAmount = Number(redeem.collateralAmount) ?? 0
+    const formattedAmount = NumberUtil.formatThousands(rawAmount, precision)
+
+    if (rawAmount > 0 && rawAmount < minDisplayValue) {
+      return `< ${minDisplayValue} ${redeem.collateralSymbol}`
+    }
+
+    return `${formattedAmount} ${redeem.collateralSymbol}`
+  }, [redeem.collateralAmount, redeem.collateralSymbol])
 
   const handleOpenMarketPage = async () => {
     if (targetMarket?.address) {
@@ -45,7 +55,7 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
           onOpenMarketPage(fetchedMarket)
           trackClicked(ClickEvent.PortfolioMarketClicked, {
             marketAddress: fetchedMarket.slug,
-            marketType: 'single',
+            marketType: fetchedMarket.marketType,
             marketTags: fetchedMarket.tags,
             type: 'History',
           })
@@ -54,49 +64,68 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
         onOpenMarketPage(market)
         trackClicked(ClickEvent.PortfolioMarketClicked, {
           marketAddress: market.slug,
-          marketType: 'single',
+          marketType: market.marketType,
           marketTags: market.tags,
           type: 'History',
         })
       }
     }
-
-    if (targetMarket?.group?.slug) {
-      if (!marketGroup) {
-        const { data: fetchedMarketGroup } = await refetchMarketGroup()
-        if (fetchedMarketGroup) {
-          onOpenMarketPage(fetchedMarketGroup)
-        }
-      } else {
-        onOpenMarketPage(marketGroup)
-      }
-    }
   }
 
   return (
-    <Tr pos={'relative'} {...props}>
-      <Td w='92px'>Won</Td>
-      <Td>
+    <Tr
+      pos={'relative'}
+      {...props}
+      bg={redeem.action === HistoryAction.WON ? 'greenTransparent.100' : 'redTransparent.100'}
+    >
+      <Td
+        w='92px'
+        color={redeem.action === HistoryAction.WON ? 'green.500 !important' : 'red.500 !important'}
+      >
+        {redeem.action === HistoryAction.WON ? 'Won' : 'Loss'}
+      </Td>
+      <Td
+        color={redeem.action === HistoryAction.WON ? 'green.500 !important' : 'red.500 !important'}
+      >
         <HStack gap='4px'>
           {redeem.outcomeIndex ? (
             <ThumbsDownIcon width={16} height={16} />
           ) : (
             <ThumbsUpIcon width={16} height={16} />
           )}{' '}
-          <Text {...paragraphRegular}>{redeem.outcomeIndex ? 'No' : 'Yes'}</Text>
+          <Text
+            {...paragraphRegular}
+            color={
+              redeem.action === HistoryAction.WON ? 'green.500 !important' : 'red.500 !important'
+            }
+          >
+            {redeem.outcomeIndex ? 'No' : 'Yes'}
+          </Text>
         </HStack>
       </Td>
       <Td></Td>
       <Td isNumeric>
         <Box verticalAlign='middle'>
-          <Text>
-            {!redeem ? <Skeleton height={20} /> : `${formattedAmount} ${redeem.collateralSymbol}`}
-          </Text>
+          {!redeem ? (
+            <Skeleton height={20} />
+          ) : (
+            <Text
+              color={
+                redeem.action === HistoryAction.WON ? 'green.500 !important' : 'red.500 !important'
+              }
+            >
+              {formattedAmountWithSymbol}
+            </Text>
+          )}
         </Box>
       </Td>
       <Td>
         <Box verticalAlign='middle'>
-          <Text>
+          <Text
+            color={
+              redeem.action === HistoryAction.WON ? 'green.500 !important' : 'red.500 !important'
+            }
+          >
             {new Date(Number(redeem.blockTimestamp) * 1000).toLocaleDateString(undefined, {
               year: 'numeric',
               month: 'short',
@@ -120,6 +149,9 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
               textOverflow='ellipsis'
               onClick={handleOpenMarketPage}
               cursor='pointer'
+              color={
+                redeem.action === HistoryAction.WON ? 'green.500 !important' : 'red.500 !important'
+              }
             >
               {redeem.title}
             </Td>
@@ -138,6 +170,9 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
           textOverflow='ellipsis'
           onClick={handleOpenMarketPage}
           cursor='pointer'
+          color={
+            redeem.action === HistoryAction.WON ? 'green.500 !important' : 'red.500 !important'
+          }
         >
           {redeem.title}
         </Td>
@@ -148,6 +183,9 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
           target='_blank'
           rel='noopener'
           variant='textLink'
+          color={
+            redeem.action === HistoryAction.WON ? 'green.500 !important' : 'red.500 !important'
+          }
         >
           {truncateEthAddress(redeem.transactionHash)}
         </Link>

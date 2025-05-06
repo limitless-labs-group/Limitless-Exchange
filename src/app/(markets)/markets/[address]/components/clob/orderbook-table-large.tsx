@@ -2,7 +2,6 @@ import {
   Box,
   Button,
   HStack,
-  Link,
   Table,
   TableContainer,
   Text,
@@ -12,15 +11,7 @@ import {
   useOutsideClick,
 } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
-import NextLink from 'next/link'
-import React, {
-  LegacyRef,
-  MutableRefObject,
-  PropsWithChildren,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
+import React, { MutableRefObject, PropsWithChildren, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits, maxUint256 } from 'viem'
 import {
@@ -32,19 +23,17 @@ import {
 import Skeleton from '@/components/common/skeleton'
 import OrdersTooltip from '@/app/(markets)/markets/[address]/components/clob/orders-tooltip'
 import { OrderBookData } from '@/app/(markets)/markets/[address]/components/clob/types'
+import { RewardTooltipContent } from './reward-tooltip-content'
 import { useMarketOrders } from '@/hooks/use-market-orders'
-import useMarketRewardsIncentive from '@/hooks/use-market-rewards'
 import { useOrderBook } from '@/hooks/use-order-book'
 import GemIcon from '@/resources/icons/gem-icon.svg'
 import PartFilledCircleIcon from '@/resources/icons/partially-filled-circle.svg'
 import {
   ChangeEvent,
-  ClickEvent,
   OrderBookSideChangedMetadata,
   useAmplitude,
   useTradingService,
 } from '@/services'
-import { useMarketRewards } from '@/services/MarketsService'
 import {
   captionMedium,
   controlsMedium,
@@ -54,7 +43,6 @@ import {
 } from '@/styles/fonts/fonts.styles'
 import { ClobPosition } from '@/types/orders'
 import { NumberUtil } from '@/utils'
-import { calculateDisplayRange } from '@/utils/market'
 
 export const TableText = ({ children }: PropsWithChildren) => {
   return (
@@ -71,33 +59,27 @@ export default function OrderbookTableLarge({
   deleteBatchOrders,
 }: OrderBookData) {
   const { market, clobOutcome: outcome, setClobOutcome: setOutcome } = useTradingService()
-  const { data: orderbook, isLoading: orderBookLoading } = useOrderBook(market?.slug)
+  const { data: orderbook, isLoading: orderBookLoading } = useOrderBook(
+    market?.slug,
+    market?.tradeType
+  )
   const { data: userOrders } = useMarketOrders(market?.slug)
-  const { trackChanged, trackClicked } = useAmplitude()
+  const { trackChanged } = useAmplitude()
   const ref = useRef<HTMLElement>()
-  const { data: marketRewards } = useMarketRewards(market?.slug, market?.isRewardable)
-  const { data: marketRewardsTotal } = useMarketRewardsIncentive(market?.slug, market?.tradeType)
 
   const [rewardsButtonClicked, setRewardButtonClicked] = useState(false)
   const [rewardButtonHovered, setRewardButtonHovered] = useState(false)
-  const [linkHovered, setLinkHovered] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight
     }
-  }, [outcome])
+  }, [outcome, market])
 
   useOutsideClick({
     ref: ref as MutableRefObject<HTMLElement>,
-    handler: () => {
-      if (!linkHovered) {
-        setRewardButtonClicked(false)
-        return
-      }
-      return
-    },
+    handler: () => setRewardButtonClicked(false),
   })
 
   const orderBookPriceRange = orderbook
@@ -109,7 +91,7 @@ export default function OrderbookTableLarge({
         )
           .minus(new BigNumber(orderbook.maxSpread))
           .multipliedBy(100)
-          .decimalPlaces(0)
+          .decimalPlaces(1)
           .toNumber(),
         new BigNumber(
           outcome
@@ -118,7 +100,7 @@ export default function OrderbookTableLarge({
         )
           .plus(new BigNumber(orderbook.maxSpread))
           .multipliedBy(100)
-          .decimalPlaces(0)
+          .decimalPlaces(1)
           .toNumber(),
       ]
     : [50, 50]
@@ -126,60 +108,6 @@ export default function OrderbookTableLarge({
   const highLightRewardsCells = rewardsButtonClicked || rewardButtonHovered
 
   const minRewardsSize = orderbook?.minSize ? orderbook.minSize : maxUint256.toString()
-
-  const range = calculateDisplayRange(orderbook?.adjustedMidpoint)
-
-  const url =
-    'https://limitlesslabs.notion.site/Limitless-Docs-0e59399dd44b492f8d494050969a1567#19304e33c4b9808498d9ea69e68a0cb4'
-
-  const tooltipContent = (
-    <Box>
-      <Text {...paragraphMedium} as='span'>
-        Place limit order near the midpoint to get rewarded.{' '}
-      </Text>
-      <NextLink
-        href={url}
-        target='_blank'
-        rel='noopener'
-        passHref
-        onMouseEnter={() => setLinkHovered(true)}
-        onMouseLeave={() => setLinkHovered(false)}
-      >
-        <Link variant='textLinkSecondary' {...paragraphRegular} isExternal color='grey.500'>
-          Learn more
-        </Link>
-      </NextLink>
-      <HStack w='full' mt='12px' justifyContent='space-between'>
-        <Text {...paragraphMedium}>Daily reward:</Text>
-        <Text {...paragraphMedium}>
-          {marketRewardsTotal?.totalRewards ? marketRewardsTotal.totalRewards.toFixed(0) : '200'}{' '}
-          {market?.collateralToken.symbol}
-        </Text>
-      </HStack>
-      <HStack w='full' mt='4px' justifyContent='space-between'>
-        <Text {...paragraphMedium}>Max Spread:</Text>
-        <Text {...paragraphMedium}>
-          &#177;
-          {new BigNumber(orderbook?.maxSpread ? orderbook.maxSpread : '0')
-            .multipliedBy(100)
-            .toString()}
-          ¢
-        </Text>
-      </HStack>
-      <HStack w='full' mt='4px' justifyContent='space-between'>
-        <Text {...paragraphMedium}>Min order size:</Text>
-        <Text {...paragraphMedium}>
-          {formatUnits(BigInt(minRewardsSize), market?.collateralToken.decimals || 6)}
-        </Text>
-      </HStack>
-      <HStack w='full' mt='4px' justifyContent='space-between'>
-        <Text {...paragraphMedium}>Current range:</Text>
-        <Text {...paragraphMedium}>
-          {range.lower}¢ - {range.upper}¢
-        </Text>
-      </HStack>
-    </Box>
-  )
 
   const onDeleteBatchOrders = async (price: number) => {
     const orders = getUserOrdersForPrice(
@@ -193,63 +121,16 @@ export default function OrderbookTableLarge({
     })
   }
 
-  const handleRewardsClicked = () => {
-    trackClicked(ClickEvent.RewardsButtonClicked, {
-      visible: rewardsButtonClicked ? 'off' : 'on',
-    })
-    setRewardButtonClicked(!rewardsButtonClicked)
-  }
-
   return (
     <>
       <HStack w='full' justifyContent='space-between' mb='14px'>
-        <Text {...h3Regular}>Order book</Text>
+        <Text {...h3Regular}>Order Book</Text>
         <HStack gap='16px'>
-          <Box position='relative'>
-            <HStack
-              gap='4px'
-              borderRadius='8px'
-              py='4px'
-              px='8px'
-              bg={rewardsButtonClicked ? 'blue.500' : 'blueTransparent.100'}
-              cursor='pointer'
-              onClick={handleRewardsClicked}
-              onMouseEnter={() => {
-                const timer = setTimeout(() => {
-                  setRewardButtonHovered(true)
-                }, 300)
-                return () => clearTimeout(timer)
-              }}
-              onMouseLeave={() => setRewardButtonHovered(false)}
-              ref={ref as LegacyRef<HTMLDivElement>}
-            >
-              <GemIcon />
-              <Text {...paragraphMedium} color={rewardsButtonClicked ? 'white' : 'blue.500'}>
-                {marketRewards && Boolean(marketRewards?.length)
-                  ? `Earnings ${NumberUtil.toFixed(marketRewards[0].totalUnpaidReward, 6)} ${
-                      market?.collateralToken.symbol
-                    }`
-                  : 'Earn Rewards'}
-              </Text>
-            </HStack>
-            {(rewardsButtonClicked || rewardButtonHovered) && (
-              <Box
-                position='absolute'
-                bg='grey.50'
-                border='1px solid'
-                borderColor='grey.200'
-                boxShadow='0px 1px 4px 0px rgba(2, 6, 23, 0.05)'
-                w='260px'
-                p='8px'
-                rounded='8px'
-                right={0}
-                minH='128px'
-                zIndex={150}
-              >
-                {tooltipContent}
-              </Box>
-            )}
-          </Box>
+          {market?.isRewardable && (
+            <Box position='relative'>
+              <RewardTooltipContent contentHoverCallback={setRewardButtonHovered} />
+            </Box>
+          )}
           <HStack w={'152px'} bg='grey.200' borderRadius='8px' py='2px' px={'2px'}>
             <Button
               h={isMobile ? '28px' : '20px'}
@@ -351,7 +232,7 @@ export default function OrderbookTableLarge({
                       market?.tokens
                     ) &&
                       checkPriceIsInRange(+item.price, orderBookPriceRange) &&
-                      market?.isRewardable && <GemIcon />}
+                      market?.isRewardable && <GemIcon width={16} height={16} />}
                     {hasOrdersForThisOrderBookEntity(
                       item.price,
                       outcome,
@@ -389,7 +270,8 @@ export default function OrderbookTableLarge({
                   </HStack>
                   <HStack w='144px' h='full' justifyContent='flex-end'>
                     <Text {...paragraphRegular}>
-                      {NumberUtil.toFixed(item.cumulativePrice, 2)} {market?.collateralToken.symbol}
+                      {NumberUtil.convertWithDenomination(item.cumulativePrice, 2)}{' '}
+                      {market?.collateralToken.symbol}
                     </Text>
                   </HStack>
                 </HStack>
@@ -468,7 +350,7 @@ export default function OrderbookTableLarge({
                       market?.tokens
                     ) &&
                       checkPriceIsInRange(+item.price, orderBookPriceRange) &&
-                      market?.isRewardable && <GemIcon />}
+                      market?.isRewardable && <GemIcon width={16} height={16} />}
                     {hasOrdersForThisOrderBookEntity(
                       item.price,
                       outcome,
@@ -506,7 +388,8 @@ export default function OrderbookTableLarge({
                   </HStack>
                   <HStack w='144px' h='full' justifyContent='flex-end'>
                     <Text {...paragraphRegular}>
-                      {NumberUtil.toFixed(item.cumulativePrice, 2)} {market?.collateralToken.symbol}
+                      {NumberUtil.convertWithDenomination(item.cumulativePrice, 2)}{' '}
+                      {market?.collateralToken.symbol}
                     </Text>
                   </HStack>
                 </HStack>

@@ -5,12 +5,14 @@ import React, { useEffect, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { isMobile } from 'react-device-detect'
 import MobileDrawer from '@/components/common/drawer'
+import WrapModal from '@/components/common/modals/wrap-modal'
 import Paper from '@/components/common/paper'
 import Withdraw from '@/components/layouts/wallet-page/components/withdraw'
 import { WithdrawModal } from '@/components/layouts/wallet-page/components/withdraw-modal'
 import usePageName from '@/hooks/use-page-name'
 import { usePriceOracle } from '@/providers'
 import BaseIcon from '@/resources/crypto/base.svg'
+import CloseIcon from '@/resources/icons/close-icon.svg'
 import CopyIcon from '@/resources/icons/copy-icon.svg'
 import WalletIcon from '@/resources/icons/wallet-icon.svg'
 import {
@@ -24,22 +26,23 @@ import {
 import { headline, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 
-interface WalletPageProps {
-  onClose: () => void
-}
-
-export default function WalletPage({ onClose }: WalletPageProps) {
+export default function WalletPage() {
   const [copied, setCopied] = useState(false)
   const { overallBalanceUsd } = useBalanceService()
   const { balanceOfSmartWallet } = useBalanceQuery()
   const { supportedTokens } = useLimitlessApi()
-  const { account: address } = useAccount()
+  const { account: address, setWalletPageOpened } = useAccount()
   const { marketTokensPrices, convertAssetAmountToUsd } = usePriceOracle()
   const pageName = usePageName()
   const {
     isOpen: isWithdrawOpen,
     onOpen: onOpenWithdraw,
     onClose: onCloseWithdraw,
+  } = useDisclosure()
+  const {
+    isOpen: isWrapModalOpen,
+    onOpen: onOpenWrapModal,
+    onClose: onCloseWrapModal,
   } = useDisclosure()
 
   const { trackClicked } = useAmplitude()
@@ -59,7 +62,6 @@ export default function WalletPage({ onClose }: WalletPageProps) {
   }
 
   const handleOpenWithdrawModal = () => {
-    onClose()
     onOpenWithdraw()
   }
 
@@ -106,14 +108,13 @@ export default function WalletPage({ onClose }: WalletPageProps) {
   }, [copied])
 
   return (
-    <Box
-      bg='grey.50'
-      w={isMobile ? 'full' : '328px'}
-      p='8px'
-      h='full'
-      onClick={(e) => e.stopPropagation()}
-      overflow='auto'
-    >
+    <Box onClick={(e) => e.stopPropagation()} px={isMobile ? '16px' : 0}>
+      {!isMobile && (
+        <Button variant='outlined' onClick={() => setWalletPageOpened(false)} mb='12px'>
+          <CloseIcon width={16} height={16} />
+          Close
+        </Button>
+      )}
       <Text fontSize='32px'>Wallet</Text>
       <Paper bg='blue.500' mt='24px'>
         <HStack w='full' justifyContent='space-between'>
@@ -155,8 +156,17 @@ export default function WalletPage({ onClose }: WalletPageProps) {
           </HStack>
           <Text>Send any of these coins using the same address:</Text>
           <HStack mt='8px' rowGap='4px' columnGap='8px' flexWrap='wrap'>
+            <HStack gap='4px'>
+              <Image
+                src='https://assets.coingecko.com/coins/images/279/standard/ethereum.png?1696501628'
+                alt='ETH'
+                width={16}
+                height={16}
+              />
+              <Text>Ethereum</Text>
+            </HStack>
             {supportedTokens?.map((token) => (
-              <HStack gap='4px' key={token.symbol}>
+              <HStack gap='4px' key={token.id}>
                 <Image src={token.logoUrl} alt={token.symbol} width={16} height={16} />
                 <Text>{token.symbol}</Text>
               </HStack>
@@ -174,13 +184,37 @@ export default function WalletPage({ onClose }: WalletPageProps) {
               <HStack gap='4px'>
                 <Image src={balanceItem.image} alt='token' width={16} height={16} />
                 <Text {...paragraphMedium}>{balanceItem.symbol}</Text>
+                {balanceItem.symbol === 'WETH' && (
+                  <Button
+                    variant='white'
+                    ml='8px'
+                    onClick={() => {
+                      trackClicked(ClickEvent.UnwrapETHClicked)
+                      onOpenWrapModal()
+                    }}
+                  >
+                    Unwrap
+                  </Button>
+                )}
+                {balanceItem.symbol === 'ETH' && (
+                  <Button
+                    variant='white'
+                    ml='8px'
+                    onClick={() => {
+                      trackClicked(ClickEvent.WrapETHClicked)
+                      onOpenWrapModal()
+                    }}
+                  >
+                    Wrap
+                  </Button>
+                )}
               </HStack>
 
               <Text {...paragraphMedium}>
                 {NumberUtil.formatThousands(balanceItem.formatted, 4)}
               </Text>
             </HStack>
-            <Divider my='12px' orientation='horizontal' h='1px' borderColor='grey.200' />
+            <Divider my='12px' orientation='horizontal' variant='dark' h='1px' />
             <HStack justifyContent='space-between' mb='8px'>
               <Text {...paragraphMedium} color='grey.500'>
                 Current price
@@ -210,6 +244,7 @@ export default function WalletPage({ onClose }: WalletPageProps) {
         ))}
       </VStack>
       {isWithdrawOpen && <WithdrawModal isOpen={isWithdrawOpen} onClose={onCloseWithdraw} />}
+      {isWrapModalOpen && <WrapModal isOpen={isWrapModalOpen} onClose={onCloseWrapModal} />}
     </Box>
   )
 }

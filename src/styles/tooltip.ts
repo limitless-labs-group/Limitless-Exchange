@@ -1,5 +1,12 @@
 import { defineStyle, defineStyleConfig } from '@chakra-ui/react'
 
+const baseStyle = {
+  padding: '8px',
+  color: 'grey.800',
+  borderRadius: '8px',
+  borderColor: 'unset',
+}
+
 // define styles for custom variant
 const black = defineStyle(() => {
   return {
@@ -12,9 +19,7 @@ const black = defineStyle(() => {
 
 const grey = defineStyle(() => {
   return {
-    bg: 'background.90',
-    color: 'white',
-    padding: '8px 12px',
+    bg: 'transparent.70',
   }
 })
 
@@ -25,4 +30,4 @@ const variants = {
 }
 
 // export the component theme
-export const tooltipTheme = defineStyleConfig({ variants })
+export const tooltipTheme = defineStyleConfig({ variants, baseStyle })

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
-import React, { useCallback, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { formatUnits } from 'viem'
 import OrderbookTableLarge from '@/app/(markets)/markets/[address]/components/clob/orderbook-table-large'
@@ -16,7 +16,7 @@ interface OrderBookProps {
 export default function Orderbook({ variant }: OrderBookProps) {
   const { clobOutcome: outcome } = useTradingService()
   const { market } = useTradingService()
-  const { data: orderbook } = useOrderBook(market?.slug)
+  const { data: orderbook } = useOrderBook(market?.slug, market?.tradeType)
   const privateClient = useAxiosPrivateClient()
   const queryClient = useQueryClient()
 
@@ -33,7 +33,6 @@ export default function Orderbook({ variant }: OrderBookProps) {
     let cumulativeSum = 0
     const processedBids = array
       .slice()
-      .reverse()
       .map((order) => {
         const bidSum = new BigNumber(
           formatUnits(BigInt(order.size), market?.collateralToken.decimals || 6)
@@ -98,7 +97,7 @@ export default function Orderbook({ variant }: OrderBookProps) {
     })
   }
 
-  const getOrderBookData = useCallback(() => {
+  const orderbookData = useMemo(() => {
     if (!orderbook) {
       return {
         bids: [],
@@ -111,22 +110,20 @@ export default function Orderbook({ variant }: OrderBookProps) {
           .map((ask) => {
             return {
               ...ask,
-              price: +new BigNumber(1).minus(new BigNumber(ask.price)).toFixed(2),
+              price: +new BigNumber(1).minus(new BigNumber(ask.price)),
             }
           })
           .sort((a, b) => a.price - b.price)
       : orderbook.bids.sort((a, b) => a.price - b.price)
 
     const asks = outcome
-      ? orderbook.bids
-          .map((bid) => {
-            return {
-              ...bid,
-              price: +new BigNumber(1).minus(new BigNumber(bid.price)),
-            }
-          })
-          .sort((a, b) => b.price - a.price)
-      : orderbook.asks.sort((a, b) => b.price - a.price)
+      ? orderbook.bids.map((bid) => {
+          return {
+            ...bid,
+            price: +new BigNumber(1).minus(new BigNumber(bid.price)),
+          }
+        })
+      : orderbook.asks
     return {
       bids: calculatePercent(bids.reverse()),
       asks: calculatePercentReverse(asks),
@@ -134,18 +131,19 @@ export default function Orderbook({ variant }: OrderBookProps) {
   }, [orderbook, outcome])
 
   const spread = useMemo(() => {
-    if (!getOrderBookData()) {
+    if (!orderbookData) {
       return '0'
     }
-    if (!getOrderBookData().asks.length || !getOrderBookData().bids.length) {
+    if (!orderbookData.asks.length || !orderbookData.bids.length) {
       return '0'
     }
-    return new BigNumber(getOrderBookData().asks.reverse()[0].price)
-      .minus(new BigNumber(getOrderBookData().bids[0].price))
+    return new BigNumber(orderbookData.asks.reverse()[0].price)
+      .minus(new BigNumber(orderbookData.bids[0].price))
       .multipliedBy(100)
       .abs()
+      .decimalPlaces(1)
       .toFixed()
-  }, [getOrderBookData])
+  }, [orderbookData])
 
   const lastPrice = useMemo(() => {
     if (!orderbook?.lastTradePrice) {
@@ -155,26 +153,34 @@ export default function Orderbook({ variant }: OrderBookProps) {
       const tradedToken = orderbook.tokenId === market.tokens.yes ? 'yes' : 'no'
       if (!outcome) {
         return tradedToken === 'no'
-          ? new BigNumber(orderbook.lastTradePrice).multipliedBy(100).toString()
-          : new BigNumber(1).minus(orderbook.lastTradePrice).multipliedBy(100).toString()
+          ? new BigNumber(1)
+              .minus(orderbook.lastTradePrice)
+              .multipliedBy(100)
+              .decimalPlaces(1)
+              .toString()
+          : new BigNumber(orderbook.lastTradePrice).multipliedBy(100).decimalPlaces(1).toString()
       }
       return tradedToken === 'yes'
-        ? new BigNumber(orderbook.lastTradePrice).multipliedBy(100).toString()
-        : new BigNumber(1).minus(orderbook.lastTradePrice).multipliedBy(100).toString()
+        ? new BigNumber(1)
+            .minus(orderbook.lastTradePrice)
+            .multipliedBy(100)
+            .decimalPlaces(1)
+            .toString()
+        : new BigNumber(orderbook.lastTradePrice).multipliedBy(100).decimalPlaces(1).toString()
     }
     return ''
   }, [orderbook, market, outcome])
 
   return isMobile || variant === 'small' ? (
     <OrderBookTableSmall
-      orderBookData={getOrderBookData()}
+      orderBookData={orderbookData}
       spread={spread}
       lastPrice={lastPrice}
       deleteBatchOrders={deleteBatchOrders}
     />
   ) : (
     <OrderbookTableLarge
-      orderBookData={getOrderBookData()}
+      orderBookData={orderbookData}
       spread={spread}
       lastPrice={lastPrice}
       deleteBatchOrders={deleteBatchOrders}

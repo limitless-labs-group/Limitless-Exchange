@@ -8,13 +8,7 @@ import DiscordIcon from '@/resources/icons/discord-icon.svg'
 import { ClickEvent, useAmplitude } from '@/services'
 import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-
-const LINKS = {
-  X: 'https://x.com/trylimitless',
-  DISCORD: 'https://discord.gg/y79BeDVXEM',
-  FARCASTER: 'https://warpcast.com/~/channel/limitless',
-  DOCS: 'https://www.notion.so/limitlesslabs/Limitless-Exchange-Docs-0e59399dd44b492f8d494050969a1567?pvs=4',
-}
+import { SOCIAL_LINKS } from '@/utils/consts'
 
 const ICON_PROPS = {
   w: isMobile ? '20px' : '16px',
@@ -33,17 +27,9 @@ export default function SocialsFooter({ ...props }: PropsWithChildren<BoxProps>)
   const { pushGA4Event } = useGoogleAnalytics()
 
   return (
-    <HStack
-      justifyContent='space-between'
-      spacing={4}
-      w='full'
-      maxH='49px'
-      p='17px 2px'
-      mt='-8px'
-      {...props}
-    >
+    <HStack justifyContent='space-between' spacing={4} w='full' mt='4px' px='8px' {...props}>
       <Link
-        href={LINKS.DOCS}
+        href={SOCIAL_LINKS.DOCS}
         target='_blank'
         rel='noopener noreferrer'
         onClick={() => {
@@ -72,7 +58,7 @@ export default function SocialsFooter({ ...props }: PropsWithChildren<BoxProps>)
 
       <HStack gap='8px'>
         <Link
-          href={LINKS.DISCORD}
+          href={SOCIAL_LINKS.DISCORD}
           target='_blank'
           rel='noopener noreferrer'
           onClick={() => {
@@ -86,7 +72,7 @@ export default function SocialsFooter({ ...props }: PropsWithChildren<BoxProps>)
           <Icon as={DiscordIcon} {...ICON_WITHOUT_TEXT_PROPS} />
         </Link>
         <Link
-          href={LINKS.FARCASTER}
+          href={SOCIAL_LINKS.FARCASTER}
           target='_blank'
           rel='noopener noreferrer'
           onClick={() => {
@@ -101,7 +87,7 @@ export default function SocialsFooter({ ...props }: PropsWithChildren<BoxProps>)
           <Icon as={FarcasterIcon} {...ICON_WITHOUT_TEXT_PROPS} />
         </Link>
         <Link
-          href={LINKS.X}
+          href={SOCIAL_LINKS.X}
           target='_blank'
           rel='noopener noreferrer'
           onClick={() => {

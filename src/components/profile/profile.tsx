@@ -2,23 +2,13 @@ import { Box } from '@chakra-ui/react'
 import React from 'react'
 import { isMobile } from 'react-device-detect'
 import { ProfileForm } from '@/components'
+import { useAccount } from '@/services'
 
-interface ProfileProps {
-  isOpen: boolean
-}
-
-export function Profile({ isOpen }: ProfileProps) {
+export function Profile() {
+  const { profilePageOpened } = useAccount()
   return (
-    <Box
-      bg='grey.50'
-      w={isMobile ? 'full' : '328px'}
-      px={isMobile ? '16px' : '8px'}
-      pt={isMobile ? 0 : '8px'}
-      h='full'
-      onClick={(e) => e.stopPropagation()}
-      overflow='auto'
-    >
-      {isOpen && <ProfileForm />}
+    <Box onClick={(e) => e.stopPropagation()} px={isMobile ? '16px' : 0}>
+      <>{profilePageOpened && <ProfileForm />}</>
     </Box>
   )
 }

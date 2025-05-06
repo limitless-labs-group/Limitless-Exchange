@@ -1,7 +1,7 @@
 import { Box, Flex, HStack, Text, VStack } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { PositionCard } from '@/app/(markets)/markets/[address]/components'
-import ChartIcon from '@/resources/icons/chart-icon.svg'
+import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import { HistoryPositionWithType } from '@/services'
 import { usePosition } from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
@@ -22,7 +22,7 @@ export const MarketPositions = ({
 
   const positions = useMemo(
     () =>
-      allMarketsPositions?.filter(
+      allMarketsPositions?.positions.filter(
         (position) => position.type === 'amm' && position.market.slug === market?.slug
       ) as HistoryPositionWithType[],
     [allMarketsPositions, market]
@@ -33,7 +33,7 @@ export const MarketPositions = ({
       {showPortfolioIcon && (
         <Flex mt='24px' justifyContent='space-between' mb='8px'>
           <HStack color='grey.800' gap='4px'>
-            <ChartIcon width='16px' height='16px' />
+            <PortfolioIcon width='16px' height='16px' />
             <Text {...paragraphMedium}>Portfolio</Text>
           </HStack>
         </Flex>

@@ -3,18 +3,37 @@ import React, { useMemo } from 'react'
 import ProgressBar from '@/components/common/progress-bar'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
-const PROGRESS_THRESHOLDS = [
-  { max: 25, variant: 'red', color: 'var(--chakra-colors-red-500)' },
-  { max: 50, variant: 'yellow', color: 'var(--chakra-colors-orange-500)' },
-  { max: 100, variant: 'green', color: 'var(--chakra-colors-green-500)' },
-] as const
-
 interface MarketProgressBarProps {
   value: number
   isClosed?: boolean
+  noColor?: string
+  variant?: string
 }
 
-export const MarketProgressBar = ({ isClosed, value }: MarketProgressBarProps) => {
+export const MarketProgressBar = ({
+  isClosed,
+  value,
+  noColor = 'grey.500',
+  variant = 'default',
+}: MarketProgressBarProps) => {
+  const PROGRESS_THRESHOLDS = [
+    {
+      max: 25,
+      variant: variant === 'default' ? 'red' : 'redAndWhiteTrack',
+      color: 'var(--chakra-colors-red-500)',
+    },
+    {
+      max: 50,
+      variant: variant === 'default' ? 'yellow' : 'yellowAndWhiteTrack',
+      color: 'var(--chakra-colors-orange-500)',
+    },
+    {
+      max: 100,
+      variant: variant === 'default' ? 'green' : 'greenAndWhiteTrack',
+      color: 'var(--chakra-colors-green-500)',
+    },
+  ] as const
+
   const progressData = useMemo(() => {
     const threshold =
       PROGRESS_THRESHOLDS.find((t) => value <= t.max) ??
@@ -40,7 +59,7 @@ export const MarketProgressBar = ({ isClosed, value }: MarketProgressBarProps) =
         ) : null}
         {!isClosed || (no > 0 && isClosed) ? (
           <Flex textAlign='left' w='full' justifyContent='end'>
-            <Text {...paragraphMedium} color='grey.500'>
+            <Text {...paragraphMedium} color={noColor}>
               No {no}%
             </Text>
           </Flex>

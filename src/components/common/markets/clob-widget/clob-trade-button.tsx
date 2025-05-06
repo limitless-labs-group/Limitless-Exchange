@@ -1,18 +1,28 @@
 import ButtonWithStates, { ButtonWithStatesProps } from '@/components/common/button-with-states'
 
-export default function ClobTradeButton({ status, children, ...props }: ButtonWithStatesProps) {
+export default function ClobTradeButton({
+  status,
+  children,
+  isBlocked,
+  ...props
+}: ButtonWithStatesProps) {
   return (
     <ButtonWithStates
       {...props}
       status={status}
-      bg={status === 'success' ? 'green.500' : 'blue.500'}
+      bg={isBlocked ? 'red.500' : status === 'success' ? 'green.500' : 'blue.500'}
       color='white'
+      whiteSpace='normal'
       w='full'
-      h='64px'
-      _disabled={{
-        bg: 'grey.300',
-        color: 'grey.500',
-      }}
+      h={isBlocked ? '90px' : '64px'}
+      _disabled={
+        !isBlocked
+          ? {
+              bg: 'grey.300',
+              color: 'grey.500',
+            }
+          : undefined
+      }
     >
       {children}
     </ButtonWithStates>

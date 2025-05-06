@@ -1,19 +1,68 @@
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Metadata } from 'next'
+import { headers } from 'next/headers'
 import Script from 'next/script'
 import { PropsWithChildren } from 'react'
+import { CanonicalLink } from '@/components/common/canonical-link'
 import { Providers } from '@/app/providers'
+import { ReferralProvider } from '@/providers/Referral'
+import { SpindlProvider } from '@/providers/Spindl'
 import '../../public/fonts.css'
 
-export const metadata: Metadata = {
-  title: 'Limitless',
-  icons: [{ url: '/assets/images/logo.svg' }],
-  viewport: {
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const headersList = headers()
+  const referral = headersList.get('x-referral')
+  const url = headersList.get('x-url') ?? headersList.get('referer') ?? ''
+
+  let referralCode = referral ?? ''
+  try {
+    if (!referral) {
+      const searchParams = new URL(url, process.env.NEXT_PUBLIC_APP_URL).searchParams
+      referralCode = searchParams.get('r') ?? ''
+    }
+  } catch (error) {
+    console.error('Failed to parse URL for referral code', error)
+  }
+
+  const ogImageUrl = referralCode ? `/api/og?r=${encodeURIComponent(referralCode)}` : `/api/og`
+
+  const title = referralCode
+    ? `Join Limitless with referral: ${referralCode}`
+    : 'Limitless Exchange'
+
+  const description = referralCode
+    ? `Use this referral link to get started on Limitless Exchange`
+    : 'Forecast the future on Limitless, financial prediction market'
+
+  return {
+    title,
+    description,
+    icons: [{ url: '/assets/images/logo.svg' }],
+    openGraph: {
+      title,
+      description,
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: 'Limitless Exchange',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImageUrl],
+    },
+  }
+}
+export const viewport = {
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 }
 
 const RootLayout = ({ children }: PropsWithChildren) => {
@@ -37,7 +86,11 @@ const RootLayout = ({ children }: PropsWithChildren) => {
         <meta name='apple-mobile-web-app-capable' content='yes' />
         <meta name='apple-mobile-web-app-status-bar-style' content='default' />
         <meta name='google' content='notranslate' />
-        <meta name='description' content='Daily prediction markets on Base' />
+        <meta
+          name='description'
+          content='Forecast the future on Limitless, financial prediction market'
+        />
+        <CanonicalLink />
       </head>
       <body>
         <noscript>
@@ -52,6 +105,8 @@ const RootLayout = ({ children }: PropsWithChildren) => {
           {children}
           <Analytics />
           <SpeedInsights />
+          <SpindlProvider />
+          <ReferralProvider />
           {/*<ReactQueryDevtools initialIsOpen={false} />*/}
         </Providers>
       </body>

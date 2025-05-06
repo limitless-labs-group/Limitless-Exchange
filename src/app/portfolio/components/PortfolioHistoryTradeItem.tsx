@@ -15,18 +15,13 @@ interface IPortfolioHistoryTradeItem extends TableRowProps {
 }
 
 export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistoryTradeItem) => {
-  const { onOpenMarketPage } = useTradingService()
+  const { onOpenMarketPage, setMarket } = useTradingService()
 
   const { data: market, refetch: refetchMarket } = useMarket(
-    trade.market.slug || trade.market.id,
+    trade.market.group?.slug || trade.market.slug || trade.market.id,
     false,
     false
   )
-  // const { data: marketGroup, refetch: refetchMarketGroup } = useMarketGroup(
-  //   targetMarket?.group?.slug,
-  //   false,
-  //   false
-  // )
 
   const { trackClicked } = useAmplitude()
 
@@ -35,8 +30,14 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
       const { data: fetchedMarket } = await refetchMarket()
       if (fetchedMarket) {
         onOpenMarketPage(fetchedMarket)
+        if (fetchedMarket.negRiskMarketId) {
+          const targetMarket = fetchedMarket?.markets?.find(
+            (market) => market.slug === trade.market.slug
+          )
+          setMarket(targetMarket || null)
+        }
         trackClicked(ClickEvent.PortfolioMarketClicked, {
-          marketCategory: fetchedMarket.category,
+          marketCategory: fetchedMarket.categories,
           marketAddress: fetchedMarket.slug,
           marketType: 'single',
           marketTags: fetchedMarket.tags,
@@ -46,24 +47,18 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
       return
     } else {
       onOpenMarketPage(market)
+      if (market.negRiskMarketId) {
+        const targetMarket = market.markets?.find((market) => market.slug === trade.market.slug)
+        setMarket(targetMarket || null)
+      }
       trackClicked(ClickEvent.PortfolioMarketClicked, {
-        marketCategory: market.category,
+        marketCategory: market.categories,
         marketAddress: market.slug,
         marketType: 'single',
         marketTags: market.tags,
         type: 'History',
       })
     }
-    // if (targetMarket?.group?.slug) {
-    //   if (!marketGroup) {
-    //     const { data: fetchedMarketGroup } = await refetchMarketGroup()
-    //     if (fetchedMarketGroup) {
-    //       onOpenMarketPage(fetchedMarketGroup)
-    //     }
-    //   } else {
-    //     onOpenMarketPage(marketGroup)
-    //   }
-    // }
   }
 
   return (

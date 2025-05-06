@@ -3,7 +3,7 @@
 import { Text, HStack, VStack, Box } from '@chakra-ui/react'
 import Highcharts from 'highcharts'
 import HighchartsReact from 'highcharts-react-official'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { memo, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Paper from '@/components/common/paper'
 import Skeleton from '@/components/common/skeleton'
@@ -15,7 +15,7 @@ import { headline, paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 const ONE_HOUR = 3_600_000 // milliseconds in an hour
 
-export const MarketPriceChart = () => {
+const PriceChart = () => {
   const { colors } = useThemeProvider()
   const [yesDate, setYesDate] = useState(
     Highcharts.dateFormat('%b %e, %Y %I:%M %p', Date.now()) ?? ''
@@ -23,10 +23,6 @@ export const MarketPriceChart = () => {
   const { market } = useTradingService()
   const outcomeTokensPercent = market?.prices
   const resolved = market?.winningOutcomeIndex === 0 || market?.winningOutcomeIndex === 1
-
-  useEffect(() => {
-    refetchPrices()
-  }, [market])
 
   const getMaxChartTimestamp = (data?: number[][]) => {
     if (market) {
@@ -45,7 +41,7 @@ export const MarketPriceChart = () => {
         type: 'x',
       },
       height: 230,
-      backgroundColor: colors.grey['100'],
+      backgroundColor: colors.grey['50'],
       marginLeft: isMobile ? 75 : 50,
       marginRight: isMobile ? 10 : 5,
     },
@@ -169,8 +165,7 @@ export const MarketPriceChart = () => {
     ],
   })
 
-  // React Query to fetch the price data
-  const { data: prices, refetch: refetchPrices } = useMarketPriceHistory(market)
+  const { data: prices } = useMarketPriceHistory(market?.slug, market?.address)
 
   const chartData = useMemo(() => {
     const _prices: number[][] = prices ?? []
@@ -213,73 +208,24 @@ export const MarketPriceChart = () => {
   }, [prices, market?.winningOutcomeIndex, resolved])
 
   const marketActivePrice = useMemo(() => {
-    return market?.tradeType === 'clob'
-      ? chartData.at(0)?.[1]?.toFixed(0) ?? outcomeTokensPercent?.[0]
-      : outcomeTokensPercent?.[0]
-  }, [chartData, market?.tradeType, outcomeTokensPercent])
+    const lastPrice = chartData.at(0)?.[1]?.toFixed(0)
+    if (market?.tradeType === 'clob') {
+      if (market?.marketType === 'group') {
+        return lastPrice ?? ((outcomeTokensPercent?.[0] || 0.5) * 100).toFixed(1)
+      }
+      if (market?.marketType === 'single') {
+        return lastPrice ?? (outcomeTokensPercent?.[0] || 0.5 * 100).toFixed(1)
+      }
+    }
+    return outcomeTokensPercent?.[0]
+  }, [chartData, market?.tradeType, market?.marketType, outcomeTokensPercent])
 
   return !prices ? (
     <Box my='16px'>
       <Skeleton height={290} />
     </Box>
   ) : (
-    <Paper my='16px' py='8px' px={0} bg='grey.100'>
-      {/*{marketGroup ? (*/}
-      {/*  <Menu isOpen={isMarketListOpen} onClose={onCloseMarketList} variant='transparent'>*/}
-      {/*    <MenuButton*/}
-      {/*      as={Button}*/}
-      {/*      onClick={() => {*/}
-      {/*        trackClicked(ClickEvent.ChangeMarketInGroupClicked, {*/}
-      {/*          marketGroup,*/}
-      {/*        })*/}
-      {/*        onOpenMarketList()*/}
-      {/*      }}*/}
-      {/*      p={0}*/}
-      {/*      h='unset'*/}
-      {/*    >*/}
-      {/*      <HStack gap={isMobile ? '16px' : '8px'} color='green.500'>*/}
-      {/*        <Text {...paragraphMedium} color='green.500'>*/}
-      {/*          {market?.title}*/}
-      {/*        </Text>*/}
-      {/*        <HStack gap={isMobile ? '8px' : '4px'}>*/}
-      {/*          <ThumbsUpIcon width={16} height={16} />*/}
-      {/*          <Text {...paragraphMedium} color='green.500'>*/}
-      {/*            {!resolved ? outcomeTokensPercent?.[0] : winningIndex === 0 ? 100 : 0}% YES*/}
-      {/*          </Text>*/}
-      {/*          <Box*/}
-      {/*            transform={`rotate(${isMarketListOpen ? '180deg' : 0})`}*/}
-      {/*            transition='0.5s'*/}
-      {/*            color='green.500'*/}
-      {/*          >*/}
-      {/*            <ChevronDownIcon width='16px' height='16px' />*/}
-      {/*          </Box>*/}
-      {/*        </HStack>*/}
-      {/*      </HStack>*/}
-      {/*    </MenuButton>*/}
-      {/*    <MenuList borderRadius='2px' zIndex={2} marginTop='-8px'>*/}
-      {/*      {marketGroup.markets.map((market) => (*/}
-      {/*        <MenuItem*/}
-      {/*          onClick={() => {*/}
-      {/*            setSelectedMarket && setSelectedMarket(market)*/}
-      {/*          }}*/}
-      {/*          key={market.address}*/}
-      {/*        >*/}
-      {/*          {(market?.proxyTitle ?? market?.title)}*/}
-      {/*        </MenuItem>*/}
-      {/*      ))}*/}
-      {/*    </MenuList>*/}
-      {/*  </Menu>*/}
-      {/*) : (*/}
-      {/*  <HStack gap={'4px'}>*/}
-      {/*    <Text {...headline} color='grey.800'>*/}
-      {/*      {!resolved ? outcomeTokensPercent?.[0] : winningIndex === 0 ? 100 : 0}%*/}
-      {/*    </Text>*/}
-      {/*    <Text {...headline} color='grey.800'>*/}
-      {/*      Yes*/}
-      {/*    </Text>*/}
-      {/*    /!*<ChevronDownIcon width={16} height={16} />*!/*/}
-      {/*  </HStack>*/}
-      {/*)}*/}
+    <Paper my='16px' py='8px' px={0} bg='grey.50'>
       <HStack px='8px' justifyContent='space-between'>
         <VStack alignItems='start'>
           <HStack>
@@ -309,3 +255,5 @@ export const MarketPriceChart = () => {
     </Paper>
   )
 }
+
+export const MarketPriceChart = memo(PriceChart)

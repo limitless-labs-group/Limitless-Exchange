@@ -31,6 +31,7 @@ import { useWeb3Service } from '@/services/Web3Service'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market, MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
+import { BLOCKED_REGION } from '@/utils/consts'
 
 interface ActionButtonProps {
   onClick: () => Promise<void>
@@ -92,8 +93,8 @@ export default function BuyButton({
 
   const ref = useRef<HTMLElement>()
   const { client, checkAllowance, approveContract } = useWeb3Service()
-  const { marketFee, collateralAmount, marketGroup } = useTradingService()
-  const { account: walletAddress } = useAccount()
+  const { marketFee, collateralAmount } = useTradingService()
+  const { account: walletAddress, loginToPlatform } = useAccount()
 
   const [status, setStatus] = useState<ButtonStatus>('initial')
   const INFO_MSG = 'Market is locked. Trading stopped. Please await for final resolution.'
@@ -189,7 +190,7 @@ export default function BuyButton({
                 {...paragraphRegular}
                 color='white'
                 borderBottom={quote?.outcomeTokenAmount ? '1px dashed' : 'unset'}
-                borderColor={'transparent.200'}
+                borderColor={'whiteAlpha.20'}
                 _hover={{
                   borderColor: 'var(--chakra-colors-transparent-600)',
                 }}
@@ -230,9 +231,9 @@ export default function BuyButton({
   const handleShowFullInfoArrowClicked = (e: SyntheticEvent) => {
     trackClicked(ClickEvent.TradingWidgetReturnDecomposition, {
       mode: showFullInfo ? 'opened' : 'closed',
-      marketCategory: market?.category,
+      marketCategory: market?.categories,
       marketAddress: market?.address,
-      marketType: marketGroup ? 'group' : 'single',
+      marketType: market.marketType,
       marketTags: market?.tags,
     })
     e.stopPropagation()
@@ -241,6 +242,7 @@ export default function BuyButton({
 
   const handleActionIntention = async () => {
     if (!walletAddress) {
+      await loginToPlatform()
       return
     }
     if (isExceedsBalance) {
@@ -250,7 +252,7 @@ export default function BuyButton({
       setMarketLocked(true)
       return
     }
-    if (country === 'VVM=') {
+    if (country === BLOCKED_REGION) {
       setTradingBlocked(true)
       return
     }
@@ -374,7 +376,7 @@ export default function BuyButton({
           bg='rgba(255, 255, 255, 0.2)'
           px='12px'
           py='8px'
-          w={isMobile ? 'calc(100vw - 40px)' : '440px'}
+          w={isMobile ? 'calc(100vw - 40px)' : '472px'}
           h='unset'
           alignItems='flex-start'
           flexDir='column'
@@ -415,7 +417,7 @@ export default function BuyButton({
                         {...paragraphRegular}
                         color='white'
                         borderBottom={quote?.outcomeTokenAmount ? '1px dashed' : 'unset'}
-                        borderColor={'transparent.200'}
+                        borderColor={'whiteAlpha.20'}
                         _hover={{
                           borderColor: 'var(--chakra-colors-transparent-600)',
                         }}
@@ -539,7 +541,6 @@ export default function BuyButton({
           onApprove={handleApprove}
           setStatus={setStatus}
           analyticParams={{ source: analyticsSource }}
-          marketType={marketType}
           outcome={option}
           marketAddress={market.address as Address}
         />

@@ -15,24 +15,14 @@ import {
   useTradingService,
   usePosition,
 } from '@/services'
-import { controlsMedium, paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { Market, MarketGroup } from '@/types'
+import { controlsMedium } from '@/styles/fonts/fonts.styles'
+import { Market } from '@/types'
 
 interface MarketTradingFormProps {
   market: Market
-  setSelectedMarket?: (market: Market) => void
-  marketGroup?: MarketGroup
-  analyticParams?: { quickBetSource: string; source: string }
-  showTitle?: boolean
 }
 
-export const MarketTradingForm = ({
-  market,
-  marketGroup,
-  setSelectedMarket,
-  analyticParams,
-  showTitle = false,
-}: MarketTradingFormProps) => {
+export const MarketTradingForm = ({ market }: MarketTradingFormProps) => {
   const [outcomeIndex, setOutcomeIndex] = useState(0)
   /**
    * ANALITYCS
@@ -53,21 +43,15 @@ export const MarketTradingForm = ({
 
   const positions = useMemo(
     () =>
-      allMarketsPositions?.filter(
+      allMarketsPositions?.positions.filter(
         (position) => position.market.slug?.toLowerCase() === market?.slug?.toLowerCase()
       ),
     [allMarketsPositions, market]
   )
 
   const widgetPosition = useMemo(() => {
-    if (isMobile) {
-      return 'relative'
-    }
-    if (showTitle) {
-      return 'unset'
-    }
-    return 'fixed'
-  }, [showTitle, isMobile])
+    return isMobile ? 'relative' : 'fixed'
+  }, [])
 
   useEffect(() => {
     setStrategy('Buy')
@@ -83,11 +67,6 @@ export const MarketTradingForm = ({
       position={widgetPosition}
       left={isMobile ? 0 : '936px'}
     >
-      {showTitle && (
-        <Text {...paragraphMedium} mb='24px' textAlign='center' color='white'>
-          {market?.proxyTitle ?? market?.title}
-        </Text>
-      )}
       <HStack
         w={'240px'}
         mx='auto'
@@ -111,7 +90,6 @@ export const MarketTradingForm = ({
             trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
               type: 'Buy selected',
               marketAddress,
-              ...(analyticParams ? analyticParams : {}),
               marketMarketType: 'AMM',
             })
             setStrategy('Buy')
@@ -139,7 +117,6 @@ export const MarketTradingForm = ({
             trackChanged<StrategyChangedMetadata>(ChangeEvent.StrategyChanged, {
               type: 'Sell selected',
               marketAddress,
-              ...(analyticParams ? analyticParams : {}),
               marketMarketType: 'AMM',
             })
             setStrategy('Sell')
@@ -156,9 +133,6 @@ export const MarketTradingForm = ({
           market={market}
           setOutcomeIndex={setOutcomeIndex}
           outcomeTokensPercent={market?.prices}
-          marketList={marketGroup?.markets}
-          setSelectedMarket={setSelectedMarket}
-          analyticParams={analyticParams}
         />
       )}
       {strategy === 'Sell' ? (
@@ -166,12 +140,7 @@ export const MarketTradingForm = ({
           <LoadingForm outcomeIndex={outcomeIndex} />
         ) : (
           <Box mx={isMobile ? '16px' : 0}>
-            <SellForm
-              setOutcomeIndex={setOutcomeIndex}
-              setSelectedMarket={setSelectedMarket}
-              marketGroup={marketGroup}
-              analyticParams={analyticParams}
-            />
+            <SellForm setOutcomeIndex={setOutcomeIndex} />
           </Box>
         )
       ) : null}

@@ -1,229 +1,95 @@
-import { Box, BoxProps, Divider, HStack, Icon, Text } from '@chakra-ui/react'
+import { Box, BoxProps, HStack, Icon, Text } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address, formatUnits } from 'viem'
 import ClaimButton from '@/components/common/markets/claim-button'
-import Paper from '@/components/common/paper'
-import ActiveIcon from '@/resources/icons/active-icon.svg'
+import FullPositionsTab from '@/app/portfolio/components/full-positions-tab'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
-import CalendarIcon from '@/resources/icons/calendar-icon.svg'
-import ClosedIcon from '@/resources/icons/close-rounded-icon.svg'
 import { ClobPositionWithType } from '@/services'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { MarketStatus } from '@/types'
-import { NumberUtil } from '@/utils'
 
 export type PortfolioPositionCardClobProps = BoxProps & {
   positionData: ClobPositionWithType
-  cardColors: {
-    main: string
-    secondary: string
-  }
 }
 
-const StatusIcon = ({ isClosed, color }: { isClosed: boolean | undefined; color: string }) => {
-  return isClosed ? (
-    <>
-      <Icon as={ClosedIcon} width={'16px'} height={'16px'} color={color} />
-      <Text {...paragraphMedium} color={color}>
-        Closed
-      </Text>
-    </>
-  ) : (
-    <>
-      <ActiveIcon width={16} height={16} />
-      <Text {...paragraphMedium} color={color}>
-        Active
-      </Text>
-    </>
-  )
-}
-
-const PortfolioPositionCardClob = ({
-  positionData,
-  cardColors,
-  ...props
-}: PortfolioPositionCardClobProps) => {
+const PortfolioPositionCardClob = ({ positionData, ...props }: PortfolioPositionCardClobProps) => {
   const marketClosed = positionData.market.status === MarketStatus.RESOLVED
 
-  // const { data: marketGroup, refetch: refetchMarketGroup } = useMarketGroup(
-  //   targetMarket?.group?.slug,
-  //   false,
-  //   false
-  // )
+  const decimals = positionData.market.collateralToken.decimals
 
-  // if (targetMarket?.group?.slug) {
-  //   if (!marketGroup) {
-  //     const { data: fetchedMarketGroup } = await refetchMarketGroup()
-  //     if (fetchedMarketGroup) {
-  //       onOpenMarketPage(fetchedMarketGroup)
-  //     }
-  //   } else {
-  //     onOpenMarketPage(marketGroup)
-  //   }
-  // }
+  const symbol = positionData.market.collateralToken.symbol
 
-  const deadline = new Intl.DateTimeFormat('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  }).format(new Date(positionData.market.deadline))
+  const amountsToNegriskClaim = useMemo(() => {
+    if (!positionData.market.negRiskRequestId) {
+      return
+    }
+    const yesTokensToClaim =
+      positionData.market.winningOutcomeIndex === 0 ? BigInt(positionData.tokensBalance.yes) : 0n
+    const noTokensToClaim =
+      positionData.market.winningOutcomeIndex === 1 ? BigInt(positionData.tokensBalance.no) : 0n
+    return [yesTokensToClaim, noTokensToClaim]
+  }, [
+    positionData.market.negRiskRequestId,
+    positionData.market.winningOutcomeIndex,
+    positionData.tokensBalance.no,
+    positionData.tokensBalance.yes,
+  ])
 
   return (
-    <Paper {...props} w={'full'} borderRadius='8px'>
+    <Box
+      {...props}
+      border='2px solid'
+      borderColor={marketClosed ? 'green.500' : 'grey.100'}
+      w={'full'}
+      borderRadius='8px'
+      bg={marketClosed ? 'green.500' : 'unset'}
+      p={isMobile ? '16px' : '8px'}
+    >
       <HStack w='full' justifyContent='space-between'>
-        <Text {...paragraphMedium} color={cardColors.main}>
-          {positionData.market.title}
+        <Text {...paragraphMedium}>
+          {positionData.market.group?.title || positionData.market.title}
         </Text>
-        {isMobile && (
-          <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} color={cardColors.main} />
-        )}
+        {isMobile && <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} />}
         {!isMobile && marketClosed && (
           <ClaimButton
             slug={positionData.market.slug}
             conditionId={positionData.market.conditionId as Address}
             collateralAddress={positionData.market.collateralToken.address}
-            marketAddress={process.env.NEXT_PUBLIC_CTF_CONTRACT as Address}
-            outcomeIndex={positionData.market.winningOutcomeIndex as number}
+            marketAddress={
+              positionData.market.negRiskRequestId
+                ? (process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address)
+                : (process.env.NEXT_PUBLIC_CTF_CONTRACT as Address)
+            }
             marketType='clob'
             amountToClaim={formatUnits(
               BigInt(
                 positionData.tokensBalance[positionData.market.winningOutcomeIndex ? 'no' : 'yes']
               ),
-              positionData.market.collateralToken.decimals
+              decimals
             )}
-            symbol={positionData.market.collateralToken.symbol}
+            symbol={symbol}
+            amounts={amountsToNegriskClaim}
+            negRiskRequestId={positionData.market.negRiskRequestId}
           />
         )}
       </HStack>
-      {isMobile && (
-        <>
-          <HStack color={cardColors.secondary} mt='8px'>
-            <HStack gap={1}>
-              {<StatusIcon isClosed={marketClosed} color={cardColors.secondary} />}
-            </HStack>
-            <HStack gap={1} color={cardColors.secondary}>
-              <CalendarIcon width={'16px'} height={'16px'} />
-              <Text {...paragraphMedium} color={cardColors.secondary}>
-                {deadline}
-              </Text>
-            </HStack>
-          </HStack>
-          {marketClosed && (
-            <ClaimButton
-              slug={positionData.market.slug}
-              conditionId={positionData.market.conditionId as Address}
-              collateralAddress={positionData.market.collateralToken.address}
-              marketAddress={process.env.NEXT_PUBLIC_CTF_CONTRACT as Address}
-              outcomeIndex={positionData.market.winningOutcomeIndex as number}
-              marketType='clob'
-              amountToClaim={formatUnits(
-                BigInt(
-                  positionData.tokensBalance[positionData.market.winningOutcomeIndex ? 'no' : 'yes']
-                ),
-                positionData.market.collateralToken.decimals
-              )}
-              symbol={positionData.market.collateralToken.symbol}
-              mt='12px'
-            />
-          )}
-          <Divider w={'full'} h={'1px'} mb={'10px'} mt={'10px'} />
-        </>
+      {positionData.market.group?.title && (
+        <Text {...paragraphMedium} mt='24px'>
+          {positionData.market.title}
+        </Text>
       )}
-      <HStack w='full' justifyContent='space-between' alignItems='flex-end' mt='16px'>
-        <Box w={isMobile ? 'full' : 'unset'}>
-          <HStack gap='12px' w={isMobile ? 'full' : 'unset'}>
-            <Text
-              {...paragraphMedium}
-              color={cardColors.secondary}
-              w={isMobile ? 'unset' : '60px'}
-              flex={isMobile ? 1 : 'unset'}
-              textAlign={isMobile ? 'left' : 'unset'}
-            >
-              Position
-            </Text>
-            <Text
-              {...paragraphMedium}
-              color={cardColors.secondary}
-              w={isMobile ? 'unset' : '120px'}
-              flex={isMobile ? 1 : 'unset'}
-              textAlign={isMobile ? 'left' : 'center'}
-            >
-              Contracts
-            </Text>
-          </HStack>
-          {Boolean(+positionData.tokensBalance.yes) &&
-            positionData.market.winningOutcomeIndex !== 1 && (
-              <HStack gap='12px' mt='4px' w={isMobile ? 'full' : 'unset'}>
-                <Text
-                  {...paragraphRegular}
-                  color={cardColors.main}
-                  w={isMobile ? 'unset' : '60px'}
-                  flex={isMobile ? 1 : 'unset'}
-                  textAlign={isMobile ? 'left' : 'unset'}
-                >
-                  Yes
-                </Text>
-                <Text
-                  {...paragraphRegular}
-                  color={cardColors.main}
-                  w={isMobile ? 'unset' : '120px'}
-                  flex={isMobile ? 1 : 'unset'}
-                  textAlign={isMobile ? 'left' : 'center'}
-                >
-                  {`${NumberUtil.toFixed(
-                    formatUnits(
-                      BigInt(positionData.tokensBalance.yes),
-                      positionData.market.collateralToken.decimals
-                    ),
-                    6
-                  )}`}
-                </Text>
-              </HStack>
-            )}
-          {Boolean(+positionData.tokensBalance.no) && !positionData.market.winningOutcomeIndex && (
-            <HStack gap='12px' mt='4px' w={isMobile ? 'full' : 'unset'}>
-              <Text
-                {...paragraphRegular}
-                color={cardColors.main}
-                w={isMobile ? 'unset' : '60px'}
-                flex={isMobile ? 1 : 'unset'}
-                textAlign={isMobile ? 'left' : 'unset'}
-              >
-                No
-              </Text>
-              <Text
-                {...paragraphRegular}
-                color={cardColors.main}
-                w={isMobile ? 'unset' : '120px'}
-                flex={isMobile ? 1 : 'unset'}
-                textAlign={isMobile ? 'left' : 'center'}
-              >
-                {`${NumberUtil.toFixed(
-                  formatUnits(
-                    BigInt(positionData.tokensBalance.no),
-                    positionData.market.collateralToken.decimals
-                  ),
-                  6
-                )}`}
-              </Text>
-            </HStack>
-          )}
-        </Box>
-        {!isMobile && (
-          <HStack color={cardColors.secondary} mt='8px'>
-            <HStack gap={1}>
-              {<StatusIcon isClosed={marketClosed} color={cardColors.secondary} />}
-            </HStack>
-            <HStack gap={1} color={cardColors.secondary}>
-              <CalendarIcon width={'16px'} height={'16px'} />
-              <Text {...paragraphMedium} color={cardColors.secondary}>
-                {deadline}
-              </Text>
-            </HStack>
-          </HStack>
-        )}
-      </HStack>
-    </Paper>
+      <Box mt='16px'>
+        <FullPositionsTab
+          position={positionData.positions}
+          contracts={positionData.tokensBalance}
+          decimals={positionData.market.collateralToken.decimals}
+          symbol={positionData.market.collateralToken.symbol}
+          marketClosed={positionData.market.status === MarketStatus.RESOLVED}
+          winSide={positionData.market.winningOutcomeIndex}
+        />
+      </Box>
+    </Box>
   )
 }
 

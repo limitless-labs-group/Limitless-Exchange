@@ -21,20 +21,32 @@ import {
   ClickEvent,
   createMarketShareUrls,
   ShareClickedMetadata,
+  useAccount,
   useAmplitude,
   useTradingService,
 } from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
+import { appendReferralCode } from '@/utils/market'
 
 export default function ShareMenu() {
   const { isOpen: isShareMenuOpen, onToggle: toggleShareMenu } = useDisclosure()
-  const { market, marketGroup } = useTradingService()
+  const { market, groupMarket } = useTradingService()
   const { trackClicked } = useAmplitude()
+  const { referralCode } = useAccount()
   const toast = useToast()
-  const marketURI = marketGroup
-    ? `${process.env.NEXT_PUBLIC_FRAME_URL}/market-group/${marketGroup.slug}`
-    : `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.slug}`
-  const { tweetURI, castURI } = createMarketShareUrls(market, market?.prices, market?.creator.name)
+  const marketURI =
+    market?.marketType === 'group'
+      ? `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${groupMarket?.slug}`
+      : `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/${market?.slug}`
+  const { tweetURI, castURI } = createMarketShareUrls(
+    market?.marketType === 'group' ? groupMarket : market,
+    market?.prices,
+    market?.creator.name
+  )
+
+  const getUrl = (referralCode: string) => {
+    return referralCode ? appendReferralCode(marketURI, referralCode) : marketURI
+  }
   return (
     <Menu isOpen={isShareMenuOpen} onClose={toggleShareMenu}>
       <MenuButton
@@ -46,6 +58,12 @@ export default function ShareMenu() {
           toggleShareMenu()
         }}
         as={isMobile ? 'div' : undefined}
+        bg='unset'
+        border='1px solid'
+        borderColor='grey.100'
+        _hover={{
+          bg: 'grey.100',
+        }}
       >
         {isMobile ? (
           <Box mt='4px'>
@@ -94,7 +112,7 @@ export default function ShareMenu() {
         <MenuItem>
           {/*// @ts-ignore*/}
           <CopyToClipboard
-            text={marketURI}
+            text={getUrl(referralCode)}
             onCopy={() => {
               trackClicked<ShareClickedMetadata>(ClickEvent.ShareItemClicked, {
                 type: 'Copy Link',

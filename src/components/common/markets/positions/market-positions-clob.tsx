@@ -70,7 +70,7 @@ export default function MarketPositionsClob() {
               <HStack w='full' justifyContent='space-between'>
                 {getOutcome(order)}
               </HStack>
-              <Divider my='8px' borderColor='grey.300' />
+              <Divider my='8px' />
               <HStack w='full' justifyContent='space-between'>
                 <Box>
                   <Text {...paragraphMedium} color='grey.500' mb='4px'>
