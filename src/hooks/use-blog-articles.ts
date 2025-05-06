@@ -19,7 +19,7 @@ export function useBlogPost(slug: string) {
     queryKey: ['article', slug],
     queryFn: async () => {
       const response: AxiosResponse<BlogPostsResponse> = await axios.get(
-        `${process.env.NEXT_PUBLIC_BLOG_URL}/api/articles?filters[slug][$eq]=${slug}&populate=*`
+        `${process.env.NEXT_PUBLIC_BLOG_URL}/api/articles?filters[slug][$eq]=${slug}&populate[author][populate]=avatar&populate[cover][populate]=related`
       )
       return response.data
     },

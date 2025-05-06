@@ -151,3 +151,11 @@ export const headLineLarge = {
   lineHeight: '28px',
   color: 'grey.800',
 }
+
+export const headingLarge = {
+  fontSize: isMobile ? '36px' : '56px',
+  fontStyle: 'normal',
+  fontWeight: 700,
+  lineHeight: isMobile ? '40px' : '64px',
+  color: 'grey.800',
+}

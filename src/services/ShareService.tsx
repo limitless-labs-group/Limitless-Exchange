@@ -81,6 +81,17 @@ export const createMarketShareUrls = (
   }
 }
 
+export const createPostShareUrls = (slug: string) => {
+  const postURI = `${process.env.NEXT_PUBLIC_APP_URL}/markets/${slug}`
+  const baseMessage = 'Check this post on Limitless'
+  const encodedBaseMessage = encodeURI(baseMessage)
+
+  return {
+    tweetURI: `https://x.com/intent/tweet?text=${encodedBaseMessage}`,
+    castURI: `https://warpcast.com/~/compose?text=${encodedBaseMessage}&embeds[]=${postURI}`,
+  }
+}
+
 // /**
 //  * Generates URLs for sharing portfolio information on social media platforms.
 //  * This function constructs a message containing details about a market, such as its title and creator, along with the amount user invested and selected outcome.
