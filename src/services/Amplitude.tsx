@@ -258,6 +258,7 @@ export enum ClickEvent {
   CancelAllOrdersClicked = 'Cancel All Orders Clicked',
   PointsButtonClicked = 'Points Button Clicked',
   HeaderThemeSwitchMenuClicked = 'Header Theme Switch Menu Clicked',
+  PostLinkCopyClicked = 'Post Link Copy Clicked',
 }
 
 export enum SignInEvent {

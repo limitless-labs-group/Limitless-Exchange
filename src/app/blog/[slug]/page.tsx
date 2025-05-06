@@ -12,7 +12,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
     <MainLayout>
       <HStack w='full' gap={0}>
         <VStack gap='24px'></VStack>
-        <BlogShareLinks />
+        <BlogShareLinks slug={params.slug} />
       </HStack>
     </MainLayout>
   )
