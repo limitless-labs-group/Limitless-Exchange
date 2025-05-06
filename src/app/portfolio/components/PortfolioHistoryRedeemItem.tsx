@@ -6,6 +6,7 @@ import { HStack, Heading, Image, TableRowProps, Td, Text, Tr } from '@chakra-ui/
 import { useRouter } from 'next/navigation'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 import { useMarketByConditionId } from '@/services/MarketsService'
+import { mockMarkets } from '@/services/mock-markets'
 
 interface IPortfolioHistoryRedeemItem extends TableRowProps {
   redeem: HistoryRedeem
@@ -20,7 +21,9 @@ export const PortfolioHistoryRedeemItem = ({ redeem, ...props }: IPortfolioHisto
   /**
    * MARKET DATA
    */
-  const market = useMarketByConditionId(redeem.conditionId)
+  const market = mockMarkets.data.find(
+    (market) => market.address[defaultChain.id] === redeem.conditionId
+  )
 
   return (
     <Tr pos={'relative'} {...props}>

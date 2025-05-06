@@ -13,12 +13,6 @@ import { usePathname } from 'next/navigation'
 import { useMemo, useState } from 'react'
 import { getAddress, zeroAddress } from 'viem'
 
-// Define the interface for the chart data
-interface YesBuyChartData {
-  timestamp: number
-  price: number
-}
-
 // Define the MarketPriceChart component
 interface MarketPriceChartProps {
   market?: Market | null
@@ -214,6 +208,15 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
   const { data: prices } = useQuery({
     queryKey: ['prices'],
     queryFn: async () => {
+      const points = []
+      const now = Date.now()
+
+      for (let i = 0; i < 20; i++) {
+        const timestamp = now + i * 3600 * 1000 // 1-hour interval
+        const price = Math.random() * 100
+        points.push([timestamp, price])
+      }
+      return points
       // const marketId = pathname.substring(pathname.lastIndexOf('/') + 1)
       // const query = `query prices {
       //     AutomatedMarketMakerPricing(where: { market_id: { _ilike: "${marketId}" } }) {
@@ -257,7 +260,7 @@ export const MarketPriceChart = ({ market }: MarketPriceChartProps) => {
         <Spacer />
         <Image mr={4} boxSize={'20%'} src='/assets/images/limitless.png' alt='Limitless Logo' />
       </HStack>
-      {/*<HighchartsReact highcharts={Highcharts} options={getChartOptions(prices)} />*/}
+      <HighchartsReact highcharts={Highcharts} options={getChartOptions(prices)} />
     </Box>
   )
 }

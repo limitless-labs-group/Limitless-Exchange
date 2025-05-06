@@ -28,7 +28,7 @@ export const mockMarkets: { data: Market[] } = {
         'This market will resolve to YES if CJ is posted any photo confirming he bought a white suit during July, 2025',
       placeholderURI: 'assets/images/cj.png',
       imageURI: '/assets/images/cj.png',
-      expirationDate: '11 May, 2025',
+      expirationDate: '31 Jul, 2025',
       expirationTimestamp: 1747007999,
       createdAt: 1754006399,
       expired: false,

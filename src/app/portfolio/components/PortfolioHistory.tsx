@@ -1,16 +1,84 @@
 import { PortfolioHistoryRedeemItem, PortfolioHistoryTradeItem } from '@/app/portfolio/components'
-import { HistoryRedeem, HistoryTrade, useHistory } from '@/services'
+import { HistoryMarket, HistoryRedeem, HistoryTrade, useHistory } from '@/services'
 import { Flex, Table, TableContainer, Tbody, Text, Th, Thead, Tr } from '@chakra-ui/react'
 import { useEffect, useMemo } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+import { Hash } from 'viem'
+import { Address } from '@/types'
 
 export const PortfolioHistory = () => {
-  const { trades, getTrades, redeems, getRedeems } = useHistory()
+  // const { trades, getTrades, redeems, getRedeems } = useHistory()
+  //
+  // useEffect(() => {
+  //   getTrades()
+  //   getRedeems()
+  // }, [])
 
-  useEffect(() => {
-    getTrades()
-    getRedeems()
-  }, [])
+  const trades = [
+    {
+      market: {
+        id: '0x1',
+        condition_id: '0x',
+        paused: false,
+        closed: false,
+        collateral: {
+          symbol: 'USDC',
+        },
+      },
+      strategy: 'Buy',
+      outcomeIndex: 0,
+      outcomeTokenAmounts: ['50', '50'],
+      outcomeTokenAmount: '50',
+      outcomeTokenPrice: '35',
+      outcomeTokenNetCost: '21',
+      collateralAmount: '35',
+      blockTimestamp: new Date().getTime().toString(),
+      transactionHash: '0x1234',
+    },
+    {
+      market: {
+        id: '0x2',
+        condition_id: '0x',
+        paused: false,
+        closed: false,
+        collateral: {
+          symbol: 'USDC',
+        },
+      },
+      strategy: 'Buy',
+      outcomeIndex: 0,
+      outcomeTokenAmounts: ['50', '50'],
+      outcomeTokenAmount: '50',
+      outcomeTokenPrice: '35',
+      outcomeTokenNetCost: '21',
+      collateralAmount: '35',
+      blockTimestamp: new Date().getTime().toString(),
+      transactionHash: '0x1234',
+    },
+  ]
+
+  const redeems = [
+    {
+      payout: '10000000',
+      collateralAmount: '100',
+      conditionId: '0x3',
+      indexSets: ['1', '2'],
+      outcomeIndex: 1,
+      blockTimestamp: new Date().getTime().toString(),
+      transactionHash: '0x1',
+      collateralToken: 'USC',
+    },
+    {
+      payout: '10000000',
+      collateralAmount: '100',
+      conditionId: '0x4',
+      indexSets: ['1', '2'],
+      outcomeIndex: 1,
+      blockTimestamp: new Date().getTime().toString(),
+      transactionHash: '0x1',
+      collateralToken: 'USC',
+    },
+  ]
 
   const tradesAndRedeems = useMemo(() => {
     const _tradesAndRedeems = [...(trades ?? []), ...(redeems ?? [])]

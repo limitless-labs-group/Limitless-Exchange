@@ -1,12 +1,11 @@
 import { PortfolioPositionCard } from '@/app/portfolio/components'
-import { useHistory } from '@/services'
+import { HistoryPosition } from '@/services'
 import { Flex, Grid, GridProps, Text } from '@chakra-ui/react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import Filter from '@/components/common/TokenFilter'
 import { Token } from '@/types'
-import { useUsersMarkets } from '@/services/UsersMarketsService'
-import { Address, getAddress } from 'viem'
+import { Address } from 'viem'
 
 const positions = [
   {
@@ -19,11 +18,58 @@ const positions = [
         symbol: 'USDC',
       },
     },
+    latestTrade: {
+      outcomeTokenPrice: 35,
+    },
     outcomeTokenAmounts: [272759, 0],
     outcomeTokenNetCost: '100000',
     blockTimestamp: '1721743917',
     transactionHash: '0x9ccda5c737ad5fe9bde270552694aa6d3e8d703e176f0b909bc109d3d457b9d1',
     outcomeIndex: 1,
+    collateralAmount: '25.5',
+    outcomeTokenAmount: '52',
+  },
+  {
+    market: {
+      id: '0x2' as Address,
+      closed: true,
+      funding: '1000000000',
+      condition_id: '0xdc9262d6415bac503f993260954b3cf52b277e142306f55152a8723108ff10d6' as Address,
+      collateral: {
+        symbol: 'USDC',
+      },
+    },
+    latestTrade: {
+      outcomeTokenPrice: 35,
+    },
+    outcomeTokenAmounts: [0, 272759],
+    outcomeTokenNetCost: '100000',
+    blockTimestamp: '1721743917',
+    transactionHash: '0x9ccda5c737ad5fe9bde270552694aa6d3e8d703e176f0b909bc109d3d457b9d1',
+    outcomeIndex: 0,
+    collateralAmount: '25.5',
+    outcomeTokenAmount: '52',
+  },
+  {
+    market: {
+      id: '0x3' as Address,
+      closed: true,
+      funding: '1000000000',
+      condition_id: '0xdc9262d6415bac503f993260954b3cf52b277e142306f55152a8723108ff10d6' as Address,
+      collateral: {
+        symbol: 'USDC',
+      },
+    },
+    latestTrade: {
+      outcomeTokenPrice: 35,
+    },
+    outcomeTokenAmounts: [272759, 0],
+    outcomeTokenNetCost: '100000',
+    blockTimestamp: '1721743917',
+    transactionHash: '0x9ccda5c737ad5fe9bde270552694aa6d3e8d703e176f0b909bc109d3d457b9d1',
+    outcomeIndex: 1,
+    collateralAmount: '25.5',
+    outcomeTokenAmount: '52',
   },
 ]
 
@@ -71,7 +117,10 @@ export const PortfolioPositions = ({ ...props }: GridProps) => {
           {...props}
         >
           {positionsFiltered?.map((position) => (
-            <PortfolioPositionCard key={uuidv4()} position={position} />
+            <PortfolioPositionCard
+              key={uuidv4()}
+              position={position as unknown as HistoryPosition}
+            />
           ))}
         </Grid>
       )}

@@ -6,6 +6,7 @@ import { HStack, Heading, Image, TableRowProps, Td, Text, Tr } from '@chakra-ui/
 import { useRouter } from 'next/navigation'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 import { useMarket } from '@/services/MarketsService'
+import { mockMarkets } from '@/services/mock-markets'
 
 interface IPortfolioHistoryTradeItem extends TableRowProps {
   trade: HistoryTrade
@@ -20,7 +21,9 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
   /**
    * MARKET DATA
    */
-  const market = useMarket(trade.market.id)
+  const market = mockMarkets.data.find(
+    (market) => market.address[defaultChain.id] === trade.market.id
+  )
 
   return (
     <Tr pos={'relative'} {...props}>
