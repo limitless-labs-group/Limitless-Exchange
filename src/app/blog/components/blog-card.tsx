@@ -1,0 +1,45 @@
+import { VStack, Image, HStack, Text, Box } from '@chakra-ui/react'
+import Link from 'next/link'
+import { isMobile } from 'react-device-detect'
+import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
+import { h3Bold, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { BlogPostShort } from '@/types/blog'
+
+interface BlogCardProps {
+  post: BlogPostShort
+}
+
+export default function BlogCard({ post }: BlogCardProps) {
+  return (
+    <Link href={`/blog/${post.slug}`}>
+      <VStack w='full' gap='12px' alignItems='flex-start' cursor='pointer'>
+        <Image
+          src={`${process.env.NEXT_PUBLIC_BLOG_URL}${post.cover.url}`}
+          alt='post-image'
+          h='386px'
+          objectFit='cover'
+          borderRadius='12px'
+        />
+        <HStack gap='8px'>
+          <Text {...paragraphRegular} color='grey.500'>
+            {post.author.name}
+          </Text>
+          <Box transform='rotate(270deg)' color='grey.500'>
+            <ChevronDownIcon height={16} width={16} />
+          </Box>
+          {post.tag.map((tag) => (
+            <Text {...paragraphRegular} color='grey.500' key={tag.tags}>
+              #{tag.tags}
+            </Text>
+          ))}
+        </HStack>
+        <Text {...h3Bold} w={isMobile ? 'full' : '80%'}>
+          {post.title}
+        </Text>
+        <Text {...paragraphRegular} color='grey.700' w={isMobile ? 'full' : '80%'}>
+          {post.title}
+        </Text>
+      </VStack>
+    </Link>
+  )
+}
