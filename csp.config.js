@@ -22,7 +22,7 @@
 const RPCs = [
   'https://base.drpc.org',
   'https://base.llamarpc.com',
-  'https://base-pokt.nodies.app',
+  'https://1rpc.io/base',
   'https://base.meowrpc.com',
   'https://base-rpc.publicnode.com',
 ]

@@ -47,7 +47,10 @@ const PortfolioPositionCardClob = ({ positionData, ...props }: PortfolioPosition
       p={isMobile ? '16px' : '8px'}
     >
       <HStack w='full' justifyContent='space-between'>
-        <Text {...paragraphMedium}>
+        <Text
+          {...paragraphMedium}
+          color={positionData.market.status === MarketStatus.RESOLVED ? 'white' : 'grey.800'}
+        >
           {positionData.market.group?.title || positionData.market.title}
         </Text>
         {isMobile && <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} />}
