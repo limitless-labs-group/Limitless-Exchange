@@ -313,20 +313,14 @@ export default function ClobMarketTradeForm() {
       return
     }
     const sharesAmount = outcome
-      ? NumberUtil.formatThousands(
-          formatUnits(sharesAvailable['no'], market?.collateralToken.decimals || 6),
-          2
-        )
-      : NumberUtil.formatThousands(
-          formatUnits(sharesAvailable['yes'], market?.collateralToken.decimals || 6),
-          2
-        )
+      ? formatUnits(sharesAvailable['no'], market?.collateralToken.decimals || 6)
+      : formatUnits(sharesAvailable['yes'], market?.collateralToken.decimals || 6)
     if (value === 100) {
-      setPrice(NumberUtil.toFixed(sharesAmount, 2))
+      setPrice((+sharesAmount).toFixed(2))
       return
     }
     const amountByPercent = (Number(sharesAmount) * value) / 100
-    setPrice(NumberUtil.toFixed(amountByPercent, 2))
+    setPrice(amountByPercent.toFixed(2))
     return
   }
 
