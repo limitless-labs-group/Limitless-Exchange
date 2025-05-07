@@ -498,7 +498,7 @@ export function SellForm({ setOutcomeIndex }: SellFormProps) {
                       {...paragraphRegular}
                       color={outcomeChoice === 'yes' ? 'white' : 'green.500'}
                     >{`${NumberUtil.toFixed(positionsYes.collateralAmount, 3)} ${
-                      positionsYes.market.collateral?.symbol
+                      market?.collateralToken.symbol
                     }`}</Text>
                   </HStack>
                 </VStack>
@@ -608,7 +608,7 @@ export function SellForm({ setOutcomeIndex }: SellFormProps) {
                       {...paragraphRegular}
                       color={outcomeChoice === 'no' ? 'white' : 'red.500'}
                     >{`${NumberUtil.toFixed(positionsNo.collateralAmount, 3)} ${
-                      positionsNo.market.collateral?.symbol
+                      market?.collateralToken.symbol
                     }`}</Text>
                   </HStack>
                 </VStack>

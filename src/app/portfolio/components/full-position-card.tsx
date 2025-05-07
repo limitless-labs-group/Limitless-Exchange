@@ -397,6 +397,7 @@ export default function FullPositionCard({ position, type }: FullPositionCardPro
             showDays={false}
             hideText={isMobile}
             color={marketClosed ? 'whiteAlpha.70' : 'grey.500'}
+            ended={marketClosed}
           />
           {marketClosed ? (
             <HStack gap='4px'>

@@ -10,7 +10,7 @@ import ThumbsDownIcon from '@/resources/icons/thumbs-down-icon.svg'
 import ThumbsUpIcon from '@/resources/icons/thumbs-up-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
-import { Market } from '@/types'
+import { Market, MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export interface IMarketMetadata {
@@ -54,6 +54,7 @@ export const MarketMetadata = ({
             deadlineText={market.expirationDate}
             color='grey.800'
             showDays={false}
+            ended={market.status === MarketStatus.RESOLVED}
           />
         ) : (
           market?.expirationDate

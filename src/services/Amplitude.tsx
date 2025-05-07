@@ -100,8 +100,8 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
     [acc]
   )
 
-  const trackSignUp = async () => {
-    return trackEvent(AuthenticationEvent.SignUp)
+  const trackSignUp = async <T extends SignInEventMetadata>(event: SignInEvent, customData?: T) => {
+    return trackEvent(event, customData)
   }
 
   const trackChanged = async <T extends ChangedEventMetadata>(
@@ -135,7 +135,7 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
     trackChanged,
     trackClicked,
     trackOpened,
-    trackSignIn: trackSignIn,
+    trackSignIn,
     trackHovered,
   }
 
@@ -155,6 +155,8 @@ export type EventType =
 export enum ChangeEvent {
   StrategyChanged = 'Strategy Changed',
   OutcomeChanged = 'Outcome Changed',
+  ReferralWelcomeClosed = 'Referral Welcome Closed',
+  FinishedOnboarding = 'Finished Onboarding',
   ProfilePictureUploadedChanged = 'Profile Picture Uploaded',
   ProfileSettingsChanged = 'Profile Settings Changed',
   LeaderboardViewChanged = 'Leaderboard View Changed',
@@ -544,6 +546,7 @@ interface ChartTabChangedMetadata {
 
 interface SignedInMetadata {
   signedIn: boolean
+  fromReferral?: boolean
 }
 
 interface WidgetClickedMetadata {
