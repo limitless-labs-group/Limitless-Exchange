@@ -176,3 +176,18 @@ export interface PostSummaryText {
   id: number
   value: string
 }
+
+export interface PostValue {
+  id: number
+  value: string
+}
+
+export interface PostTableRow {
+  id: number
+  value: PostValue[]
+}
+
+export interface PostTable {
+  Header: PostValue[]
+  row: PostTableRow[]
+}

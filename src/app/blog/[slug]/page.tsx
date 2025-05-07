@@ -11,14 +11,11 @@ import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import { headingLarge, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 export default function BlogPostPage({ params }: { params: { slug: string } }) {
-  console.log(params)
   const { data } = useBlogPost(params.slug)
 
   const avatarUrl = `${process.env.NEXT_PUBLIC_BLOG_URL}${data?.data[0].author.avatar.url}`
 
   const author = data?.data[0].author.name
-
-  console.log(avatarUrl)
 
   return (
     <MainLayout>
@@ -35,7 +32,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
             {data?.data[0].description}
           </Text>
         </VStack>
-        <BlogShareLinks slug={params.slug} />
+        {!isMobile && <BlogShareLinks slug={params.slug} />}
       </HStack>
       <Box my={isMobile ? '12px' : '56px'}>
         <Image
@@ -60,6 +57,11 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
           </Text>
         ))}
       </HStack>
+      {isMobile && (
+        <Box mt='12px' mb='32px'>
+          <BlogShareLinks slug={params.slug} />
+        </Box>
+      )}
       <Box mt={isMobile ? '32px' : '54px'} maxW='640px' m='auto'>
         {data?.data[0].blocks.map((block, index) => (
           <PostSection key={index} block={block} />

@@ -148,7 +148,7 @@ export const MarketSingleCard = ({
         onClickRedirectToMarket(event)
       }}
     >
-      <Paper flex={1} w='full' position='relative' cursor='pointer' p='14px' bg='unset' h='full'>
+      <Paper flex={1} w='full' position='relative' cursor='pointer' p='14px' bg='unset' h='100%'>
         <Box w='full' mb='8px'>
           <MarketCountdown
             hideText={isShortCard}

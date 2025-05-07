@@ -1,7 +1,7 @@
 import { tableAnatomy } from '@chakra-ui/anatomy'
 import { createMultiStyleConfigHelpers } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { captionRegular, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpers(
   tableAnatomy.keys
@@ -105,7 +105,48 @@ const noPaddingsOnSides = definePartsStyle({
   },
 })
 
+const grey = definePartsStyle({
+  thead: {
+    th: {
+      padding: '8px 12px',
+      ...paragraphMedium,
+      color: 'grey.700',
+      borderColor: 'grey.300',
+      bg: 'grey.100',
+      textTransform: 'unset',
+      // '&[data-is-numeric=true]': {
+      //   textAlign: 'end',
+      // },
+      // '&:first-child': {
+      //   paddingLeft: 0,
+      // },
+      // '&:last-child': {
+      //   paddingRight: 0,
+      //   textAlign: 'end',
+      // },
+      borderBottom: '1px solid',
+    },
+  },
+  tbody: {
+    td: {
+      ...captionRegular,
+      color: 'grey.700',
+      // borderBottomWidth: '0px',
+      padding: isMobile ? '12px' : '7.5px 8px',
+      // '&[data-is-numeric=true]': {
+      //   textAlign: 'start',
+      // },
+      // '&:first-child': {
+      //   paddingLeft: 0,
+      // },
+      // '&:last-child': {
+      //   paddingRight: 0,
+      // },
+    },
+  },
+})
+
 export const tableTheme = defineMultiStyleConfig({
   baseStyle,
-  variants: { noPaddingsOnSides },
+  variants: { noPaddingsOnSides, grey },
 })

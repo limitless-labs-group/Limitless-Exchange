@@ -45,7 +45,7 @@ export default function CopyButton({
         setCopied(true)
       }}
     >
-      <Button {...props}>
+      <Button {...props} justifyContent='flex-start'>
         {startIcon && <CopyIcon width='16px' height='16px' />}
         {copied ? 'Copied' : 'Copy Link'}
         {endIcon && <CopyIcon width='16px' height='16px' />}

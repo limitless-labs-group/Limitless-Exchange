@@ -1,6 +1,7 @@
 import { Box, Image, Text, UnorderedList, ListItem, OrderedList } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
 import Paper from '@/components/common/paper'
+import BlogTable from '@/app/blog/components/blog-table'
 import MarketsSection from '@/app/blog/components/markets-section'
 import Summary from '@/app/blog/components/summary'
 import { h1Bold, h2Bold, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -10,6 +11,9 @@ import {
   BlogSectionType,
   PostMarketSlug,
   PostSummaryText,
+  PostTable,
+  PostTableRow,
+  PostValue,
 } from '@/types/blog'
 
 interface ListItem {
@@ -36,7 +40,7 @@ export default function PostSection({ block }: PostSectionProps) {
         </Text>
       )
     case BlogSectionType.SECTION_DIVIDER:
-      return <Box my={isMobile ? '32px' : '48px'} />
+      return <Box mt={isMobile ? '32px' : '48px'} />
     case BlogSectionType.SECTION_MEDIA:
       return (
         <Image
@@ -103,6 +107,8 @@ export default function PostSection({ block }: PostSectionProps) {
           textBlocks={block.summaryText as PostSummaryText[]}
         />
       )
+    case BlogSectionType.TABLE:
+      return <BlogTable header={block.Header as PostValue[]} rows={block.row as PostTableRow[]} />
     default:
       return null
   }
