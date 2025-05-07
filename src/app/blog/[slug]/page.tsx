@@ -4,9 +4,10 @@ import { HStack, VStack, Text, Box, Image } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
 import Avatar from '@/components/common/avatar'
 import BlogShareLinks from '@/app/blog/components/blog-share-links'
+import PostSection from '@/app/blog/components/post-section'
 import { MainLayout } from '@/components'
 import { useBlogPost } from '@/hooks/use-blog-articles'
-import { createPostShareUrls } from '@/services'
+import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import { headingLarge, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 export default function BlogPostPage({ params }: { params: { slug: string } }) {
@@ -14,6 +15,8 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
   const { data } = useBlogPost(params.slug)
 
   const avatarUrl = `${process.env.NEXT_PUBLIC_BLOG_URL}${data?.data[0].author.avatar.url}`
+
+  const author = data?.data[0].author.name
 
   console.log(avatarUrl)
 
@@ -43,9 +46,26 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
           borderRadius='12px'
         />
       </Box>
-      <HStack mb={isMobile ? '12px' : '56px'}>
+      <HStack mb={isMobile ? '12px' : '56px'} gap='8px'>
         <Avatar account='' avatarUrl={avatarUrl || ''} size='24px' />
+        <Text {...paragraphRegular} color='grey.500'>
+          {author}
+        </Text>
+        <Box transform='rotate(270deg)' color='grey.500'>
+          <ChevronDownIcon height={16} width={16} />
+        </Box>
+        {data?.data[0].tag.map((tag) => (
+          <Text {...paragraphRegular} color='grey.500' key={tag.tags}>
+            #{tag.tags}
+          </Text>
+        ))}
       </HStack>
+      <Box mt={isMobile ? '32px' : '54px'} maxW='640px' m='auto'>
+        {data?.data[0].blocks.map((block, index) => (
+          <PostSection key={index} block={block} />
+        ))}
+        <BlogShareLinks slug={params.slug} />
+      </Box>
     </MainLayout>
   )
 }

@@ -19,7 +19,7 @@ export function useBlogPost(slug: string) {
     queryKey: ['article', slug],
     queryFn: async () => {
       const response: AxiosResponse<BlogPostsResponse> = await axios.get(
-        `${process.env.NEXT_PUBLIC_BLOG_URL}/api/articles?filters[slug][$eq]=${slug}&populate[author][populate]=avatar&populate[cover][populate]=related`
+        `${process.env.NEXT_PUBLIC_BLOG_URL}/api/articles?filters[slug][$eq]=grammy-gaming-betting-on-this-year-s-big-four-awards&populate[author][populate]=avatar&populate[cover][populate]=related&populate[tag]=*&populate[blocks][populate]=*`
       )
       return response.data
     },

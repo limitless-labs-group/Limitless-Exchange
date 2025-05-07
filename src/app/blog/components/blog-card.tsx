@@ -3,10 +3,10 @@ import Link from 'next/link'
 import { isMobile } from 'react-device-detect'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import { h3Bold, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { BlogPostShort } from '@/types/blog'
+import { BlogPost } from '@/types/blog'
 
 interface BlogCardProps {
-  post: BlogPostShort
+  post: BlogPost
 }
 
 export default function BlogCard({ post }: BlogCardProps) {
