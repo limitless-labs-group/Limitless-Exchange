@@ -88,22 +88,14 @@ export default function ClobLimitTradeForm() {
       assetType: 'contracts',
     })
     const sharesAmount = outcome
-      ? NumberUtil.formatThousands(
-          formatUnits(sharesAvailable['no'], market?.collateralToken.decimals || 6),
-          2
-        )
-      : NumberUtil.formatThousands(
-          formatUnits(sharesAvailable['yes'], market?.collateralToken.decimals || 6),
-          2
-        )
+      ? formatUnits(sharesAvailable['no'], market?.collateralToken.decimals || 6)
+      : formatUnits(sharesAvailable['yes'], market?.collateralToken.decimals || 6)
     if (value === 100) {
       setSharesAmount(sharesAmount)
       return
     }
     const amountByPercent = (Number(sharesAmount) * value) / 100
-    setSharesAmount(
-      NumberUtil.toFixed(amountByPercent, market?.collateralToken.symbol === 'USDC' ? 2 : 6)
-    )
+    setSharesAmount((+amountByPercent).toFixed(2))
     return
   }
 
