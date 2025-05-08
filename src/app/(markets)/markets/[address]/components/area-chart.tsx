@@ -183,31 +183,51 @@ export const PriceChart = ({ history }: PriceChartProps) => {
         },
       },
       tooltip: {
-        backgroundColor: grey50,
-        borderColor: grey300,
-        borderWidth: 1,
-        boxWidth: 5,
-        boxHeight: 5,
-        titleColor: grey500,
+        // @ts-ignore
+        backgroundColor: (context) => {
+          const dp = context.tooltip.dataPoints?.[0]
+          return dp?.dataset?.borderColor || blue500
+        },
+        borderColor: 'transparent',
+        borderWidth: 0,
+        borderRadius: 999,
+        caretSize: 0,
+        displayColors: false,
+        caretPadding: 12,
+        padding: {
+          top: 2,
+          bottom: 0,
+          left: 4,
+          right: 4,
+        },
+        titleColor: '#fff',
         titleFont: {
           family: 'Inter, sans-serif',
           size: 12,
+          weight: 'lighter',
         },
-        bodyColor: grey500,
+        bodyColor: '#fff',
         bodyFont: {
           family: 'Inter, sans-serif',
-          size: 14,
+          size: 12,
+          weight: 'lighter',
         },
-        padding: 12,
-        usePointStyle: true,
+        boxWidth: 0,
+        boxHeight: 0,
+        boxPadding: 0,
+        usePointStyle: false,
         callbacks: {
           title: () => '',
           label: (context) => {
             const label = context.dataset.label || ''
             const value = context.parsed.y
-            return `${label}: ${value.toFixed(2)}%`
+            return `${value.toFixed(0)}% ${label}`
           },
         },
+        shadowOffsetX: 0,
+        shadowOffsetY: 0,
+        shadowBlur: 0,
+        shadowColor: 'transparent',
       },
       // @ts-ignore
       verticalLine: {
