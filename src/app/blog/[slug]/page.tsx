@@ -30,10 +30,10 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
         <VStack gap='24px' maxW='800px' alignItems='flex-start'>
           {isLoading ? (
             <>
-              <Box w='full'>
+              <Box w={isMobile ? 'full' : '800px'}>
                 <Skeleton height={128} />
               </Box>
-              <Box maxW='640px'>
+              <Box w={isMobile ? 'full' : '640px'}>
                 <Skeleton height={20} />
               </Box>
             </>
