@@ -1,6 +1,6 @@
 import { Table, TableContainer, Tbody, Th, Thead, Tr, Td } from '@chakra-ui/react'
 import React from 'react'
-import { PostTable, PostTableRow, PostValue } from '@/types/blog'
+import { PostTableRow, PostValue } from '@/types/blog'
 
 interface BlogTableProps {
   header: PostValue[]
@@ -8,9 +8,14 @@ interface BlogTableProps {
 }
 
 export default function BlogTable({ header, rows }: BlogTableProps) {
-  console.log(rows)
   return (
-    <TableContainer overflow={'auto'} mb='24px'>
+    <TableContainer
+      overflow={'auto'}
+      mb='24px'
+      borderRadius='6px'
+      border='1px solid'
+      borderColor='grey.300'
+    >
       <Table variant={'grey'}>
         <Thead>
           <Tr>

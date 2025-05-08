@@ -111,7 +111,7 @@ const grey = definePartsStyle({
       padding: '8px 12px',
       ...paragraphMedium,
       color: 'grey.700',
-      borderColor: 'grey.300',
+      borderColor: 'grey.300 !important',
       bg: 'grey.100',
       textTransform: 'unset',
       // '&[data-is-numeric=true]': {
@@ -120,28 +120,32 @@ const grey = definePartsStyle({
       // '&:first-child': {
       //   paddingLeft: 0,
       // },
+      '&:not(:last-child)': { borderRight: '1px solid', borderColor: 'grey.300' },
       // '&:last-child': {
       //   paddingRight: 0,
-      //   textAlign: 'end',
       // },
       borderBottom: '1px solid',
     },
   },
   tbody: {
+    tr: {
+      '&:not(:last-child)': {
+        td: {
+          borderColor: 'grey.300 !important',
+          borderBottom: '1px solid',
+        },
+      },
+      '&:last-child': {
+        td: {
+          borderBottom: 'unset',
+        },
+      },
+    },
     td: {
       ...captionRegular,
       color: 'grey.700',
-      // borderBottomWidth: '0px',
+      '&:not(:last-child)': { borderRight: '1px solid', borderColor: 'grey.300' },
       padding: isMobile ? '12px' : '7.5px 8px',
-      // '&[data-is-numeric=true]': {
-      //   textAlign: 'start',
-      // },
-      // '&:first-child': {
-      //   paddingLeft: 0,
-      // },
-      // '&:last-child': {
-      //   paddingRight: 0,
-      // },
     },
   },
 })

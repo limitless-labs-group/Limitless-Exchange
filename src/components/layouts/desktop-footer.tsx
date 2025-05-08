@@ -60,6 +60,7 @@ export default function DesktopFooter() {
               textDecoration: 'unset',
               color: 'grey.800',
             }}
+            {...paragraphMedium}
             color='grey.500'
           >
             Blog

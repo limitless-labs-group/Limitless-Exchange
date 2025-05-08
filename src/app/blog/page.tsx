@@ -1,6 +1,6 @@
 'use client'
 
-import { Grid, HStack, SimpleGrid, VStack } from '@chakra-ui/react'
+import { Grid, VStack } from '@chakra-ui/react'
 import React from 'react'
 import Skeleton from '@/components/common/skeleton'
 import BlogCard from '@/app/blog/components/blog-card'
