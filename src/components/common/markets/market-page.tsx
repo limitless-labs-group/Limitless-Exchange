@@ -135,8 +135,12 @@ export default function MarketPage() {
   }, [isLivePriceSupportedMarket, market?.tradeType])
 
   const priceChart = useMemo(() => {
-    return <MarketPriceChart key={uuidv4()} />
-  }, [])
+    return market?.tradeType === 'amm' ? (
+      <MarketPriceChart key={uuidv4()} />
+    ) : (
+      <PriceChartContainer key={uuidv4()} />
+    )
+  }, [market?.tradeType])
 
   const chartsTabPanels = useMemo(() => {
     const tabPanels = [priceChart]

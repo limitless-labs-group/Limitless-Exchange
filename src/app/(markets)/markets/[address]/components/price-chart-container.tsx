@@ -5,7 +5,7 @@ import { memo, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Skeleton from '@/components/common/skeleton'
 import { PriceChart } from '@/app/(markets)/markets/[address]/components/area-chart'
-import { useNegRiskPriceHistory } from '@/hooks/use-market-price-history'
+import { useClobPriceHistory } from '@/hooks/use-market-price-history'
 import Logo from '@/resources/icons/limitless-logo.svg'
 import { useTradingService } from '@/services'
 import { controlsMedium, headline } from '@/styles/fonts/fonts.styles'
@@ -16,14 +16,23 @@ const ChartContainer = () => {
   const [selectedRange, setSelectedRange] = useState<TimeRange>('1D')
   const timeRanges: TimeRange[] = ['1H', '6H', '1D', '1W', '1M', 'ALL']
 
-  const { groupMarket } = useTradingService()
+  const { groupMarket, market } = useTradingService()
 
   const marketSlug = useMemo(() => {
+    if (market?.marketType === 'single') {
+      return market.slug
+    }
     return groupMarket?.slug
-  }, [groupMarket?.slug])
+  }, [groupMarket?.slug, market?.slug])
 
-  const { data: priceHistory, isLoading: isLoadingPriceHistory } =
-    useNegRiskPriceHistory(marketSlug)
+  const marketType = market?.marketType
+  const tradeType = market?.tradeType
+
+  const { data: priceHistory, isLoading: isLoadingPriceHistory } = useClobPriceHistory(
+    marketSlug,
+    marketType,
+    tradeType
+  )
 
   console.log(priceHistory)
 
@@ -49,7 +58,7 @@ const ChartContainer = () => {
       ALL: 0,
     }
 
-    return data.filter((point) => point.timestamp >= ranges[selectedRange])
+    return data.filter((point) => +point.timestamp >= ranges[selectedRange])
   }
 
   const filteredHistories = priceHistory?.map((history) => ({
