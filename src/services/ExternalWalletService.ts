@@ -17,7 +17,7 @@ export const useExternalWalletService = () => {
     try {
       const receipt = await publicClient.waitForTransactionReceipt({
         hash,
-        timeout: 60_000, // 60 seconds timeout
+        timeout: 60_000,
       })
       return receipt
     } catch (error) {
@@ -271,15 +271,14 @@ export const useExternalWalletService = () => {
     conditionalTokensAddress: Address,
     collateralAddress: Address,
     parentCollectionId: Address,
-    marketConditionId: Address,
-    indexSets: number[]
+    marketConditionId: Address
   ) => {
     try {
       await checkAndSwitchChainIfNeeded()
       const data = encodeFunctionData({
         abi: conditionalTokensABI,
         functionName: 'redeemPositions',
-        args: [collateralAddress, parentCollectionId, marketConditionId, indexSets],
+        args: [collateralAddress, parentCollectionId, marketConditionId, [1, 2]],
       })
       if (web3Wallet) {
         const addresses = await web3Wallet.getAddresses()

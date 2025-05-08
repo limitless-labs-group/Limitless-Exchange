@@ -290,7 +290,7 @@ export const DashboardGroup = ({
 
   return (
     <VStack w='full'>
-      <HStack justifyContent='space-between' w='full'>
+      <HStack justifyContent='space-between' w='full' mt='24px'>
         <Text {...h2Bold} textAlign='start' w='full'>
           {categoryName}
         </Text>

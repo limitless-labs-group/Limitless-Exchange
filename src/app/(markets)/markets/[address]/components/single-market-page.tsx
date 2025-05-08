@@ -29,6 +29,7 @@ import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-
 import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import { MarketProgressBar } from '@/components/common/markets/market-cards/market-progress-bar'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
+import MarketPositionsAmm from '@/components/common/markets/positions/market-positions-amm'
 import ShareMenu from '@/components/common/markets/share-menu'
 import MarketClosedWidget from '@/components/common/markets/trading-widgets/market-closed-widget'
 import TradingWidgetSimple from '@/components/common/markets/trading-widgets/trading-widget-simple'
@@ -50,7 +51,7 @@ import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
 import { ChangeEvent, ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
 import { h1Regular, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market } from '@/types'
+import { Market, MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export interface MarketPageProps {
@@ -58,9 +59,6 @@ export interface MarketPageProps {
 }
 
 export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps) {
-  /**
-   * ANALYTICS
-   */
   const { trackClicked, trackOpened, trackChanged } = useAmplitude()
   const router = useRouter()
   const { setMarket, resetQuotes, market } = useTradingService()
@@ -289,6 +287,7 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
                 deadline={market.expirationTimestamp}
                 deadlineText={market.expirationDate}
                 color='grey.500'
+                ended={market.status === MarketStatus.RESOLVED}
               />
             )}
             {!market ? (
@@ -321,6 +320,7 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
               </VStack>
             ) : (
               <Heading
+                as='h1'
                 {...(isMobile ? { ...h1Regular } : {})}
                 fontSize='32px'
                 userSelect='text'
@@ -385,7 +385,11 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
           ) : (
             charts
           )}
-          {market?.tradeType === 'clob' && <ClobPositions />}
+          {market?.tradeType === 'clob' ? (
+            <ClobPositions marketType='sidebar' />
+          ) : (
+            <MarketPositionsAmm />
+          )}
         </Box>
         {fetchMarketLoading ? (
           <Box px={isMobile ? '16px' : 0}>

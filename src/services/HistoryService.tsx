@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQuery, UseQueryResult } from '@tanstack/react-query'
 import { AxiosResponse } from 'axios'
 import { createContext, PropsWithChildren, useContext, useMemo } from 'react'
 import { formatUnits, Hash } from 'viem'
@@ -25,7 +25,7 @@ export const useHistory = () => useContext(HistoryServiceContext)
 export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
   const { convertAssetAmountToUsd } = usePriceOracle()
   const { supportedTokens } = useLimitlessApi()
-  const { data: positions, isPending: isPositionsLoading } = usePosition()
+  const { data: positions, isLoading: isPositionsLoading } = usePosition()
 
   /**
    * BALANCES
@@ -41,7 +41,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
     ammPositions?.forEach((position) => {
       let positionUsdAmount = 0
       const token = supportedTokens?.find(
-        (token) => token.symbol === position.market.collateral?.symbol
+        (token) => token.symbol === position.market.collateralToken?.symbol
       )
       if (!!token) {
         positionUsdAmount = convertAssetAmountToUsd(token.priceOracleId, position.collateralAmount)
@@ -62,7 +62,7 @@ export const HistoryServiceProvider = ({ children }: PropsWithChildren) => {
     ammPositions?.forEach((position) => {
       let positionOutcomeUsdAmount = 0
       const token = supportedTokens?.find(
-        (token) => token.symbol === position.market.collateral?.symbol
+        (token) => token.symbol === position.market.collateralToken?.symbol
       )
       if (!!token) {
         positionOutcomeUsdAmount = convertAssetAmountToUsd(
@@ -124,7 +124,7 @@ export const usePosition = () => {
   const privateClient = useAxiosPrivateClient()
 
   return useQuery({
-    queryKey: ['positions', web3Wallet?.account?.address],
+    queryKey: ['positions'],
     queryFn: async () => {
       try {
         const response = await privateClient.get<PositionsResponse>(`/portfolio/positions`)
@@ -146,6 +146,7 @@ export const usePosition = () => {
             rewardsByEpoch: [],
           },
           positions: [],
+          points: '0.00',
         }
       }
     },
@@ -156,22 +157,9 @@ export const usePosition = () => {
       }
       return 60000
     },
-  })
-}
-
-export const usePortfolioHistory = (page: number) => {
-  const privateClient = useAxiosPrivateClient()
-  return useQuery({
-    queryKey: ['history', page],
-    queryFn: async (): Promise<AxiosResponse<History>> => {
-      return privateClient.get<History>('/portfolio/history', {
-        params: {
-          page: page,
-          limit: 10,
-        },
-      })
-    },
-  })
+    //@ts-ignore
+    keepPreviousData: true,
+  }) as UseQueryResult<PortfolioPositions>
 }
 
 export const useInfinityHistory = () => {
@@ -191,7 +179,7 @@ export const useInfinityHistory = () => {
         {
           params: {
             page: pageParam,
-            limit: 30,
+            limit: 100,
           },
         }
       )
@@ -224,11 +212,15 @@ export type HistoryTrade = {
 
 export type HistoryMarket = {
   id: Address
-  condition_id: Hash //#TODO align namings to conditionId
+  conditionId: Hash //#TODO align namings to conditionId
   paused?: boolean
   closed?: boolean
   funding?: string
   holdersCount?: number
+  collateralToken?: {
+    symbol: string
+    id: string
+  }
   collateral?: {
     symbol: string
     id: string
@@ -236,6 +228,9 @@ export type HistoryMarket = {
   expirationDate: string
   title: string
   slug: string | null
+  group?: {
+    slug: string
+  }
 }
 
 export type HistoryRedeem = {
@@ -287,6 +282,7 @@ type PositionsResponse = {
     totalUserRewardsLastEpoch: string
     rewardsByEpoch: RewardEpoch[]
   }
+  points: string
   amm: HistoryPositionWithType[]
   clob: ClobPositionWithType[]
 }
@@ -298,6 +294,7 @@ type PortfolioPositions = {
     rewardsByEpoch: RewardEpoch[]
   }
   positions: (HistoryPositionWithType | ClobPositionWithType)[]
+  points: string
 }
 
 export interface ClobPositionContracts {

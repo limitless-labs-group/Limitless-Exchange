@@ -61,15 +61,17 @@ export default function ClobOrdersTable({ marketType }: ClobOrdersTableProps) {
 
   const handleDeleteOrder = async (orderId: string) => {
     await privateClient.delete(`/orders/${orderId}`)
-    await queryClient.refetchQueries({
-      queryKey: ['user-orders', market?.slug],
-    })
-    await queryClient.refetchQueries({
-      queryKey: ['locked-balance', market?.slug],
-    })
-    await queryClient.refetchQueries({
-      queryKey: ['order-book', market?.slug],
-    })
+    await Promise.allSettled([
+      queryClient.refetchQueries({
+        queryKey: ['user-orders', market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['locked-balance', market?.slug],
+      }),
+      queryClient.refetchQueries({
+        queryKey: ['order-book', market?.slug],
+      }),
+    ])
   }
 
   const getTotalAmountInOrder = (order: ClobPosition) => {
@@ -123,7 +125,7 @@ export default function ClobOrdersTable({ marketType }: ClobOrdersTableProps) {
                           orderBook?.minSize,
                           market?.tokens
                         ) &&
-                          market?.isRewardable && <GemIcon />}
+                          market?.isRewardable && <GemIcon width={16} height={16} />}
                         <Text {...paragraphRegular}>{order.side === 'BUY' ? 'Buy' : 'Sell'}</Text>
                       </HStack>
                     </Td>

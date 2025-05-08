@@ -1,10 +1,11 @@
-import { ButtonProps, Icon } from '@chakra-ui/react'
+import { Box, ButtonProps, Icon } from '@chakra-ui/react'
 import { sleep } from '@etherspot/prime-sdk/dist/sdk/common'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { SyntheticEvent } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address, getAddress, zeroHash } from 'viem'
 import ButtonWithStates from '@/components/common/button-with-states'
+import Skeleton from '@/components/common/skeleton'
 import { Toast } from '@/components/common/toast'
 import { useToast } from '@/hooks'
 import { getConditionalTokenAddress } from '@/hooks/use-conditional-tokens-addr'
@@ -19,7 +20,6 @@ export type ClaimButtonProps = ButtonProps & {
   conditionId: Address
   collateralAddress: Address
   marketAddress: Address
-  outcomeIndex: number
   marketType: 'amm' | 'clob'
   amountToClaim?: string
   symbol: string
@@ -32,7 +32,6 @@ export default function ClaimButton({
   conditionId,
   collateralAddress,
   marketAddress,
-  outcomeIndex,
   marketType,
   amountToClaim,
   symbol,
@@ -45,7 +44,8 @@ export default function ClaimButton({
   const { trackClicked } = useAmplitude()
   const queryClient = useQueryClient()
   const { redeemNegRiskMarket } = useWeb3Service()
-  const { negriskApproved, setNegRiskApproved } = useTradingService()
+  const { negriskApproved, setNegRiskApproved, negriskApproveStatusLoading } = useTradingService()
+
   const { web3Client } = useAccount()
 
   const redeemMutation = useMutation({
@@ -60,8 +60,7 @@ export default function ClaimButton({
         conditionalTokenAddress,
         collateralAddress,
         zeroHash,
-        conditionId,
-        [1 << outcomeIndex]
+        conditionId
       )
 
       if (!receipt) {
@@ -114,6 +113,14 @@ export default function ClaimButton({
         process.env.NEXT_PUBLIC_CTF_CONTRACT as Address
       ),
   })
+
+  if (negriskApproveStatusLoading) {
+    return (
+      <Box w='162px'>
+        <Skeleton height={24} />
+      </Box>
+    )
+  }
 
   return !!negRiskRequestId && !negriskApproved && web3Client !== 'etherspot' ? (
     <ButtonWithStates

@@ -1,4 +1,4 @@
-import { VStack, Text } from '@chakra-ui/react'
+import { VStack, Text, Heading, Box } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
 import { h1Bold } from '@/styles/fonts/fonts.styles'
 
@@ -7,7 +7,7 @@ export const DashboardHeader = () => {
     return null
   }
   return (
-    <VStack alignItems='start' gap='16px' justifyContent='center' width='inherit' maxW='976px'>
+    <VStack alignItems='start' gap={0} justifyContent='center'>
       <Text {...h1Bold} mt='43px' color='red.500'>
         Today,{' '}
         {new Date().toLocaleDateString(undefined, {
@@ -15,9 +15,9 @@ export const DashboardHeader = () => {
           month: 'short',
         })}
       </Text>
-      <Text fontSize=' 60px' fontStyle='normal' fontWeight='900' lineHeight='0.2'>
+      <Heading as='h1' fontSize=' 60px' fontStyle='normal' fontWeight='900' lineHeight='0.8'>
         Market watch {new Date().getFullYear()}
-      </Text>
+      </Heading>
     </VStack>
   )
 }

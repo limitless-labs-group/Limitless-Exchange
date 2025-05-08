@@ -32,19 +32,19 @@ export default function ClobTabs() {
 
   const tabs = [
     {
-      title: 'Order Book',
-      icon: <OrderbookIcon width='16px' height='16px' />,
-    },
-    {
       title: 'Chart',
       icon: <LineChartIcon width={16} height={16} />,
+    },
+    {
+      title: 'Order Book',
+      icon: <OrderbookIcon width='16px' height='16px' />,
     },
   ]
 
   const tabPanels = useMemo(() => {
     return [
-      <Orderbook key={uuidv4()} variant={isSmallLaptop ? 'small' : 'large'} />,
       <MarketPriceChart key={uuidv4()} />,
+      <Orderbook key={uuidv4()} variant={isSmallLaptop ? 'small' : 'large'} />,
     ]
   }, [market, isSmallLaptop])
 

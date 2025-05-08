@@ -3,6 +3,7 @@ import { formatUnits } from 'viem'
 import { useClobWidget } from '@/components/common/markets/clob-widget/context'
 import ConvertPositionsButton from '@/app/(markets)/markets/[address]/components/convert-positions-button'
 import { useTradingService } from '@/services'
+import { MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 interface PortfolioMarketGroupItemProps {
@@ -20,7 +21,8 @@ export default function PortfolioMarketGroupItem({
   const totalShares = formatUnits(BigInt(quantity), market?.collateralToken.decimals || 6)
 
   const marketEnded = market
-    ? new Date(market.expirationTimestamp).getTime() < new Date().getTime()
+    ? new Date(market.expirationTimestamp).getTime() < new Date().getTime() ||
+      market.status === MarketStatus.RESOLVED
     : false
 
   const onClickSell = () => {
@@ -38,7 +40,7 @@ export default function PortfolioMarketGroupItem({
   return (
     <Tr>
       <Td>{outcome ? 'No' : 'Yes'}</Td>
-      <Td>{NumberUtil.formatThousands(totalShares)}</Td>
+      <Td>{NumberUtil.convertWithDenomination(totalShares, 2)}</Td>
       <Td>{outcome && !marketEnded ? <ConvertPositionsButton /> : null}</Td>
       <Td>
         {!marketEnded ? (

@@ -69,10 +69,10 @@ export default function MainPage() {
   }, [feedEvents])
 
   return (
-    <MainLayout isLoading={false}>
-      <Box w={isMobile ? 'full' : '664px'} className='full-container'>
+    <MainLayout>
+      <Box w={isMobile ? 'full' : '664px'} m='auto' className='full-container'>
         <Divider orientation='horizontal' h='3px' mb='16px' borderColor='grey.800' bg='grey.800' />
-        <Heading {...h1Bold} gap={2} userSelect='text'>
+        <Heading as='h1' {...h1Bold} gap={2} userSelect='text'>
           Limitless Feed
         </Heading>
         {/*<HStack justifyContent='center' w='full'>*/}

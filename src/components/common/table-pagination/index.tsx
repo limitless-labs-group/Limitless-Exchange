@@ -13,6 +13,9 @@ export default function TablePagination({
   currentPage,
   onPageChange,
 }: TablePaginationProps) {
+  if (totalPages < 2) {
+    return null
+  }
   const renderPagination = () => {
     const pages = []
     const showDots = totalPages > 5

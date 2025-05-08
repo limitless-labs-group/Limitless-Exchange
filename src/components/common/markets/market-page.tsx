@@ -5,7 +5,6 @@ import {
   HStack,
   Image as ChakraImage,
   Link,
-  Spacer,
   Tab,
   TabIndicator,
   TabList,
@@ -15,13 +14,12 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react'
-import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import { Address } from 'viem'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
 import ClobWidget from '@/components/common/markets/clob-widget/clob-widget'
-import ConvertModal from '@/components/common/markets/convert-modal'
 import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-price-chart'
 import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import MarketPageOverviewTab from '@/components/common/markets/market-page-overview-tab'
@@ -63,13 +61,13 @@ import {
 } from '@/services'
 import { useMarket } from '@/services/MarketsService'
 import { h2Bold, h2Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 import { ReferralLink } from '../referral-link'
 
 export default function MarketPage() {
   const [activeChartTabIndex, setActiveChartTabIndex] = useState(0)
   const [activeActionsTabIndex, setActiveActionsTabIndex] = useState(0)
-  const pageName = usePageName()
 
   const {
     setMarket,
@@ -112,7 +110,13 @@ export default function MarketPage() {
     isLumy && LUMY_TOKENS.some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
 
   const chartTabs = useMemo(() => {
-    const tabs = []
+    const tabs = [
+      {
+        title: 'Chart',
+        icon: <LineChartIcon width={16} height={16} />,
+        analyticEvent: '',
+      },
+    ]
     if (market?.tradeType === 'clob') {
       tabs.push({
         title: 'Order book',
@@ -120,14 +124,11 @@ export default function MarketPage() {
         analyticEvent: ClickEvent.OrderBookOpened,
       })
     }
-    tabs.push({
-      title: 'Chart',
-      icon: <LineChartIcon width={16} height={16} />,
-    })
     if (isLivePriceSupportedMarket) {
       tabs.push({
         title: 'Assets price',
         icon: <CandlestickIcon width={16} height={16} />,
+        analyticEvent: '',
       })
     }
     return tabs
@@ -138,11 +139,10 @@ export default function MarketPage() {
   }, [])
 
   const chartsTabPanels = useMemo(() => {
-    const tabPanels = []
+    const tabPanels = [priceChart]
     if (market?.tradeType === 'clob') {
       tabPanels.push(<Orderbook key={uuidv4()} variant='small' />)
     }
-    tabPanels.push(priceChart)
     if (isLivePriceSupportedMarket) {
       tabPanels.push(
         <MarketAssetPriceChart
@@ -245,9 +245,7 @@ export default function MarketPage() {
   useEffect(() => {
     setActiveActionsTabIndex(0)
     setActiveChartTabIndex(0)
-  }, [market])
-
-  console.log(groupMarket)
+  }, [market?.slug])
 
   return (
     <SideBarPage>
@@ -281,6 +279,7 @@ export default function MarketPage() {
             deadlineText={market.expirationDate}
             {...paragraphRegular}
             color='grey.500'
+            ended={market.status === MarketStatus.RESOLVED}
           />
         )}
         <HStack gap='6px' flexWrap='wrap'>
@@ -290,12 +289,18 @@ export default function MarketPage() {
           <ChakraImage
             width={6}
             height={6}
-            src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
+            src={
+              groupMarket?.creator.imageURI || market?.creator.imageURI || '/assets/images/logo.svg'
+            }
             alt='creator'
             borderRadius={'2px'}
           />
-          <Link href={market?.creator.link || ''} variant='textLinkSecondary' fontWeight={400}>
-            {market?.creator.name}
+          <Link
+            href={groupMarket?.creator.link || market?.creator.link || ''}
+            variant='textLinkSecondary'
+            fontWeight={400}
+          >
+            {groupMarket?.creator.name || market?.creator.name}
           </Link>
         </HStack>
       </HStack>
@@ -307,7 +312,7 @@ export default function MarketPage() {
         {market?.marketType === 'single' && (
           <MarketProgressBar isClosed={market?.expired} value={market ? market.prices[0] : 50} />
         )}
-        <HStack gap='8px' mt={isMobile ? 0 : '8px'} flexWrap='wrap'>
+        <HStack gap='8px' mt={'8px'} flexWrap='wrap'>
           {market?.tradeType !== 'amm' && (
             <HStack gap='12px' w='full' justifyContent='space-between'>
               {groupMarket?.negRiskMarketId && <WinnerTakeAllTooltip />}
@@ -319,7 +324,7 @@ export default function MarketPage() {
                 <Text {...paragraphRegular} color='grey.500'>
                   {NumberUtil.convertWithDenomination(
                     groupMarket ? groupMarket.volumeFormatted : market?.volumeFormatted || '0',
-                    6
+                    0
                   )}{' '}
                   {market?.collateralToken.symbol}
                 </Text>
@@ -432,7 +437,6 @@ export default function MarketPage() {
           ))}
         </TabPanels>
       </Tabs>
-      <ConvertModal />
     </SideBarPage>
   )
 }

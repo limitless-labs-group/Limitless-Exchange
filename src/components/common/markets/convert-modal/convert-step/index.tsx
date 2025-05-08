@@ -96,7 +96,7 @@ export default function ConvertStep({
         Turn your “No” shares into the opposite “Yes” shares (or USDC). Just pick the outcomes you
         want to convert and enter the amount—no extra funds needed.{' '}
         <NextLink
-          href='https://www.notion.so/limitlesslabs/Negrisk-Draft-1ca04e33c4b980cdbe09c4fde858a4c7'
+          href='https://limitlesslabs.notion.site/#1de04e33c4b980a3bdb6c0139de19398'
           target='_blank'
           rel='noopener'
           passHref

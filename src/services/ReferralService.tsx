@@ -38,9 +38,6 @@ export const useReferral = () => {
       )
       return res.data
     },
-    onSuccess: () => {
-      console.log('Referral visit tracked successfully')
-    },
     onError: (error) => {
       console.error('Error tracking referral visit:', error)
     },

@@ -1,6 +1,24 @@
-import { Market, Sort } from '@/types'
+import { Market, MarketSortOption, Sort } from '@/types'
 
 type MarketOrGroup = Market
+
+export const getSortValue = (sortName: Sort): MarketSortOption => {
+  switch (sortName) {
+    case Sort.DEFAULT:
+    case Sort.TRENDING:
+      return MarketSortOption.TRENDING
+    case Sort.NEWEST:
+      return MarketSortOption.NEWEST
+    case Sort.ENDING_SOON:
+      return MarketSortOption.ENDING_SOON
+    case Sort.HIGHEST_VALUE:
+      return MarketSortOption.HIGH_VALUE
+    case Sort.LP_REWARDS:
+      return MarketSortOption.LP_REWARDS
+    default:
+      return MarketSortOption.DEFAULT
+  }
+}
 
 const getVolumeForMarket = (market: MarketOrGroup): number => {
   return Number(market.volumeFormatted)
@@ -62,17 +80,6 @@ export function sortMarkets<T extends Market[]>(
         const trendingRankA = getTrendingRank(a, 'hourly')
         const trendingRankB = getTrendingRank(b, 'hourly')
         return trendingRankA - trendingRankB
-      }) as T
-
-    case Sort.HIGHEST_LIQUIDITY:
-      return marketsCopy.sort((a, b) => {
-        const liquidityA = getLiquidityForMarket(a)
-        const liquidityB = getLiquidityForMarket(b)
-
-        return (
-          convertTokenAmountToUsd(b.collateralToken.symbol, liquidityB) -
-          convertTokenAmountToUsd(a.collateralToken.symbol, liquidityA)
-        )
       }) as T
 
     case Sort.ENDING_SOON:

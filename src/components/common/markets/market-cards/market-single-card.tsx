@@ -24,13 +24,13 @@ import {
 } from '@/services'
 import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
 import { captionMedium, headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market } from '@/types'
+import { Market, MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export const MIN_CARD_HEIGHT = {
-  row: '144px',
-  grid: '164px',
-  speedometer: '137px',
+  row: '162px',
+  grid: '200px',
+  speedometer: '200px',
   chart: '144px',
   groupRow: '196px',
 }
@@ -62,7 +62,7 @@ export const MarketSingleCard = ({
   const router = useRouter()
   const { data: marketFeedData } = useMarketFeed(market)
   const { pushGA4Event } = useGoogleAnalytics()
-  const { setWalletPageOpened, setProfilePageOpened } = useAccount()
+  const { closeAllAuthSidebarPages } = useAccount()
   const page = usePageName()
 
   const onClickRedirectToMarket = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -82,8 +82,7 @@ export const MarketSingleCard = ({
       ...analyticParams,
     })
     pushGA4Event(GAEvents.SelectAnyMarket)
-    setWalletPageOpened(false)
-    setProfilePageOpened(false)
+    closeAllAuthSidebarPages()
     onOpenMarketPage(market)
   }
 
@@ -122,8 +121,7 @@ export const MarketSingleCard = ({
     router.push(`?${searchParams.toString()}`, { scroll: false })
     setMarket(market)
     setClobOutcome(outcome)
-    setWalletPageOpened(false)
-    setProfilePageOpened(false)
+    closeAllAuthSidebarPages()
     if (!marketPageOpened) {
       setMarketPageOpened(true)
     }
@@ -158,6 +156,7 @@ export const MarketSingleCard = ({
             deadlineText={market.expirationDate}
             {...paragraphRegular}
             color='grey.500'
+            ended={market.status === MarketStatus.RESOLVED}
           />
         </Box>
         <VStack w='full' h='calc(100% - 28px)' gap='16px' justifyContent='space-between'>

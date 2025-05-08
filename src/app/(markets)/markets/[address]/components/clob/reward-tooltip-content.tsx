@@ -1,24 +1,25 @@
 import {
-  Text,
   Box,
+  Divider,
   HStack,
   Link,
-  Portal,
   Popover,
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
+  Portal,
+  Text,
   useDisclosure,
   useOutsideClick,
 } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
 import Image from 'next/image'
 import NextLink from 'next/link'
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { formatUnits, maxUint256 } from 'viem'
 import useMarketRewardsIncentive from '@/hooks/use-market-rewards'
 import { useOrderBook } from '@/hooks/use-order-book'
-import { ClickEvent, useAmplitude, useTradingService } from '@/services'
+import { ClickEvent, HoverEvent, useAmplitude, useTradingService } from '@/services'
 import { useMarketRewards } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil } from '@/utils'
@@ -26,13 +27,9 @@ import { calculateDisplayRange } from '@/utils/market'
 
 interface RewardTooltipContentProps {
   contentHoverCallback: (arg: boolean) => void
-  linkHoverCallback: (arg: boolean) => void
 }
 
-export const RewardTooltipContent = ({
-  linkHoverCallback,
-  contentHoverCallback,
-}: RewardTooltipContentProps) => {
+export const RewardTooltipContent = ({ contentHoverCallback }: RewardTooltipContentProps) => {
   const { market, clobOutcome } = useTradingService()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { data: orderbook } = useOrderBook(market?.slug, market?.tradeType)
@@ -44,7 +41,7 @@ export const RewardTooltipContent = ({
     orderbook?.maxSpread
   )
   const { data: marketRewards } = useMarketRewards(market?.slug, market?.isRewardable)
-  const { trackClicked } = useAmplitude()
+  const { trackClicked, trackHovered } = useAmplitude()
 
   const initialFocusRef = useRef(null)
   const popoverContentRef = useRef(null)
@@ -82,9 +79,20 @@ export const RewardTooltipContent = ({
       clearTimeout(closeTimeoutRef.current)
       closeTimeoutRef.current = null
     }
+    if (!isOpen) {
+      trackHovered(HoverEvent.RewardsButtonHovered, {
+        marketAddress: market?.slug,
+      })
+    }
     if (!isClickOpen) {
       onOpen()
     }
+  }
+
+  const handleLearnMoreClicked = () => {
+    trackClicked(ClickEvent.RewardsLearnMoreClicked, {
+      marketAddress: market?.slug,
+    })
   }
 
   const handleMouseLeave = () => {
@@ -114,7 +122,7 @@ export const RewardTooltipContent = ({
           onClose()
         }
       }}
-      placement='top'
+      placement='top-end'
       closeOnBlur={false}
       closeOnEsc={false}
       initialFocusRef={initialFocusRef}
@@ -131,14 +139,14 @@ export const RewardTooltipContent = ({
           borderRadius='8px'
           py='4px'
           px='8px'
-          bg={isOpen ? 'blue.500' : 'blueTransparent.100'}
+          bg={isOpen || isClickOpen ? 'blueTransparent.200' : 'blueTransparent.100'}
           cursor='pointer'
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
           onClick={handleClick}
         >
           <Image src='/assets/images/gem-icon.svg' width={16} height={16} alt='rewards' />
-          <Text {...paragraphMedium} color={isOpen ? 'white' : 'blue.500'}>
+          <Text {...paragraphMedium} color={'blue.500'}>
             {marketRewards && Boolean(marketRewards?.length)
               ? `Earnings ${NumberUtil.toFixed(marketRewards[0].totalUnpaidReward, 6)} ${
                   market?.collateralToken.symbol
@@ -182,21 +190,8 @@ export const RewardTooltipContent = ({
               <Text {...paragraphMedium} as='span'>
                 Place limit order near the midpoint to get rewarded.
               </Text>
-              <NextLink href={url} target='_blank' rel='noopener' passHref>
-                <Link
-                  variant='textLinkSecondary'
-                  {...paragraphRegular}
-                  isExternal
-                  color='grey.500'
-                  onMouseEnter={() => linkHoverCallback(true)}
-                  onMouseLeave={() => linkHoverCallback(false)}
-                >
-                  {' '}
-                  Learn more
-                </Link>
-              </NextLink>
               <HStack w='full' mt='12px' justifyContent='space-between'>
-                <Text {...paragraphMedium}>Daily reward:</Text>
+                <Text {...paragraphRegular}>Daily reward:</Text>
                 <Text {...paragraphMedium}>
                   {marketRewardsTotal?.totalRewards
                     ? marketRewardsTotal.totalRewards.toFixed(0)
@@ -204,8 +199,8 @@ export const RewardTooltipContent = ({
                   {market?.collateralToken.symbol}
                 </Text>
               </HStack>
-              <HStack w='full' mt='4px' justifyContent='space-between'>
-                <Text {...paragraphMedium}>Max spread:</Text>
+              <HStack w='full' justifyContent='space-between'>
+                <Text {...paragraphRegular}>Max spread:</Text>
                 <Text {...paragraphMedium}>
                   &#177;
                   {new BigNumber(orderbook?.maxSpread ? orderbook.maxSpread : '0')
@@ -214,18 +209,33 @@ export const RewardTooltipContent = ({
                   ¢
                 </Text>
               </HStack>
-              <HStack w='full' mt='4px' justifyContent='space-between'>
-                <Text {...paragraphMedium}>Min contracts:</Text>
+              <HStack w='full' justifyContent='space-between'>
+                <Text {...paragraphRegular}>Min contracts:</Text>
                 <Text {...paragraphMedium}>
                   {formatUnits(BigInt(minRewardsSize), market?.collateralToken.decimals || 6)}
                 </Text>
               </HStack>
-              <HStack w='full' mt='4px' justifyContent='space-between'>
-                <Text {...paragraphMedium}>Current range:</Text>
+              <HStack w='full' justifyContent='space-between'>
+                <Text {...paragraphRegular}>Current range:</Text>
                 <Text {...paragraphMedium}>
                   {range.lower}¢ - {range.upper}¢
                 </Text>
               </HStack>
+              <Divider my='4px' />
+              <Text {...paragraphRegular} color='grey.500'>
+                Outside of the range 5¢ - 95¢ you must supply both sides to earn.{' '}
+                <NextLink href={url} target='_blank' rel='noopener' passHref>
+                  <Link
+                    variant='textLinkSecondary'
+                    {...paragraphRegular}
+                    isExternal
+                    color='grey.500'
+                    onClick={handleLearnMoreClicked}
+                  >
+                    Learn more.
+                  </Link>
+                </NextLink>
+              </Text>
             </Box>
           </PopoverBody>
         </PopoverContent>

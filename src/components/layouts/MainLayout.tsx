@@ -1,81 +1,69 @@
-import { Box, Flex, FlexProps, HStack, Spinner } from '@chakra-ui/react'
+import { Box, FlexProps } from '@chakra-ui/react'
 import { usePathname } from 'next/navigation'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import MarketPage from '@/components/common/markets/market-page'
-import { CategoryItems } from '@/components/common/markets/sidebar-item'
+import DesktopFooter from '@/components/layouts/desktop-footer'
 import Header from '@/components/layouts/header'
 import MobileHeader from '@/components/layouts/mobile-header'
 import MobileNavigation from '@/components/layouts/mobile-navigation'
-import usePageName from '@/hooks/use-page-name'
 import { useTradingService } from '@/services'
 import { inter } from '@/styles'
 
 interface IMainLayout extends FlexProps {
-  isLoading?: boolean
   layoutPadding?: string
+  headerComponent?: JSX.Element
 }
 
 export const MainLayout = ({
   children,
-  isLoading,
+  headerComponent,
   layoutPadding = '16px',
   ...props
 }: IMainLayout) => {
   const pathname = usePathname()
   const { marketPageOpened, market } = useTradingService()
-  const pageName = usePageName()
 
-  const getPaddingByPage = (page: string): { desktop: string; mobile: string } => {
-    switch (page) {
-      case 'Explore Markets':
-        return { desktop: '80px', mobile: '65px' }
-      case 'Draft':
-      case 'Categories':
-        return { desktop: '0px', mobile: '0px' }
-      default:
-        return { desktop: '24px', mobile: '36px' }
+  const childrenMargin = useMemo(() => {
+    const baseMargin = isMobile ? 64 : 48
+    const headerMargin = isMobile ? 16 : 0
+    if (headerComponent) {
+      return baseMargin + headerMargin + 32
     }
-  }
-
-  const { desktop: desktopPadding, mobile: mobilePadding } = getPaddingByPage(pageName)
+    return baseMargin
+  }, [headerComponent])
 
   return (
     <Box
       className={inter.className}
       id='main'
-      flexDir={'column'}
       w={'full'}
       minH={'100vh'}
       margin={'0 auto'}
-      alignItems={'center'}
-      justifyContent={'space-between'}
       gap={{ sm: 6, md: 10 }}
       {...props}
     >
       {isMobile ? <MobileHeader /> : <Header />}
-      <Box
-        mb={isMobile ? '60px' : 0}
-        overflow='hidden'
-        mt={isMobile ? mobilePadding : desktopPadding}
-      >
-        {isMobile && pageName === 'Explore Markets' && (
-          <HStack py='4px' px='12px' bg='grey.50' maxW='100%' overflowX='auto'>
-            <CategoryItems />
-          </HStack>
-        )}
-        <HStack minH={'100vh'} alignItems='flex-start'>
-          {isLoading ? (
-            <Flex w={'full'} h={'80vh'} alignItems={'center'} justifyContent={'center'}>
-              <Spinner />
-            </Flex>
-          ) : (
-            <Flex ml={isMobile ? 0 : '0'} p={layoutPadding} w='full' justifyContent='center'>
-              {children}
-            </Flex>
-          )}
-        </HStack>
+      {headerComponent && (
+        <Box
+          position='fixed'
+          top={isMobile ? '64px' : '48px'}
+          bg='grey.50'
+          overflow='hidden'
+          zIndex={2000}
+          w='full'
+        >
+          {headerComponent}
+        </Box>
+      )}
+      <Box mb='60px' overflow='hidden' mt={`${childrenMargin}px`}>
+        <Box minH={'100vh'}>
+          <Box p={layoutPadding} maxW='1420px' m='auto'>
+            {children}
+          </Box>
+        </Box>
       </Box>
+      {!isMobile && <DesktopFooter />}
       {isMobile && <MobileNavigation />}
       {marketPageOpened && pathname !== `/markets/${market?.slug}` && <MarketPage />}
     </Box>

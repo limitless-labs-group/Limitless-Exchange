@@ -126,18 +126,25 @@ export default function FullPositionsTab({
               )}
               {showPosition(contracts.no) && (
                 <Tr>
-                  <Td>No</Td>
-                  <Td>{getContractsAmount(contracts.no)}</Td>
-                  <Td>{normalizePrice(position.no.fillPrice)}¢</Td>
-                  <Td>
+                  <Td color={marketClosed ? 'white !important' : 'grey.500'}>No</Td>
+                  <Td color={marketClosed ? 'white !important' : 'grey.500'}>
+                    {getContractsAmount(contracts.no)}
+                  </Td>
+                  <Td color={marketClosed ? 'white !important' : 'grey.500'}>
+                    {normalizePrice(position.no.fillPrice)}¢
+                  </Td>
+                  <Td color={marketClosed ? 'white !important' : 'grey.500'}>
                     {normalizeCost(position.no.cost)} {symbol}
                   </Td>
-                  <Td>
-                    {!winSide || winSide === 1 ? normalizeCost(position.no.marketValue) : '0.00'}{' '}
+                  <Td color={marketClosed ? 'white !important' : 'grey.500'}>
+                    {winSide === null || winSide === 1
+                      ? normalizeCost(position.no.marketValue)
+                      : '0.00'}{' '}
                     {symbol}
                   </Td>
-                  <Td>
-                    {!winSide || winSide === 1 ? getContractsAmount(contracts.no) : '0.00'} {symbol}
+                  <Td color={marketClosed ? 'white !important' : 'grey.500'}>
+                    {winSide === null || winSide === 1 ? getContractsAmount(contracts.no) : '0.00'}{' '}
+                    {symbol}
                   </Td>
                 </Tr>
               )}

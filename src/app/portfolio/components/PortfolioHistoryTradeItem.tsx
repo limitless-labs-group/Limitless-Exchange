@@ -15,10 +15,10 @@ interface IPortfolioHistoryTradeItem extends TableRowProps {
 }
 
 export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistoryTradeItem) => {
-  const { onOpenMarketPage } = useTradingService()
+  const { onOpenMarketPage, setMarket } = useTradingService()
 
   const { data: market, refetch: refetchMarket } = useMarket(
-    trade.market.slug || trade.market.id,
+    trade.market.group?.slug || trade.market.slug || trade.market.id,
     false,
     false
   )
@@ -30,6 +30,12 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
       const { data: fetchedMarket } = await refetchMarket()
       if (fetchedMarket) {
         onOpenMarketPage(fetchedMarket)
+        if (fetchedMarket.negRiskMarketId) {
+          const targetMarket = fetchedMarket?.markets?.find(
+            (market) => market.slug === trade.market.slug
+          )
+          setMarket(targetMarket || null)
+        }
         trackClicked(ClickEvent.PortfolioMarketClicked, {
           marketCategory: fetchedMarket.categories,
           marketAddress: fetchedMarket.slug,
@@ -41,6 +47,10 @@ export const PortfolioHistoryTradeItem = ({ trade, ...props }: IPortfolioHistory
       return
     } else {
       onOpenMarketPage(market)
+      if (market.negRiskMarketId) {
+        const targetMarket = market.markets?.find((market) => market.slug === trade.market.slug)
+        setMarket(targetMarket || null)
+      }
       trackClicked(ClickEvent.PortfolioMarketClicked, {
         marketCategory: market.categories,
         marketAddress: market.slug,

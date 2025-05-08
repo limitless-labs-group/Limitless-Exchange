@@ -14,10 +14,11 @@ export const viewport = {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const baseApiUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}`
+  const baseUrl = `${process.env.NEXT_PUBLIC_APP_URL}`
+
   try {
-    const response = await axios.get<Market>(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/${params.address}`
-    )
+    const response = await axios.get<Market>(`${baseApiUrl}/markets/${params.address}`)
     // const frameMetadata = await getFrameMetadata(
     //   `${process.env.NEXT_PUBLIC_FRAME_URL}/markets/frames/initial/${params.address}`
     // )
@@ -30,11 +31,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         description: convertHtmlToText(market?.description),
         images: [
           {
-            url: `/api/og/market/${params.address}`,
+            url: `${baseUrl}/api/og/market/${params.address}`,
             width: 1200,
             height: 630,
+            alt: market?.proxyTitle ?? market?.title ?? 'Noname market',
           },
         ],
+        type: 'website',
+        siteName: 'Limitless Exchange',
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: market?.proxyTitle ?? market?.title ?? 'Noname market',
+        description: convertHtmlToText(market?.description),
+        images: [`${baseUrl}/api/og/market/${params.address}`],
+      },
+      alternates: {
+        canonical: `${baseUrl}/markets/${params.address}`,
       },
       // other: frameMetadata,
     }

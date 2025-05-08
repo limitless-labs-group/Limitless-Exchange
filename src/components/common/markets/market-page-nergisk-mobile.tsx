@@ -63,6 +63,7 @@ import {
 } from '@/services'
 import { useMarket } from '@/services/MarketsService'
 import { h2Bold, h2Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export default function MarketPageNergiskMobile() {
@@ -304,6 +305,7 @@ export default function MarketPageNergiskMobile() {
             deadlineText={market.expirationDate}
             {...paragraphRegular}
             color='grey.500'
+            ended={market.status === MarketStatus.RESOLVED}
           />
         )}
         <HStack gap='6px' flexWrap='wrap'>
@@ -313,12 +315,12 @@ export default function MarketPageNergiskMobile() {
           <ChakraImage
             width={6}
             height={6}
-            src={market?.creator.imageURI ?? '/assets/images/logo.svg'}
+            src={groupMarket?.creator.imageURI ?? '/assets/images/logo.svg'}
             alt='creator'
             borderRadius={'2px'}
           />
-          <Link href={market?.creator.link || ''} variant='textLinkSecondary' fontWeight={400}>
-            {market?.creator.name}
+          <Link href={groupMarket?.creator.link || ''} variant='textLinkSecondary' fontWeight={400}>
+            {groupMarket?.creator.name}
           </Link>
         </HStack>
       </HStack>
@@ -387,7 +389,6 @@ export default function MarketPageNergiskMobile() {
           ))}
         </TabPanels>
       </Tabs>
-      <ConvertModal />
     </Box>
   )
 }

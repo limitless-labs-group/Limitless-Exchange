@@ -28,6 +28,9 @@ const outlined = definePartsStyle({
     _invalid: {
       boxShadow: 'unset',
     },
+    _disabled: {
+      borderColor: 'grey.300',
+    },
   },
   element: {
     h: '24px',
@@ -55,6 +58,9 @@ const grey = definePartsStyle({
     },
     _invalid: {
       borderColor: 'red.500',
+    },
+    _disabled: {
+      borderColor: 'grey.300',
     },
   },
   element: {

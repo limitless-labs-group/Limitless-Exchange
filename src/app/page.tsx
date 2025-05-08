@@ -13,7 +13,7 @@ import {
   TabIndicator,
 } from '@chakra-ui/react'
 import { useAtom } from 'jotai'
-import { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Chat from '@/components/chat'
@@ -21,48 +21,68 @@ import Loader from '@/components/common/loader'
 import { MarketCategoryHeader } from '@/components/common/markets/market-category-header'
 import MarketsSection from '@/components/common/markets/markets-section'
 import TopMarkets from '@/components/common/markets/top-markets'
+import { Modal } from '@/components/common/modals/modal'
+import { WelcomeModal } from '@/components/common/welcome-modal'
+import CategoriesDesktop from '@/components/layouts/categories-desktop'
 import { sortAtom } from '@/atoms/market-sort'
+import { welcomeModalAtom } from '@/atoms/onboard'
 import { MainLayout } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import usePageName from '@/hooks/use-page-name'
 import { useUrlParams } from '@/hooks/use-url-param'
-import { usePriceOracle } from '@/providers'
 import {
   OpenEvent,
   PageOpenedMetadata,
   DashboardName,
   useAmplitude,
-  useCategories,
   useTradingService,
+  useAccount,
+  ChangeEvent,
+  useCategories,
 } from '@/services'
-import { useBanneredMarkets, useMarket, useMarkets } from '@/services/MarketsService'
+import { useBanneredMarkets, useMarket, useSortedMarkets } from '@/services/MarketsService'
 import { h3Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Dashboard, Market, MarketType, Sort, SortStorageName } from '@/types'
-import { sortMarkets } from '@/utils/market-sorting'
+import { ONBOARDING } from '@/utils/consts'
+import { getSortValue } from '@/utils/market-sorting'
 
 const MainPage = () => {
   const { getParam } = useUrlParams()
-  const category = getParam('category')
   const market = getParam('market')
   const dashboardSearch = getParam('dashboard')
-
+  const referralCode = getParam('r')
+  const category = getParam('category')
+  const pagename = usePageName()
   const { data: categories } = useCategories()
+
   const {
     onCloseMarketPage,
     onOpenMarketPage,
     market: selectedMarket,
     groupMarket,
   } = useTradingService()
-  const { trackOpened } = useAmplitude()
+  const { referralCode: ownRefCode, isLoggedIn } = useAccount()
+  const { trackOpened, trackChanged } = useAmplitude()
   const { data: marketData } = useMarket(market ?? undefined)
   const { data: banneredMarkets, isFetching: isBanneredLoading } = useBanneredMarkets(null)
   const { selectedCategory, handleCategory, dashboard, handleDashboard } = useTokenFilter()
   const [selectedSort, setSelectedSort] = useAtom(sortAtom)
-  const { convertTokenAmountToUsd } = usePriceOracle()
-  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useMarkets(
-    selectedCategory ?? null
-  )
-  const pagename = usePageName()
+  const [onboardModal, setOnboardModal] = useAtom(welcomeModalAtom)
+  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useSortedMarkets({
+    categoryId: selectedCategory?.id,
+    sortBy: getSortValue(selectedSort.sort),
+  })
+
+  useEffect(() => {
+    if (category && categories) {
+      const categoryFromUrl = categories.find(
+        (c) => c.name.toLowerCase() === category.toLowerCase()
+      )
+      if (categoryFromUrl) {
+        handleCategory(categoryFromUrl)
+      }
+    }
+  }, [category, categories])
 
   useEffect(() => {
     if (marketData) {
@@ -111,21 +131,18 @@ const MainPage = () => {
     }
   }, [])
 
+  useEffect(() => {
+    if (typeof window !== 'undefined' && referralCode) {
+      const isOnboarded = window.localStorage.getItem(ONBOARDING)
+      if (isOnboarded && isOnboarded === 'true') return
+      setOnboardModal(true)
+    }
+  }, [referralCode])
+
   const handleSelectSort = (options: Sort, name: SortStorageName) => {
     window.localStorage.setItem(name, JSON.stringify(options))
     setSelectedSort({ sort: options ?? Sort.DEFAULT })
   }
-
-  useEffect(() => {
-    if (category && categories) {
-      const categoryFromUrl = categories.find(
-        (c) => c.name.toLowerCase() === category.toLowerCase()
-      )
-      if (categoryFromUrl) {
-        handleCategory(categoryFromUrl)
-      }
-    }
-  }, [category, categories])
 
   useEffect(() => {
     if (dashboardSearch) {
@@ -136,38 +153,19 @@ const MainPage = () => {
   const totalAmount = useMemo(() => data?.pages[0]?.data.totalAmount ?? 0, [data?.pages])
 
   const markets: Market[] = useMemo(() => {
+    console.log('data', data)
     return data?.pages.flatMap((page) => page.data.markets) || []
   }, [data?.pages])
-
-  const filteredAllMarkets = useMemo(() => {
-    if (!markets) return []
-    if (!selectedCategory) return markets
-    if (selectedCategory) {
-      setSelectedSort({ sort: Sort.DEFAULT })
-      window.localStorage.setItem(SortStorageName.SORT, JSON.stringify(Sort.DEFAULT))
-      return markets.filter((market) =>
-        market.categories.some(
-          (category) => category.toLowerCase() === selectedCategory.name.toLowerCase()
-        )
-      )
-    }
-
-    return markets
-  }, [markets, selectedCategory])
-
-  const sortedAllMarkets = useMemo(() => {
-    return sortMarkets(
-      filteredAllMarkets,
-      selectedSort?.sort || Sort.DEFAULT,
-      convertTokenAmountToUsd
-    )
-  }, [filteredAllMarkets, selectedSort, convertTokenAmountToUsd])
 
   useEffect(() => {
     return () => {
       onCloseMarketPage()
     }
   }, [])
+
+  const isWelcomeShown = useMemo(() => {
+    return onboardModal && referralCode && referralCode !== ownRefCode && !isLoggedIn
+  }, [onboardModal, referralCode, ownRefCode, isLoggedIn])
 
   const headerContent = useMemo(() => {
     if (pagename === 'Categories') return
@@ -195,8 +193,14 @@ const MainPage = () => {
     return <TopMarkets markets={banneredMarkets as Market[]} isLoading={isBanneredLoading} />
   }, [selectedCategory, banneredMarkets, isBanneredLoading])
 
+  const header = (
+    <HStack py='4px' px='12px' bg='grey.50' gap={0} pt='4px' mb='12px'>
+      <CategoriesDesktop />
+    </HStack>
+  )
+
   return (
-    <MainLayout layoutPadding={'0px'}>
+    <MainLayout layoutPadding={'0px'} headerComponent={header}>
       <VStack w='full' spacing={0}>
         {headerContent}
 
@@ -217,7 +221,7 @@ const MainPage = () => {
             }
           >
             <MarketsSection
-              markets={sortedAllMarkets as Market[]}
+              markets={markets as Market[]}
               handleSelectSort={handleSelectSort}
               isLoading={isFetching && !isFetchingNextPage}
               sort={selectedSort.sort}
@@ -225,6 +229,17 @@ const MainPage = () => {
           </InfiniteScroll>
         </Box>
       </VStack>
+      {isWelcomeShown ? (
+        <Modal
+          isOpen={onboardModal}
+          onClose={() => {
+            trackChanged(ChangeEvent.ReferralWelcomeClosed)
+            setOnboardModal(false)
+          }}
+        >
+          <WelcomeModal onClose={() => setOnboardModal(false)} referralCode={referralCode ?? ''} />
+        </Modal>
+      ) : null}
     </MainLayout>
   )
 }

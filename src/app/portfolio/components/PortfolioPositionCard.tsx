@@ -15,6 +15,7 @@ import ClosedIcon from '@/resources/icons/close-rounded-icon.svg'
 import { ClickEvent, HistoryPosition, useAmplitude, useTradingService } from '@/services'
 import { useMarket } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export interface IPortfolioPositionCard {
@@ -173,7 +174,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
               {position.market?.closed ? (
                 <Text {...paragraphMedium} color={cardColors.main}>
                   {`Won ${NumberUtil.formatThousands(position.outcomeTokenAmount, 4)} ${
-                    position.market.collateral?.symbol
+                    position.market.collateralToken?.symbol
                   }`}
                 </Text>
               ) : (
@@ -191,7 +192,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
                           )
                           .toString(),
                         6
-                      )} ${position.market?.collateral?.symbol}`}
+                      )} ${position.market?.collateralToken?.symbol}`}
                     </Text>
                   )}
                   <Box gap={0} fontSize={'16px'} fontWeight={500}>
@@ -210,18 +211,18 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
                 showDays={false}
                 hideText
                 color={position?.market?.closed ? 'whiteAlpha.70' : 'grey.500'}
+                ended={position?.market?.closed || false}
               />
             </HStack>
             <HStack>
               {position.market?.closed && (
                 <ClaimButton
-                  conditionId={position.market.condition_id as Address}
-                  collateralAddress={position.market.collateral?.id as Address}
+                  conditionId={position.market.conditionId as Address}
+                  collateralAddress={position.market.collateralToken?.id as Address}
                   marketAddress={position.market.id}
-                  outcomeIndex={position.latestTrade?.outcomeIndex as number}
                   marketType='amm'
                   amountToClaim={position.outcomeTokenAmount as string}
-                  symbol={position.market.collateral?.symbol as string}
+                  symbol={position.market.collateralToken?.symbol as string}
                 />
               )}
             </HStack>
@@ -246,7 +247,7 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
               </Text>
               <Text color={cardColors.main} lineHeight={'20px'} fontWeight={400} fontSize={'16px'}>
                 {`${NumberUtil.toFixed(position.collateralAmount, 6)} ${
-                  position.market?.collateral?.symbol
+                  position.market?.collateralToken?.symbol
                 }`}
               </Text>
             </HStack>
@@ -285,13 +286,12 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
           <HStack>
             {position.market?.closed ? (
               <ClaimButton
-                conditionId={position.market.condition_id as Address}
-                collateralAddress={position.market.collateral?.id as Address}
+                conditionId={position.market.conditionId as Address}
+                collateralAddress={position.market.collateralToken?.id as Address}
                 marketAddress={position.market.id}
-                outcomeIndex={position.latestTrade?.outcomeIndex as number}
                 marketType='amm'
                 amountToClaim={position.outcomeTokenAmount as string}
-                symbol={position.market.collateral?.symbol as string}
+                symbol={position.market.collateralToken?.symbol as string}
               />
             ) : (
               <>
@@ -310,8 +310,8 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
                             )
                           )
                           .toString(),
-                        position.market.collateral?.symbol === 'USDC' ? 2 : 6
-                      )} ${position.market?.collateral?.symbol}`}
+                        position.market.collateralToken?.symbol === 'USDC' ? 2 : 6
+                      )} ${position.market?.collateralToken?.symbol}`}
                     </Text>
                     <Box gap={0}>{contractPriceChanged}</Box>
                   </>
@@ -345,8 +345,8 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
               ) : (
                 `${NumberUtil.toFixed(
                   position.collateralAmount,
-                  position.market?.collateral?.symbol === 'USDC' ? 2 : 6
-                )} ${position.market?.collateral?.symbol}`
+                  position.market?.collateralToken?.symbol === 'USDC' ? 2 : 6
+                )} ${position.market?.collateralToken?.symbol}`
               )}
             </Text>
           </VStack>

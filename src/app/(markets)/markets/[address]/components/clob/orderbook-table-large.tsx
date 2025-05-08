@@ -64,12 +64,11 @@ export default function OrderbookTableLarge({
     market?.tradeType
   )
   const { data: userOrders } = useMarketOrders(market?.slug)
-  const { trackChanged, trackClicked } = useAmplitude()
+  const { trackChanged } = useAmplitude()
   const ref = useRef<HTMLElement>()
 
   const [rewardsButtonClicked, setRewardButtonClicked] = useState(false)
   const [rewardButtonHovered, setRewardButtonHovered] = useState(false)
-  const [linkHovered, setLinkHovered] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -80,13 +79,7 @@ export default function OrderbookTableLarge({
 
   useOutsideClick({
     ref: ref as MutableRefObject<HTMLElement>,
-    handler: () => {
-      if (!linkHovered) {
-        setRewardButtonClicked(false)
-        return
-      }
-      return
-    },
+    handler: () => setRewardButtonClicked(false),
   })
 
   const orderBookPriceRange = orderbook
@@ -135,10 +128,7 @@ export default function OrderbookTableLarge({
         <HStack gap='16px'>
           {market?.isRewardable && (
             <Box position='relative'>
-              <RewardTooltipContent
-                linkHoverCallback={setLinkHovered}
-                contentHoverCallback={setRewardButtonHovered}
-              />
+              <RewardTooltipContent contentHoverCallback={setRewardButtonHovered} />
             </Box>
           )}
           <HStack w={'152px'} bg='grey.200' borderRadius='8px' py='2px' px={'2px'}>
@@ -219,73 +209,75 @@ export default function OrderbookTableLarge({
         <Box position='relative'>
           <Box maxH='162px' minH='36px' overflow='auto' position='relative' ref={containerRef}>
             <>
-              {orderBookData.asks.map((item, index) => (
-                <HStack
-                  gap={0}
-                  key={index}
-                  h='36px'
-                  bg={
-                    highLightRewardsCells && checkPriceIsInRange(item.price, orderBookPriceRange)
-                      ? 'blueTransparent.100'
-                      : 'unset'
-                  }
-                >
-                  <Box w='348px' h='full'>
-                    <Box w={`${item.cumulativePercent}%`} bg='red.500' opacity={0.1} h='full' />
-                  </Box>
-                  <HStack w='88px' h='full' justifyContent='flex-end' pr='8px' gap='4px'>
-                    {checkIfOrderIsRewarded(
-                      item.price,
-                      userOrders,
-                      outcome,
-                      minRewardsSize,
-                      market?.tokens
-                    ) &&
-                      checkPriceIsInRange(+item.price, orderBookPriceRange) &&
-                      market?.isRewardable && <GemIcon />}
-                    {hasOrdersForThisOrderBookEntity(
-                      item.price,
-                      outcome,
-                      userOrders,
-                      market?.tokens
-                    ) && (
-                      <OrdersTooltip
-                        orders={
-                          getUserOrdersForPrice(
-                            item.price,
-                            outcome,
-                            userOrders,
-                            market?.tokens
-                          ) as ClobPosition[]
-                        }
-                        decimals={market?.collateralToken.decimals || 6}
-                        side='ask'
-                        placement='top-end'
-                        onDelete={async () => onDeleteBatchOrders(item.price)}
-                      >
-                        <PartFilledCircleIcon />
-                      </OrdersTooltip>
-                    )}
-                    <Text {...paragraphRegular} color='red.500'>
-                      {new BigNumber(item.price).multipliedBy(100).decimalPlaces(1).toFixed()}¢
-                    </Text>
-                  </HStack>
-                  <HStack w='136px' h='full' justifyContent='flex-end' pr='8px'>
-                    <Text {...paragraphRegular}>
-                      {NumberUtil.convertWithDenomination(
-                        formatUnits(BigInt(item.size), market?.collateralToken.decimals || 6),
-                        2
+              {orderBookData.asks
+                .sort((a, b) => b.price - a.price)
+                .map((item, index) => (
+                  <HStack
+                    gap={0}
+                    key={index}
+                    h='36px'
+                    bg={
+                      highLightRewardsCells && checkPriceIsInRange(item.price, orderBookPriceRange)
+                        ? 'blueTransparent.100'
+                        : 'unset'
+                    }
+                  >
+                    <Box w='348px' h='full'>
+                      <Box w={`${item.cumulativePercent}%`} bg='red.500' opacity={0.1} h='full' />
+                    </Box>
+                    <HStack w='88px' h='full' justifyContent='flex-end' pr='8px' gap='4px'>
+                      {checkIfOrderIsRewarded(
+                        item.price,
+                        userOrders,
+                        outcome,
+                        minRewardsSize,
+                        market?.tokens
+                      ) &&
+                        checkPriceIsInRange(+item.price, orderBookPriceRange) &&
+                        market?.isRewardable && <GemIcon width={16} height={16} />}
+                      {hasOrdersForThisOrderBookEntity(
+                        item.price,
+                        outcome,
+                        userOrders,
+                        market?.tokens
+                      ) && (
+                        <OrdersTooltip
+                          orders={
+                            getUserOrdersForPrice(
+                              item.price,
+                              outcome,
+                              userOrders,
+                              market?.tokens
+                            ) as ClobPosition[]
+                          }
+                          decimals={market?.collateralToken.decimals || 6}
+                          side='ask'
+                          placement='top-end'
+                          onDelete={async () => onDeleteBatchOrders(item.price)}
+                        >
+                          <PartFilledCircleIcon />
+                        </OrdersTooltip>
                       )}
-                    </Text>
+                      <Text {...paragraphRegular} color='red.500'>
+                        {new BigNumber(item.price).multipliedBy(100).decimalPlaces(1).toFixed()}¢
+                      </Text>
+                    </HStack>
+                    <HStack w='136px' h='full' justifyContent='flex-end' pr='8px'>
+                      <Text {...paragraphRegular}>
+                        {NumberUtil.convertWithDenomination(
+                          formatUnits(BigInt(item.size), market?.collateralToken.decimals || 6),
+                          2
+                        )}
+                      </Text>
+                    </HStack>
+                    <HStack w='144px' h='full' justifyContent='flex-end'>
+                      <Text {...paragraphRegular}>
+                        {NumberUtil.convertWithDenomination(item.cumulativePrice, 2)}{' '}
+                        {market?.collateralToken.symbol}
+                      </Text>
+                    </HStack>
                   </HStack>
-                  <HStack w='144px' h='full' justifyContent='flex-end'>
-                    <Text {...paragraphRegular}>
-                      {NumberUtil.convertWithDenomination(item.cumulativePrice, 2)}{' '}
-                      {market?.collateralToken.symbol}
-                    </Text>
-                  </HStack>
-                </HStack>
-              ))}
+                ))}
             </>
           </Box>
           <Box
@@ -360,7 +352,7 @@ export default function OrderbookTableLarge({
                       market?.tokens
                     ) &&
                       checkPriceIsInRange(+item.price, orderBookPriceRange) &&
-                      market?.isRewardable && <GemIcon />}
+                      market?.isRewardable && <GemIcon width={16} height={16} />}
                     {hasOrdersForThisOrderBookEntity(
                       item.price,
                       outcome,
