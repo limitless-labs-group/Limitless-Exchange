@@ -1,22 +1,10 @@
 'use client'
 
-import {
-  HStack,
-  Text,
-  VStack,
-  Box,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
-  TabIndicator,
-} from '@chakra-ui/react'
+import { HStack, Text, VStack, Box } from '@chakra-ui/react'
 import { useAtom } from 'jotai'
 import React, { useEffect, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import Chat from '@/components/chat'
 import Loader from '@/components/common/loader'
 import { MarketCategoryHeader } from '@/components/common/markets/market-category-header'
 import MarketsSection from '@/components/common/markets/markets-section'
@@ -40,8 +28,8 @@ import {
   ChangeEvent,
   useCategories,
 } from '@/services'
-import { useBanneredMarkets, useMarket, useSortedMarkets } from '@/services/MarketsService'
-import { h3Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { useBanneredMarkets, useMarket, useActiveMarkets } from '@/services/MarketsService'
+import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Dashboard, Market, MarketType, Sort, SortStorageName } from '@/types'
 import { ONBOARDING } from '@/utils/consts'
 import { getSortValue } from '@/utils/market-sorting'
@@ -68,7 +56,7 @@ const MainPage = () => {
   const { selectedCategory, handleCategory, dashboard, handleDashboard } = useTokenFilter()
   const [selectedSort, setSelectedSort] = useAtom(sortAtom)
   const [onboardModal, setOnboardModal] = useAtom(welcomeModalAtom)
-  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useSortedMarkets({
+  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useActiveMarkets({
     categoryId: selectedCategory?.id,
     sortBy: getSortValue(selectedSort.sort),
   })
@@ -193,11 +181,12 @@ const MainPage = () => {
     return <TopMarkets markets={banneredMarkets as Market[]} isLoading={isBanneredLoading} />
   }, [selectedCategory, banneredMarkets, isBanneredLoading])
 
-  const header = (
-    <HStack py='4px' px='12px' bg='grey.50' gap={0} pt='4px' mb='12px'>
-      <CategoriesDesktop />
-    </HStack>
-  )
+  // const header = (
+  //   <HStack py='4px' px='12px' bg='grey.50' gap={0} pt='4px' mb='12px'>
+  //     <CategoriesDesktop />
+  //   </HStack>
+  // )
+  const header = <></>
 
   return (
     <MainLayout layoutPadding={'0px'} headerComponent={header}>

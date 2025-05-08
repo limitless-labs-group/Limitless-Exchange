@@ -48,7 +48,7 @@ export default function MarketsSection({
         ) : null}
 
         <Flex
-          alignItems={withChat ? 'start' : 'center'}
+          alignItems={withChat ? 'center' : 'center'}
           justifyContent='space-between'
           flexDirection={isMobile ? 'column' : 'row'}
           overflow='scroll'

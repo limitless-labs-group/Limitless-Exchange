@@ -14,13 +14,11 @@ export interface SideItemProps {
   icon?: ReactNode | null
   children: ReactNode
   color?: string
-  onClick: () => void
 }
 
-export const SideItem = ({ isActive, onClick, icon, children, color }: SideItemProps) => {
+export const SideItem = ({ isActive, icon, children, color }: SideItemProps) => {
   return (
     <HStack
-      onClick={onClick}
       w='full'
       h='24px'
       rounded='8px'
@@ -48,21 +46,9 @@ export const SideItem = ({ isActive, onClick, icon, children, color }: SideItemP
 }
 
 export const CategoryItems = () => {
-  const { selectedCategory, handleCategory, handleDashboard, dashboard } = useTokenFilter()
-  const searchParams = useSearchParams()
+  const { selectedCategory } = useTokenFilter()
 
   const { data: categoriesWithCount } = useCategoriesWithCounts()
-
-  const createQueryString = (categoryName: string) => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.set('category', categoryName.toLowerCase())
-
-    if (params.has('dashboard')) {
-      params.delete('dashboard')
-    }
-
-    return params.toString()
-  }
 
   const categoriesWithMarkets = useMemo(() => {
     return categoriesWithCount?.categories?.filter((category) => category.count > 0) || []
@@ -74,26 +60,11 @@ export const CategoryItems = () => {
 
   return (
     <>
-      {isMobile && (
-        <ReferralLink
-          href={`/market-watch`}
-          passHref
-          style={{ width: isMobile ? 'fit-content' : '100%' }}
-        >
-          <Link variant='transparent' px={0}>
-            <SideItem
-              isActive={dashboard === 'marketwatch'}
-              icon={<DashboardIcon width={16} height={16} />}
-              onClick={() => {
-                handleDashboard('marketwatch')
-              }}
-              color='orange-500'
-            >
-              Market watch
-            </SideItem>
-          </Link>
-        </ReferralLink>
-      )}
+      <ReferralLink href={`/`}>
+        <Link variant='transparent' px={0}>
+          <SideItem>{`All markets (${categoriesWithCount.totalCount})`}</SideItem>
+        </Link>
+      </ReferralLink>
       {categoriesWithMarkets.map((category) => (
         <ReferralLink
           key={category.id}
@@ -102,13 +73,6 @@ export const CategoryItems = () => {
           <Link variant='transparent' px={0}>
             <SideItem
               isActive={selectedCategory?.name.toLowerCase() === category.name.toLowerCase()}
-              onClick={() => {
-                // handleCategory({
-                //   id: category.id,
-                //   name: category.name,
-                // })
-                handleDashboard(undefined)
-              }}
             >
               {category.name} ({category.count})
             </SideItem>
