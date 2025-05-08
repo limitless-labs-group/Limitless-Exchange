@@ -53,6 +53,7 @@ import {
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { MarketStatus, Sort, SortStorageName } from '@/types'
 import { DISABLE_SEARCH_PAGES, SEARCH_HOTKEY_KEYS } from '@/utils/consts'
+import { CategoryItems } from '../common/markets/sidebar-item'
 import { OnboardingModal } from '../common/onboarding-modal'
 import { ReferralLink } from '../common/referral-link'
 
@@ -395,6 +396,11 @@ export default function Header() {
           )}
         </HStack>
       </HStack>
+      {(pageName === 'Explore Markets' || pageName === 'Categories') && (
+        <HStack py='4px' px='12px' bg='grey.50'>
+          <CategoryItems />
+        </HStack>
+      )}
     </Box>
   )
 }

@@ -1,22 +1,10 @@
 'use client'
 
-import {
-  HStack,
-  Text,
-  VStack,
-  Box,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
-  TabIndicator,
-} from '@chakra-ui/react'
+import { HStack, Text, VStack, Box } from '@chakra-ui/react'
 import { useAtom } from 'jotai'
 import React, { useEffect, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import Chat from '@/components/chat'
 import Loader from '@/components/common/loader'
 import { MarketCategoryHeader } from '@/components/common/markets/market-category-header'
 import MarketsSection from '@/components/common/markets/markets-section'
@@ -28,6 +16,7 @@ import { sortAtom } from '@/atoms/market-sort'
 import { welcomeModalAtom } from '@/atoms/onboard'
 import { MainLayout } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
+import usePageName from '@/hooks/use-page-name'
 import { useUrlParams } from '@/hooks/use-url-param'
 import {
   OpenEvent,
@@ -39,8 +28,8 @@ import {
   ChangeEvent,
   useCategories,
 } from '@/services'
-import { useBanneredMarkets, useMarket, useSortedMarkets } from '@/services/MarketsService'
-import { h3Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { useBanneredMarkets, useMarket, useActiveMarkets } from '@/services/MarketsService'
+import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Dashboard, Market, MarketType, Sort, SortStorageName } from '@/types'
 import { ONBOARDING } from '@/utils/consts'
 import { getSortValue } from '@/utils/market-sorting'
@@ -51,7 +40,7 @@ const MainPage = () => {
   const dashboardSearch = getParam('dashboard')
   const referralCode = getParam('r')
   const category = getParam('category')
-
+  const pagename = usePageName()
   const { data: categories } = useCategories()
 
   const {
@@ -67,7 +56,7 @@ const MainPage = () => {
   const { selectedCategory, handleCategory, dashboard, handleDashboard } = useTokenFilter()
   const [selectedSort, setSelectedSort] = useAtom(sortAtom)
   const [onboardModal, setOnboardModal] = useAtom(welcomeModalAtom)
-  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useSortedMarkets({
+  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useActiveMarkets({
     categoryId: selectedCategory?.id,
     sortBy: getSortValue(selectedSort.sort),
   })
@@ -167,7 +156,7 @@ const MainPage = () => {
   }, [onboardModal, referralCode, ownRefCode, isLoggedIn])
 
   const headerContent = useMemo(() => {
-    if (selectedCategory?.name === 'Crypto') return
+    if (pagename === 'Categories') return
     if (selectedCategory) {
       return (
         <Box
@@ -192,154 +181,42 @@ const MainPage = () => {
     return <TopMarkets markets={banneredMarkets as Market[]} isLoading={isBanneredLoading} />
   }, [selectedCategory, banneredMarkets, isBanneredLoading])
 
-  const header = (
-    <HStack py='4px' px='12px' bg='grey.50' gap={0} pt='4px' mb='12px'>
-      <CategoriesDesktop />
-    </HStack>
-  )
+  // const header = (
+  //   <HStack py='4px' px='12px' bg='grey.50' gap={0} pt='4px' mb='12px'>
+  //     <CategoriesDesktop />
+  //   </HStack>
+  // )
+  const header = <></>
 
   return (
     <MainLayout layoutPadding={'0px'} headerComponent={header}>
       <VStack w='full' spacing={0}>
         {headerContent}
 
-        {selectedCategory?.name === 'Crypto' && !isMobile ? (
-          false ? (
-            <Box w='full' maxW='2100px' h='calc(100vh - 250px)'>
-              <Tabs position='relative' variant='common'>
-                <TabList>
-                  <Tab>Chat</Tab>
-                  <Tab>Markets</Tab>
-                </TabList>
-                <TabIndicator
-                  mt='-2px'
-                  height='2px'
-                  bg='grey.800'
-                  transitionDuration='200ms !important'
-                />
-                <TabPanels>
-                  <TabPanel>
-                    <Box w='full' h='full' position='relative' p={4}>
-                      <Box
-                        w='full'
-                        borderRadius='md'
-                        h='full'
-                        overflow='hidden'
-                        display='flex'
-                        flexDirection='column'
-                      >
-                        <Chat />
-                      </Box>
-                    </Box>
-                  </TabPanel>
-                  <TabPanel>
-                    <Box className='full-container' w='full' h='full' overflowY='auto'>
-                      <InfiniteScroll
-                        className='scroll'
-                        dataLength={markets?.length ?? 0}
-                        next={fetchNextPage}
-                        hasMore={hasNextPage}
-                        style={{ width: '100%', height: '100%' }}
-                        loader={
-                          markets.length > 0 && markets.length < totalAmount ? (
-                            <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
-                              <Loader />
-                              <Text {...paragraphRegular}>Loading more markets</Text>
-                            </HStack>
-                          ) : null
-                        }
-                      >
-                        <MarketsSection
-                          markets={markets as Market[]}
-                          handleSelectSort={handleSelectSort}
-                          isLoading={isFetching && !isFetchingNextPage}
-                          sort={selectedSort.sort}
-                          withChat
-                        />
-                      </InfiniteScroll>
-                    </Box>
-                  </TabPanel>
-                </TabPanels>
-              </Tabs>
-            </Box>
-          ) : (
-            <HStack
-              className='w-full'
-              alignItems='flex-start'
-              w='full'
-              maxW='1400px'
-              justifyContent='space-between'
-              spacing={4}
-              h='calc(100vh - 250px)'
-            >
-              <Box className='full-container' w='65%' h='full' overflowY='auto'>
-                <InfiniteScroll
-                  className='scroll'
-                  dataLength={markets?.length ?? 0}
-                  next={fetchNextPage}
-                  hasMore={hasNextPage}
-                  style={{ width: '100%', height: '100%' }}
-                  loader={
-                    markets.length > 0 && markets.length < totalAmount ? (
-                      <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
-                        <Loader />
-                        <Text {...paragraphRegular}>Loading more markets</Text>
-                      </HStack>
-                    ) : null
-                  }
-                >
-                  <MarketsSection
-                    markets={markets as Market[]}
-                    handleSelectSort={handleSelectSort}
-                    isLoading={isFetching && !isFetchingNextPage}
-                    sort={selectedSort.sort}
-                    withChat
-                  />
-                </InfiniteScroll>
-              </Box>
-              <Box w='35%' h='full' position='relative'>
-                <Box mt='24px'>
-                  <Text {...h3Medium}>Chat</Text>
-                </Box>
-                <Box
-                  w='full'
-                  borderRadius='md'
-                  h='full'
-                  overflow='hidden'
-                  display='flex'
-                  flexDirection='column'
-                >
-                  <Chat />
-                </Box>
-              </Box>
-            </HStack>
-          )
-        ) : (
-          <Box className='full-container' w={isMobile ? 'full' : 'unset'}>
-            <InfiniteScroll
-              className='scroll'
-              dataLength={markets?.length ?? 0}
-              next={fetchNextPage}
-              hasMore={hasNextPage}
-              style={{ width: '100%' }}
-              loader={
-                markets.length > 0 && markets.length < totalAmount ? (
-                  <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
-                    <Loader />
-                    <Text {...paragraphRegular}>Loading more markets</Text>
-                  </HStack>
-                ) : null
-              }
-            >
-              <MarketsSection
-                markets={markets as Market[]}
-                handleSelectSort={handleSelectSort}
-                isLoading={isFetching && !isFetchingNextPage}
-                sort={selectedSort.sort}
-              />
-            </InfiniteScroll>
-          </Box>
-        )}
+        <Box className='full-container' w={isMobile ? 'full' : 'unset'}>
+          <InfiniteScroll
+            className='scroll'
+            dataLength={markets?.length ?? 0}
+            next={fetchNextPage}
+            hasMore={hasNextPage}
+            style={{ width: '100%' }}
+            loader={
+              markets.length > 0 && markets.length < totalAmount ? (
+                <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
+                  <Loader />
+                  <Text {...paragraphRegular}>Loading more markets</Text>
+                </HStack>
+              ) : null
+            }
+          >
+            <MarketsSection
+              markets={markets as Market[]}
+              handleSelectSort={handleSelectSort}
+              isLoading={isFetching && !isFetchingNextPage}
+              sort={selectedSort.sort}
+            />
+          </InfiniteScroll>
+        </Box>
       </VStack>
       {isWelcomeShown ? (
         <Modal

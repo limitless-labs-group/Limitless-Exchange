@@ -17,6 +17,7 @@ interface DailyMarketsSectionProps {
   isLoading: boolean
   sort: Sort
   withChat?: boolean
+  categoryName?: string
 }
 
 export default function MarketsSection({
@@ -25,6 +26,7 @@ export default function MarketsSection({
   isLoading,
   sort,
   withChat,
+  categoryName,
 }: DailyMarketsSectionProps) {
   const { selectedCategory } = useTokenFilter()
   const category = useMemo(() => {
@@ -46,14 +48,14 @@ export default function MarketsSection({
         ) : null}
 
         <Flex
-          alignItems={withChat ? 'start' : 'center'}
+          alignItems={withChat ? 'center' : 'center'}
           justifyContent='space-between'
           flexDirection={isMobile ? 'column' : 'row'}
           overflow='scroll'
         >
           {withChat ? (
             <Text {...h3Medium} mt={isMobile ? '8px' : '0px'} ml='16px'>
-              {selectedCategory?.name}
+              {selectedCategory?.name ?? categoryName}
             </Text>
           ) : (
             <Text {...headlineRegular} mt={isMobile ? '8px' : '0px'}>
