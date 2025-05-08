@@ -91,7 +91,7 @@ const CategoryMarketsPage = ({ categoryId, categoryName }: CategoryMarketsPagePr
 
   return (
     <MainLayout layoutPadding={'0px'}>
-      <VStack w='full' spacing={0} height={'calc(100vh - 48px)'}>
+      <VStack w='full' spacing={0} height={'100%'}>
         <HStack
           className='w-full'
           alignItems='flex-start'
@@ -101,13 +101,20 @@ const CategoryMarketsPage = ({ categoryId, categoryName }: CategoryMarketsPagePr
           spacing={4}
           mt='20px'
         >
-          <Box className='full-container' w='65%' h='100vh' overflowY='auto'>
+          <Box
+            className='full-container'
+            w='65%'
+            h='calc(100vh - 68px)'
+            overflowY='auto'
+            id='marketsScrollContainer'
+          >
             <InfiniteScroll
               className='scroll'
               dataLength={markets?.length ?? 0}
               next={fetchNextPage}
               hasMore={hasNextPage}
-              style={{ width: '100%', height: '100%' }}
+              scrollableTarget='marketsScrollContainer'
+              style={{ width: '100%' }}
               loader={
                 markets.length > 0 && markets.length < totalAmount ? (
                   <HStack w='full' gap='8px' justifyContent='center' mt='8px' mb='24px'>
