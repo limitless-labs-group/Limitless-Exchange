@@ -6,7 +6,7 @@ import MarketCardMobile from '@/components/common/markets/market-cards/market-ca
 import VolumeCard from '@/components/common/markets/volume-card'
 import Skeleton from '@/components/common/skeleton'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
-import { h3Medium, headlineRegular } from '@/styles/fonts/fonts.styles'
+import { h3Medium } from '@/styles/fonts/fonts.styles'
 import { Market, Sort, SortStorageName } from '@/types'
 import { getAnalyticsParams } from '@/utils/market'
 import SortFilter from '../sort-filter'
@@ -17,6 +17,7 @@ interface DailyMarketsSectionProps {
   isLoading: boolean
   sort: Sort
   withChat?: boolean
+  categoryName?: string
 }
 
 export default function MarketsSection({
@@ -25,13 +26,14 @@ export default function MarketsSection({
   isLoading,
   sort,
   withChat,
+  categoryName,
 }: DailyMarketsSectionProps) {
   const { selectedCategory } = useTokenFilter()
   const category = useMemo(() => {
     return selectedCategory ? { fromCategory: selectedCategory.name } : {}
   }, [selectedCategory])
 
-  const allMarkets = markets || []
+  const allMarkets = markets ?? []
 
   return (
     <Box
@@ -46,20 +48,16 @@ export default function MarketsSection({
         ) : null}
 
         <Flex
-          alignItems={withChat ? 'start' : 'center'}
+          alignItems='center'
           justifyContent='space-between'
           flexDirection={isMobile ? 'column' : 'row'}
           overflow='scroll'
         >
-          {withChat ? (
+          {withChat && !isMobile ? (
             <Text {...h3Medium} mt={isMobile ? '8px' : '0px'} ml='16px'>
-              {selectedCategory?.name}
+              {selectedCategory?.name ?? categoryName}
             </Text>
-          ) : (
-            <Text {...headlineRegular} mt={isMobile ? '8px' : '0px'}>
-              All Markets
-            </Text>
-          )}
+          ) : null}
           <SortFilter onChange={handleSelectSort} sort={sort} />
         </Flex>
         {withChat ? (

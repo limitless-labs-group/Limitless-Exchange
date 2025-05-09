@@ -21,9 +21,10 @@ export interface ChatTextareaProps {
   msg: string
   setMsg: Dispatch<SetStateAction<string>>
   isLoading?: boolean
+  rows?: number
 }
 
-export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading }: ChatTextareaProps) => {
+export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading, rows }: ChatTextareaProps) => {
   const { loginToPlatform, profileData, account } = useAccount()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [error, setError] = useState('')
@@ -61,9 +62,14 @@ export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading }: ChatTextareaP
       setTimeout(() => {
         textareaRef.current?.scrollIntoView({
           behavior: 'smooth',
-          block: 'center',
+          block: 'start',
         })
-      }, 300)
+
+        window.scrollTo({
+          top: window.scrollY + 100,
+          behavior: 'smooth',
+        })
+      }, 500)
     }
   }
   const login = () => {
@@ -94,9 +100,24 @@ export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading }: ChatTextareaP
         const vh = window.innerHeight * 0.01
         document.documentElement.style.setProperty('--vh', `${vh}px`)
       }
+
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible' && textareaRef.current) {
+          setTimeout(() => {
+            textareaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          }, 300)
+        }
+      }
+
       window.addEventListener('resize', adjustViewport)
+      window.addEventListener('visibilitychange', handleVisibilityChange)
+
       adjustViewport()
-      return () => window.removeEventListener('resize', adjustViewport)
+
+      return () => {
+        window.removeEventListener('resize', adjustViewport)
+        window.removeEventListener('visibilitychange', handleVisibilityChange)
+      }
     }
   }, [])
 
@@ -197,7 +218,7 @@ export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading }: ChatTextareaP
                 }
               }
             }}
-            rows={isMobile ? 1 : 2}
+            rows={rows ?? (isMobile ? 1 : 2)}
             w='full'
             p={isMobile ? '5px 12px' : '0 0 0 20px'}
             variant='unstyled'
