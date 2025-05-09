@@ -9,11 +9,11 @@ import ChevronLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import ChevronRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import GrinIcon from '@/resources/icons/grid-icon.svg'
 import { useCategoriesWithCounts } from '@/services'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 export function ScrollableCategories() {
   const { data: categoriesWithCount } = useCategoriesWithCounts()
-  const { dashboard, handleCategory, handleDashboard, selectedCategory } = useTokenFilter()
+  const { handleCategory, handleDashboard } = useTokenFilter()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [showRightGradient, setShowRightGradient] = useState(true)
   const [showLeftArrow, setShowLeftArrow] = useState(false)

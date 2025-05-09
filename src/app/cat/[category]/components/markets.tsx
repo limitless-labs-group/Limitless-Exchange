@@ -114,7 +114,7 @@ const CategoryMarketsPage = ({ categoryId, categoryName }: CategoryMarketsPagePr
   const totalAmount = useMemo(() => data?.pages[0]?.data.totalAmount ?? 0, [data?.pages])
 
   const markets: Market[] = useMemo(() => {
-    return data?.pages.flatMap((page) => page.data.markets) || []
+    return data?.pages.flatMap((page) => page.data.markets) ?? []
   }, [data?.pages])
 
   useEffect(() => {
@@ -191,7 +191,7 @@ const CategoryMarketsPage = ({ categoryId, categoryName }: CategoryMarketsPagePr
                       }
                     >
                       <MarketsSection
-                        markets={markets as Market[]}
+                        markets={markets}
                         handleSelectSort={handleSelectSort}
                         isLoading={isFetching && !isFetchingNextPage}
                         sort={selectedSort.sort}
@@ -252,7 +252,7 @@ const CategoryMarketsPage = ({ categoryId, categoryName }: CategoryMarketsPagePr
                 }
               >
                 <MarketsSection
-                  markets={markets as Market[]}
+                  markets={markets}
                   handleSelectSort={handleSelectSort}
                   isLoading={isFetching && !isFetchingNextPage}
                   sort={selectedSort.sort}

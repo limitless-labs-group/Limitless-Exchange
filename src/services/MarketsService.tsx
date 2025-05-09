@@ -59,7 +59,7 @@ export function useActiveMarkets({
 
         const marketDataForMultiCall = ammMarkets.map((market) => ({
           address: market.address as Address,
-          decimals: market.collateralToken?.decimals || 18,
+          decimals: market.collateralToken?.decimals ?? 18,
         }))
 
         const pricesResult =
@@ -73,7 +73,7 @@ export function useActiveMarkets({
           ...market,
           prices:
             market.tradeType === 'amm'
-              ? _markets.get(market.address as `0x${string}`)?.prices || [50, 50]
+              ? _markets.get(market.address as `0x${string}`)?.prices ?? [50, 50]
               : [
                   calculateMarketPrice(market?.prices?.[0]),
                   calculateMarketPrice(market?.prices?.[1]),
@@ -83,7 +83,7 @@ export function useActiveMarkets({
         return {
           data: {
             markets: result,
-            totalAmount: response.totalMarketsCount || 0,
+            totalAmount: response.totalMarketsCount ?? 0,
           },
           next: (pageParam as number) + 1,
         }
