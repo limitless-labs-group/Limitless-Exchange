@@ -72,6 +72,7 @@ export const useCreateMarket = () => {
 
   const populateDraftMarketData = (draftMarket: any) => {
     if (!draftMarket) return
+    console.log('draft', draftMarket)
 
     setFormData((prevFormData) => ({
       ...prevFormData,

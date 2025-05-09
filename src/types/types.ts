@@ -488,6 +488,7 @@ export interface ColorScheme {
     widgetBgGrey: string
   }
   draftCard: {
+    background: string
     bg: string
     border: string
     selectedBg: string
