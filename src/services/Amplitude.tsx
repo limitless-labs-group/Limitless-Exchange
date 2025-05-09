@@ -17,6 +17,7 @@ interface IAmplitudeContext {
   trackClicked: <T extends ClickedEventMetadata>(event: ClickEvent, customData?: T) => void
   trackOpened: <T extends OpenedEventMetadata>(event: OpenEvent, customData?: T) => void
   trackSignIn: <T extends SignInEventMetadata>(event: SignInEvent, customData?: T) => void
+  trackHovered: (event: HoverEvent, customData?: HoverEventMetadata) => void
 }
 
 const AmplitudeContext = createContext<IAmplitudeContext>({} as IAmplitudeContext)
@@ -99,8 +100,8 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
     [acc]
   )
 
-  const trackSignUp = async () => {
-    return trackEvent(AuthenticationEvent.SignUp)
+  const trackSignUp = async <T extends SignInEventMetadata>(event: SignInEvent, customData?: T) => {
+    return trackEvent(event, customData)
   }
 
   const trackChanged = async <T extends ChangedEventMetadata>(
@@ -125,12 +126,17 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
     return trackEvent(event, customData)
   }
 
+  const trackHovered = async (event: HoverEvent, customData?: HoverEventMetadata) => {
+    return trackEvent(event, customData)
+  }
+
   const contextProviderValue: IAmplitudeContext = {
     trackSignUp,
     trackChanged,
     trackClicked,
     trackOpened,
-    trackSignIn: trackSignIn,
+    trackSignIn,
+    trackHovered,
   }
 
   return (
@@ -138,11 +144,19 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
   )
 }
 
-export type EventType = ChangeEvent | ClickEvent | SignInEvent | OpenEvent | AuthenticationEvent
+export type EventType =
+  | ChangeEvent
+  | ClickEvent
+  | SignInEvent
+  | OpenEvent
+  | AuthenticationEvent
+  | HoverEvent
 
 export enum ChangeEvent {
   StrategyChanged = 'Strategy Changed',
   OutcomeChanged = 'Outcome Changed',
+  ReferralWelcomeClosed = 'Referral Welcome Closed',
+  FinishedOnboarding = 'Finished Onboarding',
   ProfilePictureUploadedChanged = 'Profile Picture Uploaded',
   ProfileSettingsChanged = 'Profile Settings Changed',
   LeaderboardViewChanged = 'Leaderboard View Changed',
@@ -155,7 +169,13 @@ export enum ChangeEvent {
   SearchPerfomed = 'Search Perfomed',
   SearchInputCleared = 'Search Input Cleared',
   SearchQuery = 'Search Query',
+  TrackVisit = 'Track Visit',
   PortfolioClobViewChanged = 'Portfolio/Orders View Changed',
+  ReferalsTablePageChanged = 'Referals Table Page Changed',
+}
+
+export enum HoverEvent {
+  RewardsButtonHovered = 'Rewards Button Hovered',
 }
 
 export enum ClickEvent {
@@ -183,8 +203,11 @@ export enum ClickEvent {
   UIModeClicked = 'UI Mode Changed',
   CategoryClicked = 'Category Clicked',
   SeeMoreCkicked = 'See More Clicked',
-  WalletClicked = 'Wallet Clicked',
+  WalletPageClicked = 'Wallet Page Clicked',
+  ProfileButtonClicked = 'Profile Button Clicked',
+  InviteFriendsPageClicked = 'Invite Friends Button Clicked',
   CopyAddressClicked = 'Wallet Address Copied',
+  CopyReferralClicked = 'Referral Link Copied',
   WithdrawClicked = 'Withdraw Clicked',
   WrapETHClicked = 'Wrap ETH Clicked',
   UnwrapETHClicked = 'Unwrap ETH Clicked',
@@ -223,6 +246,7 @@ export enum ClickEvent {
   UserMarketClicked = 'User Market Clicked',
   UpgradeWalletClicked = 'Upgrade Wallet Clicked',
   RewardsButtonClicked = 'Rewards Button Clicked',
+  RewardsLearnMoreClicked = 'Rewards Learn More Clicked',
   SplitContractsModalClicked = 'Split Contracts Modal Clicked',
   MergeContractsModalClicked = 'Merge Contracts Modal Clicked',
   SplitSharesConfirmed = 'Split Contracts Confirmed',
@@ -234,6 +258,8 @@ export enum ClickEvent {
   PortfolioInvestmentsTabClicked = 'Portfolio Investments Tab Clicked',
   ClobPositionTabClicked = 'Clob Position Tab Clicked',
   CancelAllOrdersClicked = 'Cancel All Orders Clicked',
+  PointsButtonClicked = 'Points Button Clicked',
+  HeaderThemeSwitchMenuClicked = 'Header Theme Switch Menu Clicked',
 }
 
 export enum SignInEvent {
@@ -290,6 +316,11 @@ export interface StrategyChangedMetadata {
 }
 export interface SearchMetadata {
   text: string
+}
+
+export interface TrackVisitMetadata {
+  refCode: string
+  user: string
 }
 
 export interface OutcomeChangedMetadata {
@@ -514,6 +545,7 @@ interface ChartTabChangedMetadata {
 
 interface SignedInMetadata {
   signedIn: boolean
+  fromReferral?: boolean
 }
 
 interface WidgetClickedMetadata {
@@ -523,6 +555,7 @@ interface WidgetClickedMetadata {
 export type ChangedEventMetadata =
   | StrategyChangedMetadata
   | SearchMetadata
+  | TrackVisitMetadata
   | OutcomeChangedMetadata
   | ProfilePictureUploadedChangedMetadata
   | ProfileSettingsChangedMetadata
@@ -565,6 +598,7 @@ export type OpenedEventMetadata =
   | ProfileSettingsMetadata
   | SidebarMarketOpenedMetadata
 export type SignInEventMetadata = SignInWithFarcasterMetadata | SignedInMetadata
+export type HoverEventMetadata = Record<string, unknown>
 export type CopiedEventMetadata = WalletAddressCopiedMetadata
 
 export type EventMetadata =

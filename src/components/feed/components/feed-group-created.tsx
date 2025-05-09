@@ -147,6 +147,7 @@ export default function FeedGroupCreated({ data }: FeedGroupClosedProps) {
           color='grey.500'
           showDays={false}
           hideText={false}
+          ended={new Date(data.data.deadline).getTime() < new Date().getTime()}
         />
         <HStack gap='4px'>
           <Text {...paragraphRegular} color='grey.500'>

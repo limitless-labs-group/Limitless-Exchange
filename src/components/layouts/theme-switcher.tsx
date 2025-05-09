@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { useThemeProvider } from '@/providers'
 import ThemeIcon from '@/resources/icons/theme-icon.svg'
 import { ClickEvent, useAmplitude } from '@/services'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 export default function ThemeSwitcher() {
   const { setLightTheme, setDarkTheme, mode } = useThemeProvider()

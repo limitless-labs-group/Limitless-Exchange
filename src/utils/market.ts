@@ -171,19 +171,19 @@ export const appendReferralCode = (url: string, referralCode: string): string =>
   try {
     const urlObj = new URL(url)
 
-    if (urlObj.searchParams.has('r')) {
+    if (urlObj.searchParams.has('rv')) {
       return url
     }
 
-    urlObj.searchParams.set('r', referralCode)
+    urlObj.searchParams.set('rv', referralCode)
     return urlObj.toString()
   } catch (e) {
-    // For invalid URLs, check manually if it already has an 'r' parameter
-    const hasRParam = /[?&]r=/.test(url)
-    if (hasRParam) {
+    // For invalid URLs, check manually if it already has an 'rv' parameter
+    const hasRvParam = /[?&]rv=/.test(url)
+    if (hasRvParam) {
       return url
     }
     const separator = url.includes('?') ? '&' : '?'
-    return `${url}${separator}r=${referralCode}`
+    return `${url}${separator}rv=${referralCode}`
   }
 }

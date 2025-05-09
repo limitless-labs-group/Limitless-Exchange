@@ -3,6 +3,7 @@ import axios, { AxiosResponse } from 'axios'
 import { Address } from 'viem'
 import { defaultChain, newSubgraphURI } from '@/constants'
 import { limitlessApi } from '@/services'
+import { PriceHistory } from '@/types'
 
 // Define the interface for the chart data
 interface YesBuyChartData {
@@ -71,27 +72,42 @@ export interface ClobPriceHistoryResponse {
   }[]
 }
 
-export function useNegRiskPriceHistory(slug?: string) {
-  return useQuery({
-    queryKey: ['price-history-negrisk', slug],
+export function useClobPriceHistory(
+  selectedRange: string,
+  slug?: string,
+  marketType?: 'single' | 'group'
+) {
+  return useQuery<unknown, Error, PriceHistory[]>({
+    queryKey: ['price-history', slug, selectedRange],
     queryFn: async () => {
+      if (marketType === 'single') {
+        const response: AxiosResponse<ClobPriceHistoryResponse> = await limitlessApi.get(
+          `/markets/${slug}/historical-price?interval=${selectedRange.toLowerCase()}`
+        )
+        return [
+          {
+            ...response.data,
+            prices: response.data.prices.map((price) => {
+              return {
+                price: price.price * 100,
+                timestamp: +price.timestamp,
+              }
+            }),
+          },
+        ]
+      }
       const response: AxiosResponse<ClobPriceHistoryResponse[]> = await limitlessApi.get(
-        `/markets/${slug}/historical-price`
+        `/markets/${slug}/historical-price?interval=${selectedRange.toLowerCase()}`
       )
+      // const response = negriskHistoryMock
       return response.data.map((item) => {
         const prices = item.prices.map((price) => ({
-          timestamp: price.timestamp,
-          price: +price.price * 100,
+          timestamp: +price.timestamp,
+          price: price.price * 100,
         }))
-        const lastPriceObject = {
-          timestamp: new Date().getTime(),
-          price: item.prices[item.prices.length - 1]?.price
-            ? +item.prices[item.prices.length - 1].price * 100
-            : 50,
-        }
         return {
           ...item,
-          prices: [...prices, lastPriceObject],
+          prices,
         }
       })
     },
@@ -109,6 +125,7 @@ export function useMarketPriceHistory(slug?: string, address?: Address | null) {
         const response: AxiosResponse<ClobPriceHistoryResponse> = await limitlessApi.get(
           `/markets/${slug}/historical-price`
         )
+        // const response = singleHistoryMock
         return response.data.prices.map((item) => {
           return [item.timestamp, +item.price * 100]
         })

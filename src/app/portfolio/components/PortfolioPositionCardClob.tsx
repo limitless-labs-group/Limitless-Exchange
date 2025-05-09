@@ -47,7 +47,10 @@ const PortfolioPositionCardClob = ({ positionData, ...props }: PortfolioPosition
       p={isMobile ? '16px' : '8px'}
     >
       <HStack w='full' justifyContent='space-between'>
-        <Text {...paragraphMedium}>
+        <Text
+          {...paragraphMedium}
+          color={positionData.market.status === MarketStatus.RESOLVED ? 'white' : 'grey.800'}
+        >
           {positionData.market.group?.title || positionData.market.title}
         </Text>
         {isMobile && <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} />}
@@ -61,7 +64,6 @@ const PortfolioPositionCardClob = ({ positionData, ...props }: PortfolioPosition
                 ? (process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address)
                 : (process.env.NEXT_PUBLIC_CTF_CONTRACT as Address)
             }
-            outcomeIndex={positionData.market.winningOutcomeIndex as number}
             marketType='clob'
             amountToClaim={formatUnits(
               BigInt(
@@ -75,8 +77,12 @@ const PortfolioPositionCardClob = ({ positionData, ...props }: PortfolioPosition
           />
         )}
       </HStack>
-      {positionData.market.group && (
-        <Text {...paragraphMedium} mt='24px'>
+      {positionData.market.group?.title && (
+        <Text
+          {...paragraphMedium}
+          color={positionData.market.status === MarketStatus.RESOLVED ? 'white' : 'grey.800'}
+          mt='24px'
+        >
           {positionData.market.title}
         </Text>
       )}

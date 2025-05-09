@@ -1,9 +1,17 @@
 import { AxiosError } from 'axios'
 import { Hash, Address } from 'viem'
-import { DraftMarketType } from './draft'
+import { DraftMarketType, DraftMetadata } from './draft'
 import { Profile } from './profiles'
 
 export type { Hash, Address }
+
+export enum PointsActionType {
+  ENROLL_IN_PROGRAM = 'ENROLL_IN_PROGRAM',
+  TRADE_VOLUME = 'TRADE_VOLUME',
+  REFERRAL_ONBOARD = 'REFERRAL_ONBOARD',
+  HAS_TRADED = 'HAS_TRADED',
+  HOLDING_TILL_RESOLVED = 'HOLDING_TILL_RESOLVED',
+}
 
 export type Token = {
   address: Address
@@ -34,12 +42,6 @@ export interface Creator {
   imageUrl: string | null
   link: string | null
   address?: string
-}
-
-export type DraftMetadata = {
-  fee: number
-  liquidity: number
-  initialProbability: number
 }
 
 export interface Market {
@@ -76,17 +78,22 @@ export interface Market {
   group?: Market & {
     id: number
   }
+  tradePrices?: {
+    buy: {
+      market: number[]
+      limit: number[]
+    }
+    sell: {
+      market: number[]
+      limit: number[]
+    }
+  }
   openInterest: string
   openInterestFormatted: string
   metadata: {
     isBannered: boolean
   }
-  settings?: {
-    minSize?: number
-    maxSpread?: number
-    c?: number
-    rewardsEpoch?: number
-  } | null
+  settings?: Settings
   priorityIndex: number
   tokens: {
     yes: string
@@ -104,6 +111,17 @@ export interface Market {
   tradeType: MarketTradeType
   isRewardable: boolean
   markets?: (Market & { orderInGroup?: number })[]
+}
+
+export interface Settings {
+  priorityIndex?: number
+  rewardsEpoch?: number
+  maxSpread?: number
+  minSize?: number
+  c?: number
+  createdAt?: string
+  updatedAt?: string
+  dailyReward?: number
 }
 
 export type MarketType = 'single' | 'group'
@@ -243,14 +261,20 @@ export enum MarketTokensIds {
 }
 
 export enum Sort {
-  BASE = '',
   DEFAULT = '🔥 Trending',
   NEWEST = 'Newest',
   ENDING_SOON = 'Ending Soon',
-  HIGHEST_LIQUIDITY = 'High Liquidity',
   HIGHEST_VALUE = 'High Value',
   TRENDING = '🔥 Trending',
   LP_REWARDS = '💎 LP Rewards',
+}
+export enum MarketSortOption {
+  DEFAULT = 'trending',
+  TRENDING = 'trending',
+  ENDING_SOON = 'ending_soon',
+  HIGH_VALUE = 'high_value',
+  NEWEST = 'newest',
+  LP_REWARDS = 'lp_rewards',
 }
 
 export enum SortStorageName {
@@ -449,6 +473,7 @@ export interface ColorScheme {
   }
   blueTransparent: {
     100: string
+    200: string
   }
   skeleton: {
     dark: string
@@ -532,4 +557,12 @@ export interface MarketRewardsResponse {
   totalUnpaidReward: string
   unpaidRecords: string
   userId: string
+}
+
+export interface PriceHistory {
+  title: string
+  prices: {
+    timestamp: number
+    price: number
+  }[]
 }

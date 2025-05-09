@@ -1,26 +1,29 @@
 'use client'
 
-import { Box, Button, Flex, Spinner, VStack } from '@chakra-ui/react'
-import { useQuery } from '@tanstack/react-query'
+import { Box, Button, Flex, Spinner, Text, VStack } from '@chakra-ui/react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
+import Loader from '@/components/common/loader'
 import { Toast } from '@/components/common/toast'
 import { DraftMarketCard } from '@/app/draft/components/draft-card'
 import { SelectedMarkets } from './selected-markets'
 import { useToast } from '@/hooks/ui/useToast'
 import { useUrlParams } from '@/hooks/use-url-param'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { DraftMarket } from '@/types/draft'
 
 export const RecentMarkets = () => {
   const router = useRouter()
   const toast = useToast()
   const { getParam } = useUrlParams()
+  const queryClient = useQueryClient()
 
   const [isCreating, setIsCreating] = useState<boolean>(false)
 
   const privateClient = useAxiosPrivateClient()
-  const { data: recentMarkets } = useQuery({
+  const { data: recentMarkets, isLoading } = useQuery({
     queryKey: ['recentMarkets'],
     queryFn: async () => {
       const response = await privateClient.get(`/markets/drafts/recent`)
@@ -53,7 +56,7 @@ export const RecentMarkets = () => {
       .post(`/markets/drafts/duplicate`, {
         marketsIds: selectedMarketIds,
       })
-      .then((res) => {
+      .then(async (res) => {
         const id = toast({
           render: () => <Toast title={`Markets are duplicated`} id={id} />,
         })
@@ -65,6 +68,7 @@ export const RecentMarkets = () => {
         const hasAmm = selectedMarketsTypes.includes('amm')
         const type = hasAmm ? 'amm' : 'clob'
         router.push(`/draft?tab=queue-${type}`)
+        await queryClient.invalidateQueries({ queryKey: ['allDraftMarkets'] })
       })
       .catch((res) => {
         const id = toast({
@@ -76,7 +80,12 @@ export const RecentMarkets = () => {
       })
   }
 
-  return (
+  return isLoading ? (
+    <VStack h='calc(100vh - 350px)' w='full' alignItems='center' justifyContent='center'>
+      <Text {...paragraphMedium}>Fetching recent markets just for you!</Text>
+      <Loader />
+    </VStack>
+  ) : (
     <Flex justifyContent={'center'} position='relative'>
       <VStack w='868px' spacing={4} mb='66px'>
         {recentMarkets?.map((market: DraftMarket) => {
@@ -86,6 +95,7 @@ export const RecentMarkets = () => {
               key={market.id}
               isChecked={selectedMarketIds.includes(market.id)}
               onToggle={() => handleToggle(market.id)}
+              withBadge
             />
           )
         })}
@@ -110,7 +120,7 @@ export const RecentMarkets = () => {
       <Box
         position='fixed'
         right='24px'
-        top='80px'
+        top='100px'
         maxWidth='350px'
         w='full'
         display={selectedMarket.length > 0 ? 'block' : 'none'}

@@ -16,12 +16,12 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import Avatar from '@/components/common/avatar'
 import WrapModal from '@/components/common/modals/wrap-modal'
 import Skeleton from '@/components/common/skeleton'
-import SocialsFooter from '@/components/common/socials-footer'
 import ThemeSwitcher from '@/components/layouts/theme-switcher'
 import BaseWhiteIcon from '@/resources/icons/base-icon-white.svg'
 import CheckedIcon from '@/resources/icons/checked-icon.svg'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
 import CopyIcon from '@/resources/icons/copy-icon.svg'
+import HeartIcon from '@/resources/icons/heart-icon.svg'
 import LogoutIcon from '@/resources/icons/log-out-icon.svg'
 import SwapIcon from '@/resources/icons/swap-icon.svg'
 import UserIcon from '@/resources/icons/user-icon.svg'
@@ -40,11 +40,13 @@ import { NumberUtil, truncateEthAddress } from '@/utils'
 interface UserMenuDesktopProps {
   handleOpenWalletPage: () => void
   handleOpenProfile: () => void
+  handleOpenReferralPage: () => void
 }
 
 export default function UserMenuDesktop({
   handleOpenWalletPage,
   handleOpenProfile,
+  handleOpenReferralPage,
 }: UserMenuDesktopProps) {
   const { trackClicked } = useAmplitude()
   const { disconnectFromPlatform, profileData, profileLoading, account, web3Client } = useAccount()
@@ -83,11 +85,19 @@ export default function UserMenuDesktop({
   }
 
   useEffect(() => {
-    const hideCopiedMessage = setTimeout(() => {
-      setCopied(false)
-    }, 2000)
+    let hideCopiedMessage: NodeJS.Timeout | undefined
 
-    return () => clearTimeout(hideCopiedMessage)
+    if (copied) {
+      hideCopiedMessage = setTimeout(() => {
+        setCopied(false)
+      }, 2000)
+    }
+
+    return () => {
+      if (hideCopiedMessage) {
+        clearTimeout(hideCopiedMessage)
+      }
+    }
   }, [copied])
 
   const walletTypeActionButton = useMemo(() => {
@@ -205,10 +215,25 @@ export default function UserMenuDesktop({
                 </HStack>
               </CopyToClipboard>
             </HStack>
-            <Divider my='16px' />
           </Box>
+          <Divider my='16px' />
           <VStack gap='12px' alignItems='flex-start'>
             {walletTypeActionButton}
+            <Button
+              variant='transparent'
+              onClick={() => {
+                handleOpenReferralPage()
+                onCloseAuthMenu()
+              }}
+              justifyContent='space-between'
+              w='full'
+            >
+              <HStack gap='8px'>
+                <HeartIcon width={16} height={16} />
+                <Text {...paragraphMedium}>Invite Friends</Text>
+              </HStack>
+              {profileData?.referralData?.length || 0}
+            </Button>
             <Button
               variant='transparent'
               onClick={() => {
@@ -238,7 +263,6 @@ export default function UserMenuDesktop({
               <LogoutIcon width={16} height={16} />
               Log Out
             </Button>
-            <SocialsFooter />
           </VStack>
         </MenuList>
       </Menu>
