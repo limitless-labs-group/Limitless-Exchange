@@ -106,8 +106,8 @@ export function useClobPriceHistory(
       // const response = negriskHistoryMock
       return response.data.map((item) => {
         const prices = item.prices.map((price) => ({
-          timestamp: price.timestamp,
-          price: +price.price * 100,
+          timestamp: +price.timestamp,
+          price: price.price * 100,
         }))
         return {
           ...item,

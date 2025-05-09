@@ -12,6 +12,7 @@ import {
   Legend,
   ChartData,
   ChartOptions,
+  Chart,
 } from 'chart.js'
 import { format } from 'date-fns'
 import { useEffect, useRef } from 'react'
@@ -19,7 +20,27 @@ import { Line } from 'react-chartjs-2'
 import { isMobile } from 'react-device-detect'
 import { PriceHistory } from '@/types'
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
+const legendMargin = {
+  id: 'legendMargin',
+  beforeInit(chart: any) {
+    const fitValue = chart.legend.fit
+    chart.legend.fit = function fit() {
+      fitValue.bind(chart.legend)()
+      this.height += 24 // Space below legend
+    }
+  },
+}
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  legendMargin
+)
 
 interface PriceChartProps {
   history: PriceHistory[]
@@ -103,18 +124,12 @@ export const PriceChart = ({ history }: PriceChartProps) => {
   ]
 
   const data: ChartData<'line'> = {
-    labels: history[0].prices
-      .slice()
-      .reverse()
-      .map((ts) => format(new Date(ts.timestamp), 'MMM d')),
+    labels: history[0].prices.slice().map((ts) => ts.timestamp),
     datasets: history
       .map((history, index) => {
         return {
           label: history.title,
-          data: history.prices
-            .slice()
-            .reverse()
-            .map((price) => price.price),
+          data: history.prices.slice().map((price) => price.price),
           borderColor: seriesColors[index % seriesColors.length],
           backgroundColor: seriesColors[index % seriesColors.length],
           pointRadius: 0,
@@ -219,6 +234,10 @@ export const PriceChart = ({ history }: PriceChartProps) => {
         callbacks: {
           title: () => '',
           label: (context) => {
+            if (history.length === 1) {
+              const value = context.dataset.data[context.dataIndex] || 50
+              return `Yes ${(value as number).toFixed(0)}%`
+            }
             const label = context.dataset.label || ''
             const value = context.parsed.y
             return `${value.toFixed(0)}% ${label}`
@@ -293,8 +312,54 @@ export const PriceChart = ({ history }: PriceChartProps) => {
             family: 'Inter, sans-serif',
             size: 12,
           },
-          autoSkip: true,
-          maxTicksLimit: 8,
+          autoSkip: false,
+          maxTicksLimit: 5,
+          callback: function (value, index, ticks) {
+            const parseDate = (input: string | number) => {
+              if (typeof input === 'number') return new Date(input)
+              if (!isNaN(Number(input))) return new Date(Number(input))
+              return new Date(input)
+            }
+            const label = this.getLabelForValue ? this.getLabelForValue(+value) : value
+            const date = parseDate(label)
+
+            // Calculate the range as before
+            const allTimestamps = ticks.map((t) =>
+              this.getLabelForValue ? this.getLabelForValue(t.value) : t.value
+            )
+            const first = parseDate(allTimestamps[0])
+            const last = parseDate(allTimestamps[allTimestamps.length - 1])
+            const msInMonth = 30 * 24 * 60 * 60 * 1000
+            const msInYear = 365 * 24 * 60 * 60 * 1000
+            const range = last.getTime() - first.getTime()
+
+            let formatted
+            if (range < 3 * msInMonth) {
+              formatted = date.toLocaleString('en-US', { month: 'short', day: 'numeric' })
+            } else if (range < msInYear) {
+              formatted = date.toLocaleString('en-US', { month: 'short' })
+            } else {
+              formatted = date.getFullYear().toString()
+            }
+
+            // Only show if different from previous
+            if (index > 0) {
+              const prevLabel = this.getLabelForValue
+                ? this.getLabelForValue(ticks[index - 1].value)
+                : ticks[index - 1].value
+              const prevDate = parseDate(prevLabel)
+              let prevFormatted
+              if (range < 3 * msInMonth) {
+                prevFormatted = prevDate.toLocaleString('en-US', { month: 'short', day: 'numeric' })
+              } else if (range < msInYear) {
+                prevFormatted = prevDate.toLocaleString('en-US', { month: 'short' })
+              } else {
+                prevFormatted = prevDate.getFullYear().toString()
+              }
+              if (formatted === prevFormatted) return ''
+            }
+            return formatted
+          },
         },
       },
       y: {

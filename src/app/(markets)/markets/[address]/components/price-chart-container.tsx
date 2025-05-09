@@ -34,11 +34,9 @@ const ChartContainer = () => {
     tradeType
   )
 
-  console.log(priceHistory)
-
   if (!priceHistory || isLoadingPriceHistory) {
     return (
-      <Box w='full'>
+      <Box w='full' mt='20px'>
         <Skeleton height={240} />
       </Box>
     )
@@ -63,8 +61,10 @@ const ChartContainer = () => {
 
   const filteredHistories = priceHistory?.map((history) => ({
     ...history,
-    prices: getFilteredData(history.prices),
+    prices: getFilteredData(history.prices).reverse(),
   }))
+
+  console.log(filteredHistories)
 
   return (
     <VStack
@@ -75,6 +75,7 @@ const ChartContainer = () => {
       borderRadius='12px'
       borderColor='grey.100'
       gap={0}
+      mt='20px'
     >
       <HStack
         mt='20px'
