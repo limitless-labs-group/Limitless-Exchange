@@ -14,17 +14,16 @@ type TimeRange = '1H' | '6H' | '1D' | '1W' | '1M' | 'ALL'
 type PriceChartContainerProps = {
   slug?: string
   marketType?: 'single' | 'group'
-  tradeType?: 'clob' | 'amm'
 }
 
-const ChartContainer = ({ slug, marketType, tradeType }: PriceChartContainerProps) => {
-  const [selectedRange, setSelectedRange] = useState<TimeRange>('1D')
+const ChartContainer = ({ slug, marketType }: PriceChartContainerProps) => {
+  const [selectedRange, setSelectedRange] = useState<TimeRange>('ALL')
   const timeRanges: TimeRange[] = ['1H', '6H', '1D', '1W', '1M', 'ALL']
 
   const { data: priceHistory, isLoading: isLoadingPriceHistory } = useClobPriceHistory(
+    selectedRange,
     slug,
-    marketType,
-    tradeType
+    marketType
   )
 
   if (!priceHistory || isLoadingPriceHistory) {

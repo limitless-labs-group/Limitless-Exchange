@@ -63,12 +63,7 @@ export default function GroupMarketSectionTabs({
   const tabPanels = useMemo(() => {
     return [
       <Orderbook key={uuidv4()} variant={isSmallLaptop || mobileView ? 'small' : 'large'} />,
-      <PriceChartContainer
-        key={market?.slug}
-        slug={market?.slug}
-        marketType='single'
-        tradeType='clob'
-      />,
+      <PriceChartContainer key={market?.slug} slug={market?.slug} marketType='single' />,
       <ClobOrdersTab key={uuidv4()} />,
       <PortfolioMarketGroup key={uuidv4()} />,
     ]
