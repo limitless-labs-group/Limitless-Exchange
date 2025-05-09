@@ -111,15 +111,16 @@ export default function Chat() {
       )}
 
       <Box
-        position='absolute'
-        bottom={isMobile ? '20px' : '0'}
+        position={isMobile ? 'sticky' : 'absolute'}
+        bottom={isMobile ? '24px' : '0'}
         left='0'
         right='0'
         p={3}
         bg='grey.50'
-        zIndex={1}
+        zIndex={10}
+        className='chat-textarea-container'
       >
-        <ChatTextarea onSubmit={sendMessage} msg={newMessage} setMsg={setNewMessage} />
+        <ChatTextarea onSubmit={sendMessage} msg={newMessage} setMsg={setNewMessage} rows={2} />
       </Box>
     </Box>
   )
