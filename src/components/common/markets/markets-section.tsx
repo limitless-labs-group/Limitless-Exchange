@@ -6,7 +6,7 @@ import MarketCardMobile from '@/components/common/markets/market-cards/market-ca
 import VolumeCard from '@/components/common/markets/volume-card'
 import Skeleton from '@/components/common/skeleton'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
-import { h3Medium, headlineRegular } from '@/styles/fonts/fonts.styles'
+import { h3Medium } from '@/styles/fonts/fonts.styles'
 import { Market, Sort, SortStorageName } from '@/types'
 import { getAnalyticsParams } from '@/utils/market'
 import SortFilter from '../sort-filter'
@@ -33,7 +33,7 @@ export default function MarketsSection({
     return selectedCategory ? { fromCategory: selectedCategory.name } : {}
   }, [selectedCategory])
 
-  const allMarkets = markets || []
+  const allMarkets = markets ?? []
 
   return (
     <Box
@@ -48,7 +48,7 @@ export default function MarketsSection({
         ) : null}
 
         <Flex
-          alignItems={withChat ? 'center' : 'center'}
+          alignItems='center'
           justifyContent='space-between'
           flexDirection={isMobile ? 'column' : 'row'}
           overflow='scroll'

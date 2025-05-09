@@ -62,7 +62,7 @@ async function CategoryPageContent({ category }: { category: string }) {
 
   const categoriesWithCount = categories.map((cat: Category) => ({
     ...cat,
-    count: count.category[cat.id] || 0,
+    count: count.category[cat.id] ?? 0,
   }))
 
   const matchedCategory = categoriesWithCount.find(
