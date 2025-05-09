@@ -200,14 +200,15 @@ export const PriceChart = ({ history }: PriceChartProps) => {
       tooltip: {
         // @ts-ignore
         backgroundColor: (context) => {
-          const dp = context.tooltip.dataPoints?.[0]
-          return dp?.dataset?.borderColor || blue500
+          if (history.length === 1) {
+            const dp = context.tooltip.dataPoints?.[0]
+            return dp?.dataset?.borderColor || blue500
+          }
+          return grey500
         },
         borderColor: 'transparent',
         borderWidth: 0,
-        borderRadius: 999,
         caretSize: 0,
-        displayColors: false,
         caretPadding: 12,
         padding: {
           top: 2,
@@ -215,22 +216,11 @@ export const PriceChart = ({ history }: PriceChartProps) => {
           left: 4,
           right: 4,
         },
-        titleColor: '#fff',
-        titleFont: {
-          family: 'Inter, sans-serif',
-          size: 12,
-          weight: 'lighter',
-        },
-        bodyColor: '#fff',
-        bodyFont: {
-          family: 'Inter, sans-serif',
-          size: 12,
-          weight: 'lighter',
-        },
-        boxWidth: 0,
-        boxHeight: 0,
-        boxPadding: 0,
-        usePointStyle: false,
+        boxWidth: 12,
+        boxHeight: 1,
+        boxPadding: 6,
+        borderRadius: 6,
+        displayColors: true,
         callbacks: {
           title: () => '',
           label: (context) => {
