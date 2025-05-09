@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   Divider,
   HStack,
   Image as ChakraImage,
@@ -12,9 +11,7 @@ import {
   TabPanels,
   Tabs,
   Text,
-  VStack,
 } from '@chakra-ui/react'
-import NextLink from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { LegacyRef, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -22,52 +19,28 @@ import { v4 as uuidv4 } from 'uuid'
 import { Address } from 'viem'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
 import ClobWidget from '@/components/common/markets/clob-widget/clob-widget'
-import ConvertModal from '@/components/common/markets/convert-modal'
-import { MarketAssetPriceChart } from '@/components/common/markets/market-asset-price-chart'
 import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import MarketPageOverviewTab from '@/components/common/markets/market-page-overview-tab'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
-import MarketPositionsAmm from '@/components/common/markets/positions/market-positions-amm'
 import ShareMenu from '@/components/common/markets/share-menu'
 import MarketClosedWidget from '@/components/common/markets/trading-widgets/market-closed-widget'
-import TradingWidgetSimple from '@/components/common/markets/trading-widgets/trading-widget-simple'
 import WinnerTakeAllTooltip from '@/components/common/markets/winner-take-all-tooltip'
 import Skeleton from '@/components/common/skeleton'
-import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
-import ClobPositions from '@/app/(markets)/markets/[address]/components/clob/clob-positions'
-import Orderbook from '@/app/(markets)/markets/[address]/components/clob/orderbook'
 import GroupMarketSectionTabs from '@/app/(markets)/markets/[address]/components/group-market-section-tabs'
-import GroupMarketsSection from '@/app/(markets)/markets/[address]/components/group-markets-section'
-import { PriceChartContainer } from '@/app/(markets)/markets/[address]/components/price-chart-container'
-import { LUMY_TOKENS } from '@/app/draft/components'
 import CommentTab from './comment-tab'
-import { MarketProgressBar } from './market-cards/market-progress-bar'
 import { UniqueTraders } from './unique-traders'
 import usePageName from '@/hooks/use-page-name'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
-import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
-import CloseIcon from '@/resources/icons/close-icon.svg'
-import ExpandIcon from '@/resources/icons/expand-icon.svg'
-import LineChartIcon from '@/resources/icons/line-chart-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
-import OrderbookIcon from '@/resources/icons/orderbook.svg'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
-import {
-  ChangeEvent,
-  ClickEvent,
-  OpenEvent,
-  PageOpenedPage,
-  useAmplitude,
-  useTradingService,
-} from '@/services'
+import { ClickEvent, OpenEvent, PageOpenedPage, useAmplitude, useTradingService } from '@/services'
 import { useMarket } from '@/services/MarketsService'
-import { h2Bold, h2Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { h2Bold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export default function MarketPageNergiskMobile() {
-  const [activeChartTabIndex, setActiveChartTabIndex] = useState(0)
   const [activeActionsTabIndex, setActiveActionsTabIndex] = useState(0)
 
   const scrollableBlockRef: LegacyRef<HTMLDivElement> | null = useRef(null)
@@ -86,7 +59,7 @@ export default function MarketPageNergiskMobile() {
   const searchParams = useSearchParams()
   const pathname = usePathname()
 
-  const { trackClicked, trackOpened, trackChanged } = useAmplitude()
+  const { trackClicked, trackOpened } = useAmplitude()
 
   const marketAddress = useMemo(() => {
     return market?.marketType === 'group' ? groupMarket?.slug : market?.slug
@@ -108,54 +81,6 @@ export default function MarketPageNergiskMobile() {
       refetchMarkets()
     }
   }, [updatedMarket])
-
-  const isLumy = market?.tags?.includes('Lumy')
-
-  const isLivePriceSupportedMarket =
-    isLumy && LUMY_TOKENS.some((token) => market?.title.toLowerCase().includes(token.toLowerCase()))
-
-  const chartTabs = useMemo(() => {
-    const tabs = []
-    if (market?.tradeType === 'clob') {
-      tabs.push({
-        title: 'Order book',
-        icon: <OrderbookIcon width='16px' height='16px' />,
-        analyticEvent: ClickEvent.OrderBookOpened,
-      })
-    }
-    tabs.push({
-      title: 'Chart',
-      icon: <LineChartIcon width={16} height={16} />,
-    })
-    if (isLivePriceSupportedMarket) {
-      tabs.push({
-        title: 'Assets price',
-        icon: <CandlestickIcon width={16} height={16} />,
-      })
-    }
-    return tabs
-  }, [isLivePriceSupportedMarket, market?.tradeType])
-
-  const priceChart = useMemo(() => {
-    return <MarketPriceChart key={uuidv4()} />
-  }, [])
-
-  const chartsTabPanels = useMemo(() => {
-    const tabPanels = []
-    if (market?.tradeType === 'clob') {
-      tabPanels.push(<Orderbook key={uuidv4()} variant='small' />)
-    }
-    tabPanels.push(priceChart)
-    if (isLivePriceSupportedMarket) {
-      tabPanels.push(
-        <MarketAssetPriceChart
-          key={uuidv4()}
-          id={LUMY_TOKENS.filter((token) => market?.title.includes(`${token} `))[0]}
-        />
-      )
-    }
-    return tabPanels
-  }, [isLivePriceSupportedMarket, market?.title, market?.tradeType])
 
   const tabs = [
     {
@@ -195,21 +120,6 @@ export default function MarketPageNergiskMobile() {
       marketAddress: market?.slug as Address,
     })
   }
-
-  const handleFullPageClicked = () => {
-    trackClicked(ClickEvent.FullPageClicked, {
-      marketAddress: market?.slug,
-      marketType: 'single',
-      marketTags: market?.tags,
-    })
-  }
-
-  const handleChartTabClicked = (event: string) =>
-    trackChanged(ChangeEvent.ChartTabChanged, {
-      view: event + 'on',
-      marketMarketType: market?.tradeType === 'amm' ? 'AMM' : 'CLOB',
-      marketAddress: market?.slug,
-    })
 
   useEffect(() => {
     setStrategy('Buy')
@@ -270,7 +180,6 @@ export default function MarketPageNergiskMobile() {
 
   useEffect(() => {
     setActiveActionsTabIndex(0)
-    setActiveChartTabIndex(0)
   }, [market])
 
   return (
@@ -364,7 +273,7 @@ export default function MarketPageNergiskMobile() {
       </Box>
       {tradingWidget}
       <Box my='24px'>
-        <GroupMarketSectionTabs />
+        <GroupMarketSectionTabs market={market} />
       </Box>
       <Tabs
         position='relative'
