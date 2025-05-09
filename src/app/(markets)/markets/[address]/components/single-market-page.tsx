@@ -111,12 +111,7 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
 
   const chartsTabPanels = useMemo(
     () => [
-      <PriceChartContainer
-        key={uuidv4()}
-        marketType='single'
-        slug={market?.slug}
-        tradeType={market?.tradeType}
-      />,
+      <PriceChartContainer key={uuidv4()} marketType='single' slug={market?.slug} />,
       <MarketAssetPriceChart
         key={uuidv4()}
         id={LUMY_TOKENS.filter((token) => market?.title.includes(`${token} `))[0]}
@@ -153,9 +148,7 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
         </Tabs>
       )
     }
-    return (
-      <PriceChartContainer tradeType={market?.tradeType} marketType='single' slug={market?.slug} />
-    )
+    return <PriceChartContainer marketType='single' slug={market?.slug} />
   }, [market?.slug])
 
   const tabs = [

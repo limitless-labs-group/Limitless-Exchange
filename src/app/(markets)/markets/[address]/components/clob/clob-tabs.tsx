@@ -43,12 +43,7 @@ export default function ClobTabs() {
 
   const tabPanels = useMemo(() => {
     return [
-      <PriceChartContainer
-        key={uuidv4()}
-        slug={market?.slug}
-        marketType='single'
-        tradeType={market?.tradeType}
-      />,
+      <PriceChartContainer key={uuidv4()} slug={market?.slug} marketType='single' />,
       <Orderbook key={uuidv4()} variant={isSmallLaptop ? 'small' : 'large'} />,
     ]
   }, [market?.slug, isSmallLaptop])

@@ -1,10 +1,8 @@
-import { isNumber } from '@chakra-ui/utils'
 import { useQuery } from '@tanstack/react-query'
 import axios, { AxiosResponse } from 'axios'
 import { Address } from 'viem'
 import { defaultChain, newSubgraphURI } from '@/constants'
 import { limitlessApi } from '@/services'
-import { negriskHistoryMock } from '@/services/negrisk-history-mock'
 import { PriceHistory } from '@/types'
 
 // Define the interface for the chart data
@@ -75,18 +73,16 @@ export interface ClobPriceHistoryResponse {
 }
 
 export function useClobPriceHistory(
+  selectedRange: string,
   slug?: string,
-  marketType?: 'single' | 'group',
-  tradeType?: 'amm' | 'clob'
+  marketType?: 'single' | 'group'
 ) {
   return useQuery<unknown, Error, PriceHistory[]>({
-    queryKey: ['price-history', slug],
+    queryKey: ['price-history', slug, selectedRange],
     queryFn: async () => {
-      if (tradeType === 'amm') {
-      }
       if (marketType === 'single') {
         const response: AxiosResponse<ClobPriceHistoryResponse> = await limitlessApi.get(
-          `/markets/${slug}/historical-price`
+          `/markets/${slug}/historical-price?interval=${selectedRange.toLowerCase()}`
         )
         return [
           {
@@ -101,7 +97,7 @@ export function useClobPriceHistory(
         ]
       }
       const response: AxiosResponse<ClobPriceHistoryResponse[]> = await limitlessApi.get(
-        `/markets/${slug}/historical-price`
+        `/markets/${slug}/historical-price?interval=${selectedRange.toLowerCase()}`
       )
       // const response = negriskHistoryMock
       return response.data.map((item) => {
