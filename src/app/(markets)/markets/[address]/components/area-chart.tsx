@@ -216,9 +216,9 @@ export const PriceChart = ({ history }: PriceChartProps) => {
           left: 4,
           right: 4,
         },
-        boxWidth: 12,
+        boxWidth: history.length === 1 ? 0 : 12,
         boxHeight: 1,
-        boxPadding: 6,
+        boxPadding: history.length === 1 ? 0 : 6,
         borderRadius: 6,
         displayColors: true,
         callbacks: {
