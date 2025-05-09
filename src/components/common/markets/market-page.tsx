@@ -138,9 +138,14 @@ export default function MarketPage() {
     return market?.tradeType === 'amm' ? (
       <MarketPriceChart key={uuidv4()} />
     ) : (
-      <PriceChartContainer key={uuidv4()} />
+      <PriceChartContainer
+        key={uuidv4()}
+        slug={market?.slug}
+        marketType={market?.marketType}
+        tradeType={market?.tradeType}
+      />
     )
-  }, [market?.tradeType])
+  }, [market?.slug])
 
   const chartsTabPanels = useMemo(() => {
     const tabPanels = [priceChart]
@@ -224,7 +229,7 @@ export default function MarketPage() {
   const chart = useMemo(() => {
     return groupMarket?.negRiskMarketId ? (
       <Box mb='24px'>
-        <PriceChartContainer />
+        <PriceChartContainer slug={groupMarket.slug} marketType='group' tradeType='clob' />
       </Box>
     ) : null
   }, [groupMarket?.negRiskMarketId])

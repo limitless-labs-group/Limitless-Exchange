@@ -1,35 +1,28 @@
 'use client'
 
 import { Box, HStack, Button, Text, VStack } from '@chakra-ui/react'
-import { memo, useMemo, useState } from 'react'
+import { memo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Skeleton from '@/components/common/skeleton'
 import { PriceChart } from '@/app/(markets)/markets/[address]/components/area-chart'
 import { useClobPriceHistory } from '@/hooks/use-market-price-history'
 import Logo from '@/resources/icons/limitless-logo.svg'
-import { useTradingService } from '@/services'
 import { controlsMedium, headline } from '@/styles/fonts/fonts.styles'
 
 type TimeRange = '1H' | '6H' | '1D' | '1W' | '1M' | 'ALL'
 
-const ChartContainer = () => {
+type PriceChartContainerProps = {
+  slug?: string
+  marketType?: 'single' | 'group'
+  tradeType?: 'clob' | 'amm'
+}
+
+const ChartContainer = ({ slug, marketType, tradeType }: PriceChartContainerProps) => {
   const [selectedRange, setSelectedRange] = useState<TimeRange>('1D')
   const timeRanges: TimeRange[] = ['1H', '6H', '1D', '1W', '1M', 'ALL']
 
-  const { groupMarket, market } = useTradingService()
-
-  const marketSlug = useMemo(() => {
-    if (market?.marketType === 'single') {
-      return market.slug
-    }
-    return groupMarket?.slug
-  }, [groupMarket?.slug, market?.slug])
-
-  const marketType = market?.marketType
-  const tradeType = market?.tradeType
-
   const { data: priceHistory, isLoading: isLoadingPriceHistory } = useClobPriceHistory(
-    marketSlug,
+    slug,
     marketType,
     tradeType
   )

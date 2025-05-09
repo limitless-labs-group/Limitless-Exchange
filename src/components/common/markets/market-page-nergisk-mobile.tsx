@@ -364,7 +364,7 @@ export default function MarketPageNergiskMobile() {
       </Box>
       {tradingWidget}
       <Box my='24px'>
-        <GroupMarketSectionTabs />
+        <GroupMarketSectionTabs market={market} />
       </Box>
       <Tabs
         position='relative'
