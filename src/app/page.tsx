@@ -11,7 +11,7 @@ import MarketsSection from '@/components/common/markets/markets-section'
 import TopMarkets from '@/components/common/markets/top-markets'
 import { Modal } from '@/components/common/modals/modal'
 import { WelcomeModal } from '@/components/common/welcome-modal'
-import CategoriesDesktop from '@/components/layouts/categories-desktop'
+import { ScrollableCategories } from '@/components/layouts/categories-desktop'
 import { sortAtom } from '@/atoms/market-sort'
 import { welcomeModalAtom } from '@/atoms/onboard'
 import { MainLayout } from '@/components'
@@ -156,37 +156,15 @@ const MainPage = () => {
   }, [onboardModal, referralCode, ownRefCode, isLoggedIn])
 
   const headerContent = useMemo(() => {
-    if (pagename === 'Categories') return
-    if (selectedCategory) {
-      return (
-        <Box
-          w='full'
-          overflowX='scroll'
-          css={{
-            '&::-webkit-scrollbar': {
-              display: 'none',
-            },
-            scrollbarWidth: 'none',
-            '-ms-overflow-style': 'none',
-            WebkitOverflowScrolling: 'touch',
-          }}
-        >
-          <MarketCategoryHeader
-            name={selectedCategory.name}
-            withChat={selectedCategory.name === 'Crypto' && !isMobile}
-          />
-        </Box>
-      )
-    }
+    if (pagename === 'Categories' || selectedCategory) return
     return <TopMarkets markets={banneredMarkets as Market[]} isLoading={isBanneredLoading} />
   }, [selectedCategory, banneredMarkets, isBanneredLoading])
 
-  // const header = (
-  //   <HStack py='4px' px='12px' bg='grey.50' gap={0} pt='4px' mb='12px'>
-  //     <CategoriesDesktop />
-  //   </HStack>
-  // )
-  const header = <></>
+  const header = (
+    <HStack py='4px' px='12px' bg='grey.50' gap={0} pt='4px' mb='12px'>
+      <ScrollableCategories />
+    </HStack>
+  )
 
   return (
     <MainLayout layoutPadding={'0px'} headerComponent={header}>

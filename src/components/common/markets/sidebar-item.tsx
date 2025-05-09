@@ -1,12 +1,8 @@
 import { Link, Text, HStack } from '@chakra-ui/react'
-import { useSearchParams } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import React, { ReactNode, useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
-import { useTokenFilter } from '@/contexts/TokenFilterContext'
-import GrinIcon from '@/resources/icons/grid-icon.svg'
-import DashboardIcon from '@/resources/icons/sidebar/dashboard.svg'
 import { useCategoriesWithCounts } from '@/services'
-import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { ReferralLink } from '../referral-link'
 
 export interface SideItemProps {
@@ -46,7 +42,7 @@ export const SideItem = ({ isActive, icon, children, color }: SideItemProps) => 
 }
 
 export const CategoryItems = () => {
-  const { selectedCategory } = useTokenFilter()
+  const pathname = usePathname()
 
   const { data: categoriesWithCount } = useCategoriesWithCounts()
 
@@ -60,25 +56,20 @@ export const CategoryItems = () => {
 
   return (
     <>
-      <ReferralLink href={`/`}>
-        <Link variant='transparent' px={0}>
-          <SideItem>{`All markets (${categoriesWithCount.totalCount})`}</SideItem>
-        </Link>
-      </ReferralLink>
-      {categoriesWithMarkets.map((category) => (
-        <ReferralLink
-          key={category.id}
-          href={`/cat/${category.name.toLowerCase().replace(/\s+/g, '-')}`}
-        >
-          <Link variant='transparent' px={0}>
-            <SideItem
-              isActive={selectedCategory?.name.toLowerCase() === category.name.toLowerCase()}
-            >
-              {category.name} ({category.count})
-            </SideItem>
-          </Link>
-        </ReferralLink>
-      ))}
+      {categoriesWithMarkets.map((category) => {
+        const categoryPath = `/cat/${category.name.toLowerCase().replace(/\s+/g, '-')}`
+        const isActive = pathname === categoryPath
+
+        return (
+          <ReferralLink key={category.id} href={categoryPath}>
+            <Link variant='transparent' px={0}>
+              <SideItem isActive={isActive}>
+                {category.name} ({category.count})
+              </SideItem>
+            </Link>
+          </ReferralLink>
+        )
+      })}
     </>
   )
 }

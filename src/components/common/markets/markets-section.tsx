@@ -53,15 +53,11 @@ export default function MarketsSection({
           flexDirection={isMobile ? 'column' : 'row'}
           overflow='scroll'
         >
-          {withChat ? (
+          {withChat && !isMobile ? (
             <Text {...h3Medium} mt={isMobile ? '8px' : '0px'} ml='16px'>
               {selectedCategory?.name ?? categoryName}
             </Text>
-          ) : (
-            <Text {...headlineRegular} mt={isMobile ? '8px' : '0px'}>
-              All Markets
-            </Text>
-          )}
+          ) : null}
           <SortFilter onChange={handleSelectSort} sort={sort} />
         </Flex>
         {withChat ? (
