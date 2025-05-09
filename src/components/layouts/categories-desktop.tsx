@@ -1,4 +1,5 @@
 import { Box, HStack, IconButton, Link, Text, useTheme } from '@chakra-ui/react'
+import { usePathname } from 'next/navigation'
 import { useRef, useState, useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { CategoryItems } from '@/components/common/markets/sidebar-item'
@@ -8,9 +9,9 @@ import ChevronLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import ChevronRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import GrinIcon from '@/resources/icons/grid-icon.svg'
 import { useCategoriesWithCounts } from '@/services'
-import { paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
-export default function ScrollableCategories() {
+export function ScrollableCategories() {
   const { data: categoriesWithCount } = useCategoriesWithCounts()
   const { dashboard, handleCategory, handleDashboard, selectedCategory } = useTokenFilter()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -18,6 +19,7 @@ export default function ScrollableCategories() {
   const [showLeftArrow, setShowLeftArrow] = useState(false)
   const [showRightArrow, setShowRightArrow] = useState(true)
   const theme = useTheme()
+  const pathname = usePathname()
 
   const checkScroll = () => {
     if (scrollContainerRef.current) {
@@ -58,6 +60,8 @@ export default function ScrollableCategories() {
     }
   }
 
+  const isMainPage = pathname === '/'
+
   return (
     <Box position='relative'>
       <HStack position='relative' gap={0}>
@@ -66,7 +70,7 @@ export default function ScrollableCategories() {
             <HStack
               gap='4px'
               cursor='pointer'
-              bg={!selectedCategory && !dashboard ? 'grey.100' : 'unset'}
+              bg={isMainPage ? 'grey.100' : 'unset'}
               onClick={() => {
                 handleCategory(undefined)
                 handleDashboard(undefined)
@@ -75,7 +79,11 @@ export default function ScrollableCategories() {
               rounded='8px'
             >
               <GrinIcon width={16} height={16} />
-              <Text {...paragraphRegular} whiteSpace='nowrap'>
+              <Text
+                {...paragraphMedium}
+                whiteSpace='nowrap'
+                color={isMainPage ? 'grey.800' : 'grey.700'}
+              >
                 {`All Markets ${
                   categoriesWithCount?.totalCount ? '(' + categoriesWithCount.totalCount + ')' : ''
                 }`}
