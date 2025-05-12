@@ -1,24 +1,21 @@
-import {
-  Text,
-  Stack,
-  Button,
-  Image,
-  Box,
-  useToast,
-  Flex,
-  HStack,
-  VStack,
-  Divider,
-} from '@chakra-ui/react'
+import { Text, Stack, Button, Image, Box, Flex, HStack, Divider } from '@chakra-ui/react'
 import html2canvas from 'html2canvas'
 import { useState, useEffect, useRef } from 'react'
+import { isMobile } from 'react-device-detect'
 import Loader from '@/components/common/loader'
 import { WinChart } from './win-chart'
 import { useWinChartData } from '@/hooks/use-win-chart-data'
 import CupIcon from '@/resources/icons/cup-icon.svg'
 import { useAccount } from '@/services'
 import { useMarket } from '@/services/MarketsService'
-import { h2Bold, h3Bold, headline, paragraphMedium } from '@/styles/fonts/fonts.styles'
+import {
+  captionMedium,
+  h2Bold,
+  h3Bold,
+  headline,
+  paragraphBold,
+  paragraphMedium,
+} from '@/styles/fonts/fonts.styles'
 
 interface ShareWinProps {
   amount?: string
@@ -36,7 +33,7 @@ export const ShareWin = ({ amount = '+320.00 USDC', marketSlug }: ShareWinProps)
   const { name } = useAccount()
 
   const { data: market } = useMarket(marketSlug)
-  const activeMarketSlug = marketSlug || market?.slug
+  const activeMarketSlug = marketSlug ?? market?.slug
 
   const {
     data: chartData,
@@ -48,27 +45,24 @@ export const ShareWin = ({ amount = '+320.00 USDC', marketSlug }: ShareWinProps)
 
   const [chartImageUrl, setChartImageUrl] = useState<string | null>(null)
   const [cachedBlob, setCachedBlob] = useState<Blob | null>(null)
-  const [cachedBuffer, setCachedBuffer] = useState<Buffer | null>(null)
 
   const handleCapture = async () => {
     if (!captureRef.current) return false
 
     try {
       if (cachedBlob) {
-        if (navigator.clipboard && navigator.clipboard.write) {
+        if (navigator.clipboard?.write) {
           const item = new ClipboardItem({
             [cachedBlob.type]: cachedBlob,
           })
           await navigator.clipboard.write([item])
           return true
-        } else {
-          if (chartImageUrl) {
-            const link = document.createElement('a')
-            link.href = chartImageUrl
-            link.download = `prediction-win-${activeMarketSlug ?? 'chart'}.png`
-            link.click()
-            return true
-          }
+        } else if (chartImageUrl) {
+          const link = document.createElement('a')
+          link.href = chartImageUrl
+          link.download = `prediction-win-${activeMarketSlug ?? 'chart'}.png`
+          link.click()
+          return true
         }
       }
 
@@ -77,7 +71,7 @@ export const ShareWin = ({ amount = '+320.00 USDC', marketSlug }: ShareWinProps)
         scale: 2,
         removeContainer: true,
         onclone: (clonedDoc) => {
-          const clonedElement = clonedDoc.querySelector('[ref=captureRef]')
+          const clonedElement = clonedDoc.querySelector('[data-share-capture]')
           if (clonedElement) {
             Array.from(clonedElement.querySelectorAll('*')).forEach((el) => {
               if (el instanceof HTMLElement) {
@@ -98,11 +92,7 @@ export const ShareWin = ({ amount = '+320.00 USDC', marketSlug }: ShareWinProps)
       if (blob) {
         setCachedBlob(blob)
 
-        const arrayBuffer = await blob.arrayBuffer()
-        const buffer = Buffer.from(arrayBuffer)
-        setCachedBuffer(buffer)
-
-        if (navigator.clipboard && navigator.clipboard.write) {
+        if (navigator.clipboard?.write) {
           const item = new ClipboardItem({
             [blob.type]: blob,
           })
@@ -151,7 +141,7 @@ export const ShareWin = ({ amount = '+320.00 USDC', marketSlug }: ShareWinProps)
             backgroundColor: null, // Transparent background
             removeContainer: true, // Remove the container after capture
             onclone: (clonedDoc) => {
-              const clonedElement = clonedDoc.querySelector('[ref=captureRef]')
+              const clonedElement = clonedDoc.querySelector('[data-share-capture]')
               if (clonedElement) {
                 Array.from(clonedElement.querySelectorAll('*')).forEach((el) => {
                   if (el instanceof HTMLElement) {
@@ -172,11 +162,6 @@ export const ShareWin = ({ amount = '+320.00 USDC', marketSlug }: ShareWinProps)
 
           if (blob) {
             setCachedBlob(blob)
-
-            const arrayBuffer = await blob.arrayBuffer()
-            const buffer = Buffer.from(arrayBuffer)
-            setCachedBuffer(buffer)
-
             const url = URL.createObjectURL(blob)
             setChartImageUrl(url)
           }
@@ -193,7 +178,6 @@ export const ShareWin = ({ amount = '+320.00 USDC', marketSlug }: ShareWinProps)
         URL.revokeObjectURL(chartImageUrl)
       }
       setCachedBlob(null)
-      setCachedBuffer(null)
     }
   }, [])
 
@@ -206,8 +190,6 @@ export const ShareWin = ({ amount = '+320.00 USDC', marketSlug }: ShareWinProps)
       setChartImageUrl(null)
     }
     setCachedBlob(null)
-    setCachedBuffer(null)
-
     refetchChartData()
   }
 
@@ -226,16 +208,15 @@ export const ShareWin = ({ amount = '+320.00 USDC', marketSlug }: ShareWinProps)
   return (
     <Stack spacing={4}>
       <Text {...h2Bold}>You were right!</Text>
-      <Flex gap='5px'>
-        <Text {...headline} mt='10px'>
-          Your prediction won. You earned
-        </Text>
-
-        <Text {...headline} color='green.500' mt='10px'>
-          {amount}
+      <Flex mt='10px'>
+        <Text {...headline} lineHeight={{ base: '24px', md: 'auto' }}>
+          Your prediction won. You earned{' '}
+          <Text as='span' mt='5px' {...headline} color='green.500' display='inline'>
+            {amount}
+          </Text>
         </Text>
       </Flex>
-      <Divider borderColor='grey.100' />
+      <Divider borderColor='grey.200' />
       <HStack>
         <Text {...paragraphMedium}>Let the world know. </Text>
         <Button
@@ -256,7 +237,7 @@ export const ShareWin = ({ amount = '+320.00 USDC', marketSlug }: ShareWinProps)
           overflow='hidden'
           maxW='100%'
           my={3}
-          maxH='470px'
+          maxH={{ base: 'auto', md: '470px' }}
           h='fit-content'
           alignItems='center'
           justifyContent='center'
@@ -265,11 +246,12 @@ export const ShareWin = ({ amount = '+320.00 USDC', marketSlug }: ShareWinProps)
         >
           <Stack
             ref={captureRef}
+            data-share-capture
             maxW='732px'
             w='full'
-            maxH='470px'
-            minH='400px'
-            p='32px 32px 18px 32px'
+            maxH={{ base: 'auto', md: '470px' }}
+            minH={{ base: '235px', md: '400px' }}
+            p={{ base: '20px 20px 12px 20px', md: '32px 32px 18px 32px' }}
             h='full'
             background={`linear-gradient(to bottom, #0079FF 0%, #000000 70%)`}
             alignItems='center'
@@ -281,10 +263,11 @@ export const ShareWin = ({ amount = '+320.00 USDC', marketSlug }: ShareWinProps)
           >
             <Stack
               maxW='666px'
-              h='354px'
+              h={{ base: 'auto', md: '354px' }}
+              minH={{ base: '200px', md: '354px' }}
               w='full'
               borderRadius='12px'
-              p='24px'
+              p={{ base: '16px', md: '24px' }}
               bg='black'
               border='2px solid'
               borderColor='whiteAlpha.10'
@@ -296,35 +279,48 @@ export const ShareWin = ({ amount = '+320.00 USDC', marketSlug }: ShareWinProps)
               mb='10px'
             >
               <HStack justifyContent='space-between'>
-                <Stack>
-                  <Text {...h3Bold} color='white'>
+                <Stack gap={{ base: '2px', md: '8px' }}>
+                  <Text
+                    {...(isMobile ? paragraphBold : h3Bold)}
+                    fontSize={{ base: '10px', md: 'unset' }}
+                    color='white'
+                  >
                     {market.title}
                   </Text>
                   <Text
                     {...headline}
                     color='white'
+                    fontSize={{ base: '8px', md: 'unset' }}
                   >{`${name} Called it when the odds were still at ${chartData.boughtProbability}%`}</Text>
                 </Stack>
                 <HStack alignItems='start'>
-                  <Stack alignItems='center'>
-                    <Text {...h3Bold} fontSize='32px' color='green.500'>{`+120 %`}</Text>
-                    <Text {...headline} color='white'>{`In Profit`}</Text>
+                  <Stack alignItems='center' gap={{ base: '2px', md: '8px' }}>
+                    <Text
+                      {...(isMobile ? paragraphBold : h3Bold)}
+                      fontSize={{ base: '16px', md: '32px' }}
+                      color='green.500'
+                    >{`+120 %`}</Text>
+                    <Text
+                      {...(isMobile ? captionMedium : headline)}
+                      fontSize={{ base: '7px', md: 'unset' }}
+                      color='white'
+                    >{`In Profit`}</Text>
                   </Stack>
                   <Stack
-                    w='32px'
-                    h='32px'
-                    borderRadius='10px'
+                    w={{ base: '16px', md: '32px' }}
+                    h={{ base: '16px', md: '32px' }}
+                    borderRadius={{ base: '5px', md: '10px' }}
                     bg='green.500'
                     alignItems='center'
                     justifyContent='center'
                   >
-                    <CupIcon width={22} height={22} color='white' />
+                    <CupIcon width={isMobile ? 10 : 22} height={isMobile ? 10 : 22} color='white' />
                   </Stack>
                 </HStack>
               </HStack>
               <WinChart chartData={chartData} />
             </Stack>
-            <Image src={'/logo-white.svg'} width={220} alt='logo' />
+            <Image src={'/logo-white.svg'} width={{ base: 120, md: 220 }} alt='logo' />
           </Stack>
         </Flex>
       )}

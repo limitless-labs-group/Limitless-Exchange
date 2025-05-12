@@ -14,31 +14,17 @@ import annotationPlugin from 'chartjs-plugin-annotation'
 import { format } from 'date-fns'
 import React from 'react'
 import { Line } from 'react-chartjs-2'
+import { isMobile } from 'react-device-detect'
+import { ChartDataResponse } from '@/hooks/use-win-chart-data'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, annotationPlugin)
-interface ChartDataPoint {
-  datetime: number
-  current_trader: boolean
-  outcome_price: string
-  outcome: string
-  margin: string
-}
-
-export interface ChartDataResponse {
-  bestBuy: ChartDataPoint
-  bestBuyIndex: number
-  boughtProbability: number
-  outcome: string
-  data: ChartDataPoint[]
-}
 
 interface PriceChartProps {
   chartData: ChartDataResponse
-  customLabel?: React.ReactNode
 }
 
 export const WinChart = ({ chartData }: PriceChartProps) => {
-  const [green500, white, black] = useToken('colors', ['green.500', 'white', 'black'])
+  const [green500, black] = useToken('colors', ['green.500', 'black'])
 
   const timestamps = chartData?.data?.map((point) => point.datetime) || []
 
@@ -59,7 +45,7 @@ export const WinChart = ({ chartData }: PriceChartProps) => {
         borderColor: green500,
         backgroundColor: 'transparent',
         pointRadius: 0,
-        borderWidth: 2,
+        borderWidth: isMobile ? 1.5 : 2,
         cubicInterpolationMode: 'monotone',
         spanGaps: true,
       },
@@ -70,8 +56,8 @@ export const WinChart = ({ chartData }: PriceChartProps) => {
           ) || [],
         borderColor: green500,
         backgroundColor: black,
-        pointRadius: 5,
-        pointHoverRadius: 5,
+        pointRadius: isMobile ? 3 : 5,
+        pointHoverRadius: isMobile ? 3 : 5,
         borderWidth: 2,
         pointStyle: 'circle',
         showLine: false,
@@ -104,20 +90,20 @@ export const WinChart = ({ chartData }: PriceChartProps) => {
             color: green500,
             content: 'Bought',
             font: {
-              size: 12,
+              size: window?.innerWidth < 768 ? 10 : 12,
               weight: 'bold',
             },
             padding: {
-              top: 5,
-              bottom: 5,
-              left: 5,
-              right: 5,
+              top: window?.innerWidth < 768 ? 3 : 5,
+              bottom: window?.innerWidth < 768 ? 3 : 5,
+              left: window?.innerWidth < 768 ? 3 : 5,
+              right: window?.innerWidth < 768 ? 3 : 5,
             },
             borderWidth: 0,
             display: !!bestBuyPosition,
             position: 'start',
-            yAdjust: -15,
-            xAdjust: 5,
+            yAdjust: window?.innerWidth < 768 ? -10 : -15,
+            xAdjust: window?.innerWidth < 768 ? 3 : 5,
           },
         },
       },
@@ -138,22 +124,16 @@ export const WinChart = ({ chartData }: PriceChartProps) => {
         },
       },
     },
-    // elements: {
-    //   line: {
-    //     borderWidth: 2,
-    //     tension: 0, // Remove line tension to avoid animations
-    //   },
-    //   point: {
-    //     radius: 5, // Consistent point size
-    //     hoverRadius: 5, // Same as radius to avoid hover animations
-    //     hitRadius: 5, // Same as radius to avoid hit animations
-    //     hoverBorderWidth: 2, // Same as borderWidth to avoid hover animations
-    //   },
-    // },
   }
 
   return (
-    <Box bg='black' height='205px' width='100%' position='relative' overflow='hidden'>
+    <Box
+      bg='black'
+      height={{ base: '110px', md: '205' }}
+      width='100%'
+      position='relative'
+      overflow='hidden'
+    >
       <Line
         data={data}
         options={options}
@@ -162,16 +142,3 @@ export const WinChart = ({ chartData }: PriceChartProps) => {
     </Box>
   )
 }
-
-//   buyLabel: {
-//     type: 'point',
-//     xValue: bestBuyPosition
-//       ? chartData?.data?.findIndex((point) => point.datetime === bestBuyPosition.timestamp)
-//       : -1,
-//     yValue: bestBuyPosition ? bestBuyPosition.price + 10 : 0,
-//     radius: 1,
-//     backgroundColor: black,
-//     borderWidth: 0,
-//     display: !!bestBuyPosition,
-//   },
-// },
