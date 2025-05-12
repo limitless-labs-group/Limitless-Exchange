@@ -217,7 +217,12 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
             <HStack>
               {position.market?.closed && (
                 <VStack gap='8px' w='full'>
-                  <ShareWinningButton slug={position.market.slug ?? ''} width='full' />
+                  <ShareWinningButton
+                    amountToClaim={position.outcomeTokenAmount as string}
+                    symbol={position.market.collateralToken?.symbol as string}
+                    slug={position.market.slug ?? ''}
+                    width='full'
+                  />
                   <ClaimButton
                     conditionId={position.market.conditionId as Address}
                     collateralAddress={position.market.collateralToken?.id as Address}
@@ -289,7 +294,11 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
           <HStack>
             {position.market?.closed ? (
               <HStack gap='8px'>
-                <ShareWinningButton slug={position.market.slug ?? ''} />
+                <ShareWinningButton
+                  amountToClaim={position.outcomeTokenAmount as string}
+                  symbol={position.market.collateralToken?.symbol as string}
+                  slug={position.market.slug ?? ''}
+                />
                 <ClaimButton
                   conditionId={position.market.conditionId as Address}
                   collateralAddress={position.market.collateralToken?.id as Address}
