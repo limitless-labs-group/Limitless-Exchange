@@ -10,7 +10,7 @@ import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import OrderbookIcon from '@/resources/icons/orderbook.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import SandClockIcon from '@/resources/icons/sand-clock.svg'
-import { Market } from '@/types'
+import { Market, MarketStatus } from '@/types'
 
 interface GroupMarketSectionTabsProps {
   mobileView?: boolean
@@ -63,7 +63,12 @@ export default function GroupMarketSectionTabs({
   const tabPanels = useMemo(() => {
     return [
       <Orderbook key={uuidv4()} variant={isSmallLaptop || mobileView ? 'small' : 'large'} />,
-      <PriceChartContainer key={market?.slug} slug={market?.slug} marketType='single' />,
+      <PriceChartContainer
+        key={market?.slug}
+        slug={market?.slug}
+        marketType='single'
+        ended={market?.status === MarketStatus.RESOLVED || false}
+      />,
       <ClobOrdersTab key={uuidv4()} />,
       <PortfolioMarketGroup key={uuidv4()} />,
     ]
