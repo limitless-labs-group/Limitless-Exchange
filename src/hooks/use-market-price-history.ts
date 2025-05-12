@@ -3,6 +3,7 @@ import axios, { AxiosResponse } from 'axios'
 import { Address } from 'viem'
 import { defaultChain, newSubgraphURI } from '@/constants'
 import { limitlessApi } from '@/services'
+import { negriskHistoryMock } from '@/services/negrisk-history-mock'
 import { PriceHistory } from '@/types'
 
 // Define the interface for the chart data
