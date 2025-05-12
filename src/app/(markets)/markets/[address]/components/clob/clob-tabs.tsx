@@ -7,6 +7,7 @@ import { PriceChartContainer } from '@/app/(markets)/markets/[address]/component
 import LineChartIcon from '@/resources/icons/line-chart-icon.svg'
 import OrderbookIcon from '@/resources/icons/orderbook.svg'
 import { ChangeEvent, useAmplitude, useTradingService } from '@/services'
+import { MarketStatus } from '@/types'
 
 export default function ClobTabs() {
   const { market } = useTradingService()
@@ -43,7 +44,12 @@ export default function ClobTabs() {
 
   const tabPanels = useMemo(() => {
     return [
-      <PriceChartContainer key={uuidv4()} slug={market?.slug} marketType='single' />,
+      <PriceChartContainer
+        key={uuidv4()}
+        slug={market?.slug}
+        marketType='single'
+        ended={market?.status === MarketStatus.RESOLVED || false}
+      />,
       <Orderbook key={uuidv4()} variant={isSmallLaptop ? 'small' : 'large'} />,
     ]
   }, [market?.slug, isSmallLaptop])
