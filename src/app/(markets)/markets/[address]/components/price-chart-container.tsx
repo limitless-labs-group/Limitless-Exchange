@@ -7,7 +7,7 @@ import Skeleton from '@/components/common/skeleton'
 import { PriceChart } from '@/app/(markets)/markets/[address]/components/area-chart'
 import { useClobPriceHistory } from '@/hooks/use-market-price-history'
 import Logo from '@/resources/icons/limitless-logo.svg'
-import { controlsMedium, headline } from '@/styles/fonts/fonts.styles'
+import { controlsMedium, headline, paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 type TimeRange = '1H' | '6H' | '1D' | '1W' | '1M' | 'ALL'
 
@@ -26,15 +26,6 @@ const ChartContainer = ({ slug, marketType }: PriceChartContainerProps) => {
     marketType
   )
 
-  if (!priceHistory || isLoadingPriceHistory) {
-    return (
-      <Box w='full' mt='20px'>
-        <Skeleton height={240} />
-      </Box>
-    )
-  }
-
-  // Filter data for all histories based on selected time range
   const getFilteredData = (data: Array<{ timestamp: number; price: number }>) => {
     if (!data || data.length === 0) return []
 
@@ -55,6 +46,8 @@ const ChartContainer = ({ slug, marketType }: PriceChartContainerProps) => {
     ...history,
     prices: getFilteredData(history.prices).reverse(),
   }))
+
+  console.log(filteredHistories)
 
   return (
     <VStack
@@ -116,9 +109,21 @@ const ChartContainer = ({ slug, marketType }: PriceChartContainerProps) => {
         </HStack>
       </HStack>
 
-      <Box borderRadius='12px' bg='grey.50' p='8px'>
-        <PriceChart history={filteredHistories} />
-      </Box>
+      {Boolean(filteredHistories?.[0].prices.length) ? (
+        <Box borderRadius='12px' bg='grey.50' p='8px'>
+          {isLoadingPriceHistory || !filteredHistories ? (
+            <Box>
+              <Skeleton height={240} />
+            </Box>
+          ) : (
+            <PriceChart history={filteredHistories} />
+          )}
+        </Box>
+      ) : (
+        <HStack w='full' h='240px' justifyContent='center'>
+          <Text {...paragraphMedium}>No history within requested range</Text>
+        </HStack>
+      )}
     </VStack>
   )
 }
