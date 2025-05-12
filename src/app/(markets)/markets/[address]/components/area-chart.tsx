@@ -308,8 +308,6 @@ export const PriceChart = ({ history }: PriceChartProps) => {
       },
       y: {
         position: 'right',
-        min: 0,
-        max: 100,
         border: {
           display: false,
         },
