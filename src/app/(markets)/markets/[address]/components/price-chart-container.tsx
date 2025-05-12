@@ -106,22 +106,20 @@ const ChartContainer = ({ slug, marketType }: PriceChartContainerProps) => {
           </Text>
         </HStack>
       </HStack>
-
-      {Boolean(filteredHistories?.[0].prices.length) ? (
-        <Box borderRadius='12px' bg='grey.50' p='8px'>
-          {isLoadingPriceHistory || !filteredHistories ? (
-            <Box>
-              <Skeleton height={240} />
-            </Box>
-          ) : (
-            <PriceChart history={filteredHistories} />
-          )}
-        </Box>
-      ) : (
-        <HStack w='full' h='240px' justifyContent='center'>
-          <Text {...paragraphMedium}>No history within requested range</Text>
-        </HStack>
-      )}
+      <Box borderRadius='12px' bg='grey.50' p='8px'>
+        {isLoadingPriceHistory || !filteredHistories ? (
+          <Box>
+            <Skeleton height={240} />
+          </Box>
+        ) : Boolean(filteredHistories?.[0].prices.length) ? (
+          <PriceChart history={filteredHistories} />
+        ) : (
+          <HStack w='full' h='240px' justifyContent='center'>
+            <Text {...paragraphMedium}>No history within requested range</Text>
+          </HStack>
+        )}
+      </Box>
+      {}
     </VStack>
   )
 }

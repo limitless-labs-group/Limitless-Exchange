@@ -14723,175 +14723,395 @@ export const negriskHistoryMock = {
 
 export const singleHistoryMock = {
   data: {
-    title: 'Above $200B',
+    title: '💎 CPI in April 2025 > 0.2%?',
     prices: [
       {
-        timestamp: 1744978816846,
-        price: '0.025',
+        timestamp: '1747061342013',
+        price: 0.495,
       },
       {
-        timestamp: 1744978827877,
-        price: '0.5',
+        timestamp: '1747060442013',
+        price: 0.495,
       },
       {
-        timestamp: 1744978856173,
-        price: '0.525',
+        timestamp: '1747059542013',
+        price: 0.495,
       },
       {
-        timestamp: 1744978872629,
-        price: '0.08',
+        timestamp: '1747058642013',
+        price: 0.495,
       },
       {
-        timestamp: 1744978912377,
-        price: '0.075',
+        timestamp: '1747057742013',
+        price: 0.495,
       },
       {
-        timestamp: 1744982399375,
-        price: '0.075',
+        timestamp: '1747056842013',
+        price: 0.495,
       },
       {
-        timestamp: 1744993226933,
-        price: '0.075',
+        timestamp: '1747055942013',
+        price: 0.495,
       },
       {
-        timestamp: 1745019540046,
-        price: '0.075',
+        timestamp: '1747055042013',
+        price: 0.495,
       },
       {
-        timestamp: 1745019545789,
-        price: '0.075',
+        timestamp: '1747054142013',
+        price: 0.495,
       },
       {
-        timestamp: 1745019560769,
-        price: '0.075',
+        timestamp: '1747053242013',
+        price: 0.495,
       },
       {
-        timestamp: 1745033773447,
-        price: '0.075',
+        timestamp: '1747052342013',
+        price: 0.495,
       },
       {
-        timestamp: 1745033778173,
-        price: '0.075',
+        timestamp: '1747051442013',
+        price: 0.495,
       },
       {
-        timestamp: 1745038625252,
-        price: '0.075',
+        timestamp: '1747050542013',
+        price: 0.495,
       },
       {
-        timestamp: 1745038637332,
-        price: '0.0755',
+        timestamp: '1747049642013',
+        price: 0.495,
       },
       {
-        timestamp: 1745045584442,
-        price: '0.0755',
+        timestamp: '1747048742013',
+        price: 0.495,
       },
       {
-        timestamp: 1745045594998,
-        price: '0.0755',
+        timestamp: '1747047842013',
+        price: 0.495,
       },
       {
-        timestamp: 1745088291781,
-        price: '0.075',
+        timestamp: '1747046942013',
+        price: 0.495,
       },
       {
-        timestamp: 1745088298589,
-        price: '0.0755',
+        timestamp: '1747046042013',
+        price: 0.495,
       },
       {
-        timestamp: 1745106458432,
-        price: '0.0755',
+        timestamp: '1747045142013',
+        price: 0.495,
       },
       {
-        timestamp: 1745106458439,
-        price: '0.0755',
+        timestamp: '1747044242013',
+        price: 0.495,
       },
       {
-        timestamp: 1745106471471,
-        price: '0.08',
+        timestamp: '1747043342013',
+        price: 0.495,
       },
       {
-        timestamp: 1745113060325,
-        price: '0.08',
+        timestamp: '1747042442013',
+        price: 0.495,
       },
       {
-        timestamp: 1745185758976,
-        price: '0.085',
+        timestamp: '1747041542013',
+        price: 0.495,
       },
       {
-        timestamp: 1745191891500,
-        price: '0.085',
+        timestamp: '1747040642013',
+        price: 0.495,
       },
       {
-        timestamp: 1745191902915,
-        price: '0.0855',
+        timestamp: '1747039742013',
+        price: 0.495,
       },
       {
-        timestamp: 1745192845232,
-        price: '0.0855',
+        timestamp: '1747038842013',
+        price: 0.495,
       },
       {
-        timestamp: 1745192857410,
-        price: '0.0855',
+        timestamp: '1747037942013',
+        price: 0.495,
       },
       {
-        timestamp: 1745197832073,
-        price: '0.0855',
+        timestamp: '1747037042013',
+        price: 0.495,
       },
       {
-        timestamp: 1745197836913,
-        price: '0.0855',
+        timestamp: '1747036142013',
+        price: 0.495,
       },
       {
-        timestamp: 1745311900760,
-        price: '0.0855',
+        timestamp: '1747035242013',
+        price: 0.495,
       },
       {
-        timestamp: 1745311920044,
-        price: '0.0855',
+        timestamp: '1747034342013',
+        price: 0.495,
       },
       {
-        timestamp: 1745314886745,
-        price: '0.0855',
+        timestamp: '1747033442013',
+        price: 0.495,
       },
       {
-        timestamp: 1745314898751,
-        price: '0.086',
+        timestamp: '1747032542013',
+        price: 0.495,
       },
       {
-        timestamp: 1745324493706,
-        price: '0.086',
+        timestamp: '1747031642013',
+        price: 0.495,
       },
       {
-        timestamp: 1745324509197,
-        price: '0.0865',
+        timestamp: '1747030742013',
+        price: 0.495,
       },
       {
-        timestamp: 1745331086571,
-        price: '0.0865',
+        timestamp: '1747029842013',
+        price: 0.495,
       },
       {
-        timestamp: 1745331106799,
-        price: '0.087',
+        timestamp: '1747028942013',
+        price: 0.495,
       },
       {
-        timestamp: 1745339004291,
-        price: '0.087',
+        timestamp: '1747028042013',
+        price: 0.495,
       },
       {
-        timestamp: 1745339004297,
-        price: '0.087',
+        timestamp: '1747027142013',
+        price: 0.495,
       },
       {
-        timestamp: 1745339004302,
-        price: '0.087',
+        timestamp: '1747026242013',
+        price: 0.495,
       },
       {
-        timestamp: 1745368707544,
-        price: '0.087',
+        timestamp: '1747025342013',
+        price: 0.495,
       },
       {
-        timestamp: 1745368890980,
-        price: '0.0875',
+        timestamp: '1747024442013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747023542013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747022642013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747021742013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747020842013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747019942013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747019042013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747018142013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747017242013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747016342013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747015442013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747014542013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747013642013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747012742013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747011842013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747010942013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747010042013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747009142013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747008242013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747007342013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747006442013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747005542013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747004642013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747003742013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747002842013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747001942013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747001042013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1747000142013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746999242013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746998342013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746997442013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746996542013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746995642013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746994742013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746993842013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746992942013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746992042013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746991142013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746990242013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746989342013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746988442013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746987542013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746986642013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746985742013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746984842013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746983942013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746983042013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746982142013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746981242013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746980342013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746979442013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746978542013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746977642013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746976742013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746975842013',
+        price: 0.495,
+      },
+      {
+        timestamp: '1746974942013',
+        price: 0.495,
       },
     ],
   },
