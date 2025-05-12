@@ -33,8 +33,8 @@ export const useWinChartData = ({ marketSlug, enabled = true }: UseWinChartDataP
         throw new Error('Market slug and account are required')
       }
 
-      // const chartUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/chart/${marketSlug}/${account}`
-      const chartUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/chart/cmarket-1link-surge-after-institutional-by-jan-3-2027-1746787539524/0x453418e1A0233eeAe1E9dAA5f4ca0394a5afBe59`
+      const chartUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/chart/${marketSlug}/${account}`
+      // const chartUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/chart/cmarket-1link-surge-after-institutional-by-jan-3-2027-1746787539524/0x453418e1A0233eeAe1E9dAA5f4ca0394a5afBe59`
 
       const response = await axios.get<ChartDataResponse>(chartUrl)
       return response.data
