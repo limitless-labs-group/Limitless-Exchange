@@ -55,6 +55,7 @@
     "axios": "^1.7.4",
     "big.js": "^6.2.1",
     "chart.js": "^4.4.8",
+    "chartjs-plugin-annotation": "^3.1.0",
     "date-fns": "^3.6.0",
     "date-fns-tz": "^3.2.0",
     "dayzed": "^3.2.3",

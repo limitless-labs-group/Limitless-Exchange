@@ -152,6 +152,7 @@ export const darkThemeColors: ColorScheme = {
     50: 'rgba(255, 255, 255, 0.5)',
     30: 'rgba(255, 255, 255, 0.3)',
     20: 'rgba(255, 255, 255, 0.2)',
+    10: 'rgba(255, 255, 255, 0.1)',
   },
   blackAlpha: {
     70: 'rgba(0, 0, 0, 0.7)',
