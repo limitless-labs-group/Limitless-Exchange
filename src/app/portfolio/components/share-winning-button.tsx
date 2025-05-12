@@ -8,8 +8,15 @@ import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 export interface ShareWinningButtonProps {
   slug: string
   width?: string
+  amountToClaim?: string
+  symbol?: string
 }
-export const ShareWinningButton = ({ slug, width = 'fit-content' }: ShareWinningButtonProps) => {
+export const ShareWinningButton = ({
+  slug,
+  width = 'fit-content',
+  amountToClaim,
+  symbol,
+}: ShareWinningButtonProps) => {
   const [isShareOpen, setIsShareOpen] = useState(false)
   return (
     <>
@@ -19,7 +26,7 @@ export const ShareWinningButton = ({ slug, width = 'fit-content' }: ShareWinning
         maxW='780px'
         minH={{ base: '500px', md: '700px' }}
       >
-        <ShareWin marketSlug={slug} />
+        <ShareWin marketSlug={slug} amountToClaim={amountToClaim} symbol={symbol} />
       </Modal>
       <Button
         w={width}

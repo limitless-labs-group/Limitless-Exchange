@@ -1,25 +1,21 @@
-import { HStack, Stack, Text, Box, Icon, VStack, Divider, Button } from '@chakra-ui/react'
+import { HStack, Stack, Text, Box, Icon, VStack, Divider } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
-import React, { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
 import ClaimButton from '@/components/common/markets/claim-button'
 import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import MarketPage from '@/components/common/markets/market-page'
-import { Modal } from '@/components/common/modals/modal'
 import Skeleton from '@/components/common/skeleton'
-import { ShareWin } from './share-win'
 import { ShareWinningButton } from './share-winning-button'
 import ActiveIcon from '@/resources/icons/active-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import ClosedIcon from '@/resources/icons/close-rounded-icon.svg'
-import ShareIcon from '@/resources/icons/share-icon.svg'
 import { ClickEvent, HistoryPosition, useAmplitude, useTradingService } from '@/services'
 import { useMarket } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export interface IPortfolioPositionCard {
@@ -221,7 +217,12 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
             <HStack>
               {position.market?.closed && (
                 <VStack gap='8px' w='full'>
-                  <ShareWinningButton slug={position.market.slug ?? ''} width='full' />
+                  <ShareWinningButton
+                    amountToClaim={position.outcomeTokenAmount as string}
+                    symbol={position.market.collateralToken?.symbol as string}
+                    slug={position.market.slug ?? ''}
+                    width='full'
+                  />
                   <ClaimButton
                     conditionId={position.market.conditionId as Address}
                     collateralAddress={position.market.collateralToken?.id as Address}
@@ -293,7 +294,11 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
           <HStack>
             {position.market?.closed ? (
               <HStack gap='8px'>
-                <ShareWinningButton slug={position.market.slug ?? ''} />
+                <ShareWinningButton
+                  amountToClaim={position.outcomeTokenAmount as string}
+                  symbol={position.market.collateralToken?.symbol as string}
+                  slug={position.market.slug ?? ''}
+                />
                 <ClaimButton
                   conditionId={position.market.conditionId as Address}
                   collateralAddress={position.market.collateralToken?.id as Address}

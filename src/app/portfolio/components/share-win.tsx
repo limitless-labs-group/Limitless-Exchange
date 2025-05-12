@@ -16,13 +16,15 @@ import {
   paragraphBold,
   paragraphMedium,
 } from '@/styles/fonts/fonts.styles'
+import { NumberUtil } from '@/utils'
 
 interface ShareWinProps {
-  amount?: string
+  amountToClaim?: string
   marketSlug?: string
+  symbol?: string
 }
 
-export const ShareWin = ({ amount = '+320.00 USDC', marketSlug }: ShareWinProps) => {
+export const ShareWin = ({ marketSlug, amountToClaim, symbol = 'USDC' }: ShareWinProps) => {
   const [isCopying, setIsCopying] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [isError, setIsError] = useState(false)
@@ -212,7 +214,7 @@ export const ShareWin = ({ amount = '+320.00 USDC', marketSlug }: ShareWinProps)
         <Text {...headline} lineHeight={{ base: '24px', md: 'auto' }}>
           Your prediction won. You earned{' '}
           <Text as='span' mt='5px' {...headline} color='green.500' display='inline'>
-            {amount}
+            {`+${NumberUtil.formatThousands(amountToClaim, 2)} ${symbol}`}
           </Text>
         </Text>
       </Flex>
@@ -253,7 +255,7 @@ export const ShareWin = ({ amount = '+320.00 USDC', marketSlug }: ShareWinProps)
             minH={{ base: '235px', md: '400px' }}
             p={{ base: '20px 20px 12px 20px', md: '32px 32px 18px 32px' }}
             h='full'
-            background={`linear-gradient(to bottom, #0079FF 0%, #000000 70%)`}
+            background={`linear-gradient(to bottom, #0CACA1 0%, #000000 70%)`}
             alignItems='center'
             justifyContent='center'
             position='relative'
@@ -299,7 +301,14 @@ export const ShareWin = ({ amount = '+320.00 USDC', marketSlug }: ShareWinProps)
                       {...(isMobile ? paragraphBold : h3Bold)}
                       fontSize={{ base: '16px', md: '32px' }}
                       color='green.500'
-                    >{`+120 %`}</Text>
+                    >{`+${
+                      chartData
+                        ? Math.round(
+                            ((100 - chartData.boughtProbability) / chartData.boughtProbability) *
+                              100
+                          )
+                        : 0
+                    } %`}</Text>
                     <Text
                       {...(isMobile ? captionMedium : headline)}
                       fontSize={{ base: '7px', md: 'unset' }}

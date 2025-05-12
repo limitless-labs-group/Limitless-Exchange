@@ -57,7 +57,16 @@ const PortfolioPositionCardClob = ({ positionData, ...props }: PortfolioPosition
         {isMobile && <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} />}
         {!isMobile && marketClosed && (
           <HStack gap='8px'>
-            <ShareWinningButton slug={positionData.market.slug ?? ''} />
+            <ShareWinningButton
+              amountToClaim={formatUnits(
+                BigInt(
+                  positionData.tokensBalance[positionData.market.winningOutcomeIndex ? 'no' : 'yes']
+                ),
+                decimals
+              )}
+              symbol={symbol}
+              slug={positionData.market.slug ?? ''}
+            />
             <ClaimButton
               slug={positionData.market.slug}
               conditionId={positionData.market.conditionId as Address}
