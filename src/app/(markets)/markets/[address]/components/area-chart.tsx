@@ -311,6 +311,7 @@ export const PriceChart = ({ history }: PriceChartProps) => {
         border: {
           display: false,
         },
+        min: 0,
         grid: {
           color: grey100,
           lineWidth: 1,
