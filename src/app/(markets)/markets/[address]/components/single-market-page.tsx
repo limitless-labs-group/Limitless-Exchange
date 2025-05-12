@@ -40,8 +40,9 @@ import ClobTabs from '@/app/(markets)/markets/[address]/components/clob/clob-tab
 import MarketMobileTradeForm from '@/app/(markets)/markets/[address]/components/clob/market-mobile-trade-form'
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import PortfolioTab from '@/app/(markets)/markets/[address]/components/portfolio-tab'
+import { PriceChartContainer } from '@/app/(markets)/markets/[address]/components/price-chart-container'
 import { LUMY_TOKENS } from '@/app/draft/components'
-import { MarketPriceChart, MarketTradingForm, MarketClosedButton } from './../components'
+import { MarketTradingForm, MarketClosedButton } from './../components'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
@@ -110,13 +111,13 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
 
   const chartsTabPanels = useMemo(
     () => [
-      <MarketPriceChart key={uuidv4()} />,
+      <PriceChartContainer key={uuidv4()} marketType='single' slug={market?.slug} />,
       <MarketAssetPriceChart
         key={uuidv4()}
         id={LUMY_TOKENS.filter((token) => market?.title.includes(`${token} `))[0]}
       />,
     ],
-    [market?.title]
+    [market?.title, market?.slug]
   )
 
   const marketChartContent = useMemo(() => {
@@ -147,8 +148,8 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
         </Tabs>
       )
     }
-    return <MarketPriceChart />
-  }, [])
+    return <PriceChartContainer marketType='single' slug={market?.slug} />
+  }, [market?.slug])
 
   const tabs = [
     {

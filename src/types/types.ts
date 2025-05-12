@@ -558,3 +558,11 @@ export interface MarketRewardsResponse {
   unpaidRecords: string
   userId: string
 }
+
+export interface PriceHistory {
+  title: string
+  prices: {
+    timestamp: number
+    price: number
+  }[]
+}

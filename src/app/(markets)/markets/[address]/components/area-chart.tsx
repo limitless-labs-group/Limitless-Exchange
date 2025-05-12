@@ -14,17 +14,39 @@ import {
   ChartOptions,
 } from 'chart.js'
 import { format } from 'date-fns'
+import { useEffect, useRef } from 'react'
 import { Line } from 'react-chartjs-2'
 import { isMobile } from 'react-device-detect'
-import { ClobPriceHistoryResponse } from '@/hooks/use-market-price-history'
+import { PriceHistory } from '@/types'
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
+const legendMargin = {
+  id: 'legendMargin',
+  beforeInit(chart: any) {
+    const fitValue = chart.legend.fit
+    chart.legend.fit = function fit() {
+      fitValue.bind(chart.legend)()
+      this.height += 24 // Space below legend
+    }
+  },
+}
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  legendMargin
+)
 
 interface PriceChartProps {
-  history: ClobPriceHistoryResponse[]
+  history: PriceHistory[]
 }
 
 export const PriceChart = ({ history }: PriceChartProps) => {
+  const chartRef = useRef<HTMLDivElement>(null)
   const [
     blue500,
     red500,
@@ -34,7 +56,6 @@ export const PriceChart = ({ history }: PriceChartProps) => {
     grey300,
     grey500,
     orange500,
-    grey50,
     yellow500,
     lime500,
     mint500,
@@ -59,7 +80,6 @@ export const PriceChart = ({ history }: PriceChartProps) => {
     'grey.300',
     'grey.500',
     'orange.500',
-    'grey.50',
     'yellow.500',
     'lime.500',
     'mint.500',
@@ -100,71 +120,23 @@ export const PriceChart = ({ history }: PriceChartProps) => {
     pink200,
   ]
 
-  function getUniqueTimestamps() {
-    const timestamps = new Set<number>()
-    const now = new Date().getTime()
-
-    history.forEach((item) => {
-      item.prices.forEach((price) => {
-        timestamps.add(price.timestamp)
-      })
-    })
-
-    timestamps.add(now)
-
-    return Array.from(timestamps).sort((a, b) => a - b)
-  }
-
-  const timestamps = getUniqueTimestamps()
-
   const data: ChartData<'line'> = {
-    labels: timestamps.map((ts) => format(new Date(ts), 'MMM d')),
+    labels: history[0].prices
+      .slice()
+      .map((ts) =>
+        new Date(ts.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric' })
+      ),
     datasets: history
       .map((history, index) => {
-        const sortedPrices = [...history.prices].sort((a, b) => a.timestamp - b.timestamp)
-
-        if (sortedPrices.length === 0) {
-          return {
-            label: history.title,
-            data: [],
-            borderColor: seriesColors[index % seriesColors.length],
-            backgroundColor: seriesColors[index % seriesColors.length],
-            pointRadius: 0,
-            pointHoverRadius: 4,
-            borderWidth: 2,
-            tension: 0,
-            spanGaps: true,
-          }
-        }
-
         return {
           label: history.title,
-          data: timestamps.map((ts) => {
-            const exactMatch = history.prices.find((p) => p.timestamp === ts)
-            if (exactMatch) {
-              return +exactMatch.price
-            }
-
-            const previousPrices = history.prices.filter((p) => p.timestamp <= ts)
-            if (previousPrices.length > 0) {
-              const mostRecent = previousPrices.reduce((a, b) =>
-                a.timestamp > b.timestamp ? a : b
-              )
-              return +mostRecent.price
-            }
-
-            if (sortedPrices.length > 0) {
-              return +sortedPrices[0].price
-            }
-
-            return null
-          }),
+          data: history.prices.slice().map((price) => price.price),
           borderColor: seriesColors[index % seriesColors.length],
           backgroundColor: seriesColors[index % seriesColors.length],
           pointRadius: 0,
           pointHoverRadius: 4,
           borderWidth: 2,
-          tension: 0,
+          tension: 0.5,
           spanGaps: true,
           segment: {
             borderColor: (ctx: any) => {
@@ -198,6 +170,7 @@ export const PriceChart = ({ history }: PriceChartProps) => {
     },
     plugins: {
       legend: {
+        display: history.length > 2,
         position: 'top' as const,
         align: 'start' as const,
         labels: {
@@ -226,34 +199,45 @@ export const PriceChart = ({ history }: PriceChartProps) => {
         },
       },
       tooltip: {
-        backgroundColor: grey50,
-        borderColor: grey300,
-        borderWidth: 1,
-        boxWidth: 5,
-        boxHeight: 5,
-        titleColor: grey500,
-        titleFont: {
-          family: 'Inter, sans-serif',
-          size: 12,
+        // @ts-ignore
+        backgroundColor: (context) => {
+          if (history.length === 1) {
+            const dp = context.tooltip.dataPoints?.[0]
+            return dp?.dataset?.borderColor || blue500
+          }
+          return grey500
         },
-        bodyColor: grey500,
-        bodyFont: {
-          family: 'Inter, sans-serif',
-          size: 14,
+        borderColor: 'transparent',
+        borderWidth: 0,
+        caretSize: 0,
+        caretPadding: 12,
+        padding: {
+          top: 2,
+          bottom: 0,
+          left: 4,
+          right: 4,
         },
-        padding: 12,
-        usePointStyle: true,
+        boxWidth: history.length === 1 ? 0 : 12,
+        boxHeight: 1,
+        boxPadding: history.length === 1 ? 0 : 6,
+        borderRadius: 6,
+        displayColors: true,
         callbacks: {
-          title: (items) => {
-            const date = new Date(timestamps[items[0].dataIndex])
-            return format(date, 'MMM d, yyyy h:mm a')
-          },
+          title: () => '',
           label: (context) => {
+            if (history.length === 1) {
+              const value = context.dataset.data[context.dataIndex] || 50
+              return `Yes ${(value as number).toFixed(1)}%`
+            }
             const label = context.dataset.label || ''
             const value = context.parsed.y
-            return `${label}: ${value.toFixed(2)}%`
+            return `${value.toFixed(1)}% ${label}`
           },
         },
+        shadowOffsetX: 0,
+        shadowOffsetY: 0,
+        shadowBlur: 0,
+        shadowColor: 'transparent',
       },
       // @ts-ignore
       verticalLine: {
@@ -262,7 +246,7 @@ export const PriceChart = ({ history }: PriceChartProps) => {
             const activePoint = chart.tooltip._active[0]
             const ctx = chart.ctx
             const x = activePoint.element.x
-            const topY = chart.scales.y.top
+            const topY = chart.scales.y.top - 20
             const bottomY = chart.scales.y.bottom
 
             // Save context state
@@ -276,6 +260,28 @@ export const PriceChart = ({ history }: PriceChartProps) => {
             ctx.lineWidth = 1
             ctx.strokeStyle = grey300
             ctx.stroke()
+
+            const dataIndex = activePoint.index
+            // Find the original timestamp from your history data
+            // Assuming history[0] is the main series
+            const originalTimestamp = history[0].prices[dataIndex]?.timestamp
+            if (originalTimestamp) {
+              // ... inside beforeDraw
+              const formattedDate = format(new Date(originalTimestamp), 'MMM d, yy’ h:mm a')
+              ctx.font = 'lighter 12px Inter, sans-serif'
+              ctx.fillStyle = grey500
+              ctx.textBaseline = 'bottom'
+              let textX = x + 6
+              let textAlign = 'left'
+              const textWidth = ctx.measureText(formattedDate).width
+
+              if (textX + textWidth > chart.width - 8) {
+                textX = x - 10
+                textAlign = 'right'
+              }
+              ctx.textAlign = textAlign
+              ctx.fillText(formattedDate, textX, topY + 16)
+            }
 
             // Restore context state
             ctx.restore()
@@ -297,14 +303,11 @@ export const PriceChart = ({ history }: PriceChartProps) => {
             family: 'Inter, sans-serif',
             size: 12,
           },
-          autoSkip: true,
-          maxTicksLimit: 8,
+          maxTicksLimit: 5,
         },
       },
       y: {
         position: 'right',
-        min: 0,
-        max: 100,
         border: {
           display: false,
         },
@@ -345,8 +348,27 @@ export const PriceChart = ({ history }: PriceChartProps) => {
 
   ChartJS.register(verticalLinePlugin)
 
+  useEffect(() => {
+    const box = chartRef.current
+    if (!box) return
+
+    //@ts-ignore
+    const chartInstance = ChartJS.getChart(box.querySelector('canvas'))
+
+    const handleMouseLeave = () => {
+      if (chartInstance) {
+        //@ts-ignore
+        chartInstance.hoverIndex = undefined
+        chartInstance.update()
+      }
+    }
+
+    box.addEventListener('mouseleave', handleMouseLeave)
+    return () => box.removeEventListener('mouseleave', handleMouseLeave)
+  }, [])
+
   return (
-    <Box w='full' h={isMobile ? `${history.length * 40 + 100}px` : 240}>
+    <Box ref={chartRef} w='full' h={isMobile ? `${history.length * 40 + 100}px` : 240}>
       <Line data={data} options={options} />
     </Box>
   )

@@ -2,8 +2,8 @@ import { HStack, Tab, TabIndicator, TabList, TabPanel, TabPanels, Tabs } from '@
 import React, { useEffect, useMemo, useState } from 'react'
 import { isDesktop, isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
-import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
 import Orderbook from '@/app/(markets)/markets/[address]/components/clob/orderbook'
+import { PriceChartContainer } from '@/app/(markets)/markets/[address]/components/price-chart-container'
 import LineChartIcon from '@/resources/icons/line-chart-icon.svg'
 import OrderbookIcon from '@/resources/icons/orderbook.svg'
 import { ChangeEvent, useAmplitude, useTradingService } from '@/services'
@@ -43,10 +43,10 @@ export default function ClobTabs() {
 
   const tabPanels = useMemo(() => {
     return [
-      <MarketPriceChart key={uuidv4()} />,
+      <PriceChartContainer key={uuidv4()} slug={market?.slug} marketType='single' />,
       <Orderbook key={uuidv4()} variant={isSmallLaptop ? 'small' : 'large'} />,
     ]
-  }, [market, isSmallLaptop])
+  }, [market?.slug, isSmallLaptop])
 
   const handleTabChanged = (event: string) => {
     trackChanged(ChangeEvent.ChartTabChanged, {
