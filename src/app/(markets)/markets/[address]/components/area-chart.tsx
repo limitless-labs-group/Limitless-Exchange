@@ -136,7 +136,7 @@ export const PriceChart = ({ history }: PriceChartProps) => {
           pointRadius: 0,
           pointHoverRadius: 4,
           borderWidth: 2,
-          tension: 0,
+          tension: 0.5,
           spanGaps: true,
           segment: {
             borderColor: (ctx: any) => {
