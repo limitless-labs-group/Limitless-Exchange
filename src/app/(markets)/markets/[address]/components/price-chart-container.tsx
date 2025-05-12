@@ -14,9 +14,10 @@ type TimeRange = '1H' | '6H' | '1D' | '1W' | '1M' | 'ALL'
 type PriceChartContainerProps = {
   slug?: string
   marketType?: 'single' | 'group'
+  ended: boolean
 }
 
-const ChartContainer = ({ slug, marketType }: PriceChartContainerProps) => {
+const ChartContainer = ({ slug, marketType, ended }: PriceChartContainerProps) => {
   const [selectedRange, setSelectedRange] = useState<TimeRange>('ALL')
   const timeRanges: TimeRange[] = ['1H', '6H', '1D', '1W', '1M', 'ALL']
 
@@ -91,6 +92,7 @@ const ChartContainer = ({ slug, marketType }: PriceChartContainerProps) => {
               onClick={() => {
                 setSelectedRange(range)
               }}
+              disabled={ended}
               key={range}
             >
               <Text {...controlsMedium} color={range === selectedRange ? 'font' : 'fontLight'}>

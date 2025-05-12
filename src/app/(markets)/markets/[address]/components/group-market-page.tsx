@@ -287,7 +287,11 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                 </HStack>
               </Box>
               <Divider my='16px' />
-              <PriceChartContainer slug={groupMarket?.slug} marketType='group' />
+              <PriceChartContainer
+                slug={groupMarket?.slug}
+                marketType='group'
+                ended={market?.status === MarketStatus.RESOLVED || false}
+              />
             </Box>
             <Text {...h2Medium} mt='24px' px={isMobile ? '16px' : 0}>
               Outcomes

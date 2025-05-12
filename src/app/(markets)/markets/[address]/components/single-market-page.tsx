@@ -4,6 +4,7 @@ import {
   Box,
   Button,
   Divider,
+  Heading,
   HStack,
   Image as ChakraImage,
   Link,
@@ -15,7 +16,6 @@ import {
   Tabs,
   Text,
   VStack,
-  Heading,
 } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useMemo } from 'react'
@@ -42,7 +42,7 @@ import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/over
 import PortfolioTab from '@/app/(markets)/markets/[address]/components/portfolio-tab'
 import { PriceChartContainer } from '@/app/(markets)/markets/[address]/components/price-chart-container'
 import { LUMY_TOKENS } from '@/app/draft/components'
-import { MarketTradingForm, MarketClosedButton } from './../components'
+import { MarketClosedButton, MarketTradingForm } from './../components'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
@@ -111,7 +111,12 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
 
   const chartsTabPanels = useMemo(
     () => [
-      <PriceChartContainer key={uuidv4()} marketType='single' slug={market?.slug} />,
+      <PriceChartContainer
+        key={uuidv4()}
+        marketType='single'
+        slug={market?.slug}
+        ended={market?.status === MarketStatus.RESOLVED || false}
+      />,
       <MarketAssetPriceChart
         key={uuidv4()}
         id={LUMY_TOKENS.filter((token) => market?.title.includes(`${token} `))[0]}
@@ -148,7 +153,13 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
         </Tabs>
       )
     }
-    return <PriceChartContainer marketType='single' slug={market?.slug} />
+    return (
+      <PriceChartContainer
+        marketType='single'
+        slug={market?.slug}
+        ended={market?.status === MarketStatus.RESOLVED || false}
+      />
+    )
   }, [market?.slug])
 
   const tabs = [
