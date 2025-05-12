@@ -121,7 +121,6 @@ const ChartContainer = ({ slug, marketType, ended }: PriceChartContainerProps) =
           </HStack>
         )}
       </Box>
-      {}
     </VStack>
   )
 }
