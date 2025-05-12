@@ -55,6 +55,7 @@ export interface IAccountContext {
   disconnectFromPlatform: () => void
   displayName?: string
   displayUsername: string
+  name: string
   bio: string
   referralCode: string
   refLink: string
@@ -571,6 +572,10 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     [referralCode]
   )
 
+  const name = useMemo(() => {
+    return profileData?.displayName ?? profileData?.username ?? profileData?.account ?? ''
+  }, [profileData])
+
   const disconnectFromPlatform = useCallback(async () => {
     localStorage.removeItem(LOGGED_IN_TO_LIMITLESS)
     localStorage.removeItem(USER_ID)
@@ -586,6 +591,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const contextProviderValue: IAccountContext = {
     isLoggedIn: authenticated || !!isLogged,
     account,
+    name,
     displayName,
     displayUsername,
     referralCode,

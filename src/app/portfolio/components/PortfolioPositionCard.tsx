@@ -1,17 +1,20 @@
-import { HStack, Stack, Text, Box, Icon, VStack, Divider } from '@chakra-ui/react'
+import { HStack, Stack, Text, Box, Icon, VStack, Divider, Button } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Address } from 'viem'
 import MobileDrawer from '@/components/common/drawer'
 import ClaimButton from '@/components/common/markets/claim-button'
 import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import MarketPage from '@/components/common/markets/market-page'
+import { Modal } from '@/components/common/modals/modal'
 import Skeleton from '@/components/common/skeleton'
+import { ShareWin } from './share-win'
 import ActiveIcon from '@/resources/icons/active-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
 import ClosedIcon from '@/resources/icons/close-rounded-icon.svg'
+import ShareIcon from '@/resources/icons/share-icon.svg'
 import { ClickEvent, HistoryPosition, useAmplitude, useTradingService } from '@/services'
 import { useMarket } from '@/services/MarketsService'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
@@ -52,6 +55,7 @@ const StatusIcon = ({ isClosed, color }: { isClosed: boolean | undefined; color:
 const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => {
   const { trackClicked } = useAmplitude()
   const { onOpenMarketPage, setMarket } = useTradingService()
+  const [isShareOpen, setIsShareOpen] = useState(false)
 
   const date = new Date(position.market.expirationDate)
 
@@ -285,14 +289,40 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
 
           <HStack>
             {position.market?.closed ? (
-              <ClaimButton
-                conditionId={position.market.conditionId as Address}
-                collateralAddress={position.market.collateralToken?.id as Address}
-                marketAddress={position.market.id}
-                marketType='amm'
-                amountToClaim={position.outcomeTokenAmount as string}
-                symbol={position.market.collateralToken?.symbol as string}
-              />
+              <HStack gap='8px'>
+                <Modal
+                  isOpen={isShareOpen}
+                  onClose={() => setIsShareOpen(false)}
+                  maxW='780px'
+                  minH='700px'
+                >
+                  <ShareWin marketSlug={position.market?.slug ?? ''} />
+                </Modal>
+                <Button
+                  variant='white'
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    setIsShareOpen(true)
+                  }}
+                >
+                  <HStack gap='4px'>
+                    <ShareIcon width={16} height={16} color='black' />
+                    <Text {...paragraphMedium} color='black'>
+                      Share
+                    </Text>
+                  </HStack>
+                </Button>
+
+                <ClaimButton
+                  conditionId={position.market.conditionId as Address}
+                  collateralAddress={position.market.collateralToken?.id as Address}
+                  marketAddress={position.market.id}
+                  marketType='amm'
+                  amountToClaim={position.outcomeTokenAmount as string}
+                  symbol={position.market.collateralToken?.symbol as string}
+                />
+              </HStack>
             ) : (
               <>
                 {!position || !prices ? (
