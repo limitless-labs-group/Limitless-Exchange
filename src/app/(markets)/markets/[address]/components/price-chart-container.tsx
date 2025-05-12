@@ -47,8 +47,6 @@ const ChartContainer = ({ slug, marketType }: PriceChartContainerProps) => {
     prices: getFilteredData(history.prices).reverse(),
   }))
 
-  console.log(filteredHistories)
-
   return (
     <VStack
       w='full'
