@@ -185,11 +185,11 @@ export function useBanneredMarkets(topic: Category | null) {
               : [
                   new BigNumber(market?.prices?.[0])
                     .multipliedBy(100)
-                    .decimalPlaces(0)
+                    .decimalPlaces(1)
                     .toNumber() ?? 50,
                   new BigNumber(market?.prices?.[1])
                     .multipliedBy(100)
-                    .decimalPlaces(0)
+                    .decimalPlaces(1)
                     .toNumber() ?? 50,
                 ],
         }
@@ -296,11 +296,11 @@ export function useMarket(address?: string | null, isPolling = false, enabled = 
           prices = [
             new BigNumber(marketRes.prices?.[0] || 0.5)
               .multipliedBy(100)
-              .decimalPlaces(0)
+              .decimalPlaces(1)
               .toNumber(),
             new BigNumber(marketRes.prices?.[1] || 0.5)
               .multipliedBy(100)
-              .decimalPlaces(0)
+              .decimalPlaces(1)
               .toNumber(),
           ]
         } else {
