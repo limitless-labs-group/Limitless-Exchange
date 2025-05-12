@@ -12,7 +12,6 @@ import {
   Legend,
   ChartData,
   ChartOptions,
-  Chart,
 } from 'chart.js'
 import { format } from 'date-fns'
 import { useEffect, useRef } from 'react'
@@ -57,7 +56,6 @@ export const PriceChart = ({ history }: PriceChartProps) => {
     grey300,
     grey500,
     orange500,
-    grey50,
     yellow500,
     lime500,
     mint500,
@@ -82,7 +80,6 @@ export const PriceChart = ({ history }: PriceChartProps) => {
     'grey.300',
     'grey.500',
     'orange.500',
-    'grey.50',
     'yellow.500',
     'lime.500',
     'mint.500',
@@ -124,7 +121,11 @@ export const PriceChart = ({ history }: PriceChartProps) => {
   ]
 
   const data: ChartData<'line'> = {
-    labels: history[0].prices.slice().map((ts) => ts.timestamp),
+    labels: history[0].prices
+      .slice()
+      .map((ts) =>
+        new Date(ts.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric' })
+      ),
     datasets: history
       .map((history, index) => {
         return {
@@ -302,54 +303,7 @@ export const PriceChart = ({ history }: PriceChartProps) => {
             family: 'Inter, sans-serif',
             size: 12,
           },
-          autoSkip: false,
           maxTicksLimit: 5,
-          callback: function (value, index, ticks) {
-            const parseDate = (input: string | number) => {
-              if (typeof input === 'number') return new Date(input)
-              if (!isNaN(Number(input))) return new Date(Number(input))
-              return new Date(input)
-            }
-            const label = this.getLabelForValue ? this.getLabelForValue(+value) : value
-            const date = parseDate(label)
-
-            // Calculate the range as before
-            const allTimestamps = ticks.map((t) =>
-              this.getLabelForValue ? this.getLabelForValue(t.value) : t.value
-            )
-            const first = parseDate(allTimestamps[0])
-            const last = parseDate(allTimestamps[allTimestamps.length - 1])
-            const msInMonth = 30 * 24 * 60 * 60 * 1000
-            const msInYear = 365 * 24 * 60 * 60 * 1000
-            const range = last.getTime() - first.getTime()
-
-            let formatted
-            if (range < 3 * msInMonth) {
-              formatted = date.toLocaleString('en-US', { month: 'short', day: 'numeric' })
-            } else if (range < msInYear) {
-              formatted = date.toLocaleString('en-US', { month: 'short' })
-            } else {
-              formatted = date.getFullYear().toString()
-            }
-
-            // Only show if different from previous
-            if (index > 0) {
-              const prevLabel = this.getLabelForValue
-                ? this.getLabelForValue(ticks[index - 1].value)
-                : ticks[index - 1].value
-              const prevDate = parseDate(prevLabel)
-              let prevFormatted
-              if (range < 3 * msInMonth) {
-                prevFormatted = prevDate.toLocaleString('en-US', { month: 'short', day: 'numeric' })
-              } else if (range < msInYear) {
-                prevFormatted = prevDate.toLocaleString('en-US', { month: 'short' })
-              } else {
-                prevFormatted = prevDate.getFullYear().toString()
-              }
-              if (formatted === prevFormatted) return ''
-            }
-            return formatted
-          },
         },
       },
       y: {
