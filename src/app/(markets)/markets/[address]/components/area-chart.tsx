@@ -227,11 +227,11 @@ export const PriceChart = ({ history }: PriceChartProps) => {
           label: (context) => {
             if (history.length === 1) {
               const value = context.dataset.data[context.dataIndex] || 50
-              return `Yes ${(value as number).toFixed(0)}%`
+              return `Yes ${(value as number).toFixed(1)}%`
             }
             const label = context.dataset.label || ''
             const value = context.parsed.y
-            return `${value.toFixed(0)}% ${label}`
+            return `${value.toFixed(1)}% ${label}`
           },
         },
         shadowOffsetX: 0,

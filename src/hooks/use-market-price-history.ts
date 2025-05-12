@@ -3,7 +3,7 @@ import axios, { AxiosResponse } from 'axios'
 import { Address } from 'viem'
 import { defaultChain, newSubgraphURI } from '@/constants'
 import { limitlessApi } from '@/services'
-import { negriskHistoryMock } from '@/services/negrisk-history-mock'
+import { negriskHistoryMock, singleHistoryMock } from '@/services/negrisk-history-mock'
 import { PriceHistory } from '@/types'
 
 // Define the interface for the chart data
@@ -85,6 +85,7 @@ export function useClobPriceHistory(
         const response: AxiosResponse<ClobPriceHistoryResponse> = await limitlessApi.get(
           `/markets/${slug}/historical-price?interval=${selectedRange.toLowerCase()}`
         )
+        // const response = singleHistoryMock
         return [
           {
             ...response.data,
