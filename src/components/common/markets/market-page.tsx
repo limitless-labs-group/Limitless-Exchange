@@ -38,6 +38,7 @@ import { PriceChartContainer } from '@/app/(markets)/markets/[address]/component
 import { LUMY_TOKENS } from '@/app/draft/components'
 import CommentTab from './comment-tab'
 import { MarketProgressBar } from './market-cards/market-progress-bar'
+import { TopHoldersTab } from './top-holders'
 import { UniqueTraders } from './unique-traders'
 import usePageName from '@/hooks/use-page-name'
 import { useUrlParams } from '@/hooks/use-url-param'
@@ -49,6 +50,7 @@ import LineChartIcon from '@/resources/icons/line-chart-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import OrderbookIcon from '@/resources/icons/orderbook.svg'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
+import TopHolders from '@/resources/icons/top-holders-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import {
   ChangeEvent,
@@ -173,6 +175,10 @@ export default function MarketPage() {
       title: 'Opinions',
       icon: <OpinionIcon width={16} height={16} />,
     },
+    {
+      title: 'Top Holders',
+      icon: <TopHolders width={16} height={16} />,
+    },
   ]
 
   const tabPanels = useMemo(() => {
@@ -180,6 +186,7 @@ export default function MarketPage() {
       <MarketPageOverviewTab key={uuidv4()} />,
       <MarketActivityTab key={uuidv4()} isActive={activeActionsTabIndex === 1} />,
       <CommentTab key={uuidv4()} />,
+      <TopHoldersTab key={uuidv4()} />,
     ]
   }, [activeActionsTabIndex])
 

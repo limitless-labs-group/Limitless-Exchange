@@ -78,7 +78,7 @@ export default function TablePagination({
           }
         }}
       >
-        <ChevronDownIcon />
+        <ChevronDownIcon width={16} height={16} />
       </Button>
       {renderPagination()}
       <Button
@@ -93,7 +93,7 @@ export default function TablePagination({
           }
         }}
       >
-        <ChevronDownIcon />
+        <ChevronDownIcon width={16} height={16} />
       </Button>
     </HStack>
   )
