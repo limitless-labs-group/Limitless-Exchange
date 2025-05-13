@@ -7,7 +7,7 @@ import Avatar from '@/components/common/avatar'
 import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import Paper from '@/components/common/paper'
-import { LineChart } from '@/app/(markets)/markets/[address]/components/line-chart'
+import { PriceChartContainer } from '@/app/(markets)/markets/[address]/components/price-chart-container'
 import { MarketCardLink } from './market-card-link'
 import { MarketProgressBar } from './market-progress-bar'
 import { SpeedometerProgress } from './speedometer-progress'
@@ -175,7 +175,14 @@ export const MarketSingleCard = ({
             ) : null}
           </Flex>
           <Box w='full'>
-            {withChart ? <LineChart market={market} /> : null}
+            {withChart ? (
+              <PriceChartContainer
+                slug={market.slug}
+                ended={market.status === MarketStatus.RESOLVED}
+                marketType={market.marketType}
+                showBorders={false}
+              />
+            ) : null}
             {isSpeedometer ? (
               <Divider />
             ) : (

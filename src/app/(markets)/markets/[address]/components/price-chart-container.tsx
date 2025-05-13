@@ -1,41 +1,38 @@
 'use client'
 
 import { Box, HStack, Button, Text, VStack } from '@chakra-ui/react'
-import { memo, useMemo, useState } from 'react'
+import { memo, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Skeleton from '@/components/common/skeleton'
 import { PriceChart } from '@/app/(markets)/markets/[address]/components/area-chart'
-import { useNegRiskPriceHistory } from '@/hooks/use-market-price-history'
+import { useClobPriceHistory } from '@/hooks/use-market-price-history'
 import Logo from '@/resources/icons/limitless-logo.svg'
-import { useTradingService } from '@/services'
-import { controlsMedium, headline } from '@/styles/fonts/fonts.styles'
+import { controlsMedium, headline, paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 type TimeRange = '1H' | '6H' | '1D' | '1W' | '1M' | 'ALL'
 
-const ChartContainer = () => {
-  const [selectedRange, setSelectedRange] = useState<TimeRange>('1D')
+type PriceChartContainerProps = {
+  slug?: string
+  marketType?: 'single' | 'group'
+  ended: boolean
+  showBorders?: boolean
+}
+
+const ChartContainer = ({
+  slug,
+  marketType,
+  ended,
+  showBorders = true,
+}: PriceChartContainerProps) => {
+  const [selectedRange, setSelectedRange] = useState<TimeRange>('ALL')
   const timeRanges: TimeRange[] = ['1H', '6H', '1D', '1W', '1M', 'ALL']
 
-  const { groupMarket } = useTradingService()
+  const { data: priceHistory, isLoading: isLoadingPriceHistory } = useClobPriceHistory(
+    selectedRange,
+    slug,
+    marketType
+  )
 
-  const marketSlug = useMemo(() => {
-    return groupMarket?.slug
-  }, [groupMarket?.slug])
-
-  const { data: priceHistory, isLoading: isLoadingPriceHistory } =
-    useNegRiskPriceHistory(marketSlug)
-
-  console.log(priceHistory)
-
-  if (!priceHistory || isLoadingPriceHistory) {
-    return (
-      <Box w='full'>
-        <Skeleton height={240} />
-      </Box>
-    )
-  }
-
-  // Filter data for all histories based on selected time range
   const getFilteredData = (data: Array<{ timestamp: number; price: number }>) => {
     if (!data || data.length === 0) return []
 
@@ -49,28 +46,33 @@ const ChartContainer = () => {
       ALL: 0,
     }
 
-    return data.filter((point) => point.timestamp >= ranges[selectedRange])
+    return data.filter((point) => +point.timestamp >= ranges[selectedRange])
   }
 
   const filteredHistories = priceHistory?.map((history) => ({
     ...history,
-    prices: getFilteredData(history.prices),
+    prices: getFilteredData(history.prices).reverse(),
   }))
+
+  useEffect(() => {
+    setSelectedRange('ALL')
+  }, [slug])
 
   return (
     <VStack
       w='full'
       spacing='24px'
       align='stretch'
-      border='3px solid'
+      border={showBorders ? '3px solid' : 'unset'}
       borderRadius='12px'
       borderColor='grey.100'
       gap={0}
+      mt='20px'
     >
       <HStack
         mt='20px'
         justifyContent='space-between'
-        px='16px'
+        px='8px'
         flexDirection={isMobile ? 'column' : 'row'}
         alignItems={isMobile ? 'flex-start' : 'center'}
       >
@@ -80,6 +82,10 @@ const ChartContainer = () => {
           py='2px'
           px={'2px'}
           w={isMobile ? 'full' : 'unset'}
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+          }}
         >
           {timeRanges.map((range) => (
             <Button
@@ -100,6 +106,7 @@ const ChartContainer = () => {
               onClick={() => {
                 setSelectedRange(range)
               }}
+              disabled={ended}
               key={range}
             >
               <Text {...controlsMedium} color={range === selectedRange ? 'font' : 'fontLight'}>
@@ -115,9 +122,18 @@ const ChartContainer = () => {
           </Text>
         </HStack>
       </HStack>
-
       <Box borderRadius='12px' bg='grey.50' p='8px'>
-        <PriceChart history={filteredHistories} />
+        {isLoadingPriceHistory || !filteredHistories ? (
+          <Box>
+            <Skeleton height={240} />
+          </Box>
+        ) : Boolean(filteredHistories?.[0].prices.length) ? (
+          <PriceChart history={filteredHistories} />
+        ) : (
+          <HStack w='full' h='240px' justifyContent='center'>
+            <Text {...paragraphMedium}>No history within requested range</Text>
+          </HStack>
+        )}
       </Box>
     </VStack>
   )

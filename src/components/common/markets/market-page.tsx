@@ -31,7 +31,6 @@ import TradingWidgetSimple from '@/components/common/markets/trading-widgets/tra
 import WinnerTakeAllTooltip from '@/components/common/markets/winner-take-all-tooltip'
 import SideBarPage from '@/components/common/side-bar-page'
 import Skeleton from '@/components/common/skeleton'
-import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
 import ClobPositions from '@/app/(markets)/markets/[address]/components/clob/clob-positions'
 import Orderbook from '@/app/(markets)/markets/[address]/components/clob/orderbook'
 import GroupMarketsSection from '@/app/(markets)/markets/[address]/components/group-markets-section'
@@ -135,8 +134,15 @@ export default function MarketPage() {
   }, [isLivePriceSupportedMarket, market?.tradeType])
 
   const priceChart = useMemo(() => {
-    return <MarketPriceChart key={uuidv4()} />
-  }, [])
+    return (
+      <PriceChartContainer
+        key={uuidv4()}
+        slug={market?.slug}
+        marketType={market?.marketType}
+        ended={market?.status === MarketStatus.RESOLVED || false}
+      />
+    )
+  }, [market?.slug])
 
   const chartsTabPanels = useMemo(() => {
     const tabPanels = [priceChart]
@@ -220,7 +226,11 @@ export default function MarketPage() {
   const chart = useMemo(() => {
     return groupMarket?.negRiskMarketId ? (
       <Box mb='24px'>
-        <PriceChartContainer />
+        <PriceChartContainer
+          slug={groupMarket.slug}
+          marketType='group'
+          ended={market?.status === MarketStatus.RESOLVED || false}
+        />
       </Box>
     ) : null
   }, [groupMarket?.negRiskMarketId])
