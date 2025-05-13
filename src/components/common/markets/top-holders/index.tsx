@@ -94,7 +94,7 @@ export const TopHoldersTab = () => {
 
         {isGroup ? (
           <Select
-            h='24px'
+            h={isMobile ? '32px' : '24px'}
             w='full'
             maxW='200px'
             borderColor='grey.200'
