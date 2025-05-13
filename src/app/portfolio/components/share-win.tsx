@@ -5,6 +5,7 @@ import { isMobile } from 'react-device-detect'
 import Loader from '@/components/common/loader'
 import { WinChart } from './win-chart'
 import { useWinChartData } from '@/hooks/use-win-chart-data'
+import CopyIcon from '@/resources/icons/copy-icon.svg'
 import CupIcon from '@/resources/icons/cup-icon.svg'
 import { useAccount } from '@/services'
 import { useMarket } from '@/services/MarketsService'
@@ -23,6 +24,26 @@ interface ShareWinProps {
   marketSlug?: string
   symbol?: string
 }
+
+const getHtml2CanvasOptions = () => ({
+  backgroundColor: null,
+  scale: 2,
+  removeContainer: true,
+  onclone: (clonedDoc: Document) => {
+    const clonedElement = clonedDoc.querySelector('[data-share-capture]')
+    if (clonedElement) {
+      Array.from(clonedElement.querySelectorAll('*')).forEach((el) => {
+        if (el instanceof HTMLElement) {
+          el.style.transition = 'none'
+          // Remove any border radius from all elements in the capture
+          if (el.style.borderRadius) {
+            el.style.borderRadius = '0px'
+          }
+        }
+      })
+    }
+  },
+})
 
 export const ShareWin = ({ marketSlug, amountToClaim, symbol = 'USDC' }: ShareWinProps) => {
   const [isCopying, setIsCopying] = useState(false)
@@ -48,6 +69,48 @@ export const ShareWin = ({ marketSlug, amountToClaim, symbol = 'USDC' }: ShareWi
   const [chartImageUrl, setChartImageUrl] = useState<string | null>(null)
   const [cachedBlob, setCachedBlob] = useState<Blob | null>(null)
 
+  const captureToCanvas = async () => {
+    if (!captureRef.current) return null
+
+    try {
+      const canvas = await html2canvas(captureRef.current, {
+        ...getHtml2CanvasOptions(),
+        allowTaint: true,
+        useCORS: true,
+        logging: false,
+      })
+      return canvas
+    } catch (err) {
+      console.error('Error capturing to canvas:', err)
+      return null
+    }
+  }
+
+  const canvasToBlob = async (canvas: HTMLCanvasElement): Promise<Blob | null> => {
+    return new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png', 1.0))
+  }
+
+  const shareImage = async (blob: Blob): Promise<boolean> => {
+    setCachedBlob(blob)
+
+    if (navigator.clipboard?.write) {
+      const item = new ClipboardItem({
+        [blob.type]: blob,
+      })
+      await navigator.clipboard.write([item])
+      return true
+    } else {
+      const url = URL.createObjectURL(blob)
+      setChartImageUrl(url)
+
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `prediction-win-${activeMarketSlug ?? 'chart'}.png`
+      link.click()
+      return true
+    }
+  }
+
   const handleCapture = async () => {
     if (!captureRef.current) return false
 
@@ -68,49 +131,12 @@ export const ShareWin = ({ marketSlug, amountToClaim, symbol = 'USDC' }: ShareWi
         }
       }
 
-      const canvas = await html2canvas(captureRef.current, {
-        backgroundColor: null,
-        scale: 2,
-        removeContainer: true,
-        onclone: (clonedDoc) => {
-          const clonedElement = clonedDoc.querySelector('[data-share-capture]')
-          if (clonedElement) {
-            Array.from(clonedElement.querySelectorAll('*')).forEach((el) => {
-              if (el instanceof HTMLElement) {
-                el.style.transition = 'none'
-                // Remove any border radius from all elements in the capture
-                if (el.style.borderRadius) {
-                  el.style.borderRadius = '0px'
-                }
-              }
-            })
-          }
-        },
-      })
-      const blob = await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob(resolve, 'image/png', 1.0)
-      )
+      const canvas = await captureToCanvas()
+      if (!canvas) return false
 
+      const blob = await canvasToBlob(canvas)
       if (blob) {
-        setCachedBlob(blob)
-
-        if (navigator.clipboard?.write) {
-          const item = new ClipboardItem({
-            [blob.type]: blob,
-          })
-          await navigator.clipboard.write([item])
-          return true
-        } else {
-          const url = URL.createObjectURL(blob)
-          setChartImageUrl(url)
-
-          const link = document.createElement('a')
-          link.href = url
-          link.download = `prediction-win-${activeMarketSlug ?? 'chart'}.png`
-          link.click()
-
-          return true
-        }
+        return await shareImage(blob)
       }
       return false
     } catch (err) {
@@ -132,36 +158,12 @@ export const ShareWin = ({ marketSlug, amountToClaim, symbol = 'USDC' }: ShareWi
 
   useEffect(() => {
     if (chartData && !isChartDataLoading && !isChartDataError && captureRef.current) {
-      setTimeout(async () => {
+      const timeoutId = setTimeout(async () => {
         try {
-          //@ts-ignore
-          const canvas = await html2canvas(captureRef.current, {
-            allowTaint: true,
-            useCORS: true,
-            logging: false,
-            scale: 2,
-            backgroundColor: null, // Transparent background
-            removeContainer: true, // Remove the container after capture
-            onclone: (clonedDoc) => {
-              const clonedElement = clonedDoc.querySelector('[data-share-capture]')
-              if (clonedElement) {
-                Array.from(clonedElement.querySelectorAll('*')).forEach((el) => {
-                  if (el instanceof HTMLElement) {
-                    el.style.transition = 'none'
-                    // Remove any border radius from all elements in the capture
-                    if (el.style.borderRadius) {
-                      el.style.borderRadius = '0px'
-                    }
-                  }
-                })
-              }
-            },
-          })
+          const canvas = await captureToCanvas()
+          if (!canvas) return
 
-          const blob = await new Promise<Blob | null>((resolve) =>
-            canvas.toBlob(resolve, 'image/png', 1.0)
-          )
-
+          const blob = await canvasToBlob(canvas)
           if (blob) {
             setCachedBlob(blob)
             const url = URL.createObjectURL(blob)
@@ -171,6 +173,9 @@ export const ShareWin = ({ marketSlug, amountToClaim, symbol = 'USDC' }: ShareWi
           console.error('Error pre-generating chart image:', err)
         }
       }, 500)
+      return () => {
+        clearTimeout(timeoutId)
+      }
     }
   }, [chartData, isChartDataLoading, isChartDataError])
 
@@ -181,7 +186,7 @@ export const ShareWin = ({ marketSlug, amountToClaim, symbol = 'USDC' }: ShareWi
       }
       setCachedBlob(null)
     }
-  }, [])
+  }, [chartImageUrl])
 
   const refetch = () => {
     setIsError(false)
@@ -229,7 +234,10 @@ export const ShareWin = ({ marketSlug, amountToClaim, symbol = 'USDC' }: ShareWi
           isLoading={isCopying}
           isDisabled={isLoading || isError}
         >
-          Copy Image
+          <HStack>
+            <CopyIcon width={16} height={16} />
+            <Text> Copy Image</Text>
+          </HStack>
         </Button>
       </HStack>
 
