@@ -6,7 +6,6 @@ import {
   Image as ChakraImage,
   Link,
   Tab,
-  TabIndicator,
   TabList,
   TabPanel,
   TabPanels,
@@ -398,25 +397,39 @@ export default function MarketPage() {
           onChange={(index) => setActiveChartTabIndex(index)}
           index={activeChartTabIndex}
         >
-          <TabList>
-            {chartTabs.map((tab) => (
-              <Tab key={tab.title} onClick={() => handleChartTabClicked(tab.title)}>
-                <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
-                  {tab.icon}
-                  <>{tab.title}</>
-                </HStack>
-              </Tab>
-            ))}
-          </TabList>
-          <TabIndicator
-            mt='-2px'
-            height='2px'
-            bg='grey.800'
-            transitionDuration='200ms !important'
-          />
+          <Box
+            overflowX='auto'
+            css={{
+              '&::-webkit-scrollbar': {
+                display: 'none',
+              },
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+            }}
+          >
+            <TabList whiteSpace='nowrap' width='max-content' minWidth='100%'>
+              {chartTabs.map((tab, index) => (
+                <Tab
+                  key={tab.title}
+                  onClick={() => handleChartTabClicked(tab.title)}
+                  borderBottom={
+                    activeChartTabIndex === index ? '2px solid black' : '2px solid transparent'
+                  }
+                  _selected={{ borderBottom: '2px solid black' }}
+                >
+                  <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
+                    {tab.icon}
+                    <>{tab.title}</>
+                  </HStack>
+                </Tab>
+              ))}
+            </TabList>
+          </Box>
           <TabPanels>
             {chartsTabPanels.map((panel, index) => (
-              <TabPanel key={index}>{panel}</TabPanel>
+              <TabPanel key={index} px='0'>
+                {panel}
+              </TabPanel>
             ))}
           </TabPanels>
         </Tabs>
@@ -437,20 +450,38 @@ export default function MarketPage() {
         onChange={(index) => setActiveActionsTabIndex(index)}
         index={activeActionsTabIndex}
       >
-        <TabList>
-          {tabs.map((tab) => (
-            <Tab key={tab.title}>
-              <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
-                {tab.icon}
-                <>{tab.title}</>
-              </HStack>
-            </Tab>
-          ))}
-        </TabList>
-        <TabIndicator mt='-2px' height='2px' bg='grey.800' transitionDuration='200ms !important' />
+        <Box
+          overflowX='auto'
+          css={{
+            '&::-webkit-scrollbar': {
+              display: 'none',
+            },
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+          }}
+        >
+          <TabList whiteSpace='nowrap' width='max-content' minWidth='100%'>
+            {tabs.map((tab, index) => (
+              <Tab
+                key={tab.title}
+                borderBottom={
+                  activeActionsTabIndex === index ? '2px solid black' : '2px solid transparent'
+                }
+                _selected={{ borderBottom: '2px solid black' }}
+              >
+                <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
+                  {tab.icon}
+                  <>{tab.title}</>
+                </HStack>
+              </Tab>
+            ))}
+          </TabList>
+        </Box>
         <TabPanels>
           {tabPanels.map((panel, index) => (
-            <TabPanel key={index}>{panel}</TabPanel>
+            <TabPanel key={index} px='0'>
+              {panel}
+            </TabPanel>
           ))}
         </TabPanels>
       </Tabs>

@@ -1,5 +1,4 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
-import { InfiniteData } from '@tanstack/react-query'
+import { InfiniteData, useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { AxiosResponse } from 'axios'
 import { limitlessApi } from '@/services'
 
@@ -48,8 +47,7 @@ export const useInfinityTopHolders = (slug: string) => {
         data: {
           holders: response,
         },
-        //@ts-ignore
-        next: pageParam + 1,
+        next: (pageParam as number) + 1,
       }
     },
     initialPageParam: 1,

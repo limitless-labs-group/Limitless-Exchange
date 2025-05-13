@@ -75,7 +75,7 @@ export const TopHoldersTab = () => {
               variant='grey'
               bg={option === activeHolders ? 'grey.50' : 'grey.100'}
               onClick={() => {
-                setActiveHolders(option as HOLDERS)
+                setActiveHolders(option)
               }}
               _hover={{ bg: option === activeHolders ? 'grey.50' : 'grey.200' }}
               borderRadius='8px'
@@ -94,7 +94,7 @@ export const TopHoldersTab = () => {
 
         {isGroup ? (
           <Select
-            h='24px'
+            h={isMobile ? '32px' : '24px'}
             w='full'
             maxW='200px'
             borderColor='grey.200'
@@ -131,11 +131,13 @@ export const TopHoldersTab = () => {
             <Spinner size='md' mr={2} />
             <Text {...h2Medium}>Loading holders data...</Text>
           </Center>
-        ) : error ? (
+        ) : null}
+        {error ? (
           <Box mt='24px'>
             <Text {...h2Medium}>Error loading holders data. Please try again.</Text>
           </Box>
-        ) : !holdersData?.data?.length ? (
+        ) : null}
+        {!holdersData?.data?.length ? (
           <Box mt='24px'>
             <Text {...h2Medium}>No data available for this market.</Text>
           </Box>
