@@ -77,6 +77,7 @@ export default function MarketCardTriggerSingle({
                 slug={market.slug}
                 ended={market.status === MarketStatus.RESOLVED}
                 marketType={market.marketType}
+                showBorders={false}
               />
             ) : null}
 

@@ -180,6 +180,7 @@ export const MarketSingleCard = ({
                 slug={market.slug}
                 ended={market.status === MarketStatus.RESOLVED}
                 marketType={market.marketType}
+                showBorders={false}
               />
             ) : null}
             {isSpeedometer ? (
