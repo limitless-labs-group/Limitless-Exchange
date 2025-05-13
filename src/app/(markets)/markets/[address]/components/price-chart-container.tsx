@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, HStack, Button, Text, VStack } from '@chakra-ui/react'
-import { memo, useState } from 'react'
+import { memo, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import Skeleton from '@/components/common/skeleton'
 import { PriceChart } from '@/app/(markets)/markets/[address]/components/area-chart'
@@ -47,6 +47,10 @@ const ChartContainer = ({ slug, marketType, ended }: PriceChartContainerProps) =
     ...history,
     prices: getFilteredData(history.prices).reverse(),
   }))
+
+  useEffect(() => {
+    setSelectedRange('ALL')
+  }, [slug])
 
   return (
     <VStack
