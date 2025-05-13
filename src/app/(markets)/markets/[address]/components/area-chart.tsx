@@ -1,6 +1,7 @@
 'use client'
 
 import { Box, useToken } from '@chakra-ui/react'
+import { isNumber } from '@chakra-ui/utils'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -226,7 +227,9 @@ export const PriceChart = ({ history }: PriceChartProps) => {
           title: () => '',
           label: (context) => {
             if (history.length === 1) {
-              const value = context.dataset.data[context.dataIndex] || 50
+              const value = isNumber(context.dataset.data[context.dataIndex])
+                ? context.dataset.data[context.dataIndex]
+                : 50
               return `Yes ${(value as number).toFixed(1)}%`
             }
             const label = context.dataset.label || ''
