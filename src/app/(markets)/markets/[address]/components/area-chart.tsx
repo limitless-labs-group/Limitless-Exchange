@@ -353,27 +353,24 @@ export const PriceChart = ({ history }: PriceChartProps) => {
 
   ChartJS.register(verticalLinePlugin)
 
-  useEffect(() => {
+  const handleMouseOut = () => {
     const box = chartRef.current
-    if (!box) return
-
     //@ts-ignore
     const chartInstance = ChartJS.getChart(box.querySelector('canvas'))
-
-    const handleMouseLeave = () => {
-      if (chartInstance) {
-        //@ts-ignore
-        chartInstance.hoverIndex = undefined
-        chartInstance.update()
-      }
+    if (chartInstance) {
+      //@ts-ignore
+      chartInstance.hoverIndex = undefined
+      chartInstance.update()
     }
-
-    box.addEventListener('mouseleave', handleMouseLeave)
-    return () => box.removeEventListener('mouseleave', handleMouseLeave)
-  }, [])
+  }
 
   return (
-    <Box ref={chartRef} w='full' h={isMobile ? `${history.length * 40 + 100}px` : 240}>
+    <Box
+      ref={chartRef}
+      w='full'
+      h={isMobile ? `${history.length * 40 + 100}px` : 240}
+      onMouseLeave={handleMouseOut}
+    >
       <Line data={data} options={options} />
     </Box>
   )
