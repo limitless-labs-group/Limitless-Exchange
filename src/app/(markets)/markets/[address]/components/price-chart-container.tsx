@@ -15,9 +15,15 @@ type PriceChartContainerProps = {
   slug?: string
   marketType?: 'single' | 'group'
   ended: boolean
+  showBorders?: boolean
 }
 
-const ChartContainer = ({ slug, marketType, ended }: PriceChartContainerProps) => {
+const ChartContainer = ({
+  slug,
+  marketType,
+  ended,
+  showBorders = true,
+}: PriceChartContainerProps) => {
   const [selectedRange, setSelectedRange] = useState<TimeRange>('ALL')
   const timeRanges: TimeRange[] = ['1H', '6H', '1D', '1W', '1M', 'ALL']
 
@@ -59,7 +65,7 @@ const ChartContainer = ({ slug, marketType, ended }: PriceChartContainerProps) =
       align='stretch'
       border='3px solid'
       borderRadius='12px'
-      borderColor='grey.100'
+      borderColor={showBorders ? 'grey.100' : 'unset'}
       gap={0}
       mt='20px'
     >
@@ -76,6 +82,10 @@ const ChartContainer = ({ slug, marketType, ended }: PriceChartContainerProps) =
           py='2px'
           px={'2px'}
           w={isMobile ? 'full' : 'unset'}
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+          }}
         >
           {timeRanges.map((range) => (
             <Button
