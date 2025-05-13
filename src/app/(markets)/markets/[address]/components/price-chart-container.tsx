@@ -63,9 +63,9 @@ const ChartContainer = ({
       w='full'
       spacing='24px'
       align='stretch'
-      border='3px solid'
+      border={showBorders ? '3px solid' : 'unset'}
       borderRadius='12px'
-      borderColor={showBorders ? 'grey.100' : 'unset'}
+      borderColor='grey.100'
       gap={0}
       mt='20px'
     >
