@@ -31,7 +31,6 @@ import TradingWidgetSimple from '@/components/common/markets/trading-widgets/tra
 import WinnerTakeAllTooltip from '@/components/common/markets/winner-take-all-tooltip'
 import SideBarPage from '@/components/common/side-bar-page'
 import Skeleton from '@/components/common/skeleton'
-import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
 import ClobPositions from '@/app/(markets)/markets/[address]/components/clob/clob-positions'
 import Orderbook from '@/app/(markets)/markets/[address]/components/clob/orderbook'
 import GroupMarketsSection from '@/app/(markets)/markets/[address]/components/group-markets-section'
@@ -39,6 +38,7 @@ import { PriceChartContainer } from '@/app/(markets)/markets/[address]/component
 import { LUMY_TOKENS } from '@/app/draft/components'
 import CommentTab from './comment-tab'
 import { MarketProgressBar } from './market-cards/market-progress-bar'
+import { TopHoldersTab } from './top-holders'
 import { UniqueTraders } from './unique-traders'
 import usePageName from '@/hooks/use-page-name'
 import { useUrlParams } from '@/hooks/use-url-param'
@@ -50,6 +50,7 @@ import LineChartIcon from '@/resources/icons/line-chart-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import OrderbookIcon from '@/resources/icons/orderbook.svg'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
+import TopHolders from '@/resources/icons/top-holders-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import {
   ChangeEvent,
@@ -135,8 +136,15 @@ export default function MarketPage() {
   }, [isLivePriceSupportedMarket, market?.tradeType])
 
   const priceChart = useMemo(() => {
-    return <MarketPriceChart key={uuidv4()} />
-  }, [])
+    return (
+      <PriceChartContainer
+        key={uuidv4()}
+        slug={market?.slug}
+        marketType={market?.marketType}
+        ended={market?.status === MarketStatus.RESOLVED || false}
+      />
+    )
+  }, [market?.slug])
 
   const chartsTabPanels = useMemo(() => {
     const tabPanels = [priceChart]
@@ -167,6 +175,10 @@ export default function MarketPage() {
       title: 'Opinions',
       icon: <OpinionIcon width={16} height={16} />,
     },
+    {
+      title: 'Top Holders',
+      icon: <TopHolders width={16} height={16} />,
+    },
   ]
 
   const tabPanels = useMemo(() => {
@@ -174,6 +186,7 @@ export default function MarketPage() {
       <MarketPageOverviewTab key={uuidv4()} />,
       <MarketActivityTab key={uuidv4()} isActive={activeActionsTabIndex === 1} />,
       <CommentTab key={uuidv4()} />,
+      <TopHoldersTab key={uuidv4()} />,
     ]
   }, [activeActionsTabIndex])
 
@@ -220,7 +233,11 @@ export default function MarketPage() {
   const chart = useMemo(() => {
     return groupMarket?.negRiskMarketId ? (
       <Box mb='24px'>
-        <PriceChartContainer />
+        <PriceChartContainer
+          slug={groupMarket.slug}
+          marketType='group'
+          ended={market?.status === MarketStatus.RESOLVED || false}
+        />
       </Box>
     ) : null
   }, [groupMarket?.negRiskMarketId])

@@ -9,6 +9,7 @@ import { fixedProductMarketMakerABI } from '@/contracts'
 import { publicClient } from '@/providers/Privy'
 import { useAccount } from '@/services/AccountService'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
+import { mockMarketResponse } from '@/services/mock-market'
 import {
   ApiResponse,
   Category,
@@ -209,14 +210,8 @@ export function useBanneredMarkets(topic: Category | null) {
             market.tradeType === 'amm'
               ? _markets.get(market.address as Address)?.prices || [50, 50]
               : [
-                  new BigNumber(market?.prices?.[0])
-                    .multipliedBy(100)
-                    .decimalPlaces(0)
-                    .toNumber() ?? 50,
-                  new BigNumber(market?.prices?.[1])
-                    .multipliedBy(100)
-                    .decimalPlaces(0)
-                    .toNumber() ?? 50,
+                  +(market.prices?.[0] || 0.5 * 100).toFixed(1),
+                  +(market.prices?.[1] || 0.5 * 100).toFixed(1),
                 ],
         }
       })
@@ -304,6 +299,7 @@ export function useMarket(address?: string | null, isPolling = false, enabled = 
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/${address}`
       )
+      // const response = mockMarketResponse
       const marketRes = response.data as Market
 
       let prices
@@ -319,16 +315,11 @@ export function useMarket(address?: string | null, isPolling = false, enabled = 
         }
       } else {
         if (marketRes.tradeType === 'clob') {
-          prices = [
-            new BigNumber(marketRes.prices?.[0] || 0.5)
-              .multipliedBy(100)
-              .decimalPlaces(0)
-              .toNumber(),
-            new BigNumber(marketRes.prices?.[1] || 0.5)
-              .multipliedBy(100)
-              .decimalPlaces(0)
-              .toNumber(),
-          ]
+          const priceYes = marketRes.prices?.[0] || 0.5
+          const priceNo = marketRes.prices?.[1] || 0.5
+          const yesFormatted = +(priceYes * 100).toFixed(1)
+          const noFormatted = +(priceNo * 100).toFixed(1)
+          prices = [yesFormatted, noFormatted]
         } else {
           const buyPrices = await getMarketOutcomeBuyPrice(
             marketRes.collateralToken.decimals,

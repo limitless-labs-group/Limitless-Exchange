@@ -44,8 +44,8 @@ export const MarketProgressBar = ({
     }
   }, [value])
 
-  const yes = useMemo(() => Number(value.toFixed(2)), [value])
-  const no = useMemo(() => Number((100 - value).toFixed(2)), [value])
+  const yes = useMemo(() => Number(value.toFixed(1)), [value])
+  const no = useMemo(() => Number((100 - value).toFixed(1)), [value])
 
   return (
     <Box>
