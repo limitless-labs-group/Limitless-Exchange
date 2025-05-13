@@ -2,14 +2,15 @@
 
 import { HStack, Text, VStack, Box } from '@chakra-ui/react'
 import { useAtom } from 'jotai'
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
+import { ReferralInvitedModal } from 'src/components/common/modals/referral-invited-modal'
 import Loader from '@/components/common/loader'
 import MarketsSection from '@/components/common/markets/markets-section'
 import TopMarkets from '@/components/common/markets/top-markets'
 import { Modal } from '@/components/common/modals/modal'
-import { WelcomeModal } from '@/components/common/welcome-modal'
+import WelcomeModal from '@/components/common/modals/welcome-modal'
 import { ScrollableCategories } from '@/components/layouts/categories-desktop'
 import { sortAtom } from '@/atoms/market-sort'
 import { welcomeModalAtom } from '@/atoms/onboard'
@@ -30,7 +31,7 @@ import {
 import { useBanneredMarkets, useMarket, useActiveMarkets } from '@/services/MarketsService'
 import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Dashboard, Market, MarketType, Sort, SortStorageName } from '@/types'
-import { ONBOARDING } from '@/utils/consts'
+import { ONBOARDING, WELCOME } from '@/utils/consts'
 import { getSortValue } from '@/utils/market-sorting'
 
 const MainPage = () => {
@@ -55,6 +56,7 @@ const MainPage = () => {
   const { selectedCategory, handleCategory, dashboard, handleDashboard } = useTokenFilter()
   const [selectedSort, setSelectedSort] = useAtom(sortAtom)
   const [onboardModal, setOnboardModal] = useAtom(welcomeModalAtom)
+  const [welcomeModalOpened, setWelcomeModalOpened] = useState(false)
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useActiveMarkets({
     categoryId: selectedCategory?.id,
     sortBy: getSortValue(selectedSort.sort),
@@ -122,9 +124,30 @@ const MainPage = () => {
     if (typeof window !== 'undefined' && referralCode) {
       const isOnboarded = window.localStorage.getItem(ONBOARDING)
       if (isOnboarded && isOnboarded === 'true') return
+      const isWelcomed = window.localStorage.getItem(WELCOME)
+      if (!isWelcomed) {
+        localStorage.setItem(WELCOME, 'true')
+      }
       setOnboardModal(true)
     }
   }, [referralCode])
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      const isWelcomed = window.localStorage.getItem(WELCOME)
+      if (!isWelcomed) {
+        localStorage.setItem(WELCOME, 'true')
+        return
+      }
+      return
+    }
+    if (!referralCode) {
+      const isWelcomed = window.localStorage.getItem(WELCOME)
+      if (isWelcomed && isWelcomed === 'true') return
+      setWelcomeModalOpened(true)
+      return
+    }
+  }, [isLoggedIn, referralCode])
 
   const handleSelectSort = (options: Sort, name: SortStorageName) => {
     window.localStorage.setItem(name, JSON.stringify(options))
@@ -150,9 +173,13 @@ const MainPage = () => {
     }
   }, [])
 
-  const isWelcomeShown = useMemo(() => {
+  const isReferralInviteShown = useMemo(() => {
     return onboardModal && referralCode && referralCode !== ownRefCode && !isLoggedIn
   }, [onboardModal, referralCode, ownRefCode, isLoggedIn])
+
+  const isWelcomeShown = useMemo(() => {
+    return welcomeModalOpened && !referralCode && !isLoggedIn
+  }, [welcomeModalOpened, referralCode, isLoggedIn])
 
   const headerContent = useMemo(() => {
     if (pagename === 'Categories' || selectedCategory) return
@@ -195,7 +222,7 @@ const MainPage = () => {
           </InfiniteScroll>
         </Box>
       </VStack>
-      {isWelcomeShown ? (
+      {isReferralInviteShown ? (
         <Modal
           isOpen={onboardModal}
           onClose={() => {
@@ -203,7 +230,29 @@ const MainPage = () => {
             setOnboardModal(false)
           }}
         >
-          <WelcomeModal onClose={() => setOnboardModal(false)} referralCode={referralCode ?? ''} />
+          <ReferralInvitedModal
+            onClose={() => setOnboardModal(false)}
+            referralCode={referralCode ?? ''}
+          />
+        </Modal>
+      ) : null}
+      {isWelcomeShown ? (
+        <Modal
+          isOpen={welcomeModalOpened}
+          onClose={() => {
+            trackChanged(ChangeEvent.WelcomeModalClosed)
+            setWelcomeModalOpened(false)
+          }}
+          minW='512px'
+          isCentered={false}
+          marginTop='178px'
+        >
+          <WelcomeModal
+            onClose={() => {
+              trackChanged(ChangeEvent.WelcomeModalClosed)
+              setWelcomeModalOpened(false)
+            }}
+          />
         </Modal>
       ) : null}
     </MainLayout>

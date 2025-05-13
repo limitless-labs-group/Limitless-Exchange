@@ -172,6 +172,7 @@ export enum ChangeEvent {
   TrackVisit = 'Track Visit',
   PortfolioClobViewChanged = 'Portfolio/Orders View Changed',
   ReferalsTablePageChanged = 'Referals Table Page Changed',
+  WelcomeModalClosed = 'Welcome Modal Closed',
 }
 
 export enum HoverEvent {
@@ -260,6 +261,7 @@ export enum ClickEvent {
   CancelAllOrdersClicked = 'Cancel All Orders Clicked',
   PointsButtonClicked = 'Points Button Clicked',
   HeaderThemeSwitchMenuClicked = 'Header Theme Switch Menu Clicked',
+  WelcomeModalSignUpButtonClicked = 'Welcome Modal Sign Up Button Clicked',
 }
 
 export enum SignInEvent {
