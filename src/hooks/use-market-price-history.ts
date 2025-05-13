@@ -1,10 +1,10 @@
-import { isNumber } from '@chakra-ui/utils'
 import { useQuery } from '@tanstack/react-query'
 import axios, { AxiosResponse } from 'axios'
 import { Address } from 'viem'
 import { defaultChain, newSubgraphURI } from '@/constants'
 import { limitlessApi } from '@/services'
-import { negriskHistoryMock } from '@/services/negrisk-history-mock'
+import { negriskHistoryMock, singleHistoryMock } from '@/services/negrisk-history-mock'
+import { PriceHistory } from '@/types'
 
 // Define the interface for the chart data
 interface YesBuyChartData {
@@ -73,36 +73,43 @@ export interface ClobPriceHistoryResponse {
   }[]
 }
 
-export function useNegRiskPriceHistory(slug?: string) {
-  return useQuery({
-    queryKey: ['price-history-negrisk', slug],
+export function useClobPriceHistory(
+  selectedRange: string,
+  slug?: string,
+  marketType?: 'single' | 'group'
+) {
+  return useQuery<unknown, Error, PriceHistory[]>({
+    queryKey: ['price-history', slug, selectedRange],
     queryFn: async () => {
+      if (marketType === 'single') {
+        const response: AxiosResponse<ClobPriceHistoryResponse> = await limitlessApi.get(
+          `/markets/${slug}/historical-price?interval=${selectedRange.toLowerCase()}`
+        )
+        // const response = singleHistoryMock
+        return [
+          {
+            ...response.data,
+            prices: response.data.prices.map((price) => {
+              return {
+                price: price.price * 100,
+                timestamp: +price.timestamp,
+              }
+            }),
+          },
+        ]
+      }
       const response: AxiosResponse<ClobPriceHistoryResponse[]> = await limitlessApi.get(
-        `/markets/${slug}/historical-price`
+        `/markets/${slug}/historical-price?interval=${selectedRange.toLowerCase()}`
       )
       // const response = negriskHistoryMock
       return response.data.map((item) => {
         const prices = item.prices.map((price) => ({
-          timestamp: price.timestamp,
-          price: +price.price * 100,
+          timestamp: +price.timestamp,
+          price: price.price * 100,
         }))
-        if (prices.length) {
-          const lastPriceObject = {
-            timestamp: new Date().getTime(),
-            price: isNumber(+item.prices[0]?.price) ? +item.prices[0].price * 100 : 50,
-          }
-          return {
-            ...item,
-            prices: [...prices, lastPriceObject],
-          }
-        }
-        const lastPriceObject = {
-          timestamp: new Date().getTime(),
-          price: 50,
-        }
         return {
           ...item,
-          prices: [...prices, lastPriceObject],
+          prices,
         }
       })
     },

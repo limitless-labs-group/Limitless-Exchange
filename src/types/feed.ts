@@ -61,7 +61,7 @@ export interface FeedEntity<T> {
 }
 
 export interface MarketNewTradeFeedData {
-  address: Address
+  slug: string
   contracts: string
   outcome: 'NO' | 'YES'
   strategy: 'Buy' | 'Sell'
@@ -70,7 +70,7 @@ export interface MarketNewTradeFeedData {
   tradeAmount: string
   tradeAmountUSD: string
   txHash: string
-  slug: string
+  address: string | null
 }
 
 export interface FeedMarketGroupEntity {
