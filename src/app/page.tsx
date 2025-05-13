@@ -240,7 +240,9 @@ const MainPage = () => {
         <Modal
           isOpen={welcomeModalOpened}
           onClose={() => {
-            trackChanged(ChangeEvent.WelcomeModalClosed)
+            trackChanged(ChangeEvent.WelcomeModalClosed, {
+              platform: isMobile ? 'Mobile' : 'Desktop',
+            })
             setWelcomeModalOpened(false)
           }}
           minW='512px'
@@ -249,7 +251,9 @@ const MainPage = () => {
         >
           <WelcomeModal
             onClose={() => {
-              trackChanged(ChangeEvent.WelcomeModalClosed)
+              trackChanged(ChangeEvent.WelcomeModalClosed, {
+                platform: isMobile ? 'Mobile' : 'Desktop',
+              })
               setWelcomeModalOpened(false)
             }}
           />
