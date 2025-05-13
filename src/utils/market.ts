@@ -37,7 +37,7 @@ export const defineOpenInterestOverVolume = (
 export const calculateMarketPrice = (price: number | undefined): number => {
   if (!price) return 50
 
-  const calculated = new BigNumber(price).multipliedBy(100).decimalPlaces(0).toNumber()
+  const calculated = new BigNumber(price).multipliedBy(100).decimalPlaces(1).toNumber()
 
   return Number.isNaN(calculated) ? 50 : calculated
 }

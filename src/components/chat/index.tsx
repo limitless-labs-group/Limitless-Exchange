@@ -84,9 +84,9 @@ export default function Chat() {
           overflowY='auto'
           display='flex'
           flexDirection='column-reverse'
-          pb='150px'
+          pb={isMobile ? '30px' : '150px'}
         >
-          <Flex w='full' mt='24px'>
+          <Flex w='full' mt='24px' mb={isMobile ? '55px' : 'unset'}>
             <VStack w='full' gap='20px'>
               {messages.map((msg: ChatMsg) => (
                 <Fragment key={msg.id}>
@@ -110,8 +110,17 @@ export default function Chat() {
         </Box>
       )}
 
-      <Box position='absolute' bottom='0' left='0' right='0' p={3} bg='grey.50' zIndex={1}>
-        <ChatTextarea onSubmit={sendMessage} msg={newMessage} setMsg={setNewMessage} />
+      <Box
+        position={isMobile ? 'sticky' : 'absolute'}
+        bottom={isMobile ? '24px' : '0'}
+        left='0'
+        right='0'
+        p={3}
+        bg='grey.50'
+        zIndex={10}
+        className='chat-textarea-container'
+      >
+        <ChatTextarea onSubmit={sendMessage} msg={newMessage} setMsg={setNewMessage} rows={2} />
       </Box>
     </Box>
   )

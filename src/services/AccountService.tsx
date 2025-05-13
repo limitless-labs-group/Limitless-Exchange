@@ -31,6 +31,7 @@ import React, {
   useEffect,
 } from 'react'
 import { createWalletClient, getAddress, WalletClient, http, custom } from 'viem'
+import WelcomeModal from '@/components/common/modals/welcome-modal'
 import { Toast } from '@/components/common/toast'
 import { SignInEvent, useAmplitude } from './Amplitude'
 import { useAxiosPrivateClient } from './AxiosPrivateClient'
@@ -107,7 +108,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const [walletPageOpened, setWalletPageOpened] = useState(false)
   const [referralPageOpened, setReferralPageOpened] = useState(false)
   const queryClient = useQueryClient()
-  const { logout: disconnect, authenticated, user } = usePrivy()
+  const { logout: disconnect, authenticated, user, ready } = usePrivy()
   const pathname = usePathname()
   const accountRoutes = ['/portfolio', '/create-market']
   const privateClient = useAxiosPrivateClient()

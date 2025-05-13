@@ -5,7 +5,7 @@ import { MarketCardProps } from '@/components/common/markets'
 import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import { MIN_CARD_HEIGHT } from '@/components/common/markets/market-cards/market-single-card'
 import Paper from '@/components/common/paper'
-import { LineChart } from '@/app/(markets)/markets/[address]/components/line-chart'
+import { PriceChartContainer } from '@/app/(markets)/markets/[address]/components/price-chart-container'
 import { MarketProgressBar } from './market-progress-bar'
 import { SpeedometerProgress } from './speedometer-progress'
 import { ClickEvent, useAccount, useAmplitude, useTradingService } from '@/services'
@@ -72,7 +72,14 @@ export default function MarketCardTriggerSingle({
             ) : null}
           </Flex>
           <Box w='full'>
-            {withChart ? <LineChart market={market} /> : null}
+            {withChart ? (
+              <PriceChartContainer
+                slug={market.slug}
+                ended={market.status === MarketStatus.RESOLVED}
+                marketType={market.marketType}
+                showBorders={false}
+              />
+            ) : null}
 
             {isSpeedometer ? (
               <Divider />

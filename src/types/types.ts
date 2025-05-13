@@ -29,6 +29,13 @@ export type Category = {
   priority?: number | null
 }
 
+export interface CategoryCountResponse {
+  category: {
+    [key: string]: number
+  }
+  totalCount: number
+}
+
 export type Dashboard = 'marketwatch'
 
 export type MarketsResponse = {
@@ -557,4 +564,12 @@ export interface MarketRewardsResponse {
   totalUnpaidReward: string
   unpaidRecords: string
   userId: string
+}
+
+export interface PriceHistory {
+  title: string
+  prices: {
+    timestamp: number
+    price: number
+  }[]
 }

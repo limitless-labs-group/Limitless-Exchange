@@ -11,7 +11,7 @@ export interface OnboardModalProps {
   referralCode: string
 }
 
-export const WelcomeModal = ({ onClose, referralCode }: OnboardModalProps) => {
+export const ReferralInvitedModal = ({ onClose, referralCode }: OnboardModalProps) => {
   const { loginToPlatform } = useAccount()
   const [, setOnboarding] = useAtom(welcomeModalAtom)
 
