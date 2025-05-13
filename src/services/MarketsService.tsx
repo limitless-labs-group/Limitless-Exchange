@@ -184,14 +184,8 @@ export function useBanneredMarkets(topic: Category | null) {
             market.tradeType === 'amm'
               ? _markets.get(market.address as Address)?.prices || [50, 50]
               : [
-                  new BigNumber(market?.prices?.[0])
-                    .multipliedBy(100)
-                    .decimalPlaces(1)
-                    .toNumber() ?? 50,
-                  new BigNumber(market?.prices?.[1])
-                    .multipliedBy(100)
-                    .decimalPlaces(1)
-                    .toNumber() ?? 50,
+                  +(market.prices?.[0] || 0.5 * 100).toFixed(1),
+                  +(market.prices?.[1] || 0.5 * 100).toFixed(1),
                 ],
         }
       })
