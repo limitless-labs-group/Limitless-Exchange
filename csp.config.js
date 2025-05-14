@@ -81,6 +81,15 @@ const spindlPolicy = {
   'connect-src': ['https://spindl.link'],
 }
 
+const tiktokPolicy = {
+  'script-src': ['https://analytics.tiktok.com'],
+  'connect-src': ['https://analytics.tiktok.com'],
+}
+
+const amplitudePolicy = {
+  'connect-src': ['https://*.amplitude.com'],
+}
+
 const googleTagManagerPolicy = {
   'script-src': ['https://www.googletagmanager.com'],
   'img-src': [
@@ -216,6 +225,8 @@ module.exports = {
   privyPolicy,
   intercomPolicy,
   spindlPolicy,
+  tiktokPolicy,
+  amplitudePolicy,
   googleTagManagerPolicy,
   generateCSPHeader,
 }

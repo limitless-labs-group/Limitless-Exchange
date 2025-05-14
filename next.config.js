@@ -1,6 +1,8 @@
 const {
   generateCSPHeader,
   splitCSPIntoHeaders,
+  tiktokPolicy,
+  amplitudePolicy,
   defaultPolicy,
   limitlessPolicy,
   vercelPolicy,
@@ -51,6 +53,8 @@ module.exports = withBundleAnalyzer({
       limitlessPolicy,
       vercelPolicy,
       spindlPolicy,
+      tiktokPolicy,
+      amplitudePolicy,
       googleTagManagerPolicy,
       privyPolicy,
       intercomPolicy,
@@ -58,7 +62,7 @@ module.exports = withBundleAnalyzer({
 
     const securityHeaders = [
       {
-        key: 'Content-Security-Policy-Report-Only',
+        key: 'Content-Security-Policy', // to turn off rename to -> Content-Security-Policy-Report-Only
         value: fullCSPPolicy,
       },
       {
