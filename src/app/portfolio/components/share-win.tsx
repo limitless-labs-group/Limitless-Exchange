@@ -309,6 +309,7 @@ export const ShareWin = ({ marketSlug, amountToClaim, symbol = 'USDC' }: ShareWi
                       {...(isMobile ? paragraphBold : h3Bold)}
                       fontSize={{ base: '16px', md: '32px' }}
                       color='green.500'
+                      whiteSpace='nowrap'
                     >{`+${
                       chartData
                         ? Math.round(
