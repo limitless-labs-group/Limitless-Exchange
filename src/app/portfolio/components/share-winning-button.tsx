@@ -2,7 +2,9 @@ import { Button, HStack, Text } from '@chakra-ui/react'
 import { useState } from 'react'
 import { Modal } from '@/components/common/modals/modal'
 import { ShareWin } from './share-win'
+import usePageName from '@/hooks/use-page-name'
 import ShareIcon from '@/resources/icons/share-icon.svg'
+import { ClickEvent, useAmplitude } from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 export interface ShareWinningButtonProps {
@@ -18,6 +20,8 @@ export const ShareWinningButton = ({
   symbol,
 }: ShareWinningButtonProps) => {
   const [isShareOpen, setIsShareOpen] = useState(false)
+  const { trackClicked } = useAmplitude()
+  const pageName = usePageName()
   return (
     <>
       <Modal
@@ -35,6 +39,10 @@ export const ShareWinningButton = ({
           e.preventDefault()
           e.stopPropagation()
           setIsShareOpen(true)
+          trackClicked(ClickEvent.ShareWinChartButtonClicked, {
+            page: pageName,
+            market: slug,
+          })
         }}
       >
         <HStack gap='4px'>

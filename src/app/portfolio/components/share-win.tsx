@@ -4,10 +4,11 @@ import { useState, useEffect, useRef } from 'react'
 import { isMobile } from 'react-device-detect'
 import Loader from '@/components/common/loader'
 import { WinChart } from './win-chart'
+import usePageName from '@/hooks/use-page-name'
 import { useWinChartData } from '@/hooks/use-win-chart-data'
 import CopyIcon from '@/resources/icons/copy-icon.svg'
 import CupIcon from '@/resources/icons/cup-icon.svg'
-import { useAccount } from '@/services'
+import { ClickEvent, useAccount, useAmplitude } from '@/services'
 import { useMarket } from '@/services/MarketsService'
 import {
   captionMedium,
@@ -54,6 +55,8 @@ export const ShareWin = ({ marketSlug, amountToClaim, symbol = 'USDC' }: ShareWi
   const captureRef = useRef<HTMLDivElement>(null)
 
   const { name } = useAccount()
+  const { trackClicked } = useAmplitude()
+  const pageName = usePageName()
 
   const { data: market } = useMarket(marketSlug)
   const activeMarketSlug = marketSlug ?? market?.slug
@@ -202,6 +205,10 @@ export const ShareWin = ({ marketSlug, amountToClaim, symbol = 'USDC' }: ShareWi
 
   const handleCopyImage = async () => {
     setIsCopying(true)
+    trackClicked(ClickEvent.CopyWinChartClicked, {
+      page: pageName,
+      market: market?.slug,
+    })
 
     try {
       await handleCapture()
