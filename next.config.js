@@ -1,6 +1,5 @@
 const {
   generateCSPHeader,
-  splitCSPIntoHeaders,
   tiktokPolicy,
   amplitudePolicy,
   defaultPolicy,
@@ -62,7 +61,10 @@ module.exports = withBundleAnalyzer({
 
     const securityHeaders = [
       {
-        key: 'Content-Security-Policy', // to turn off rename to -> Content-Security-Policy-Report-Only
+        key:
+          process.env.NEXT_PUBLIC_NETWORK === 'testnet'
+            ? 'Content-Security-Policy-Report-Only'
+            : 'Content-Security-Policy', // to turn off rename to -> Content-Security-Policy-Report-Only
         value: fullCSPPolicy,
       },
       {

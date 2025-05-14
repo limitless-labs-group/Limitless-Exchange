@@ -50,7 +50,7 @@ const limitlessPolicy = {
   'script-src': ['https://limitless.exchange', 'https://*.limitless.exchange'],
   'style-src': ['https://limitless.exchange', 'https://*.limitless.exchange'],
   'connect-src': [
-    'https://api.limitless.exchange',
+    'https://*.limitless.exchange',
     'https://*.api.limitless.exchange',
     'wss://hermes.pyth.network', //pyth websocket for price feed
     'https://api.coingecko.com',
@@ -58,6 +58,7 @@ const limitlessPolicy = {
     'https://mainnet.base.org',
     ...RPCs,
   ],
+  'worker-src': ["'self'", 'blob:', 'https://limitless.exchange', 'https://*.limitless.exchange'],
   'img-src': [
     'https://storage.googleapis.com/limitless-exchange-prod-424014', //google cloud storage
     'https://pbs.twimg.com', //twitter api for avatars
@@ -91,7 +92,7 @@ const amplitudePolicy = {
 }
 
 const googleTagManagerPolicy = {
-  'script-src': ['https://www.googletagmanager.com'],
+  'script-src': ['https://www.googletagmanager.com', 'https://www.googleadservices.com'],
   'img-src': [
     'https://*.google-analytics.com',
     'https://*.googletagmanager.com',
