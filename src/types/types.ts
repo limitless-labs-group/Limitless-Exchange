@@ -2,6 +2,7 @@ import { AxiosError } from 'axios'
 import { Hash, Address } from 'viem'
 import { DraftMarketType, DraftMetadata } from './draft'
 import { Profile } from './profiles'
+import { MarketFeedData } from '@/hooks/use-market-feed'
 
 export type { Hash, Address }
 
@@ -111,6 +112,7 @@ export interface Market {
   tradeType: MarketTradeType
   isRewardable: boolean
   markets?: (Market & { orderInGroup?: number })[]
+  feedEvents?: MarketFeedData[]
 }
 
 export interface Settings {
