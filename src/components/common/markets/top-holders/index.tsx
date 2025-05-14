@@ -14,7 +14,6 @@ import {
   Link,
   Button,
   ButtonGroup,
-  Spinner,
   Center,
 } from '@chakra-ui/react'
 import NextLink from 'next/link'
@@ -23,9 +22,10 @@ import { isMobile } from 'react-device-detect'
 import Avatar from '@/components/common/avatar'
 import { HOLDERS_LIMIT, HolderUserData, useTopHoldersPaginated } from '@/hooks/use-top-holders'
 import { useTradingService } from '@/services'
-import { h2Medium, headline, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { headline, paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 import { LeaderIcon } from '../../leaders-icon'
+import Loader from '../../loader'
 import TablePagination from '../../table-pagination'
 
 export enum HOLDERS {
@@ -34,9 +34,9 @@ export enum HOLDERS {
 }
 
 const getUserDisplayName = (data: HolderUserData) => {
-  return (
-    data.username ?? `${data.user.substring(0, 6)}...${data.user.substring(data.user.length - 4)}`
-  )
+  return data.user === data.username
+    ? `${data.user.substring(0, 6)}...${data.user.substring(data.user.length - 6)}`
+    : data.username
 }
 
 export const TopHoldersTab = () => {
@@ -46,7 +46,7 @@ export const TopHoldersTab = () => {
   const isGroup = market?.marketType === 'group'
   const [selectedMarket, setSelectedMarket] = useState(groupMarket?.markets?.[0]?.slug)
 
-  const { data, isLoading, error } = useTopHoldersPaginated(
+  const { data, isLoading, error, isFetched } = useTopHoldersPaginated(
     selectedMarket ?? market?.slug,
     currentPage
   )
@@ -66,7 +66,7 @@ export const TopHoldersTab = () => {
   const holdersOption = [HOLDERS.YES, HOLDERS.NO]
 
   return (
-    <Stack>
+    <Stack mb='50px'>
       <HStack justifyContent='space-between' my='16px'>
         <ButtonGroup variant='outline' gap='2px' p='2px' bg='grey.100' borderRadius='8px'>
           {holdersOption.map((option) => (
@@ -128,20 +128,24 @@ export const TopHoldersTab = () => {
       <Box mb={isMobile ? '40px' : 0}>
         {isLoading ? (
           <Center mt='24px'>
-            <Spinner size='md' mr={2} />
-            <Text {...h2Medium}>Loading holders data...</Text>
+            <Loader mr={2} />
+            <Text {...paragraphRegular}>Loading holders data...</Text>
           </Center>
         ) : null}
+
         {error ? (
-          <Box mt='24px'>
-            <Text {...h2Medium}>Error loading holders data. Please try again.</Text>
-          </Box>
+          <Center mt='24px'>
+            <Text {...paragraphRegular}>Error loading holders data.</Text>
+          </Center>
         ) : null}
-        {!holdersData?.data?.length ? (
-          <Box mt='24px'>
-            <Text {...h2Medium}>No data available for this market.</Text>
-          </Box>
-        ) : (
+
+        {!holdersData?.data?.length && !isLoading && !error ? (
+          <Center mt='24px'>
+            <Text {...paragraphRegular}>No holders for this market yet.</Text>
+          </Center>
+        ) : null}
+
+        {holdersData?.data?.length && isFetched ? (
           <>
             <TableContainer overflow={'auto'} mb='8px' px={isMobile ? '16px' : 0}>
               <Table variant={'simple'}>
@@ -180,9 +184,13 @@ export const TopHoldersTab = () => {
                           </NextLink>
                         </HStack>
                       </Td>
-                      <Td>{holder.contracts}</Td>
                       <Td textAlign='right'>
-                        {`${Number(holder.valueUSDC).toLocaleString(undefined, {
+                        {`${Number(holder.contractsFormatted).toLocaleString(undefined, {
+                          maximumFractionDigits: 2,
+                        })}`}
+                      </Td>
+                      <Td textAlign='right'>
+                        {`${Number(holder.valueUSDCFormatted).toLocaleString(undefined, {
                           maximumFractionDigits: 2,
                         })} USDC`}
                       </Td>
@@ -199,7 +207,7 @@ export const TopHoldersTab = () => {
               />
             )}
           </>
-        )}
+        ) : null}
       </Box>
     </Stack>
   )
