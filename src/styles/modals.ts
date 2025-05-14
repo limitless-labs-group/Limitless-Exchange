@@ -65,7 +65,13 @@ const baseStyle = definePartsStyle({
   },
 })
 
+const modalWithoutClose = definePartsStyle({
+  header: {
+    display: 'none',
+  },
+})
+
 export const modalTheme = defineMultiStyleConfig({
-  variants: { blueModal, commonModal },
+  variants: { blueModal, commonModal, modalWithoutClose },
   baseStyle,
 })

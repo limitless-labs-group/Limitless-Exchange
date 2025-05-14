@@ -1,4 +1,4 @@
-import { paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 const baseStyle = {
   indicator: {
@@ -40,6 +40,28 @@ const baseStyle = {
   },
 }
 
+const blue = {
+  ...baseStyle,
+  separator: {
+    ...baseStyle.separator,
+    '[data-status=complete] &': {
+      bg: 'blue.500',
+      opacity: 0.5,
+    },
+    '[data-orientation=vertical] &': {
+      h: 'calc(100% - 10px)',
+      top: '20px',
+      left: '7.5px',
+      maxHeight: 'unset',
+      w: '1px',
+    },
+  },
+  title: {
+    ...paragraphMedium,
+  },
+}
+
 export const stepperTheme = {
   baseStyle,
+  variants: { blue },
 }

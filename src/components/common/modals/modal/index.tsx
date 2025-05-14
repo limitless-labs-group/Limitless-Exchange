@@ -24,16 +24,17 @@ export const Modal = ({
   isOpen,
   children,
   isCentered = true,
+  variant = 'commonModal',
   ...props
 }: IModal) => (
-  <ChakraModal onClose={onClose} isOpen={isOpen} isCentered={isCentered} variant='commonModal'>
+  <ChakraModal onClose={onClose} isOpen={isOpen} isCentered={isCentered} variant={variant}>
     <ModalOverlay />
     <ModalContent {...props}>
       <ModalHeader display='flex' justifyContent='space-between' p={0}>
         <Text {...(isMobile ? { ...h1Regular } : { ...headline })} w={'full'} textAlign='left'>
           {title}
         </Text>
-        {!isMobile && (
+        {!isMobile && variant !== 'modalWithoutClose' && (
           <Button
             w={'26px'}
             h={'26px'}
