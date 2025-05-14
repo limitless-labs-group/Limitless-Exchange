@@ -34,6 +34,7 @@ import InviteFriendsPage from '@/components/layouts/invite-friends-page'
 import ThemeSwitcher from '@/components/layouts/theme-switcher'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
+import { openIntercom } from '@/app/template'
 import { onboardingStepsAtom } from '@/atoms/onboard'
 import { Profile } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
@@ -50,6 +51,7 @@ import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
 import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
 import SwapIcon from '@/resources/icons/sidebar/Wrap.svg'
 import SunIcon from '@/resources/icons/sun-icon.svg'
+import SupportIcon from '@/resources/icons/support-chat-icon.svg'
 import Dots from '@/resources/icons/three-horizontal-dots.svg'
 import {
   ChangeEvent,
@@ -544,6 +546,13 @@ export default function MobileHeader() {
                             Show Private Key
                           </Button>
                         )}
+                        <Divider bgColor='grey.200' borderColor='grey.200' />
+                        {
+                          <Button variant='outlined' onClick={openIntercom} w='full' mt='12px'>
+                            <SupportIcon width={16} height={16} />
+                            Chat with Support
+                          </Button>
+                        }
                         {/*<Button*/}
                         {/*  variant='transparent'*/}
                         {/*  px={0}*/}
