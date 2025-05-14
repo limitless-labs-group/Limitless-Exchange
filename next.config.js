@@ -106,7 +106,23 @@ module.exports = withBundleAnalyzer({
       },
     ]
   },
-  webpack(config) {
+  webpack(config, { isServer }) {
+    if (!isServer) {
+      // Don't resolve 'fs' module on the client to prevent this error
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        crypto: false,
+        stream: false,
+        http: false,
+        https: false,
+        zlib: false,
+        path: false,
+        os: false,
+      }
+    }
     config.module.rules.push({
       test: /\.svg$/,
       use: ['@svgr/webpack'],

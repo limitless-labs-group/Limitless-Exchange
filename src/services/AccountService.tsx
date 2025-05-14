@@ -4,6 +4,7 @@ import {
   useWallets,
   useLogin as usePrivyLogin,
   LoginModalOptions,
+  EIP1193Provider,
 } from '@privy-io/react-auth'
 import spindl from '@spindl-xyz/attribution'
 import { useMutation, UseMutationResult, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -81,6 +82,7 @@ export interface IAccountContext {
   referralPageOpened: boolean
   setReferralPageOpened: (val: boolean) => void
   closeAllAuthSidebarPages: () => void
+  provider?: EIP1193Provider
 }
 
 const pimlicoRpcUrl = `https://api.pimlico.io/v2/${defaultChain.id}/rpc?apikey=${process.env.NEXT_PUBLIC_PIMLICO_API_KEY}`
@@ -106,6 +108,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const [profilePageOpened, setProfilePageOpened] = useState(false)
   const [walletPageOpened, setWalletPageOpened] = useState(false)
   const [referralPageOpened, setReferralPageOpened] = useState(false)
+  const [provider, setProvider] = useState<EIP1193Provider | undefined>()
   const queryClient = useQueryClient()
   const { logout: disconnect, authenticated, user } = usePrivy()
   const pathname = usePathname()
@@ -225,6 +228,8 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
       safeVersion: '1.4.1',
       saltNonce: BigInt(0),
     })
+
+    setProvider(provider)
 
     return createSmartAccountClient({
       account: safeSmartAccountClient,
@@ -415,6 +420,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
         transport: custom(provider),
         account: wallet.address as Address,
       })
+      setProvider(provider)
       setWeb3Wallet(walletClient)
       return
     }
@@ -579,6 +585,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     if (accountRoutes.includes(pathname)) {
       router.push('/')
     }
+    setProvider(undefined)
     await disconnect()
     await signout()
   }, [pathname])
@@ -610,6 +617,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     referralPageOpened,
     setReferralPageOpened,
     closeAllAuthSidebarPages,
+    provider,
   }
 
   return <AccountContext.Provider value={contextProviderValue}>{children}</AccountContext.Provider>

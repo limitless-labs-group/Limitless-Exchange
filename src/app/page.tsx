@@ -2,13 +2,14 @@
 
 import { HStack, Text, VStack, Box } from '@chakra-ui/react'
 import { useAtom } from 'jotai'
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Loader from '@/components/common/loader'
 import MarketsSection from '@/components/common/markets/markets-section'
 import TopMarkets from '@/components/common/markets/top-markets'
 import { Modal } from '@/components/common/modals/modal'
+import SwapModal from '@/components/common/modals/swap-modal'
 import { WelcomeModal } from '@/components/common/welcome-modal'
 import { ScrollableCategories } from '@/components/layouts/categories-desktop'
 import { sortAtom } from '@/atoms/market-sort'
@@ -55,6 +56,7 @@ const MainPage = () => {
   const { selectedCategory, handleCategory, dashboard, handleDashboard } = useTokenFilter()
   const [selectedSort, setSelectedSort] = useAtom(sortAtom)
   const [onboardModal, setOnboardModal] = useAtom(welcomeModalAtom)
+  const [swapModalOpened, setSwapModalOpened] = useState(true)
   const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } = useActiveMarkets({
     categoryId: selectedCategory?.id,
     sortBy: getSortValue(selectedSort.sort),
@@ -206,6 +208,7 @@ const MainPage = () => {
           <WelcomeModal onClose={() => setOnboardModal(false)} referralCode={referralCode ?? ''} />
         </Modal>
       ) : null}
+      <SwapModal open={swapModalOpened} onClose={() => setSwapModalOpened(false)} />
     </MainLayout>
   )
 }
