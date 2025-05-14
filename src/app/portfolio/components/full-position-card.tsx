@@ -8,6 +8,7 @@ import {
   TabPanels,
   Tabs,
   Text,
+  VStack,
 } from '@chakra-ui/react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
@@ -23,6 +24,7 @@ import MarketPage from '@/components/common/markets/market-page'
 import FullOrdersTab from '@/app/portfolio/components/full-orders-tab'
 import FullPositionsTab from '@/app/portfolio/components/full-positions-tab'
 import RewardsSection from '@/app/portfolio/components/rewards-section'
+import { ShareWinningButton } from './share-winning-button'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import GemWhiteIcon from '@/resources/icons/gem-white-icon.svg'
 import PieChartIcon from '@/resources/icons/pie-chart-icon.svg'
@@ -343,7 +345,13 @@ export default function FullPositionCard({ position, type }: FullPositionCardPro
             )}
           </HStack>
           {isMobile && marketClosed && (
-            <Box mb='16px'>
+            <VStack mb='16px' gap='8px' w='full'>
+              <ShareWinningButton
+                amountToClaim={getAmountToClaim()}
+                symbol={position.market.collateralToken?.symbol as string}
+                slug={position.market.slug ?? ''}
+                width='full'
+              />
               <ClaimButton
                 conditionId={position.market.conditionId as Address}
                 collateralAddress={position.market.collateralToken.address}
@@ -358,7 +366,7 @@ export default function FullPositionCard({ position, type }: FullPositionCardPro
                 negRiskRequestId={position.market.negRiskRequestId}
                 symbol={position.market.collateralToken.symbol}
               />
-            </Box>
+            </VStack>
           )}
         </Box>
         {!isMobile && (
@@ -366,20 +374,27 @@ export default function FullPositionCard({ position, type }: FullPositionCardPro
             {!marketClosed ? (
               <SpeedometerProgress value={yesPrice} size='medium' />
             ) : (
-              <ClaimButton
-                conditionId={position.market.conditionId as Address}
-                collateralAddress={position.market.collateralToken.address}
-                marketAddress={
-                  position.market.negRiskRequestId
-                    ? (process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address)
-                    : (process.env.NEXT_PUBLIC_CTF_CONTRACT as Address)
-                }
-                negRiskRequestId={position.market.negRiskRequestId}
-                amounts={amountsToNegriskClaim}
-                marketType={position.market.tradeType}
-                amountToClaim={getAmountToClaim()}
-                symbol={position.market.collateralToken.symbol}
-              />
+              <HStack gap='8px'>
+                <ShareWinningButton
+                  amountToClaim={getAmountToClaim()}
+                  symbol={position.market.collateralToken?.symbol as string}
+                  slug={position.market.slug ?? ''}
+                />
+                <ClaimButton
+                  conditionId={position.market.conditionId as Address}
+                  collateralAddress={position.market.collateralToken.address}
+                  marketAddress={
+                    position.market.negRiskRequestId
+                      ? (process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address)
+                      : (process.env.NEXT_PUBLIC_CTF_CONTRACT as Address)
+                  }
+                  negRiskRequestId={position.market.negRiskRequestId}
+                  amounts={amountsToNegriskClaim}
+                  marketType={position.market.tradeType}
+                  amountToClaim={getAmountToClaim()}
+                  symbol={position.market.collateralToken.symbol}
+                />
+              </HStack>
             )}
           </>
         )}
