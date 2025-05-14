@@ -152,8 +152,12 @@ export const TopHoldersTab = () => {
                 <Thead>
                   <Tr>
                     <Th w='28px'></Th>
-                    <Th w='220px'>Username</Th>
-                    <Th w='120px'>Contracts</Th>
+                    <Th w='220px' textAlign='left'>
+                      Username
+                    </Th>
+                    <Th w='120px' textAlign='right'>
+                      Contracts
+                    </Th>
                     <Th w='120px' textAlign='right'>
                       Market value
                     </Th>
@@ -169,7 +173,7 @@ export const TopHoldersTab = () => {
                           `${(currentPage - 1) * HOLDERS_LIMIT + (index + 1)}`
                         )}
                       </Td>
-                      <Td>
+                      <Td textAlign='left'>
                         <HStack gap='4px'>
                           <Avatar account={holder.user} avatarUrl={''} />
                           <NextLink
