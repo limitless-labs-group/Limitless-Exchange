@@ -6,7 +6,9 @@ export interface HolderUserData {
   user: string
   username: string
   contracts: string
-  valueUSDC: number
+  contractsFormatted: string
+  valueUSDC: string
+  valueUSDCFormatted: string
   tokenId: string
 }
 
