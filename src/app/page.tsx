@@ -245,9 +245,11 @@ const MainPage = () => {
             })
             setWelcomeModalOpened(false)
           }}
-          minW='512px'
+          w='420px'
           isCentered={false}
           marginTop='178px'
+          variant='modalWithoutClose'
+          closeOnOverlayClick={false}
         >
           <WelcomeModal
             onClose={() => {
