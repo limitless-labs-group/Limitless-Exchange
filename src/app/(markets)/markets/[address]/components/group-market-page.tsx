@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Divider,
+  Heading,
   HStack,
   Image as ChakraImage,
   Link,
@@ -13,7 +14,6 @@ import {
   Tabs,
   Text,
   VStack,
-  Heading,
 } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useMemo } from 'react'
@@ -23,7 +23,6 @@ import Avatar from '@/components/common/avatar'
 import MarketActivityTab from '@/components/common/markets/activity-tab'
 import ClobWidget from '@/components/common/markets/clob-widget/clob-widget'
 import CommentTab from '@/components/common/markets/comment-tab'
-import ConvertModal from '@/components/common/markets/convert-modal'
 import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import ShareMenu from '@/components/common/markets/share-menu'
@@ -46,6 +45,7 @@ import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
 import { ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
 import { h1Regular, h2Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps) {
@@ -176,6 +176,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                     deadline={market.expirationTimestamp}
                     deadlineText={market.expirationDate}
                     color='grey.500'
+                    ended={market.status === MarketStatus.RESOLVED}
                   />
                 )}
                 {!market ? (
@@ -286,7 +287,11 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                 </HStack>
               </Box>
               <Divider my='16px' />
-              <PriceChartContainer />
+              <PriceChartContainer
+                slug={groupMarket?.slug}
+                marketType='group'
+                ended={market?.status === MarketStatus.RESOLVED || false}
+              />
             </Box>
             <Text {...h2Medium} mt='24px' px={isMobile ? '16px' : 0}>
               Outcomes

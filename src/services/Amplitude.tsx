@@ -100,8 +100,8 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
     [acc]
   )
 
-  const trackSignUp = async () => {
-    return trackEvent(AuthenticationEvent.SignUp)
+  const trackSignUp = async <T extends SignInEventMetadata>(event: SignInEvent, customData?: T) => {
+    return trackEvent(event, customData)
   }
 
   const trackChanged = async <T extends ChangedEventMetadata>(
@@ -135,7 +135,7 @@ export const AmplitudeProvider = ({ children }: PropsWithChildren) => {
     trackChanged,
     trackClicked,
     trackOpened,
-    trackSignIn: trackSignIn,
+    trackSignIn,
     trackHovered,
   }
 
@@ -155,6 +155,8 @@ export type EventType =
 export enum ChangeEvent {
   StrategyChanged = 'Strategy Changed',
   OutcomeChanged = 'Outcome Changed',
+  ReferralWelcomeClosed = 'Referral Welcome Closed',
+  FinishedOnboarding = 'Finished Onboarding',
   ProfilePictureUploadedChanged = 'Profile Picture Uploaded',
   ProfileSettingsChanged = 'Profile Settings Changed',
   LeaderboardViewChanged = 'Leaderboard View Changed',
@@ -169,6 +171,7 @@ export enum ChangeEvent {
   SearchQuery = 'Search Query',
   TrackVisit = 'Track Visit',
   PortfolioClobViewChanged = 'Portfolio/Orders View Changed',
+  ReferalsTablePageChanged = 'Referals Table Page Changed',
 }
 
 export enum HoverEvent {
@@ -200,7 +203,9 @@ export enum ClickEvent {
   UIModeClicked = 'UI Mode Changed',
   CategoryClicked = 'Category Clicked',
   SeeMoreCkicked = 'See More Clicked',
-  WalletClicked = 'Wallet Clicked',
+  WalletPageClicked = 'Wallet Page Clicked',
+  ProfileButtonClicked = 'Profile Button Clicked',
+  InviteFriendsPageClicked = 'Invite Friends Button Clicked',
   CopyAddressClicked = 'Wallet Address Copied',
   CopyReferralClicked = 'Referral Link Copied',
   WithdrawClicked = 'Withdraw Clicked',
@@ -254,6 +259,7 @@ export enum ClickEvent {
   ClobPositionTabClicked = 'Clob Position Tab Clicked',
   CancelAllOrdersClicked = 'Cancel All Orders Clicked',
   PointsButtonClicked = 'Points Button Clicked',
+  HeaderThemeSwitchMenuClicked = 'Header Theme Switch Menu Clicked',
 }
 
 export enum SignInEvent {
@@ -539,6 +545,7 @@ interface ChartTabChangedMetadata {
 
 interface SignedInMetadata {
   signedIn: boolean
+  fromReferral?: boolean
 }
 
 interface WidgetClickedMetadata {

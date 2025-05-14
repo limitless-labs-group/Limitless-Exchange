@@ -4,6 +4,7 @@ import {
   Box,
   Button,
   Divider,
+  Heading,
   HStack,
   Image as ChakraImage,
   Link,
@@ -15,7 +16,6 @@ import {
   Tabs,
   Text,
   VStack,
-  Heading,
 } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useMemo } from 'react'
@@ -40,8 +40,9 @@ import ClobTabs from '@/app/(markets)/markets/[address]/components/clob/clob-tab
 import MarketMobileTradeForm from '@/app/(markets)/markets/[address]/components/clob/market-mobile-trade-form'
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import PortfolioTab from '@/app/(markets)/markets/[address]/components/portfolio-tab'
+import { PriceChartContainer } from '@/app/(markets)/markets/[address]/components/price-chart-container'
 import { LUMY_TOKENS } from '@/app/draft/components'
-import { MarketPriceChart, MarketTradingForm, MarketClosedButton } from './../components'
+import { MarketClosedButton, MarketTradingForm } from './../components'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
@@ -51,7 +52,7 @@ import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
 import { ChangeEvent, ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
 import { h1Regular, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market } from '@/types'
+import { Market, MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export interface MarketPageProps {
@@ -110,13 +111,18 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
 
   const chartsTabPanels = useMemo(
     () => [
-      <MarketPriceChart key={uuidv4()} />,
+      <PriceChartContainer
+        key={uuidv4()}
+        marketType='single'
+        slug={market?.slug}
+        ended={market?.status === MarketStatus.RESOLVED || false}
+      />,
       <MarketAssetPriceChart
         key={uuidv4()}
         id={LUMY_TOKENS.filter((token) => market?.title.includes(`${token} `))[0]}
       />,
     ],
-    [market?.title]
+    [market?.title, market?.slug]
   )
 
   const marketChartContent = useMemo(() => {
@@ -147,8 +153,14 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
         </Tabs>
       )
     }
-    return <MarketPriceChart />
-  }, [])
+    return (
+      <PriceChartContainer
+        marketType='single'
+        slug={market?.slug}
+        ended={market?.status === MarketStatus.RESOLVED || false}
+      />
+    )
+  }, [market?.slug])
 
   const tabs = [
     {
@@ -287,6 +299,7 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
                 deadline={market.expirationTimestamp}
                 deadlineText={market.expirationDate}
                 color='grey.500'
+                ended={market.status === MarketStatus.RESOLVED}
               />
             )}
             {!market ? (

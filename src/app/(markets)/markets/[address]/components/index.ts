@@ -1,7 +1,6 @@
 export * from './trade-widgets'
 export * from './market-metadata'
 export * from './market-positions'
-export * from './market-price-chart'
 export * from './market-trading-form'
 export * from './position-card'
 export * from './market-closed-button'

@@ -22,7 +22,7 @@
 const RPCs = [
   'https://base.drpc.org',
   'https://base.llamarpc.com',
-  'https://base-pokt.nodies.app',
+  'https://1rpc.io/base',
   'https://base.meowrpc.com',
   'https://base-rpc.publicnode.com',
 ]
@@ -79,6 +79,15 @@ const vercelPolicy = {
 
 const spindlPolicy = {
   'connect-src': ['https://spindl.link'],
+}
+
+const tiktokPolicy = {
+  'script-src': ['https://analytics.tiktok.com'],
+  'connect-src': ['https://analytics.tiktok.com'],
+}
+
+const amplitudePolicy = {
+  'connect-src': ['https://*.amplitude.com'],
 }
 
 const googleTagManagerPolicy = {
@@ -216,6 +225,8 @@ module.exports = {
   privyPolicy,
   intercomPolicy,
   spindlPolicy,
+  tiktokPolicy,
+  amplitudePolicy,
   googleTagManagerPolicy,
   generateCSPHeader,
 }

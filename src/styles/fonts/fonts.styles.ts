@@ -91,7 +91,7 @@ export const headline = {
 export const headlineBold = {
   fontSize: isMobile ? '20px' : '16px',
   fontStyle: 'normal',
-  fontWeight: isMobile ? 700 : 500,
+  fontWeight: 700,
   lineHeight: '20px',
   color: 'grey.800',
 }

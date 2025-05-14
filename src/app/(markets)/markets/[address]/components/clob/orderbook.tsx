@@ -33,7 +33,6 @@ export default function Orderbook({ variant }: OrderBookProps) {
     let cumulativeSum = 0
     const processedBids = array
       .slice()
-      .reverse()
       .map((order) => {
         const bidSum = new BigNumber(
           formatUnits(BigInt(order.size), market?.collateralToken.decimals || 6)

@@ -251,7 +251,7 @@ export default function GroupMarketSectionSmall({ market }: GroupMarketSectionSm
       </HStack>
       <AccordionPanel pb={0}>
         <Box mt='12px'>
-          <GroupMarketSectionTabs mobileView={true} />
+          <GroupMarketSectionTabs mobileView={true} market={market} />
         </Box>
       </AccordionPanel>
     </AccordionItem>
