@@ -37,6 +37,7 @@ import PortfolioTab from '@/app/(markets)/markets/[address]/components/portfolio
 import { PriceChartContainer } from '@/app/(markets)/markets/[address]/components/price-chart-container'
 import { MarketPageProps } from '@/app/(markets)/markets/[address]/components/single-market-page'
 import { useMarketFeed } from '@/hooks/use-market-feed'
+import usePageName from '@/hooks/use-page-name'
 import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
@@ -56,6 +57,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
   const { data: marketFeedData } = useMarketFeed(groupMarket)
   const uniqueUsersTrades = useUniqueUsersTrades(marketFeedData)
   const [activeTabIndex, setActiveTabIndex] = React.useState(0)
+  const pageName = usePageName()
 
   const tradingWidget = useMemo(() => {
     if (fetchMarketLoading) {
@@ -79,29 +81,37 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
     )
   }, [market, fetchMarketLoading])
 
-  const tabs = [
-    {
-      title: 'Resolution',
-      icon: <ResolutionIcon width='16px' height='16px' />,
-    },
-    {
-      title: 'Activity',
-      icon: <ActivityIcon width={16} height={16} />,
-    },
-    {
-      title: 'Opinions',
-      icon: <OpinionIcon width={16} height={16} />,
-    },
-    { title: 'Top Holders', icon: <TopHolders width={16} height={16} /> },
-  ]
+  const tabs = useMemo(() => {
+    const tabs = [
+      {
+        title: 'Resolution',
+        icon: <ResolutionIcon width='16px' height='16px' />,
+      },
+      {
+        title: 'Activity',
+        icon: <ActivityIcon width={16} height={16} />,
+      },
+      {
+        title: 'Opinions',
+        icon: <OpinionIcon width={16} height={16} />,
+      },
+    ]
+    if (market?.tradeType !== 'amm') {
+      tabs.push({ title: 'Top Holders', icon: <TopHolders width={16} height={16} /> })
+    }
+    return tabs
+  }, [])
 
   const tabPanels = useMemo(() => {
-    return [
+    const panels = [
       <MarketOverviewTab market={market} key={uuidv4()} />,
       <MarketActivityTab key={uuidv4()} isActive={true} />,
       <CommentTab key={uuidv4()} />,
-      <TopHoldersTab key={uuidv4()} />,
     ]
+    if (market?.tradeType !== 'amm') {
+      panels.push(<TopHoldersTab key={uuidv4()} />)
+    }
+    return panels
   }, [market])
 
   useEffect(() => {
@@ -320,7 +330,13 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                 position='relative'
                 variant='common'
                 mx={isMobile ? '16px' : 0}
-                onChange={(index) => setActiveTabIndex(index)}
+                onChange={(index) => {
+                  trackClicked(ClickEvent.TopHoldersTabClicked, {
+                    page: pageName,
+                  })
+
+                  setActiveTabIndex(index)
+                }}
                 index={activeTabIndex}
               >
                 <TabList

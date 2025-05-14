@@ -256,6 +256,7 @@ export enum ClickEvent {
   TopBannerClicked = 'Top Banner Clicked',
   WidgetClicked = 'Widget Clicked',
   PortfolioInvestmentsTabClicked = 'Portfolio Investments Tab Clicked',
+  TopHoldersTabClicked = 'Top Holders Tab Clicked',
   ClobPositionTabClicked = 'Clob Position Tab Clicked',
   CancelAllOrdersClicked = 'Cancel All Orders Clicked',
   PointsButtonClicked = 'Points Button Clicked',

@@ -80,6 +80,7 @@ export default function MarketPage() {
   } = useTradingService()
 
   const { updateParams } = useUrlParams()
+  const pageName = usePageName()
 
   const { trackClicked, trackOpened, trackChanged } = useAmplitude()
 
@@ -161,33 +162,45 @@ export default function MarketPage() {
     return tabPanels
   }, [isLivePriceSupportedMarket, market?.title, market?.tradeType])
 
-  const tabs = [
-    {
-      title: 'Resolution',
-      icon: <ResolutionIcon width={16} height={16} />,
-    },
-    {
-      title: 'Activity',
-      icon: <ActivityIcon width={16} height={16} />,
-    },
-    {
-      title: 'Opinions',
-      icon: <OpinionIcon width={16} height={16} />,
-    },
-    {
-      title: 'Top Holders',
-      icon: <TopHolders width={16} height={16} />,
-    },
-  ]
+  const tabs = useMemo(() => {
+    const tabsArray = [
+      {
+        title: 'Resolution',
+        icon: <ResolutionIcon width={16} height={16} />,
+      },
+      {
+        title: 'Activity',
+        icon: <ActivityIcon width={16} height={16} />,
+      },
+      {
+        title: 'Opinions',
+        icon: <OpinionIcon width={16} height={16} />,
+      },
+    ]
+
+    if (market?.tradeType !== 'amm') {
+      tabsArray.push({
+        title: 'Top Holders',
+        icon: <TopHolders width={16} height={16} />,
+      })
+    }
+
+    return tabsArray
+  }, [market?.tradeType])
 
   const tabPanels = useMemo(() => {
-    return [
+    const panels = [
       <MarketPageOverviewTab key={uuidv4()} />,
       <MarketActivityTab key={uuidv4()} isActive={activeActionsTabIndex === 1} />,
       <CommentTab key={uuidv4()} />,
-      <TopHoldersTab key={uuidv4()} />,
     ]
-  }, [activeActionsTabIndex])
+
+    if (market?.tradeType !== 'amm') {
+      panels.push(<TopHoldersTab key={uuidv4()} />)
+    }
+
+    return panels
+  }, [activeActionsTabIndex, market?.tradeType])
 
   const handleCloseMarketPageClicked = () => {
     setMarket(null)
@@ -261,7 +274,7 @@ export default function MarketPage() {
   useEffect(() => {
     setActiveActionsTabIndex(0)
     setActiveChartTabIndex(0)
-  }, [market?.slug])
+  }, [market?.slug, market?.tradeType])
 
   return (
     <SideBarPage>
@@ -447,7 +460,12 @@ export default function MarketPage() {
       <Tabs
         position='relative'
         variant='common'
-        onChange={(index) => setActiveActionsTabIndex(index)}
+        onChange={(index) => {
+          trackClicked(ClickEvent.TopHoldersTabClicked, {
+            page: pageName,
+          })
+          setActiveActionsTabIndex(index)
+        }}
         index={activeActionsTabIndex}
       >
         <Box

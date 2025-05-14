@@ -43,6 +43,7 @@ import PortfolioTab from '@/app/(markets)/markets/[address]/components/portfolio
 import { PriceChartContainer } from '@/app/(markets)/markets/[address]/components/price-chart-container'
 import { LUMY_TOKENS } from '@/app/draft/components'
 import { MarketClosedButton, MarketTradingForm } from './../components'
+import usePageName from '@/hooks/use-page-name'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
@@ -66,6 +67,7 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
   const { setMarket, resetQuotes, market } = useTradingService()
   const [activeTabIndex, setActiveTabIndex] = useState(0)
   const [activeChartTabIndex, setActiveChartTabIndex] = useState(0)
+  const pageName = usePageName()
 
   const isLumy = market?.tags?.includes('Lumy')
 
@@ -184,46 +186,56 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
       />
     )
   }, [market?.slug])
+  const tabs = useMemo(() => {
+    const baseTabs = [
+      {
+        title: 'Resolution',
+        icon: <ResolutionIcon width='16px' height='16px' />,
+      },
+      {
+        title: 'Activity',
+        icon: <ActivityIcon width={16} height={16} />,
+      },
+      {
+        title: 'Opinions',
+        icon: <OpinionIcon width={16} height={16} />,
+      },
+    ]
 
-  const tabs = [
-    {
-      title: 'Resolution',
-      icon: <ResolutionIcon width='16px' height='16px' />,
-    },
-    {
-      title: 'Activity',
-      icon: <ActivityIcon width={16} height={16} />,
-    },
-    {
-      title: 'Opinions',
-      icon: <OpinionIcon width={16} height={16} />,
-    },
-    {
-      title: 'Top Holders',
-      icon: <TopHolders width={16} height={16} />,
-    },
-  ]
+    if (market?.tradeType !== 'amm') {
+      baseTabs.push({
+        title: 'Top Holders',
+        icon: <TopHolders width={16} height={16} />,
+      })
+    }
+
+    if (market?.tradeType === 'amm') {
+      baseTabs.push({
+        title: 'Portfolio',
+        icon: <PortfolioIcon width={16} height={16} />,
+      })
+    }
+
+    return baseTabs
+  }, [market?.tradeType])
 
   const tabPanels = useMemo(() => {
-    return [
+    const panels = [
       <MarketOverviewTab market={market} key={uuidv4()} />,
       <MarketActivityTab key={uuidv4()} isActive />,
       <CommentTab key={uuidv4()} />,
-      <TopHoldersTab key={uuidv4()} />,
     ]
-  }, [market])
 
-  useEffect(() => {
-    if (market) {
-      if (market.tradeType === 'amm') {
-        tabs.push({
-          title: 'Portfolio',
-          icon: <PortfolioIcon width={16} height={16} />,
-        })
-        tabPanels.push(<PortfolioTab key={uuidv4()} />)
-      }
+    if (market?.tradeType !== 'amm') {
+      panels.push(<TopHoldersTab key={uuidv4()} />)
     }
-  }, [market])
+
+    if (market?.tradeType === 'amm') {
+      panels.push(<PortfolioTab key={uuidv4()} />)
+    }
+
+    return panels
+  }, [market?.tradeType, market])
 
   const mobileTradeButton = useMemo(() => {
     if (fetchMarketLoading) {
@@ -440,7 +452,12 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
             position='relative'
             variant='common'
             mx={isMobile ? '16px' : 0}
-            onChange={(index) => setActiveTabIndex(index)}
+            onChange={(index) => {
+              trackClicked(ClickEvent.TopHoldersTabClicked, {
+                page: pageName,
+              })
+              setActiveTabIndex(index)
+            }}
             index={activeTabIndex}
           >
             <TabList
