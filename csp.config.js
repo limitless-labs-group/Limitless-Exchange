@@ -51,6 +51,7 @@ const limitlessPolicy = {
   'style-src': ['https://limitless.exchange', 'https://*.limitless.exchange'],
   'connect-src': [
     'https://*.limitless.exchange',
+    'wss://*.limitless.exchange',
     'https://*.api.limitless.exchange',
     'wss://hermes.pyth.network', //pyth websocket for price feed
     'https://api.coingecko.com',
