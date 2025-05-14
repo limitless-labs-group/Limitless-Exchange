@@ -207,6 +207,8 @@ export enum ClickEvent {
   ProfileButtonClicked = 'Profile Button Clicked',
   InviteFriendsPageClicked = 'Invite Friends Button Clicked',
   CopyAddressClicked = 'Wallet Address Copied',
+  ShareWinChartButtonClicked = 'Share Chart Button Clicked',
+  CopyWinChartClicked = 'Winning Chart Copied',
   CopyReferralClicked = 'Referral Link Copied',
   WithdrawClicked = 'Withdraw Clicked',
   WrapETHClicked = 'Wrap ETH Clicked',

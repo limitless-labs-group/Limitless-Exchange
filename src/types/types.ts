@@ -461,6 +461,7 @@ export interface ColorScheme {
     50: string
     30: string
     20: string
+    10: string
   }
   blackAlpha: {
     70: string
