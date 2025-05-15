@@ -34,7 +34,7 @@ export interface IFormData {
   description: string
   liquidity: number
   probability: number
-  marketFee: number
+  marketFee: boolean
   tag: SelectOption[]
   creatorId: string
   categories: SelectOption[]
@@ -48,6 +48,7 @@ export interface IFormData {
   maxSpread?: number
   minSize?: number
   c?: number
+  markets?: MarketInput[]
 }
 
 export type MarketInput = {
@@ -55,6 +56,10 @@ export type MarketInput = {
   description: string
   settings?: Settings
   id?: number
+  draftMetadata: {
+    fee: boolean
+    type: string
+  }
 }
 
 export type DraftMetadata = {
@@ -140,7 +145,7 @@ export interface BaseMarketData {
   id?: number
   description?: string
   tokenId?: number
-  marketFee?: number
+  marketFee?: boolean
   deadline?: string
   isBannered: boolean
   creatorId?: string

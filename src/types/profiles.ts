@@ -16,6 +16,19 @@ export interface Profile {
   referralCode: string
   referralData: Referee[]
   enrolledInPointsProgram: boolean
+  rank: {
+    id: number
+    feeRateBps: number
+    name: RankType
+  }
+}
+
+export enum RankType {
+  BRONZE = 'Bronze',
+  SILVER = 'Silver',
+  GOLD = 'Gold',
+  PLATINUM = 'Platinum',
+  DIAMOND = 'Diamond',
 }
 
 export interface Referee {

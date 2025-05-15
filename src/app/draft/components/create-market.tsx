@@ -449,6 +449,34 @@ export const CreateMarket: FC = () => {
             </VStack>
 
             <VStack w={'full'} flex='0.8' h='full'>
+              {!isAmm && (
+                <HStack w='full' spacing='6' alignItems='start' justifyContent='start'>
+                  <VStack>
+                    <FormField label='Fee'>
+                      <HStack gap='8px'>
+                        <Box
+                          w='16px'
+                          h='16px'
+                          borderColor='grey.500'
+                          border='1px solid'
+                          borderRadius='2px'
+                          cursor='pointer'
+                          bg={
+                            formData.marketFee ||
+                            formData.markets?.some((market) => market.draftMetadata.fee)
+                              ? 'grey.800'
+                              : 'unset'
+                          }
+                          onClick={() => {
+                            handleChange('marketFee', !formData.marketFee)
+                          }}
+                        />
+                        <Text {...paragraphRegular}>Market takes fees</Text>
+                      </HStack>
+                    </FormField>
+                  </VStack>
+                </HStack>
+              )}
               <HStack w='full' spacing='6' alignItems='start' justifyContent='start'>
                 <VStack>
                   <FormField label='Is Bannered'>

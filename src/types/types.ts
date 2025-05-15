@@ -99,6 +99,7 @@ export interface Market {
   openInterestFormatted: string
   metadata: {
     isBannered: boolean
+    fee: boolean
   }
   settings?: Settings
   priorityIndex: number

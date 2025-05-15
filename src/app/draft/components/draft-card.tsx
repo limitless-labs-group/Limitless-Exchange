@@ -175,6 +175,7 @@ const MarketDataFactory = {
           <Stack gap='15px'>
             {[...market.markets]
               .sort((a, b) => (a.id ?? 0) - (b.id ?? 0))
+              // @ts-ignore
               .map((subMarket: MarketInput, index: number) => {
                 const { title, description, settings, id } = subMarket
                 return (

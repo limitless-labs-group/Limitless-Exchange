@@ -85,7 +85,9 @@ export const useCreateMarket = () => {
         draftMarket.draftMetadata?.liquidity ??
         tokenLimits[draftMarket.collateralToken.symbol]?.min,
       probability: (draftMarket.draftMetadata?.initialProbability ?? 0) * 100 || defaultProbability,
-      marketFee: draftMarket.draftMetadata?.fee ?? defaultMarketFee,
+      marketFee: isGroup
+        ? draftMarket.markets[0].draftMetadata.fee
+        : draftMarket.draftMetadata?.fee || defaultMarketFee,
       isBannered: draftMarket.metadata?.isBannered ?? false,
       tag:
         draftMarket.tags.map((tag: Tag) => ({
@@ -139,9 +141,11 @@ export const useCreateMarket = () => {
       title: activeMarket.title ?? '',
       description: activeMarket.description ?? '',
       deadline: toZonedTime(activeMarket.expirationTimestamp, 'UTC'),
-      marketFee: 0,
       priorityIndex: activeMarket.priorityIndex,
       isBannered: activeMarket.metadata?.isBannered ?? false,
+      marketFee: isGroup
+        ? !!activeMarket.markets?.[0].metadata.fee || false
+        : activeMarket.metadata.fee || false,
       tag:
         activeMarket.tags.map((tag: string | Tag) => {
           const tagName = typeof tag === 'string' ? tag : tag.name ?? ''
@@ -192,6 +196,8 @@ export const useCreateMarket = () => {
             rewardsEpoch: Number(market.settings?.rewardsEpoch) ?? 0,
             minSize: reverseCalculateMinSize(Number(market.settings?.minSize)) ?? 0,
           },
+          // @ts-ignore
+          draftMetadata: market.draftMetadata,
         }))
       )
     }

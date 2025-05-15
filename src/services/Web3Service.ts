@@ -51,7 +51,8 @@ type Web3Service = {
     price: string,
     shares: string,
     side: number,
-    type: 'negRisk' | 'common'
+    type: 'negRisk' | 'common',
+    includeFee: boolean
   ) => Promise<SignedOrder>
   placeMarketOrder: (
     tokenId: string,
@@ -59,7 +60,8 @@ type Web3Service = {
     price: string,
     side: number,
     amount: string,
-    type: 'negRisk' | 'common'
+    type: 'negRisk' | 'common',
+    includeFee: boolean
   ) => Promise<SignedOrder>
   splitShares: (
     collateralAddress: Address,
@@ -85,7 +87,7 @@ export function useWeb3Service(): Web3Service {
   const externalWalletService = useExternalWalletService()
   const privyService = usePrivySendTransaction()
 
-  const { web3Client, account: walletAddress } = useAccount()
+  const { web3Client, account: walletAddress, profileData } = useAccount()
   const { user } = usePrivy()
 
   const wrapEth = async (value: bigint) => {
@@ -192,8 +194,10 @@ export function useWeb3Service(): Web3Service {
     price: string,
     shares: string,
     side: number,
-    type: 'negRisk' | 'common'
+    type: 'negRisk' | 'common',
+    includeFee: boolean
   ): Promise<SignedOrder> => {
+    const feeRateBps = includeFee ? profileData?.rank.feeRateBps.toString() || '0' : '0'
     const convertedPrice = new BigNumber(price).dividedBy(100).toString()
     const orderData = {
       salt: Math.round(Math.random() * Date.now()) + '',
@@ -224,7 +228,7 @@ export function useWeb3Service(): Web3Service {
             ).toString(), // shares * decimals
       expiration: '0',
       nonce: '0',
-      feeRateBps: '0',
+      feeRateBps,
       side, // buy 0, sell 1
       signatureType: web3Client === 'etherspot' ? 2 : 0,
     }
@@ -243,9 +247,10 @@ export function useWeb3Service(): Web3Service {
     price: string,
     side: number,
     amount: string,
-    type: 'negRisk' | 'common'
+    type: 'negRisk' | 'common',
+    includeFee: boolean
   ) => {
-    const convertedPrice = new BigNumber(price).dividedBy(100).toString()
+    const feeRateBps = includeFee ? profileData?.rank.feeRateBps.toString() || '0' : '0'
     const orderData = {
       salt: Math.round(Math.random() * Date.now()) + '',
       maker: walletAddress as Address,
@@ -257,19 +262,9 @@ export function useWeb3Service(): Web3Service {
       tokenId,
       makerAmount: parseUnits(amount, decimals).toString(), // amount in $ put in order
       takerAmount: '1',
-      // takerAmount:
-      //   side === 0
-      //     ? parseUnits(
-      //         new BigNumber(amount).dividedBy(new BigNumber(convertedPrice)).toString(),
-      //         decimals
-      //       ).toString()
-      //     : parseUnits(
-      //         new BigNumber(amount).multipliedBy(new BigNumber(convertedPrice)).toString(),
-      //         decimals
-      //       ).toString(), // shares * decimals
       expiration: '0',
       nonce: '0',
-      feeRateBps: '0',
+      feeRateBps,
       side, // buy 0, sell 1
       signatureType: web3Client === 'etherspot' ? 2 : 0,
     }
