@@ -20,7 +20,7 @@ export default function ActivityAmm({ isActive }: MarketActivityTabProps) {
     data: activityData,
     fetchNextPage,
     hasNextPage,
-  } = useMarketInfinityFeed(market?.address, isActive)
+  } = useMarketInfinityFeed(market?.slug, isActive)
 
   const getNextPage = useCallback(
     debounce(async () => fetchNextPage(), 1000),

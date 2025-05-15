@@ -1,4 +1,5 @@
 import { Box, Button, Divider, Flex, HStack, Text, VStack } from '@chakra-ui/react'
+import { AxiosResponse } from 'axios'
 import BigNumber from 'bignumber.js'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
@@ -11,7 +12,7 @@ import { PriceChartContainer } from '@/app/(markets)/markets/[address]/component
 import { MarketCardLink } from './market-card-link'
 import { MarketProgressBar } from './market-progress-bar'
 import { SpeedometerProgress } from './speedometer-progress'
-import { useMarketFeed } from '@/hooks/use-market-feed'
+import { MarketFeedData, useMarketFeed } from '@/hooks/use-market-feed'
 import usePageName from '@/hooks/use-page-name'
 import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
 import {
@@ -60,7 +61,7 @@ export const MarketSingleCard = ({
     setMarketPageOpened,
   } = useTradingService()
   const router = useRouter()
-  const { data: marketFeedData } = useMarketFeed(market)
+  // const { data: marketFeedData } = useMarketFeed(market)
   const { pushGA4Event } = useGoogleAnalytics()
   const { closeAllAuthSidebarPages } = useAccount()
   const page = usePageName()
@@ -86,7 +87,9 @@ export const MarketSingleCard = ({
     onOpenMarketPage(market)
   }
 
-  const uniqueUsersTrades = useUniqueUsersTrades(marketFeedData)
+  const uniqueUsersTrades = useUniqueUsersTrades({
+    data: market.feedEvents ?? [],
+  } as AxiosResponse<MarketFeedData[]>)
 
   const { trackClicked } = useAmplitude()
 
