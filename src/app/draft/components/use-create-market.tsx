@@ -86,8 +86,8 @@ export const useCreateMarket = () => {
         tokenLimits[draftMarket.collateralToken.symbol]?.min,
       probability: (draftMarket.draftMetadata?.initialProbability ?? 0) * 100 || defaultProbability,
       marketFee: isGroup
-        ? draftMarket.markets[0].draftMetadata.fee
-        : draftMarket.draftMetadata?.fee || defaultMarketFee,
+        ? draftMarket.markets[0].metadata.fee
+        : draftMarket.metadata?.fee || defaultMarketFee,
       isBannered: draftMarket.metadata?.isBannered ?? false,
       tag:
         draftMarket.tags.map((tag: Tag) => ({
