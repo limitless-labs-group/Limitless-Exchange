@@ -296,6 +296,11 @@ export enum LeaderboardSort {
   ALL_TIME = 'All time',
 }
 
+export enum LeaderboardType {
+  BY_POINTS = 'By Points',
+  BY_VOLUME = 'By Volume',
+}
+
 export enum MarketStatus {
   RESOLVED = 'RESOLVED',
   FUNDED = 'FUNDED',
@@ -461,6 +466,7 @@ export interface ColorScheme {
     50: string
     30: string
     20: string
+    10: string
   }
   blackAlpha: {
     70: string

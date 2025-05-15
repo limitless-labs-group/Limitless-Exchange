@@ -57,7 +57,7 @@ export const MainLayout = ({
 
       <Box
         mt={`${headerHeight + (headerComponent ? 48 : 0)}px`}
-        mb={isMobile ? `${footerHeight}px` : '0'}
+        mb={isMobile ? `100px` : '0'}
         flex='1'
         overflow='hidden'
         height={contentHeight}

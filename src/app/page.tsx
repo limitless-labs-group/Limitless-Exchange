@@ -163,7 +163,6 @@ const MainPage = () => {
   const totalAmount = useMemo(() => data?.pages[0]?.data.totalAmount ?? 0, [data?.pages])
 
   const markets: Market[] = useMemo(() => {
-    console.log('data', data)
     return data?.pages.flatMap((page) => page.data.markets) || []
   }, [data?.pages])
 

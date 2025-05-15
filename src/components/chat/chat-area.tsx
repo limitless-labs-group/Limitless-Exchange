@@ -25,7 +25,7 @@ export interface ChatTextareaProps {
 }
 
 export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading, rows }: ChatTextareaProps) => {
-  const { loginToPlatform, profileData, account } = useAccount()
+  const { loginToPlatform, profileData } = useAccount()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [error, setError] = useState('')
   const { trackClicked, trackChanged } = useAmplitude()
@@ -87,11 +87,16 @@ export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading, rows }: ChatTex
     trackClicked(ClickEvent.SendMessageClicked, {
       currentOpenMarket: market?.slug ?? 'no market',
     })
-    setTimeout(() => {
-      if (textareaRef.current) {
-        textareaRef.current.focus()
-      }
-    }, 0)
+
+    if (isMobile && textareaRef.current) {
+      textareaRef.current.blur()
+    } else {
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus()
+        }
+      }, 0)
+    }
   }
 
   useEffect(() => {
@@ -151,7 +156,6 @@ export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading, rows }: ChatTex
           p={!isMobile ? '8px' : 'unset'}
           flexDirection={isMobile ? 'row-reverse' : 'column'}
           gap={isMobile ? '8px' : 'unset'}
-          alignItems={isMobile ? 'center' : 'unset'}
         >
           <Flex justifyContent={isMobile ? 'flex-end' : 'space-between'}>
             {!isMobile ? (
@@ -215,6 +219,9 @@ export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading, rows }: ChatTex
                 e.preventDefault()
                 if (msg.trim() !== '' && !isLoading) {
                   submit()
+                  if (isMobile && textareaRef.current) {
+                    textareaRef.current.blur()
+                  }
                 }
               }
             }}

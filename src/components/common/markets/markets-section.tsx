@@ -60,7 +60,7 @@ export default function MarketsSection({
           ) : null}
           <SortFilter onChange={handleSelectSort} sort={sort} />
         </Flex>
-        {withChat ? (
+        {withChat && !isMobile ? (
           <Divider orientation='horizontal' borderColor='grey.100' mx={isMobile ? '16px' : 0} />
         ) : null}
       </Box>

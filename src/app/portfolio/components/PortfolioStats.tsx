@@ -232,7 +232,7 @@ export const PortfolioStats = () => {
         ),
     },
     {
-      title: 'Points',
+      title: 'Alpha points',
       icon: <PointsIcon width={16} height={16} />,
       value:
         positionsLoading || !positions || !web3Wallet ? (
