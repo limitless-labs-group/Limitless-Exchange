@@ -22,10 +22,10 @@ import {
 import { calculateMarketPrice, getPrices } from '@/utils/market'
 
 export function useMarkets(topic: Category | null, enabled = true, customHeaders = {}) {
-  const { client, isLogged } = useClient()
+  const { client } = useClient()
 
   return useInfiniteQuery<MarketPage, Error>({
-    queryKey: ['markets', topic?.id, customHeaders, isLogged],
+    queryKey: ['markets', topic?.id, customHeaders],
     queryFn: async ({ pageParam = 1 }) => {
       const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/active`
       const marketBaseUrl = topic?.id ? `${baseUrl}/${topic?.id}` : baseUrl
@@ -96,10 +96,10 @@ export type UseSortedArgs = {
 }
 export function useSortedMarkets(args: UseSortedArgs) {
   const { categoryId, enabled, sortBy } = args
-  const { client, isLogged } = useClient()
+  const { client } = useClient()
 
   return useInfiniteQuery<MarketPage, Error>({
-    queryKey: ['sorted-markets', categoryId, sortBy, isLogged],
+    queryKey: ['sorted-markets', categoryId, sortBy],
     queryFn: async ({ pageParam = 1 }) => {
       const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/active`
       const marketBaseUrl = categoryId ? `${baseUrl}/${categoryId}` : baseUrl
