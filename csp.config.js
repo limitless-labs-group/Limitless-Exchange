@@ -53,6 +53,7 @@ const limitlessPolicy = {
     'https://*.limitless.exchange',
     'wss://*.limitless.exchange',
     'https://*.api.limitless.exchange',
+    'https://*.pimlico.io',
     'wss://hermes.pyth.network', //pyth websocket for price feed
     'https://api.coingecko.com',
     'https://indexer.hyperindex.xyz', //envio indexer
