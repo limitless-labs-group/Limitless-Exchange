@@ -1,4 +1,5 @@
 import { Box, Button, Flex, HStack, Text, VStack } from '@chakra-ui/react'
+import { AxiosResponse } from 'axios'
 import BigNumber from 'bignumber.js'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
@@ -33,7 +34,6 @@ export const BigBannerTrigger = React.memo(({ market, markets, index }: BigBanne
     setMarketPageOpened,
     setGroupMarket,
   } = useTradingService()
-  const { data: marketFeedData } = useMarketFeed(market)
   const router = useRouter()
   const { trackClicked } = useAmplitude()
   const { pushGA4Event } = useGoogleAnalytics()
@@ -141,21 +141,23 @@ export const BigBannerTrigger = React.memo(({ market, markets, index }: BigBanne
   }
 
   useEffect(() => {
-    if (!feedMessage && marketFeedData?.data?.length) {
-      setFeedMessage(marketFeedData.data[0])
+    if (!feedMessage && market.feedEvents?.length) {
+      setFeedMessage(market.feedEvents[0])
       return
     }
     if (
       feedMessage &&
-      marketFeedData?.data?.length &&
-      marketFeedData.data[0].bodyHash !== feedMessage.bodyHash
+      market.feedEvents?.length &&
+      market.feedEvents[0].bodyHash !== feedMessage.bodyHash
     ) {
-      setFeedMessage(marketFeedData.data[0])
+      setFeedMessage(market.feedEvents[0])
       return
     }
-  }, [feedMessage, marketFeedData])
+  }, [feedMessage, market.feedEvents])
 
-  const uniqueUsersTrades = useUniqueUsersTrades(marketFeedData)
+  const uniqueUsersTrades = useUniqueUsersTrades({
+    data: market.feedEvents ?? [],
+  } as AxiosResponse<MarketFeedData[]>)
 
   return (
     <Box
