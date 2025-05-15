@@ -8,17 +8,21 @@ export interface LeaderboardEntity {
   displayName: string
   pfpUrl: string
   totalVolume: string
+  totalPoints: string
 }
 
 export interface LeaderboardResponse {
   data: LeaderboardEntity[]
-  totalCount: string
+  limit: number
+  page: number
+  totalPages: number
+  totalRows: number
 }
 
-export function useLeaderboard(param: LeaderboardSort, page: number) {
+export function useLeaderboard(param: LeaderboardSort, page: number, metric: string) {
   return useQuery({
-    queryKey: ['leaderboard', param, page],
-    queryFn: async (): Promise<AxiosResponse<LeaderboardResponse>> => {
+    queryKey: ['leaderboard', param, page, metric],
+    queryFn: async (): Promise<LeaderboardResponse> => {
       let route
       switch (param) {
         case LeaderboardSort.MONTHLY:
@@ -34,19 +38,20 @@ export function useLeaderboard(param: LeaderboardSort, page: number) {
           route = 'all-time'
           break
       }
-      return limitlessApi.get(`/leaderboard/${route}`, {
+      const response = await limitlessApi.get(`/leaderboard/${route}?metric=${metric}`, {
         params: {
           page,
           limit: 10,
         },
       })
+      return response.data
     },
   })
 }
 
-export function useTopThreeLeaders(param: LeaderboardSort) {
+export function useTopThreeLeaders(param: LeaderboardSort, metric: string) {
   return useQuery({
-    queryKey: ['leaderboard', param, 'top-three'],
+    queryKey: ['leaderboard', param, 'top-three', metric],
     queryFn: async (): Promise<AxiosResponse<LeaderboardResponse>> => {
       let route
       switch (param) {
@@ -63,7 +68,7 @@ export function useTopThreeLeaders(param: LeaderboardSort) {
           route = 'all-time'
           break
       }
-      return limitlessApi.get(`/leaderboard/${route}`, {
+      return limitlessApi.get(`/leaderboard/${route}?metric=${metric}`, {
         params: {
           page: 1,
           limit: 3,

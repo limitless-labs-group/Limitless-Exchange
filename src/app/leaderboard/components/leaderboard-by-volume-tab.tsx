@@ -1,28 +1,17 @@
-import { Box, Button, ButtonGroup, HStack, Link, Td, Text, Tr } from '@chakra-ui/react'
-import NextLink from 'next/link'
+import { Box, Button, ButtonGroup, HStack, Text } from '@chakra-ui/react'
 import React, { useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
-import Avatar from '@/components/common/avatar'
 import Skeleton from '@/components/common/skeleton'
-import TablePagination from '@/components/common/table-pagination'
-import LeaderIcon from '@/app/leaderboard/components/leader-icon'
 import LeaderboardTabContainer from '@/app/leaderboard/components/leaderboard-tab-container'
-import LeaderboardTableContainer from '@/app/leaderboard/components/leaderboard-table-container'
+import LeaderboardTable from '@/app/leaderboard/components/leaderboard-table'
 import Leaders from '@/app/leaderboard/components/leaders'
 import { leaderboardSortOptions } from '@/app/leaderboard/utils'
 import { useDateRanges } from '@/hooks/use-date-range'
-import { LeaderboardEntity, useLeaderboard, useTopThreeLeaders } from '@/hooks/use-leaderboard'
+import { useLeaderboard, useTopThreeLeaders } from '@/hooks/use-leaderboard'
 import { ChangeEvent, useAmplitude } from '@/services'
-import {
-  h2Medium,
-  headlineRegular,
-  paragraphMedium,
-  paragraphRegular,
-} from '@/styles/fonts/fonts.styles'
+import { headlineRegular, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { LeaderboardSort } from '@/types'
-import { NumberUtil, truncateEthAddress } from '@/utils'
-import { cutUsername } from '@/utils/string'
 
 export default function LeaderboardByVolumeTab() {
   const [selectedSortFilter, setSelectedSortFilter] = useState<LeaderboardSort>(
@@ -47,12 +36,18 @@ export default function LeaderboardByVolumeTab() {
 
   const { trackChanged } = useAmplitude()
 
-  const { data: leaderboardStats, isLoading } = useLeaderboard(selectedSortFilter, currentPage)
+  const { data: leaderboardStats, isLoading } = useLeaderboard(
+    selectedSortFilter,
+    currentPage,
+    'volume'
+  )
 
-  const { data: topThreeLeaders, isLoading: topThreeLoading } =
-    useTopThreeLeaders(selectedSortFilter)
+  const { data: topThreeLeaders, isLoading: topThreeLoading } = useTopThreeLeaders(
+    selectedSortFilter,
+    'volume'
+  )
 
-  const totalPages = Math.ceil(leaderboardStats ? +leaderboardStats.data.totalCount / 10 : 1)
+  const totalPages = Math.ceil(leaderboardStats ? leaderboardStats.totalPages : 0)
 
   const handlePageChange = (page: number) => {
     trackChanged(ChangeEvent.LeaderboardPageChanged, {
@@ -66,69 +61,11 @@ export default function LeaderboardByVolumeTab() {
     window.sessionStorage.setItem('LEADERBOARD_SORT', option)
     trackChanged(ChangeEvent.LeaderboardViewChanged, {
       option,
+      tab: 'volume',
     })
     setSelectedSortFilter(option)
     setCurrentPage(1)
   }
-
-  const getUserDisplayName = (data: LeaderboardEntity) => {
-    if (data.displayName) {
-      return isMobile ? cutUsername(data.displayName, 25) : data.displayName
-    }
-    return isMobile ? truncateEthAddress(data.account) : data.account
-  }
-
-  const renderTable = useMemo(() => {
-    if (!leaderboardStats?.data.data.length) {
-      return (
-        <Box mt='24px'>
-          <Text {...h2Medium}>No data available for requested period.</Text>
-        </Box>
-      )
-    }
-    return (
-      <Box>
-        <LeaderboardTableContainer valueName='Total Volume'>
-          {leaderboardStats?.data?.data.map((data, index) => (
-            <Tr key={index}>
-              <Td h='44px'>
-                {currentPage === 1 && index < 3 ? (
-                  <LeaderIcon index={index} />
-                ) : (
-                  `${(currentPage - 1) * 10 + (index + 1)}`
-                )}
-              </Td>
-              <Td>
-                <HStack gap='4px'>
-                  <Avatar account={data.account} avatarUrl={data.pfpUrl} />
-                  <NextLink
-                    href={`https://basescan.org/address/${data.account}`}
-                    target='_blank'
-                    rel='noopener'
-                    passHref
-                  >
-                    <Link variant='textLinkSecondary' {...paragraphRegular} isExternal>
-                      {getUserDisplayName(data)}
-                    </Link>
-                  </NextLink>
-                </HStack>
-              </Td>
-              {/*<Td>{data.outcome}</Td>*/}
-              {/*<Td textAlign='right'>{data.shares}</Td>*/}
-              <Td textAlign='right'>
-                {NumberUtil.convertWithDenomination(data.totalVolume, 0)} USDC
-              </Td>
-            </Tr>
-          ))}
-        </LeaderboardTableContainer>
-        <TablePagination
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-          totalPages={totalPages}
-        />
-      </Box>
-    )
-  }, [currentPage, leaderboardStats?.data.data, totalPages])
 
   const renderLeaders = useMemo(() => {
     if (!topThreeLeaders?.data.data.length) {
@@ -191,7 +128,7 @@ export default function LeaderboardByVolumeTab() {
         ) : (
           <Text {...headlineRegular}>
             {period}
-            {','} {leaderboardStats?.data.totalCount || 0} people
+            {','} {leaderboardStats?.totalRows || 0} people
           </Text>
         )}
       </HStack>
@@ -202,13 +139,14 @@ export default function LeaderboardByVolumeTab() {
       ) : (
         renderLeaders
       )}
-      {isLoading ? (
-        <Box mt='16px' px={isMobile ? '16px' : 0}>
-          <Skeleton height={520} />
-        </Box>
-      ) : (
-        renderTable
-      )}
+      <LeaderboardTable
+        leaderboardStats={leaderboardStats}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        handlePageChange={handlePageChange}
+        isLoading={isLoading}
+        valueName='Points'
+      />
     </LeaderboardTabContainer>
   )
 }

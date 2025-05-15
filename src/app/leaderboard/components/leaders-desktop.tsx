@@ -1,5 +1,7 @@
 import { Box, HStack, Text } from '@chakra-ui/react'
 import React from 'react'
+import { isMobile } from 'react-device-detect'
+import { isAddress } from 'viem'
 import Avatar from '@/components/common/avatar'
 import { LeaderboardEntity } from '@/hooks/use-leaderboard'
 import LeaderboardFirst from '@/resources/icons/leaderboard/leaderboard-position-1.svg'
@@ -14,6 +16,16 @@ interface LeadersProps {
 }
 
 export default function LeadersDesktop({ data }: LeadersProps) {
+  const getUserDisplayName = (data: LeaderboardEntity) => {
+    if (isAddress(data.displayName)) {
+      return truncateEthAddress(data.displayName)
+    }
+    if (data.displayName.length > 25) {
+      return cutUsername(data.displayName, 17)
+    }
+    return isMobile ? cutUsername(data.displayName, 25) : data.displayName
+  }
+
   if (!data?.length) return null
 
   return (
@@ -23,9 +35,7 @@ export default function LeadersDesktop({ data }: LeadersProps) {
           <HStack gap='4px' justifyContent='center' marginBottom='-8px'>
             <Avatar account={data[1].account || '0x'} avatarUrl={data[1].pfpUrl} />
             <Text {...controlsMedium} fontSize='16px'>
-              {data[1].displayName
-                ? cutUsername(data[1].displayName, 17)
-                : truncateEthAddress(data[1].account)}
+              {getUserDisplayName(data[1])}
             </Text>
           </HStack>
           <LeaderboardSecond />
@@ -36,9 +46,7 @@ export default function LeadersDesktop({ data }: LeadersProps) {
           <HStack gap='4px' justifyContent='center' marginBottom='-8px'>
             <Avatar account={data[0].account || '0x'} />
             <Text {...controlsMedium} fontSize='16px'>
-              {data[0].displayName
-                ? cutUsername(data[0].displayName, 17)
-                : truncateEthAddress(data[0].account)}
+              {getUserDisplayName(data[0])}
             </Text>
           </HStack>
           <LeaderboardFirst />
@@ -49,9 +57,7 @@ export default function LeadersDesktop({ data }: LeadersProps) {
           <HStack gap='4px' justifyContent='center' marginBottom='-8px'>
             <Avatar account={data[2].account || '0x'} />
             <Text {...controlsMedium} fontSize='16px'>
-              {data[2].displayName
-                ? cutUsername(data[2].displayName, 17)
-                : truncateEthAddress(data[2].account)}
+              {getUserDisplayName(data[2])}
             </Text>
           </HStack>
           <LeaderboardThird />

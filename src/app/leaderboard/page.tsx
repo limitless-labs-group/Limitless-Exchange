@@ -33,7 +33,7 @@ export default function LeaderboardPage() {
   return (
     <MainLayout layoutPadding={isMobile ? '0' : '16px'} headerComponent={leaderboardHeader}>
       <HStack className='w-full' alignItems='flex-start' justifyContent='center'>
-        <Box w={isMobile ? 'full' : '880px'} mt='24px'>
+        <Box w={isMobile ? 'full' : '664px'} mt='24px'>
           {leaderboardType === LeaderboardType.BY_POINTS ? (
             <LeaderboardByPointsTab />
           ) : (
