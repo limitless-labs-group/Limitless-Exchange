@@ -5,8 +5,8 @@ import { ChatMsg } from '.'
 import Avatar from '../common/avatar'
 
 export const trimAcc = (str: string): string => {
-  if (!str || str.length <= 33) return str
-  return `${str.substring(0, 15)}...${str.substring(str.length - 15)}`
+  if (!str || str.length <= 25) return str
+  return `${str.substring(0, 11)}...${str.substring(str.length - 11)}`
 }
 
 export const Message = ({ comment }: { comment: ChatMsg }) => {

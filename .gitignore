@@ -48,3 +48,6 @@ next-env.d.ts
 tsconfig.tsbuildinfo
 
 /certificates
+
+# Sentry Config File
+.env.sentry-build-plugin

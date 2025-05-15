@@ -27,7 +27,9 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const ogImageUrl = referralCode ? `/api/og?r=${encodeURIComponent(referralCode)}` : `/api/og`
 
-  const title = referralCode ? `Join Limitless with referral: ${referralCode}` : 'Limitless'
+  const title = referralCode
+    ? `Join Limitless with referral: ${referralCode}`
+    : 'Limitless Exchange'
 
   const description = referralCode
     ? `Use this referral link to get started on Limitless Exchange`

@@ -1,6 +1,7 @@
 'use client'
 
 import { PrivyClientConfig, PrivyProvider } from '@privy-io/react-auth'
+import { RPCs } from 'csp.config.js'
 import { PropsWithChildren } from 'react'
 import { createPublicClient, fallback, http } from 'viem'
 import { base, baseSepolia } from 'viem/chains'
@@ -14,17 +15,8 @@ export const publicClient = createPublicClient({
     process.env.NEXT_PUBLIC_NETWORK === 'testnet'
       ? http()
       : fallback(
-          [
-            // http('https://mainnet.base.org'),
-            http('https://base.drpc.org'),
-            http('https://base.llamarpc.com'),
-            http('https://base-pokt.nodies.app'),
-            http('https://base.meowrpc.com'),
-            http('https://1rpc.io/base'),
-          ],
-          {
-            rank: true,
-          }
+          RPCs.map((rpc) => http(rpc)),
+          { rank: true }
         ),
 })
 
@@ -34,6 +26,7 @@ export default function PrivyAuthProvider({ children }: PropsWithChildren) {
     appearance: {
       theme: mode,
       logo: 'https://limitless-web.vercel.app/assets/images/logo.svg',
+      landingHeader: 'Welcome to Limitless',
     },
     embeddedWallets: {
       createOnLogin: 'users-without-wallets',

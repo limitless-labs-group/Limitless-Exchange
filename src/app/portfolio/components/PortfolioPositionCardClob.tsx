@@ -4,6 +4,7 @@ import { isMobile } from 'react-device-detect'
 import { Address, formatUnits } from 'viem'
 import ClaimButton from '@/components/common/markets/claim-button'
 import FullPositionsTab from '@/app/portfolio/components/full-positions-tab'
+import { ShareWinningButton } from './share-winning-button'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import { ClobPositionWithType } from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
@@ -47,36 +48,54 @@ const PortfolioPositionCardClob = ({ positionData, ...props }: PortfolioPosition
       p={isMobile ? '16px' : '8px'}
     >
       <HStack w='full' justifyContent='space-between'>
-        <Text {...paragraphMedium}>
+        <Text
+          {...paragraphMedium}
+          color={positionData.market.status === MarketStatus.RESOLVED ? 'white' : 'grey.800'}
+        >
           {positionData.market.group?.title || positionData.market.title}
         </Text>
         {isMobile && <Icon as={ArrowRightIcon} width={'16px'} height={'16px'} />}
         {!isMobile && marketClosed && (
-          <ClaimButton
-            slug={positionData.market.slug}
-            conditionId={positionData.market.conditionId as Address}
-            collateralAddress={positionData.market.collateralToken.address}
-            marketAddress={
-              positionData.market.negRiskRequestId
-                ? (process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address)
-                : (process.env.NEXT_PUBLIC_CTF_CONTRACT as Address)
-            }
-            outcomeIndex={positionData.market.winningOutcomeIndex as number}
-            marketType='clob'
-            amountToClaim={formatUnits(
-              BigInt(
-                positionData.tokensBalance[positionData.market.winningOutcomeIndex ? 'no' : 'yes']
-              ),
-              decimals
-            )}
-            symbol={symbol}
-            amounts={amountsToNegriskClaim}
-            negRiskRequestId={positionData.market.negRiskRequestId}
-          />
+          <HStack gap='8px'>
+            <ShareWinningButton
+              amountToClaim={formatUnits(
+                BigInt(
+                  positionData.tokensBalance[positionData.market.winningOutcomeIndex ? 'no' : 'yes']
+                ),
+                decimals
+              )}
+              symbol={symbol}
+              slug={positionData.market.slug ?? ''}
+            />
+            <ClaimButton
+              slug={positionData.market.slug}
+              conditionId={positionData.market.conditionId as Address}
+              collateralAddress={positionData.market.collateralToken.address}
+              marketAddress={
+                positionData.market.negRiskRequestId
+                  ? (process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address)
+                  : (process.env.NEXT_PUBLIC_CTF_CONTRACT as Address)
+              }
+              marketType='clob'
+              amountToClaim={formatUnits(
+                BigInt(
+                  positionData.tokensBalance[positionData.market.winningOutcomeIndex ? 'no' : 'yes']
+                ),
+                decimals
+              )}
+              symbol={symbol}
+              amounts={amountsToNegriskClaim}
+              negRiskRequestId={positionData.market.negRiskRequestId}
+            />
+          </HStack>
         )}
       </HStack>
       {positionData.market.group?.title && (
-        <Text {...paragraphMedium} mt='24px'>
+        <Text
+          {...paragraphMedium}
+          color={positionData.market.status === MarketStatus.RESOLVED ? 'white' : 'grey.800'}
+          mt='24px'
+        >
           {positionData.market.title}
         </Text>
       )}

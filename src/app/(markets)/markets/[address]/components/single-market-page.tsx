@@ -4,21 +4,20 @@ import {
   Box,
   Button,
   Divider,
+  Heading,
   HStack,
   Image as ChakraImage,
   Link,
   Tab,
-  TabIndicator,
   TabList,
   TabPanel,
   TabPanels,
   Tabs,
   Text,
   VStack,
-  Heading,
 } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import MobileDrawer from '@/components/common/drawer'
@@ -31,6 +30,7 @@ import { MarketProgressBar } from '@/components/common/markets/market-cards/mark
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import MarketPositionsAmm from '@/components/common/markets/positions/market-positions-amm'
 import ShareMenu from '@/components/common/markets/share-menu'
+import { TopHoldersTab } from '@/components/common/markets/top-holders'
 import MarketClosedWidget from '@/components/common/markets/trading-widgets/market-closed-widget'
 import TradingWidgetSimple from '@/components/common/markets/trading-widgets/trading-widget-simple'
 import { UniqueTraders } from '@/components/common/markets/unique-traders'
@@ -40,8 +40,10 @@ import ClobTabs from '@/app/(markets)/markets/[address]/components/clob/clob-tab
 import MarketMobileTradeForm from '@/app/(markets)/markets/[address]/components/clob/market-mobile-trade-form'
 import MarketOverviewTab from '@/app/(markets)/markets/[address]/components/overview-tab'
 import PortfolioTab from '@/app/(markets)/markets/[address]/components/portfolio-tab'
+import { PriceChartContainer } from '@/app/(markets)/markets/[address]/components/price-chart-container'
 import { LUMY_TOKENS } from '@/app/draft/components'
-import { MarketPriceChart, MarketTradingForm, MarketClosedButton } from './../components'
+import { MarketClosedButton, MarketTradingForm } from './../components'
+import usePageName from '@/hooks/use-page-name'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
@@ -49,9 +51,10 @@ import LineChartIcon from '@/resources/icons/line-chart-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
+import TopHolders from '@/resources/icons/top-holders-icon.svg'
 import { ChangeEvent, ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
 import { h1Regular, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market } from '@/types'
+import { Market, MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export interface MarketPageProps {
@@ -62,6 +65,9 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
   const { trackClicked, trackOpened, trackChanged } = useAmplitude()
   const router = useRouter()
   const { setMarket, resetQuotes, market } = useTradingService()
+  const [activeTabIndex, setActiveTabIndex] = useState(0)
+  const [activeChartTabIndex, setActiveChartTabIndex] = useState(0)
+  const pageName = usePageName()
 
   const isLumy = market?.tags?.includes('Lumy')
 
@@ -110,22 +116,52 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
 
   const chartsTabPanels = useMemo(
     () => [
-      <MarketPriceChart key={uuidv4()} />,
+      <PriceChartContainer
+        key={uuidv4()}
+        marketType='single'
+        slug={market?.slug}
+        ended={market?.status === MarketStatus.RESOLVED || false}
+      />,
       <MarketAssetPriceChart
         key={uuidv4()}
         id={LUMY_TOKENS.filter((token) => market?.title.includes(`${token} `))[0]}
       />,
     ],
-    [market?.title]
+    [market?.title, market?.slug]
   )
 
   const marketChartContent = useMemo(() => {
     if (isLivePriceSupportedMarket) {
       return (
-        <Tabs position='relative' variant='common' mt='20px'>
-          <TabList>
-            {chartTabs.map((tab) => (
-              <Tab key={tab.title} onClick={() => handleChartTabClicked(tab.title)}>
+        <Tabs
+          position='relative'
+          variant='common'
+          mt='20px'
+          onChange={(index) => setActiveChartTabIndex(index)}
+          index={activeChartTabIndex}
+        >
+          <TabList
+            overflowX='auto'
+            overflowY='hidden'
+            css={{
+              '&::-webkit-scrollbar': {
+                display: 'none',
+              },
+              scrollbarWidth: 'none',
+              '-ms-overflow-style': 'none',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {chartTabs.map((tab, index) => (
+              <Tab
+                key={tab.title}
+                onClick={() => handleChartTabClicked(tab.title)}
+                borderBottom={
+                  activeChartTabIndex === index ? '2px solid black' : '2px solid transparent'
+                }
+                _selected={{ borderBottom: '2px solid black' }}
+                minW='auto'
+              >
                 <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
                   {tab.icon}
                   <>{tab.title}</>
@@ -133,12 +169,7 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
               </Tab>
             ))}
           </TabList>
-          <TabIndicator
-            mt='-2px'
-            height='2px'
-            bg='grey.800'
-            transitionDuration='200ms !important'
-          />
+
           <TabPanels>
             {chartsTabPanels.map((panel, index) => (
               <TabPanel key={index}>{panel}</TabPanel>
@@ -147,43 +178,64 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
         </Tabs>
       )
     }
-    return <MarketPriceChart />
-  }, [])
+    return (
+      <PriceChartContainer
+        marketType='single'
+        slug={market?.slug}
+        ended={market?.status === MarketStatus.RESOLVED || false}
+      />
+    )
+  }, [market?.slug])
+  const tabs = useMemo(() => {
+    const baseTabs = [
+      {
+        title: 'Resolution',
+        icon: <ResolutionIcon width='16px' height='16px' />,
+      },
+      {
+        title: 'Activity',
+        icon: <ActivityIcon width={16} height={16} />,
+      },
+      {
+        title: 'Opinions',
+        icon: <OpinionIcon width={16} height={16} />,
+      },
+    ]
 
-  const tabs = [
-    {
-      title: 'Resolution',
-      icon: <ResolutionIcon width='16px' height='16px' />,
-    },
-    {
-      title: 'Activity',
-      icon: <ActivityIcon width={16} height={16} />,
-    },
-    {
-      title: 'Opinions',
-      icon: <OpinionIcon width={16} height={16} />,
-    },
-  ]
+    if (market?.tradeType !== 'amm') {
+      baseTabs.push({
+        title: 'Top Holders',
+        icon: <TopHolders width={16} height={16} />,
+      })
+    }
+
+    if (market?.tradeType === 'amm') {
+      baseTabs.push({
+        title: 'Portfolio',
+        icon: <PortfolioIcon width={16} height={16} />,
+      })
+    }
+
+    return baseTabs
+  }, [market?.tradeType])
 
   const tabPanels = useMemo(() => {
-    return [
+    const panels = [
       <MarketOverviewTab market={market} key={uuidv4()} />,
       <MarketActivityTab key={uuidv4()} isActive />,
       <CommentTab key={uuidv4()} />,
     ]
-  }, [market])
 
-  useEffect(() => {
-    if (market) {
-      if (market.tradeType === 'amm') {
-        tabs.push({
-          title: 'Portfolio',
-          icon: <PortfolioIcon width={16} height={16} />,
-        })
-        tabPanels.push(<PortfolioTab key={uuidv4()} />)
-      }
+    if (market?.tradeType !== 'amm') {
+      panels.push(<TopHoldersTab key={uuidv4()} />)
     }
-  }, [market])
+
+    if (market?.tradeType === 'amm') {
+      panels.push(<PortfolioTab key={uuidv4()} />)
+    }
+
+    return panels
+  }, [market?.tradeType, market])
 
   const mobileTradeButton = useMemo(() => {
     if (fetchMarketLoading) {
@@ -287,6 +339,7 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
                 deadline={market.expirationTimestamp}
                 deadlineText={market.expirationDate}
                 color='grey.500'
+                ended={market.status === MarketStatus.RESOLVED}
               />
             )}
             {!market ? (
@@ -395,10 +448,39 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
             <Skeleton height={120} />
           </Box>
         ) : (
-          <Tabs position='relative' variant='common' mx={isMobile ? '16px' : 0}>
-            <TabList>
-              {tabs.map((tab) => (
-                <Tab key={tab.title}>
+          <Tabs
+            position='relative'
+            variant='common'
+            mx={isMobile ? '16px' : 0}
+            onChange={(index) => {
+              trackClicked(ClickEvent.TopHoldersTabClicked, {
+                page: pageName,
+              })
+              setActiveTabIndex(index)
+            }}
+            index={activeTabIndex}
+          >
+            <TabList
+              overflowX='auto'
+              overflowY='hidden'
+              css={{
+                '&::-webkit-scrollbar': {
+                  display: 'none',
+                },
+                scrollbarWidth: 'none',
+                '-ms-overflow-style': 'none',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {tabs.map((tab, index) => (
+                <Tab
+                  key={tab.title}
+                  borderBottom={
+                    activeTabIndex === index ? '2px solid black' : '2px solid transparent'
+                  }
+                  _selected={{ borderBottom: '2px solid black' }}
+                  minW='auto'
+                >
                   <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
                     {tab.icon}
                     <>{tab.title}</>
@@ -406,12 +488,7 @@ export default function SingleMarketPage({ fetchMarketLoading }: MarketPageProps
                 </Tab>
               ))}
             </TabList>
-            <TabIndicator
-              mt='-2px'
-              height='2px'
-              bg='grey.800'
-              transitionDuration='200ms !important'
-            />
+
             <TabPanels>
               {tabPanels.map((panel, index) => (
                 <TabPanel key={index}>{panel}</TabPanel>

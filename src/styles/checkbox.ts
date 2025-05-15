@@ -39,4 +39,21 @@ const baseStyle = definePartsStyle({
   },
 })
 
-export const checkboxTheme = defineMultiStyleConfig({ baseStyle })
+const variants = {
+  green: definePartsStyle({
+    control: {
+      _checked: {
+        bg: 'green.500 !important',
+        border: 'unset',
+        _hover: {
+          border: 'unset',
+        },
+      },
+    },
+  }),
+}
+
+export const checkboxTheme = defineMultiStyleConfig({
+  baseStyle,
+  variants,
+})

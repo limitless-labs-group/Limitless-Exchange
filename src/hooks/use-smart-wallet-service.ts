@@ -172,8 +172,7 @@ export default function useSmartWalletService() {
     conditionalTokensAddress: Address,
     collateralAddress: Address,
     parentCollectionId: Address,
-    marketConditionId: Address,
-    indexSets: number[]
+    marketConditionId: Address
   ) => {
     const contract = getContract({
       address: conditionalTokensAddress,
@@ -183,7 +182,7 @@ export default function useSmartWalletService() {
     const data = encodeFunctionData({
       abi: conditionalTokensABI,
       functionName: 'redeemPositions',
-      args: [collateralAddress, parentCollectionId, marketConditionId, indexSets],
+      args: [collateralAddress, parentCollectionId, marketConditionId, [1, 2]],
     })
     const transactionHash = await sendTransaction(contract, data)
     return transactionHash

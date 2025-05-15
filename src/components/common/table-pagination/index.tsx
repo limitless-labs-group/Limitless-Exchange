@@ -13,6 +13,9 @@ export default function TablePagination({
   currentPage,
   onPageChange,
 }: TablePaginationProps) {
+  if (totalPages < 2) {
+    return null
+  }
   const renderPagination = () => {
     const pages = []
     const showDots = totalPages > 5
@@ -75,7 +78,7 @@ export default function TablePagination({
           }
         }}
       >
-        <ChevronDownIcon />
+        <ChevronDownIcon width={16} height={16} />
       </Button>
       {renderPagination()}
       <Button
@@ -90,7 +93,7 @@ export default function TablePagination({
           }
         }}
       >
-        <ChevronDownIcon />
+        <ChevronDownIcon width={16} height={16} />
       </Button>
     </HStack>
   )
