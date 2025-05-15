@@ -74,7 +74,7 @@ export const defaultFormData = {
   slug: '',
   liquidity: tokenLimits[defaultTokenSymbol].default ?? tokenLimits[defaultTokenSymbol].min,
   probability: defaultProbability,
-  marketFee: defaultMarketFee,
+  marketFee: false,
   tag: [],
   creatorId: defaultCreatorId,
   categories: [{ id: '2', label: 'Crypto', value: 'Crypto' }],

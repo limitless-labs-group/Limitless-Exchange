@@ -176,7 +176,8 @@ export default function TradeStepperMenu() {
           outcome === 0 ? yesPrice.toString() : noPrice.toString(),
           side,
           price,
-          market.negRiskRequestId ? 'negRisk' : 'common'
+          market.negRiskRequestId ? 'negRisk' : 'common',
+          market.metadata.fee
         )
         const data = {
           order: {
@@ -228,7 +229,8 @@ export default function TradeStepperMenu() {
           price,
           sharesAmount,
           side,
-          market.negRiskRequestId ? 'negRisk' : 'common'
+          market.negRiskRequestId ? 'negRisk' : 'common',
+          market.metadata.fee
         )
         const data = {
           order: {

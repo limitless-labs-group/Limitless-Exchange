@@ -175,7 +175,8 @@ export default function ClobLimitTradeForm() {
           price,
           sharesAmount,
           side,
-          market.negRiskRequestId ? 'negRisk' : 'common'
+          market.negRiskRequestId ? 'negRisk' : 'common',
+          market.metadata.fee
         )
         const data = {
           order: {

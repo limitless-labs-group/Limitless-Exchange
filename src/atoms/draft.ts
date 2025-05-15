@@ -6,6 +6,10 @@ const def = {
   title: '',
   description: '',
   settings: { rewardsEpoch: 0.06944444444444445, maxSpread: 3, minSize: 50, c: 3 },
+  draftMetadata: {
+    fee: false,
+    type: '',
+  },
 }
 
 export const defaultGroupMarkets = [{ ...def }, { ...def }]
