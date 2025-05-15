@@ -38,6 +38,7 @@ export default function GroupMarketSectionSmall({ market }: GroupMarketSectionSm
   const { data: userOrders } = useMarketOrders(market?.slug)
   const { orderType } = useClobWidget()
   const { trackClicked } = useAmplitude()
+
   const handleOutcomeClicked = (e: SyntheticEvent, outcome: number) => {
     trackClicked<QuickBetClickedMetadata>(ClickEvent.QuickBetClicked, {
       source: 'Market page from outcomes section',
@@ -250,7 +251,7 @@ export default function GroupMarketSectionSmall({ market }: GroupMarketSectionSm
       </HStack>
       <AccordionPanel pb={0}>
         <Box mt='12px'>
-          <GroupMarketSectionTabs mobileView={true} />
+          <GroupMarketSectionTabs mobileView={true} market={market} />
         </Box>
       </AccordionPanel>
     </AccordionItem>

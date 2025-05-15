@@ -37,14 +37,16 @@ import { useAxiosPrivateClient } from './AxiosPrivateClient'
 import useGoogleAnalytics, { GAEvents } from './GoogleAnalytics'
 import usePendingTrade from './PendingTradeService'
 import { accountAtom } from '@/atoms/account'
+import { onboardModalAtom } from '@/atoms/onboard'
 import { defaultChain } from '@/constants'
 import { useToast } from '@/hooks'
 import { useLogin } from '@/hooks/profiles/use-login'
 import { useRefetchSession } from '@/hooks/profiles/use-session'
 import useClient from '@/hooks/use-client'
+import { useUrlParams } from '@/hooks/use-url-param'
 import { publicClient } from '@/providers/Privy'
 import { Address, APIError, UpdateProfileData } from '@/types'
-import { Profile } from '@/types/profiles'
+import { Profile, ReferralData } from '@/types/profiles'
 import { LOGGED_IN_TO_LIMITLESS, USER_ID } from '@/utils/consts'
 
 export interface IAccountContext {
@@ -53,9 +55,12 @@ export interface IAccountContext {
   disconnectFromPlatform: () => void
   displayName?: string
   displayUsername: string
+  name: string
   bio: string
   referralCode: string
+  refLink: string
   profileLoading: boolean
+  referralData?: ReferralData
   profileData?: Profile | null
   updateProfileMutation: UseMutationResult<
     Profile | undefined,
@@ -63,6 +68,7 @@ export interface IAccountContext {
     UpdateProfileData,
     unknown
   >
+  updateOnboardingStatus: UseMutationResult<Profile | undefined, APIError, boolean, unknown>
   onBlockUser: UseMutationResult<void, Error, { account: Address }>
   onUnblockUser: UseMutationResult<void, Error, { account: Address }>
   web3Client: 'eoa' | 'etherspot'
@@ -73,6 +79,9 @@ export interface IAccountContext {
   walletPageOpened: boolean
   setProfilePageOpened: (val: boolean) => void
   setWalletPageOpened: (val: boolean) => void
+  referralPageOpened: boolean
+  setReferralPageOpened: (val: boolean) => void
+  closeAllAuthSidebarPages: () => void
 }
 
 const pimlicoRpcUrl = `https://api.pimlico.io/v2/${defaultChain.id}/rpc?apikey=${process.env.NEXT_PUBLIC_PIMLICO_API_KEY}`
@@ -97,6 +106,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const [web3Wallet, setWeb3Wallet] = useState<WalletClient | null>(null)
   const [profilePageOpened, setProfilePageOpened] = useState(false)
   const [walletPageOpened, setWalletPageOpened] = useState(false)
+  const [referralPageOpened, setReferralPageOpened] = useState(false)
   const queryClient = useQueryClient()
   const { logout: disconnect, authenticated, user } = usePrivy()
   const pathname = usePathname()
@@ -109,6 +119,7 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const { refetchSession } = useRefetchSession()
   const { pushGA4Event } = useGoogleAnalytics()
   const [, setAcc] = useAtom(accountAtom)
+  const [, setIsMenuOpen] = useAtom(onboardModalAtom)
   const { handleRedirect } = usePendingTrade()
   const { trackSignIn, trackSignUp } = useAmplitude()
   const isDev = process.env.NODE_ENV === 'development'
@@ -125,6 +136,15 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
     enabled: !!user?.wallet?.address,
   })
+
+  const closeAllAuthSidebarPages = () => {
+    setProfilePageOpened(false)
+    setWalletPageOpened(false)
+    setReferralPageOpened(false)
+  }
+
+  const { getParam } = useUrlParams()
+  const r = getParam('r')
 
   useEffect(() => {
     if (user?.wallet?.address) {
@@ -223,12 +243,14 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
 
   const { login: loginToPlatform } = usePrivyLogin({
     onComplete: async ({ user, wasAlreadyAuthenticated, isNewUser }) => {
+      const referral = { referral: r ?? 'Empty' }
       const connectedWallet = wallets.find(
         (wallet) => wallet.connectorType === user.wallet?.connectorType
       )
       if (connectedWallet && !wasAlreadyAuthenticated) {
         pushGA4Event(`select_wallet_${connectedWallet.walletClientType}`)
         pushGA4Event(GAEvents.SelectAnyWallet)
+        setAcc({ account: connectedWallet.address ?? '' })
         const provider = await connectedWallet.getEthereumProvider()
         const walletClient = createWalletClient({
           chain: defaultChain,
@@ -245,39 +267,55 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
             account: connectedWallet.address as Address,
             smartWallet: client.account?.address,
             web3Wallet: walletClient,
+            r,
           })
-          if (!isDev) {
-            spindl.attribute(client.account?.address)
-          }
-          pushGA4Event(GAEvents.WalletConnected)
           if (isNewUser) {
             trackSignUp(SignInEvent.SignedUp, {
               signedIn: true,
-              account: client.account?.address ?? '',
+              account: connectedWallet.address,
+              walletType: 'smart wallet',
+              ...referral,
             })
             return
           }
           trackSignIn(SignInEvent.SignedIn, {
             signedIn: true,
-            account: client.account?.address ?? '',
+            account: connectedWallet.address,
+            walletType: 'smart wallet',
+            ...referral,
           })
+          if (!isDev) {
+            spindl.attribute(client.account?.address)
+          }
+          pushGA4Event(GAEvents.WalletConnected)
           return
         }
         await login({
           client: 'eoa',
           account: connectedWallet.address as Address,
           web3Wallet: walletClient,
+          r,
+        })
+        if (isNewUser) {
+          trackSignUp(SignInEvent.SignedUp, {
+            signedIn: true,
+            account: connectedWallet.address,
+            walletType: 'EOA wallet',
+            ...referral,
+          })
+          return
+        }
+        trackSignIn(SignInEvent.SignedIn, {
+          signedIn: true,
+          account: connectedWallet.address,
+          walletType: 'EOA wallet',
+          ...referral,
         })
         if (!isDev) {
           spindl.attribute(connectedWallet.address)
         }
         pushGA4Event(GAEvents.WalletConnected)
         await handleRedirect()
-        setAcc({ account: connectedWallet.address ?? '' })
-        trackSignIn(SignInEvent.SignedIn, {
-          signedIn: true,
-          account: connectedWallet.address ?? '',
-        })
         // setIsLogged(true)
         return
       }
@@ -341,6 +379,31 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     },
   })
 
+  const updateOnboardingStatus = useMutation<Profile | undefined, APIError, boolean, unknown>({
+    mutationKey: ['update-onboarding-status'],
+    mutationFn: async (isOnboarded: boolean) => {
+      try {
+        const response = await privateClient.put(
+          '/profiles',
+          {
+            isOnboarded,
+          },
+          {
+            headers: {
+              'content-type': 'application/json',
+            },
+          }
+        )
+        return response.data
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    onSuccess: (updatedData) => {
+      queryClient.setQueryData(['profiles', { account: user?.wallet?.address }], updatedData)
+    },
+  })
+
   const getWallet = async (): Promise<WalletClient | undefined> => {
     const wallet =
       web3Client === 'etherspot'
@@ -392,6 +455,13 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     web3Wallet,
     isLogged,
   ])
+  useEffect(() => {
+    const ses = sessionStorage.getItem('onboard')
+    if (profileData && !profileData?.isOnboarded && !ses) {
+      setIsMenuOpen(true)
+      sessionStorage.setItem('onboard', '1')
+    }
+  }, [profileData])
 
   const signout = useCallback(async () => {
     try {
@@ -490,6 +560,22 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     return ''
   }, [profileData?.referralCode])
 
+  const referralData = useMemo(() => {
+    return {
+      referralData: profileData?.referralData ?? [],
+      refereeCount: profileData?.referralData ? profileData?.referralData.length : 0,
+    }
+  }, [profileData?.referralData])
+
+  const refLink = useMemo(
+    () => `${process.env.NEXT_PUBLIC_APP_URL}/?r=${referralCode}`,
+    [referralCode]
+  )
+
+  const name = useMemo(() => {
+    return profileData?.displayName ?? profileData?.username ?? profileData?.account ?? ''
+  }, [profileData])
+
   const disconnectFromPlatform = useCallback(async () => {
     localStorage.removeItem(LOGGED_IN_TO_LIMITLESS)
     localStorage.removeItem(USER_ID)
@@ -505,14 +591,18 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
   const contextProviderValue: IAccountContext = {
     isLoggedIn: authenticated || !!isLogged,
     account,
+    name,
     displayName,
     displayUsername,
     referralCode,
+    refLink,
     bio,
+    referralData,
     disconnectFromPlatform,
     profileLoading: userMenuLoading,
     profileData,
     updateProfileMutation,
+    updateOnboardingStatus,
     onBlockUser,
     onUnblockUser,
     web3Client,
@@ -523,6 +613,9 @@ export const AccountProvider = ({ children }: PropsWithChildren) => {
     walletPageOpened,
     setProfilePageOpened,
     setWalletPageOpened,
+    referralPageOpened,
+    setReferralPageOpened,
+    closeAllAuthSidebarPages,
   }
 
   return <AccountContext.Provider value={contextProviderValue}>{children}</AccountContext.Provider>

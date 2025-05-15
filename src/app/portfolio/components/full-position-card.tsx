@@ -8,6 +8,7 @@ import {
   TabPanels,
   Tabs,
   Text,
+  VStack,
 } from '@chakra-ui/react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
@@ -23,6 +24,7 @@ import MarketPage from '@/components/common/markets/market-page'
 import FullOrdersTab from '@/app/portfolio/components/full-orders-tab'
 import FullPositionsTab from '@/app/portfolio/components/full-positions-tab'
 import RewardsSection from '@/app/portfolio/components/rewards-section'
+import { ShareWinningButton } from './share-winning-button'
 import CandlestickIcon from '@/resources/icons/candlestick-icon.svg'
 import GemWhiteIcon from '@/resources/icons/gem-white-icon.svg'
 import PieChartIcon from '@/resources/icons/pie-chart-icon.svg'
@@ -270,14 +272,14 @@ export default function FullPositionCard({ position, type }: FullPositionCardPro
         trackClicked(ClickEvent.PortfolioMarketClicked, {
           marketCategory: fetchedMarket.categories,
           marketAddress: fetchedMarket.slug,
-          marketType: position.market.negRiskMarketId ? 'group' : 'single',
+          marketType: position.market.negRiskRequestId ? 'group' : 'single',
           marketTags: fetchedMarket.tags,
           type: 'Portolio',
         })
       }
     } else {
       onOpenMarketPage(oneMarket)
-      if (oneMarket.negRiskMarketId) {
+      if (oneMarket.negRiskRequestId) {
         const targetMarket = oneMarket.markets?.find(
           (market) => market.slug === position.market.slug
         )
@@ -286,7 +288,7 @@ export default function FullPositionCard({ position, type }: FullPositionCardPro
       trackClicked(ClickEvent.PortfolioMarketClicked, {
         marketCategory: oneMarket.categories,
         marketAddress: oneMarket.slug,
-        marketType: position.market.negRiskMarketId ? 'group' : 'single',
+        marketType: position.market.negRiskRequestId ? 'group' : 'single',
         marketTags: oneMarket.tags,
         type: 'Portolio',
       })
@@ -327,9 +329,13 @@ export default function FullPositionCard({ position, type }: FullPositionCardPro
         alignItems={marketClosed ? 'flex-start' : 'center'}
         flexWrap='wrap'
       >
-        <Box>
-          <HStack w='full' justifyContent='space-between' mb={isMobile ? '8px' : 0}>
-            <Text {...paragraphRegular} mb='16px' color={marketClosed ? 'white' : 'grey.800'}>
+        <Box w={isMobile ? 'full' : 'unset'}>
+          <HStack w='full' justifyContent='space-between' mb='16px'>
+            <Text
+              {...paragraphRegular}
+              textAlign='left'
+              color={marketClosed ? 'white' : 'grey.800'}
+            >
               {position.market.title}
             </Text>
             {isMobile && !marketClosed && (
@@ -339,73 +345,13 @@ export default function FullPositionCard({ position, type }: FullPositionCardPro
             )}
           </HStack>
           {isMobile && marketClosed && (
-            <ClaimButton
-              conditionId={position.market.conditionId as Address}
-              collateralAddress={position.market.collateralToken.address}
-              marketAddress={
-                position.market.negRiskRequestId
-                  ? (process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address)
-                  : (process.env.NEXT_PUBLIC_CTF_CONTRACT as Address)
-              }
-              outcomeIndex={position.market.winningOutcomeIndex as number}
-              marketType={position.market.tradeType}
-              amounts={amountsToNegriskClaim}
-              amountToClaim={getAmountToClaim()}
-              negRiskRequestId={position.market.negRiskRequestId}
-              symbol={position.market.collateralToken.symbol}
-              mb='8px'
-            />
-          )}
-          <HStack gap={isMobile ? '16px' : '24px'} columnGap='8px' flexWrap='wrap'>
-            <MarketCountdown
-              deadline={new Date(position.market.deadline).getTime()}
-              deadlineText={formatted}
-              showDays={false}
-              hideText
-              color={marketClosed ? 'whiteAlpha.70' : 'grey.500'}
-            />
-            {marketClosed ? (
-              <HStack gap='4px'>
-                <GemWhiteIcon />
-                <Text {...paragraphRegular} color='whiteAlpha.70'>
-                  Total Rewards Earned
-                </Text>
-                <Text {...paragraphRegular} color='whiteAlpha.70'>
-                  {NumberUtil.convertWithDenomination(totalRewards, 2)}{' '}
-                  {position.market.collateralToken.symbol}
-                </Text>
-              </HStack>
-            ) : (
-              <HStack gap='4px' color='grey.500'>
-                <CandlestickIcon width={16} height={16} />
-                <Text {...paragraphRegular} color='grey.500'>
-                  Total Limit orders
-                </Text>
-                <Text {...paragraphMedium} color={totalLimitOrdersColor()}>
-                  {NumberUtil.toFixed(totalLimitOrders, 2)} USD
-                </Text>
-              </HStack>
-            )}
-            {marketClosed ? (
-              <HStack gap='4px' color='whiteAlpha.70'>
-                <PieChartIcon width={16} height={16} />
-                <Text {...paragraphRegular} color='whiteAlpha.70'>
-                  P&L
-                </Text>
-                <Text {...paragraphRegular} color='whiteAlpha.70'>
-                  {getPnL()} {position.market.collateralToken.symbol}
-                </Text>
-              </HStack>
-            ) : (
-              <RewardsSection position={position} />
-            )}
-          </HStack>
-        </Box>
-        {!isMobile && (
-          <>
-            {!marketClosed ? (
-              <SpeedometerProgress value={yesPrice} size='medium' />
-            ) : (
+            <VStack mb='16px' gap='8px' w='full'>
+              <ShareWinningButton
+                amountToClaim={getAmountToClaim()}
+                symbol={position.market.collateralToken?.symbol as string}
+                slug={position.market.slug ?? ''}
+                width='full'
+              />
               <ClaimButton
                 conditionId={position.market.conditionId as Address}
                 collateralAddress={position.market.collateralToken.address}
@@ -414,15 +360,95 @@ export default function FullPositionCard({ position, type }: FullPositionCardPro
                     ? (process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address)
                     : (process.env.NEXT_PUBLIC_CTF_CONTRACT as Address)
                 }
-                outcomeIndex={position.market.winningOutcomeIndex as number}
-                negRiskRequestId={position.market.negRiskRequestId}
-                amounts={amountsToNegriskClaim}
                 marketType={position.market.tradeType}
+                amounts={amountsToNegriskClaim}
                 amountToClaim={getAmountToClaim()}
+                negRiskRequestId={position.market.negRiskRequestId}
                 symbol={position.market.collateralToken.symbol}
               />
+            </VStack>
+          )}
+        </Box>
+        {!isMobile && (
+          <>
+            {!marketClosed ? (
+              <SpeedometerProgress value={yesPrice} size='medium' />
+            ) : (
+              <HStack gap='8px'>
+                <ShareWinningButton
+                  amountToClaim={getAmountToClaim()}
+                  symbol={position.market.collateralToken?.symbol as string}
+                  slug={position.market.slug ?? ''}
+                />
+                <ClaimButton
+                  conditionId={position.market.conditionId as Address}
+                  collateralAddress={position.market.collateralToken.address}
+                  marketAddress={
+                    position.market.negRiskRequestId
+                      ? (process.env.NEXT_PUBLIC_NEGRISK_ADAPTER as Address)
+                      : (process.env.NEXT_PUBLIC_CTF_CONTRACT as Address)
+                  }
+                  negRiskRequestId={position.market.negRiskRequestId}
+                  amounts={amountsToNegriskClaim}
+                  marketType={position.market.tradeType}
+                  amountToClaim={getAmountToClaim()}
+                  symbol={position.market.collateralToken.symbol}
+                />
+              </HStack>
             )}
           </>
+        )}
+      </HStack>
+      <HStack
+        gap={isMobile ? '16px' : '24px'}
+        columnGap='8px'
+        flexWrap='wrap'
+        justifyContent='space-between'
+      >
+        <HStack gap='8px'>
+          <MarketCountdown
+            deadline={new Date(position.market.deadline).getTime()}
+            deadlineText={formatted}
+            showDays={false}
+            hideText={isMobile}
+            color={marketClosed ? 'whiteAlpha.70' : 'grey.500'}
+            ended={marketClosed}
+          />
+          {marketClosed ? (
+            <HStack gap='4px'>
+              <GemWhiteIcon />
+              <Text {...paragraphRegular} color='whiteAlpha.70'>
+                Total Rewards Earned
+              </Text>
+              <Text {...paragraphRegular} color='whiteAlpha.70'>
+                {NumberUtil.convertWithDenomination(totalRewards, 2)}{' '}
+                {position.market.collateralToken.symbol}
+              </Text>
+            </HStack>
+          ) : (
+            <HStack gap='4px' color='grey.500'>
+              <CandlestickIcon width={16} height={16} />
+              <Text {...paragraphRegular} color='grey.500'>
+                Total Limit orders
+              </Text>
+              <Text {...paragraphMedium} color={totalLimitOrdersColor()}>
+                {NumberUtil.toFixed(totalLimitOrders, 2)} USD
+              </Text>
+            </HStack>
+          )}
+        </HStack>
+        {marketClosed ? (
+          <HStack gap='4px' color='whiteAlpha.70'>
+            <PieChartIcon width={16} height={16} />
+            <Text {...paragraphRegular} color='whiteAlpha.70'>
+              P&L
+            </Text>
+            <Text {...paragraphRegular} color='whiteAlpha.70'>
+              {getPnL()} {position.market.collateralToken.symbol}
+            </Text>
+          </HStack>
+        ) : (
+          <RewardsSection position={position} />
         )}
       </HStack>
       <Divider my='16px' h='2px' variant={marketClosed ? 'transparent' : undefined} />

@@ -20,7 +20,6 @@ export type ClaimButtonProps = ButtonProps & {
   conditionId: Address
   collateralAddress: Address
   marketAddress: Address
-  outcomeIndex: number
   marketType: 'amm' | 'clob'
   amountToClaim?: string
   symbol: string
@@ -33,7 +32,6 @@ export default function ClaimButton({
   conditionId,
   collateralAddress,
   marketAddress,
-  outcomeIndex,
   marketType,
   amountToClaim,
   symbol,
@@ -62,8 +60,7 @@ export default function ClaimButton({
         conditionalTokenAddress,
         collateralAddress,
         zeroHash,
-        conditionId,
-        [1 << outcomeIndex]
+        conditionId
       )
 
       if (!receipt) {

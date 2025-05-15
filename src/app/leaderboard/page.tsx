@@ -21,19 +21,16 @@ import React, { PropsWithChildren, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import Avatar from '@/components/common/avatar'
+import { LeaderIcon } from '@/components/common/leaders-icon'
 import Skeleton from '@/components/common/skeleton'
 import TablePagination from '@/components/common/table-pagination'
 import Leaders from '@/app/leaderboard/components/leaders'
 import { MainLayout } from '@/components'
 import { useDateRanges } from '@/hooks/use-date-range'
 import { LeaderboardEntity, useLeaderboard, useTopThreeLeaders } from '@/hooks/use-leaderboard'
-import WreathsBronzeIcon from '@/resources/icons/wreaths_bronze.svg'
-import WreathsGoldIcon from '@/resources/icons/wreaths_gold.svg'
-import WreathsSilverIcon from '@/resources/icons/wreaths_silver.svg'
 import { ChangeEvent, useAmplitude } from '@/services'
 import {
   h1Bold,
-  h1Regular,
   h2Medium,
   headlineRegular,
   paragraphMedium,
@@ -67,16 +64,6 @@ const TableContainerWrapper = ({ children }: PropsWithChildren) => {
       </Table>
     </TableContainer>
   )
-}
-
-const LeaderIcon = ({ index }: { index: number }) => {
-  if (!index) {
-    return <WreathsGoldIcon />
-  }
-  if (index === 1) {
-    return <WreathsSilverIcon />
-  }
-  return <WreathsBronzeIcon />
 }
 
 export default function LeaderboardPage() {
@@ -194,12 +181,7 @@ export default function LeaderboardPage() {
 
   return (
     <MainLayout layoutPadding={isMobile ? '0' : '16px'}>
-      <HStack
-        className='w-full'
-        alignItems='flex-start'
-        w={isMobile ? 'full' : 'calc(100vw - 690px)'}
-        justifyContent='center'
-      >
+      <HStack className='w-full' alignItems='flex-start' justifyContent='center'>
         <Box w={isMobile ? 'full' : '664px'} mt='24px'>
           <Heading as='h1' {...h1Bold} gap={2} userSelect='text'>
             Leaderboard

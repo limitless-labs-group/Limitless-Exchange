@@ -2,26 +2,36 @@ export const orderBookMock = {
   data: {
     bids: [
       {
-        price: 0.04274641232623888,
-        size: 80000000,
+        price: 0.163,
+        size: 300000000,
         side: 'BUY',
       },
       {
-        price: 0.0425543379473332,
-        size: 70000000,
+        price: 0.162,
+        size: 200000000,
+        side: 'BUY',
+      },
+      {
+        price: 0.16,
+        size: 2200000000,
         side: 'BUY',
       },
     ],
     asks: [
       {
-        price: 0.17,
-        size: 100000000,
+        price: 0.19,
+        size: 500000000,
+        side: 'SELL',
+      },
+      {
+        price: 0.2,
+        size: 200000000,
         side: 'SELL',
       },
     ],
-    tokenId: '89150083920848182582067411098626911647398729701251327529374555847387917080117',
-    lastTradePrice: 0.123,
-    adjustedMidpoint: 0.10637320616311945,
+    tokenId: '1691244802922192511306691803241361072537705243188272077972825633472206567331',
+    lastTradePrice: 0.162,
+    adjustedMidpoint: 0.1765,
     maxSpread: '0.035',
     minSize: '50000000',
   },

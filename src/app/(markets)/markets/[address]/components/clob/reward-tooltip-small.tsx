@@ -17,7 +17,7 @@ import Image from 'next/image'
 import NextLink from 'next/link'
 import React, { useEffect, useRef, useState } from 'react'
 import { formatUnits } from 'viem'
-import { ClickEvent, useAmplitude } from '@/services'
+import { ClickEvent, HoverEvent, useAmplitude } from '@/services'
 import { paragraphMedium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Market } from '@/types'
 
@@ -27,7 +27,7 @@ interface RewardTooltipSmallProps {
 
 export default function RewardTooltipSmall({ market }: RewardTooltipSmallProps) {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const { trackClicked } = useAmplitude()
+  const { trackClicked, trackHovered } = useAmplitude()
 
   const initialFocusRef = useRef(null)
   const popoverContentRef = useRef(null)
@@ -62,7 +62,7 @@ export default function RewardTooltipSmall({ market }: RewardTooltipSmallProps) 
       closeTimeoutRef.current = null
     }
     if (!isOpen) {
-      trackClicked(ClickEvent.RewardsButtonHovered, {
+      trackHovered(HoverEvent.RewardsButtonHovered, {
         marketAddress: market?.slug,
       })
     }
@@ -165,9 +165,13 @@ export default function RewardTooltipSmall({ market }: RewardTooltipSmallProps) 
                 <Text {...paragraphRegular}>Max spread:</Text>
                 <Text {...paragraphMedium}>
                   &#177;
-                  {new BigNumber(market.settings?.maxSpread ? market.settings.maxSpread : '0')
-                    .multipliedBy(100)
-                    .toString()}
+                  {market.settings?.maxSpread
+                    ? new BigNumber(market.settings.maxSpread)
+                        .minus(0.005)
+                        .multipliedBy(100)
+                        .decimalPlaces(1)
+                        .toString()
+                    : '0'}
                   ¢
                 </Text>
               </HStack>

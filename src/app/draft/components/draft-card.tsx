@@ -95,11 +95,11 @@ const MarketDataFactory = {
 
       const etDate = format(
         toZonedTime(date, 'America/New_York'),
-        'MMM d, yyyy h:mm aa',
+        'dd/MM/yyyy h:mm aa',
         dateOptions
       )
 
-      const utcDate = format(toZonedTime(date, 'UTC'), 'MMM d, yyyy h:mm aa', {
+      const utcDate = format(toZonedTime(date, 'UTC'), 'dd/MM/yyyy HH:mm', {
         timeZone: 'UTC',
       })
 
@@ -110,9 +110,9 @@ const MarketDataFactory = {
 
     const date = new Date(market.deadline)
 
-    const etDate = format(toZonedTime(date, 'America/New_York'), 'MMM d, yyyy h:mm aa', dateOptions)
+    const etDate = format(toZonedTime(date, 'America/New_York'), 'dd/MM/yyyy h:mm aa', dateOptions)
 
-    const utcDate = format(toZonedTime(date, 'UTC'), 'MMM d, yyyy h:mm aa', { timeZone: 'UTC' })
+    const utcDate = format(toZonedTime(date, 'UTC'), 'dd/MM/yyyy HH:mm', { timeZone: 'UTC' })
 
     return `${etDate} ET / ${utcDate} UTC`
   },

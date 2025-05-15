@@ -11,6 +11,7 @@ export type MarketTimerProps = TextProps & {
   topMarket?: boolean
   deadlineText: string
   hideText?: boolean
+  ended: boolean
 }
 
 const formatTime = ({
@@ -102,7 +103,7 @@ export default function MarketTimer({
               }) ${deadlineLeftInPercent.toFixed(0)}% 100%)`}
             />
           </Box>
-          <Text {...paragraphRegular} color={color} {...props}>
+          <Text {...paragraphRegular} color={color} {...props} minW={isMobile ? '102px' : '90px'}>
             {formatTime({ ...timeRemaining, showDays })}
           </Text>
         </HStack>

@@ -4,17 +4,22 @@ import {
   ButtonGroup,
   Divider,
   HStack,
+  Menu,
+  MenuButton,
+  MenuList,
   Slide,
   Spacer,
+  Stack,
   Text,
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
 import { useFundWallet, usePrivy } from '@privy-io/react-auth'
 import BigNumber from 'bignumber.js'
+import { useAtom } from 'jotai'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { formatUnits, isAddress } from 'viem'
 import Avatar from '@/components/common/avatar'
@@ -22,15 +27,22 @@ import MobileDrawer from '@/components/common/drawer'
 import Loader from '@/components/common/loader'
 import { LoginButtons } from '@/components/common/login-button'
 import WrapModal from '@/components/common/modals/wrap-modal'
+import { OnboardingList } from '@/components/common/onboarding-modal/onboarding-list'
 import Skeleton from '@/components/common/skeleton'
 import SocialsFooter from '@/components/common/socials-footer'
+import InviteFriendsPage from '@/components/layouts/invite-friends-page'
+import ThemeSwitcher from '@/components/layouts/theme-switcher'
 import WalletPage from '@/components/layouts/wallet-page'
 import '@/app/style.css'
+import { openIntercom } from '@/app/template'
+import { onboardingStepsAtom } from '@/atoms/onboard'
 import { Profile } from '@/components'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
 import useClient from '@/hooks/use-client'
+import { usePointsActions } from '@/hooks/use-onboarding-points'
 import { usePriceOracle, useThemeProvider } from '@/providers'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
+import HeartIcon from '@/resources/icons/heart-icon.svg'
 import KeyIcon from '@/resources/icons/key-icon.svg'
 import MenuIcon from '@/resources/icons/menu-icon.svg'
 import MoonIcon from '@/resources/icons/moon-icon.svg'
@@ -39,7 +51,10 @@ import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
 import WalletIcon from '@/resources/icons/sidebar/Wallet.svg'
 import SwapIcon from '@/resources/icons/sidebar/Wrap.svg'
 import SunIcon from '@/resources/icons/sun-icon.svg'
+import SupportIcon from '@/resources/icons/support-chat-icon.svg'
+import Dots from '@/resources/icons/three-horizontal-dots.svg'
 import {
+  ChangeEvent,
   ClickEvent,
   ClobPositionWithType,
   HistoryPositionWithType,
@@ -60,6 +75,7 @@ export default function MobileHeader() {
   const { data: positions } = usePosition()
   const { supportedTokens } = useLimitlessApi()
   const { convertAssetAmountToUsd } = usePriceOracle()
+  const [refCopied, setRefCopied] = useState(false)
   const { exportWallet } = usePrivy()
   const router = useRouter()
   const {
@@ -69,13 +85,35 @@ export default function MobileHeader() {
     displayName,
     account,
     loginToPlatform,
+    referralData,
+    updateOnboardingStatus,
   } = useAccount()
   const { balanceOfSmartWallet } = useBalanceQuery()
-  const { trackClicked } = useAmplitude()
+  const { trackClicked, trackChanged } = useAmplitude()
   const { client } = useWeb3Service()
   const { isLoggedToPlatform } = useClient()
   const { mode, setLightTheme, setDarkTheme } = useThemeProvider()
   const { fundWallet } = useFundWallet()
+  const [steps, setSteps] = useAtom(onboardingStepsAtom)
+  const { data: points } = usePointsActions()
+
+  useEffect(() => {
+    if (points) {
+      setSteps((prevSteps) =>
+        prevSteps.map((step) => ({
+          ...step,
+          isChecked: points[step.id] ?? false,
+        }))
+      )
+    }
+  }, [points, setSteps])
+
+  const completedSteps = steps.filter((step) => step.isChecked).length
+  const isFinished = completedSteps === steps.length
+  const finish = async () => {
+    await updateOnboardingStatus.mutateAsync(true)
+    trackChanged(ChangeEvent.FinishedOnboarding)
+  }
 
   const {
     isOpen: isOpenUserMenu,
@@ -83,6 +121,21 @@ export default function MobileHeader() {
     onClose: onCloseUserMenu,
   } = useDisclosure()
   const { handleDashboard, handleCategory } = useTokenFilter()
+
+  useEffect(() => {
+    let hideRefCopiedMessage: NodeJS.Timeout | undefined
+
+    if (refCopied) {
+      hideRefCopiedMessage = setTimeout(() => {
+        setRefCopied(false)
+      }, 2000)
+    }
+    return () => {
+      if (hideRefCopiedMessage) {
+        clearTimeout(hideRefCopiedMessage)
+      }
+    }
+  }, [refCopied])
 
   const balanceInvested = useMemo(() => {
     const ammPositions = positions?.positions.filter(
@@ -95,7 +148,7 @@ export default function MobileHeader() {
     ammPositions?.forEach((position) => {
       let positionUsdAmount = 0
       const token = supportedTokens?.find(
-        (token) => token.symbol === position.market.collateral?.symbol
+        (token) => token.symbol === position.market.collateralToken?.symbol
       )
       if (token) {
         positionUsdAmount = convertAssetAmountToUsd(token.priceOracleId, position.collateralAmount)
@@ -151,6 +204,19 @@ export default function MobileHeader() {
     }
   }
 
+  const handleInviteFriendsClicked = () => {
+    trackClicked(ClickEvent.InviteFriendsPageClicked, {
+      platform: 'mobile',
+    })
+    onCloseUserMenu()
+  }
+
+  const handleThemeSwitchMenuClicked = () => {
+    trackClicked(ClickEvent.HeaderThemeSwitchMenuClicked, {
+      platform: 'mobile',
+    })
+  }
+
   return (
     <>
       <Box
@@ -161,7 +227,7 @@ export default function MobileHeader() {
         position='fixed'
         top={0}
         bg='grey.50'
-        zIndex={2000}
+        zIndex={2500}
       >
         <HStack justifyContent='space-between' alignItems='center'>
           <Box
@@ -219,7 +285,20 @@ export default function MobileHeader() {
                   >
                     <SearchIcon width={16} height={16} />
                   </Button>
-                  <Box ml='8px'>
+                  <Box ml='8px' position='relative'>
+                    {profileData && profileData.isOnboarded === false && (
+                      <Box
+                        position='absolute'
+                        top='-2px'
+                        right='-2px'
+                        width='8px'
+                        height='8px'
+                        borderRadius='50%'
+                        bg='green.500'
+                        border='1px solid'
+                        borderColor='grey.50'
+                      />
+                    )}
                     <MenuIcon width={16} height={16} />
                   </Box>
                 </Button>
@@ -321,7 +400,44 @@ export default function MobileHeader() {
                           </Button>
                         </ButtonGroup>
                       </HStack>
-                      <VStack my='24px' gap='8px'>
+                      {profileData && !profileData.isOnboarded ? (
+                        <Stack
+                          mb='16px'
+                          border='1px solid'
+                          borderColor='grey.200'
+                          borderRadius='8px'
+                        >
+                          <OnboardingList onFinish={finish} isFinished={isFinished} mobile />
+                        </Stack>
+                      ) : null}
+
+                      <VStack gap='24px' w='full' alignItems='start'>
+                        <Divider borderColor='grey.200' />
+                        <MobileDrawer
+                          variant='common'
+                          trigger={
+                            <HStack
+                              justifyContent='space-between'
+                              w='full'
+                              onClick={handleInviteFriendsClicked}
+                            >
+                              <HStack gap='4px' p='4px'>
+                                <HeartIcon width={16} height={16} />
+                                <Text {...paragraphMedium}>
+                                  {refCopied ? 'Referral link copied!' : 'Invite friends'}
+                                </Text>
+                              </HStack>
+
+                              <Text {...paragraphMedium}>{referralData?.refereeCount || 0}</Text>
+                            </HStack>
+                          }
+                        >
+                          <InviteFriendsPage />
+                        </MobileDrawer>
+                        <Divider borderColor='grey.200' />
+                      </VStack>
+
+                      <VStack my='24px' gap='24px'>
                         <Button
                           variant='transparent'
                           px='4px'
@@ -430,6 +546,13 @@ export default function MobileHeader() {
                             Show Private Key
                           </Button>
                         )}
+                        <Divider bgColor='grey.200' borderColor='grey.200' />
+                        {
+                          <Button variant='outlined' onClick={openIntercom} w='full' mt='12px'>
+                            <SupportIcon width={16} height={16} />
+                            Chat with Support
+                          </Button>
+                        }
                         {/*<Button*/}
                         {/*  variant='transparent'*/}
                         {/*  px={0}*/}
@@ -514,7 +637,17 @@ export default function MobileHeader() {
                 </Slide>
               </>
             ) : (
-              <LoginButtons login={loginToPlatform} />
+              <HStack gap='8px'>
+                <Menu variant='transparent' placement='top'>
+                  <MenuButton onClick={handleThemeSwitchMenuClicked}>
+                    <Dots />
+                  </MenuButton>
+                  <MenuList w='254px'>
+                    <ThemeSwitcher />
+                  </MenuList>
+                </Menu>
+                <LoginButtons login={loginToPlatform} />
+              </HStack>
             )}
           </HStack>
         </HStack>

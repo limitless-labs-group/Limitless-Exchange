@@ -11,7 +11,7 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react'
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { PortfolioHistory, PortfolioStats } from '@/app/portfolio/components'
 import EverythingTab from '@/app/portfolio/components/everything-tab'
@@ -42,12 +42,14 @@ export default function PortfolioPage() {
     })
   }
 
-  const tabsList = [
-    <EverythingTab key='everything' />,
-    <PositionsTab key='positions' />,
-    <OpenOrdersTab key='open-orders' />,
-    <PortfolioHistory key='history' />,
-  ]
+  const tabsList = useMemo(() => {
+    return [
+      <EverythingTab key='everything' />,
+      <PositionsTab key='positions' />,
+      <OpenOrdersTab key='open-orders' />,
+      <PortfolioHistory key='history' />,
+    ]
+  }, [])
 
   const getGreeting = (): string => {
     const hour = new Date().getHours()
@@ -83,7 +85,7 @@ export default function PortfolioPage() {
 
   return (
     <MainLayout layoutPadding={'0px'}>
-      <Box maxWidth='1294px' w='full' px={isMobile ? '16px' : 0}>
+      <Box maxWidth='1294px' w='full' px={isMobile ? '16px' : 0} mt='24px'>
         <Heading as='h1' {...headline}>
           Portfolio
         </Heading>

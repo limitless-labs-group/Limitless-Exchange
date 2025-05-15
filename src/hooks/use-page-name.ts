@@ -21,11 +21,16 @@ function usePageName() {
         return 'Draft'
       case '/search':
         return 'Search'
+      case '/adminka':
+        return 'Adminka'
       case '/market-watch':
         return 'Market Watch Dashboard'
       default:
         if (path.startsWith('/markets/')) {
           return 'Market Page'
+        }
+        if (path.startsWith('/cat/')) {
+          return 'Categories'
         }
         return 'Unknown Page' // Fallback for unknown paths
     }
@@ -40,10 +45,12 @@ export type PageName =
   | 'Market Page'
   | 'Unknown Page'
   | 'Home'
+  | 'Categories'
   | 'Feed'
   | 'Lumy'
   | 'Leaderboard'
   | 'Draft'
+  | 'Adminka'
   | 'Search'
   | 'Market Watch Dashboard'
   | 'My Markets'

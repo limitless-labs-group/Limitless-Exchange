@@ -1,5 +1,7 @@
 import { Box, HStack, IconButton, Link, Text, useTheme } from '@chakra-ui/react'
+import { usePathname } from 'next/navigation'
 import { useRef, useState, useEffect } from 'react'
+import { isMobile } from 'react-device-detect'
 import { CategoryItems } from '@/components/common/markets/sidebar-item'
 import { ReferralLink } from '@/components/common/referral-link'
 import { useTokenFilter } from '@/contexts/TokenFilterContext'
@@ -7,16 +9,17 @@ import ChevronLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import ChevronRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import GrinIcon from '@/resources/icons/grid-icon.svg'
 import { useCategoriesWithCounts } from '@/services'
-import { paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
-export default function ScrollableCategories() {
+export function ScrollableCategories() {
   const { data: categoriesWithCount } = useCategoriesWithCounts()
-  const { dashboard, handleCategory, handleDashboard, selectedCategory } = useTokenFilter()
+  const { handleCategory, handleDashboard } = useTokenFilter()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [showRightGradient, setShowRightGradient] = useState(true)
   const [showLeftArrow, setShowLeftArrow] = useState(false)
   const [showRightArrow, setShowRightArrow] = useState(true)
   const theme = useTheme()
+  const pathname = usePathname()
 
   const checkScroll = () => {
     if (scrollContainerRef.current) {
@@ -57,6 +60,8 @@ export default function ScrollableCategories() {
     }
   }
 
+  const isMainPage = pathname === '/'
+
   return (
     <Box position='relative'>
       <HStack position='relative' gap={0}>
@@ -65,7 +70,7 @@ export default function ScrollableCategories() {
             <HStack
               gap='4px'
               cursor='pointer'
-              bg={!selectedCategory && !dashboard ? 'grey.100' : 'unset'}
+              bg={isMainPage ? 'grey.100' : 'unset'}
               onClick={() => {
                 handleCategory(undefined)
                 handleDashboard(undefined)
@@ -74,7 +79,11 @@ export default function ScrollableCategories() {
               rounded='8px'
             >
               <GrinIcon width={16} height={16} />
-              <Text {...paragraphRegular} whiteSpace='nowrap'>
+              <Text
+                {...paragraphMedium}
+                whiteSpace='nowrap'
+                color={isMainPage ? 'grey.800' : 'grey.700'}
+              >
                 {`All Markets ${
                   categoriesWithCount?.totalCount ? '(' + categoriesWithCount.totalCount + ')' : ''
                 }`}
@@ -106,7 +115,7 @@ export default function ScrollableCategories() {
               left={0}
               top={0}
               bottom={0}
-              width='180px'
+              width={isMobile ? '100px' : '180px'}
               pointerEvents='none'
               background={`linear-gradient(to left, rgba(249, 249, 249, 0), ${theme.colors.grey[50]})`}
               zIndex={1}
@@ -136,7 +145,7 @@ export default function ScrollableCategories() {
               right={0}
               top={0}
               bottom={0}
-              width='180px'
+              width={isMobile ? '100px' : '180px'}
               pointerEvents='none'
               background={`linear-gradient(to right, rgba(249, 249, 249, 0), ${theme.colors.grey[50]})`}
               zIndex={1}

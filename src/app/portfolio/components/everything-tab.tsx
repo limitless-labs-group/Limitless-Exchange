@@ -7,8 +7,6 @@ import { PortfolioTab } from '@/types/portfolio'
 export default function EverythingTab() {
   const { data: positions } = usePosition()
 
-  console.log(positions)
-
   const positionsFiltered = useMemo(() => {
     return positions?.positions
       .sort((a, b) => {

@@ -21,10 +21,11 @@ export interface ChatTextareaProps {
   msg: string
   setMsg: Dispatch<SetStateAction<string>>
   isLoading?: boolean
+  rows?: number
 }
 
-export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading }: ChatTextareaProps) => {
-  const { loginToPlatform, profileData, account } = useAccount()
+export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading, rows }: ChatTextareaProps) => {
+  const { loginToPlatform, profileData } = useAccount()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [error, setError] = useState('')
   const { trackClicked, trackChanged } = useAmplitude()
@@ -61,9 +62,14 @@ export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading }: ChatTextareaP
       setTimeout(() => {
         textareaRef.current?.scrollIntoView({
           behavior: 'smooth',
-          block: 'center',
+          block: 'start',
         })
-      }, 300)
+
+        window.scrollTo({
+          top: window.scrollY + 100,
+          behavior: 'smooth',
+        })
+      }, 500)
     }
   }
   const login = () => {
@@ -81,11 +87,16 @@ export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading }: ChatTextareaP
     trackClicked(ClickEvent.SendMessageClicked, {
       currentOpenMarket: market?.slug ?? 'no market',
     })
-    setTimeout(() => {
-      if (textareaRef.current) {
-        textareaRef.current.focus()
-      }
-    }, 0)
+
+    if (isMobile && textareaRef.current) {
+      textareaRef.current.blur()
+    } else {
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus()
+        }
+      }, 0)
+    }
   }
 
   useEffect(() => {
@@ -94,9 +105,24 @@ export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading }: ChatTextareaP
         const vh = window.innerHeight * 0.01
         document.documentElement.style.setProperty('--vh', `${vh}px`)
       }
+
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible' && textareaRef.current) {
+          setTimeout(() => {
+            textareaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          }, 300)
+        }
+      }
+
       window.addEventListener('resize', adjustViewport)
+      window.addEventListener('visibilitychange', handleVisibilityChange)
+
       adjustViewport()
-      return () => window.removeEventListener('resize', adjustViewport)
+
+      return () => {
+        window.removeEventListener('resize', adjustViewport)
+        window.removeEventListener('visibilitychange', handleVisibilityChange)
+      }
     }
   }, [])
 
@@ -130,7 +156,6 @@ export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading }: ChatTextareaP
           p={!isMobile ? '8px' : 'unset'}
           flexDirection={isMobile ? 'row-reverse' : 'column'}
           gap={isMobile ? '8px' : 'unset'}
-          alignItems={isMobile ? 'center' : 'unset'}
         >
           <Flex justifyContent={isMobile ? 'flex-end' : 'space-between'}>
             {!isMobile ? (
@@ -194,10 +219,13 @@ export const ChatTextarea = ({ onSubmit, msg, setMsg, isLoading }: ChatTextareaP
                 e.preventDefault()
                 if (msg.trim() !== '' && !isLoading) {
                   submit()
+                  if (isMobile && textareaRef.current) {
+                    textareaRef.current.blur()
+                  }
                 }
               }
             }}
-            rows={isMobile ? 1 : 2}
+            rows={rows ?? (isMobile ? 1 : 2)}
             w='full'
             p={isMobile ? '5px 12px' : '0 0 0 20px'}
             variant='unstyled'

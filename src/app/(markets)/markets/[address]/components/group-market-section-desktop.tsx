@@ -245,7 +245,7 @@ export default function GroupMarketSectionDesktop({ market }: GroupMarketSection
       </AccordionButton>
       <AccordionPanel pb={0}>
         <Box mt='12px'>
-          <GroupMarketSectionTabs />
+          <GroupMarketSectionTabs market={market} />
         </Box>
       </AccordionPanel>
     </AccordionItem>

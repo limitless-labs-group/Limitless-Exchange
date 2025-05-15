@@ -13,7 +13,7 @@ import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
 import { ClickEvent, QuickBetClickedMetadata, useAmplitude, useTradingService } from '@/services'
 import useGoogleAnalytics, { GAEvents } from '@/services/GoogleAnalytics'
 import { captionMedium, headline, paragraphRegular } from '@/styles/fonts/fonts.styles'
-import { Market } from '@/types'
+import { Market, MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 
 export interface BigBannerProps {
@@ -31,6 +31,7 @@ export const BigBannerTrigger = React.memo(({ market, markets, index }: BigBanne
     setMarket,
     marketPageOpened,
     setMarketPageOpened,
+    setGroupMarket,
   } = useTradingService()
   const { data: marketFeedData } = useMarketFeed(market)
   const router = useRouter()
@@ -125,7 +126,12 @@ export const BigBannerTrigger = React.memo(({ market, markets, index }: BigBanne
     const searchParams = new URLSearchParams(window.location.search)
     searchParams.set('market', market.slug)
     router.push(`?${searchParams.toString()}`, { scroll: false })
-    setMarket(market)
+    if (market.negRiskMarketId) {
+      setGroupMarket(market)
+      setMarket(market?.markets?.[0] || null)
+    } else {
+      setMarket(market)
+    }
     if (!isGroup) {
       setClobOutcome(outcome)
     }
@@ -186,6 +192,7 @@ export const BigBannerTrigger = React.memo(({ market, markets, index }: BigBanne
             deadlineText={market.expirationDate}
             {...paragraphRegular}
             color='whiteAlpha.50'
+            ended={market.status === MarketStatus.RESOLVED}
           />
         </Box>
         <VStack w='full' h='calc(100% - 18px)' gap={0} justifyContent='space-between'>

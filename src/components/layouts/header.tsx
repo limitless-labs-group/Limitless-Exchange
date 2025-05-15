@@ -4,6 +4,9 @@ import {
   Flex,
   HStack,
   Link,
+  Menu,
+  MenuButton,
+  MenuList,
   Popover,
   PopoverBody,
   PopoverContent,
@@ -18,7 +21,8 @@ import { useRouter } from 'next/navigation'
 import React, { useEffect, useMemo } from 'react'
 import { LoginButtons } from '@/components/common/login-button'
 import SideBarPage from '@/components/common/side-bar-page'
-import CategoriesDesktop from '@/components/layouts/categories-desktop'
+import InviteFriendsPage from '@/components/layouts/invite-friends-page'
+import ThemeSwitcher from '@/components/layouts/theme-switcher'
 import UserMenuDesktop from '@/components/layouts/user-menu-desktop'
 import WalletPage from '@/components/layouts/wallet-page'
 import { sortAtom } from '@/atoms/market-sort'
@@ -34,6 +38,7 @@ import GridIcon from '@/resources/icons/sidebar/Markets.svg'
 import PortfolioIcon from '@/resources/icons/sidebar/Portfolio.svg'
 import SidebarIcon from '@/resources/icons/sidebar/crone-icon.svg'
 import DashboardIcon from '@/resources/icons/sidebar/dashboard.svg'
+import Dots from '@/resources/icons/three-horizontal-dots.svg'
 import {
   ClickEvent,
   ClobPositionWithType,
@@ -47,7 +52,8 @@ import {
 } from '@/services'
 import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { MarketStatus, Sort, SortStorageName } from '@/types'
-import { SEARCH_HOTKEY_KEYS } from '@/utils/consts'
+import { DISABLE_SEARCH_PAGES, SEARCH_HOTKEY_KEYS } from '@/utils/consts'
+import { OnboardingModal } from '../common/onboarding-modal'
 import { ReferralLink } from '../common/referral-link'
 
 export default function Header() {
@@ -68,6 +74,9 @@ export default function Header() {
     setProfilePageOpened,
     profilePageOpened,
     walletPageOpened,
+    profileData,
+    referralPageOpened,
+    setReferralPageOpened,
   } = useAccount()
   const handleBuyCryptoClicked = async () => {
     trackClicked<ProfileBurgerMenuClickedMetadata>(ClickEvent.BuyCryptoClicked)
@@ -75,6 +84,9 @@ export default function Header() {
   }
 
   const handleOpenWalletPage = () => {
+    trackClicked(ClickEvent.WalletPageClicked, {
+      platform: 'desktop',
+    })
     setWalletPageOpened(true)
     if (marketPageOpened) {
       onCloseMarketPage()
@@ -82,7 +94,20 @@ export default function Header() {
   }
 
   const handleOpenProfile = () => {
+    trackClicked(ClickEvent.ProfileButtonClicked, {
+      platform: 'desktop',
+    })
     setProfilePageOpened(true)
+    if (marketPageOpened) {
+      onCloseMarketPage()
+    }
+  }
+
+  const handleOpenReferral = () => {
+    trackClicked(ClickEvent.InviteFriendsPageClicked, {
+      platform: 'desktop',
+    })
+    setReferralPageOpened(true)
     if (marketPageOpened) {
       onCloseMarketPage()
     }
@@ -92,6 +117,7 @@ export default function Header() {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (
         SEARCH_HOTKEY_KEYS.includes(event.key) &&
+        !DISABLE_SEARCH_PAGES.includes(pageName) &&
         document.activeElement?.tagName !== 'INPUT' &&
         document.activeElement?.tagName !== 'TEXTAREA'
       ) {
@@ -116,8 +142,14 @@ export default function Header() {
     })
   }, [positions])
 
+  const handleThemeSwitchMenuClicked = () => {
+    trackClicked(ClickEvent.HeaderThemeSwitchMenuClicked, {
+      platform: 'desktop',
+    })
+  }
+
   return (
-    <Box position='fixed' w='full' top={0} zIndex={2000}>
+    <Box position='fixed' w='full' top={0} zIndex={2100}>
       <HStack
         w='full'
         justifyContent='space-between'
@@ -329,7 +361,9 @@ export default function Header() {
               <UserMenuDesktop
                 handleOpenWalletPage={handleOpenWalletPage}
                 handleOpenProfile={handleOpenProfile}
+                handleOpenReferralPage={handleOpenReferral}
               />
+              {profileData && !profileData.isOnboarded ? <OnboardingModal /> : null}
               {walletPageOpened && (
                 <SideBarPage>
                   <WalletPage />
@@ -340,17 +374,27 @@ export default function Header() {
                   <Profile />
                 </SideBarPage>
               )}
+              {referralPageOpened && (
+                <SideBarPage>
+                  <InviteFriendsPage />
+                </SideBarPage>
+              )}
             </HStack>
           ) : (
-            <LoginButtons login={loginToPlatform} />
+            <HStack gap='16px'>
+              <Menu variant='transparent'>
+                <MenuButton onClick={handleThemeSwitchMenuClicked}>
+                  <Dots />
+                </MenuButton>
+                <MenuList w='254px'>
+                  <ThemeSwitcher />
+                </MenuList>
+              </Menu>
+              <LoginButtons login={loginToPlatform} />
+            </HStack>
           )}
         </HStack>
       </HStack>
-      {pageName === 'Explore Markets' && (
-        <HStack py='4px' px='12px' bg='grey.50' gap={0} pt='4px'>
-          <CategoriesDesktop />
-        </HStack>
-      )}
     </Box>
   )
 }
