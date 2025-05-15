@@ -461,12 +461,7 @@ export const CreateMarket: FC = () => {
                           border='1px solid'
                           borderRadius='2px'
                           cursor='pointer'
-                          bg={
-                            formData.marketFee ||
-                            formData.markets?.some((market) => market.draftMetadata.fee)
-                              ? 'grey.800'
-                              : 'unset'
-                          }
+                          bg={formData.marketFee ? 'grey.800' : 'unset'}
                           onClick={() => {
                             handleChange('marketFee', !formData.marketFee)
                           }}
