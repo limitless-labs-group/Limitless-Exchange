@@ -34,9 +34,8 @@ export enum HOLDERS {
 }
 
 const getUserDisplayName = (data: HolderUserData) => {
-  return data.user === data.username
-    ? `${data.user.substring(0, 6)}...${data.user.substring(data.user.length - 6)}`
-    : data.username
+  const name = data.username ?? data.user
+  return name.length > 25 ? `${name.substring(0, 11)}...${name.substring(name.length - 11)}` : name
 }
 
 export const TopHoldersTab = () => {
