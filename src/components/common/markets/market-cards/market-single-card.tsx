@@ -87,7 +87,6 @@ export const MarketSingleCard = ({
     onOpenMarketPage(market)
   }
 
-  // const uniqueUsersTrades = useUniqueUsersTrades(marketFeedData)
   const uniqueUsersTrades = useUniqueUsersTrades({
     data: market.feedEvents ?? [],
   } as AxiosResponse<MarketFeedData[]>)

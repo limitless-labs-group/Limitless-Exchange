@@ -38,8 +38,6 @@ export const MarketGroupCard = ({
     setClobOutcome,
     setMarketPageOpened,
   } = useTradingService()
-  // const { data: marketFeedData } = useMarketFeed(market)
-  // const uniqueUsersTrades = useUniqueUsersTrades(marketFeedData)
   const uniqueUsersTrades = useUniqueUsersTrades({
     data: market.feedEvents ?? [],
   } as AxiosResponse<MarketFeedData[]>)
