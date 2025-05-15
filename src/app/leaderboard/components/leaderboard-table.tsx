@@ -9,6 +9,7 @@ import {
   Th,
   Thead,
   Tr,
+  Text,
 } from '@chakra-ui/react'
 import NextLink from 'next/link'
 import React from 'react'
@@ -19,7 +20,7 @@ import Skeleton from '@/components/common/skeleton'
 import TablePagination from '@/components/common/table-pagination'
 import LeaderIcon from '@/app/leaderboard/components/leader-icon'
 import { LeaderboardEntity, LeaderboardResponse } from '@/hooks/use-leaderboard'
-import { paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { h2Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { NumberUtil, truncateEthAddress } from '@/utils'
 import { cutUsername } from '@/utils/string'
 
@@ -51,6 +52,14 @@ export default function LeaderboardTable({
     return (
       <Box mt='16px' px={isMobile ? '16px' : 0}>
         <Skeleton height={520} />
+      </Box>
+    )
+  }
+
+  if (!leaderboardStats?.data.length) {
+    return (
+      <Box mt='24px'>
+        <Text {...h2Medium}>No data available for requested period.</Text>
       </Box>
     )
   }
