@@ -25,9 +25,16 @@ export const Modal = ({
   children,
   isCentered = true,
   variant = 'commonModal',
+  closeOnOverlayClick = true,
   ...props
 }: IModal) => (
-  <ChakraModal onClose={onClose} isOpen={isOpen} isCentered={isCentered} variant={variant}>
+  <ChakraModal
+    onClose={onClose}
+    isOpen={isOpen}
+    isCentered={isCentered}
+    variant={variant}
+    closeOnOverlayClick={closeOnOverlayClick}
+  >
     <ModalOverlay />
     <ModalContent {...props}>
       <ModalHeader display='flex' justifyContent='space-between' p={0}>

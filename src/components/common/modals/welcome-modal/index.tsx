@@ -10,7 +10,7 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { isMobile } from 'react-device-detect'
 import BlueCircleIcon from '@/resources/icons/blue-circle-icon.svg'
 import { ClickEvent, useAccount, useAmplitude } from '@/services'
@@ -26,6 +26,7 @@ export default function WelcomeModal({ onClose }: WelcomeModalProps) {
   const { trackClicked } = useAmplitude()
 
   const onSignUp = () => {
+    localStorage.setItem(WELCOME, 'true')
     trackClicked(ClickEvent.WelcomeModalSignUpButtonClicked)
     onClose()
     loginToPlatform()
@@ -49,10 +50,6 @@ export default function WelcomeModal({ onClose }: WelcomeModalProps) {
       description: 'profit from correct predictions or price movements',
     },
   ]
-
-  useEffect(() => {
-    localStorage.setItem(WELCOME, 'true')
-  }, [])
 
   return (
     <VStack w='full' py='24px' gap='24px' alignItems='flex-start'>
