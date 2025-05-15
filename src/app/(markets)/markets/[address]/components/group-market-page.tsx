@@ -7,7 +7,6 @@ import {
   Image as ChakraImage,
   Link,
   Tab,
-  TabIndicator,
   TabList,
   TabPanel,
   TabPanels,
@@ -26,6 +25,7 @@ import CommentTab from '@/components/common/markets/comment-tab'
 import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import OpenInterestTooltip from '@/components/common/markets/open-interest-tooltip'
 import ShareMenu from '@/components/common/markets/share-menu'
+import { TopHoldersTab } from '@/components/common/markets/top-holders'
 import MarketClosedWidget from '@/components/common/markets/trading-widgets/market-closed-widget'
 import TradingWidgetSimple from '@/components/common/markets/trading-widgets/trading-widget-simple'
 import { UniqueTraders } from '@/components/common/markets/unique-traders'
@@ -37,12 +37,14 @@ import PortfolioTab from '@/app/(markets)/markets/[address]/components/portfolio
 import { PriceChartContainer } from '@/app/(markets)/markets/[address]/components/price-chart-container'
 import { MarketPageProps } from '@/app/(markets)/markets/[address]/components/single-market-page'
 import { useMarketFeed } from '@/hooks/use-market-feed'
+import usePageName from '@/hooks/use-page-name'
 import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
 import ActivityIcon from '@/resources/icons/activity-icon.svg'
 import ArrowLeftIcon from '@/resources/icons/arrow-left-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import PortfolioIcon from '@/resources/icons/portfolio-icon.svg'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
+import TopHolders from '@/resources/icons/top-holders-icon.svg'
 import { ClickEvent, OpenEvent, useAmplitude, useTradingService } from '@/services'
 import { h1Regular, h2Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { MarketStatus } from '@/types'
@@ -54,6 +56,8 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
   const { setMarket, resetQuotes, market, groupMarket } = useTradingService()
   const { data: marketFeedData } = useMarketFeed(groupMarket)
   const uniqueUsersTrades = useUniqueUsersTrades(marketFeedData)
+  const [activeTabIndex, setActiveTabIndex] = React.useState(0)
+  const pageName = usePageName()
 
   const tradingWidget = useMemo(() => {
     if (fetchMarketLoading) {
@@ -77,27 +81,37 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
     )
   }, [market, fetchMarketLoading])
 
-  const tabs = [
-    {
-      title: 'Resolution',
-      icon: <ResolutionIcon width='16px' height='16px' />,
-    },
-    {
-      title: 'Activity',
-      icon: <ActivityIcon width={16} height={16} />,
-    },
-    {
-      title: 'Opinions',
-      icon: <OpinionIcon width={16} height={16} />,
-    },
-  ]
+  const tabs = useMemo(() => {
+    const tabs = [
+      {
+        title: 'Resolution',
+        icon: <ResolutionIcon width='16px' height='16px' />,
+      },
+      {
+        title: 'Activity',
+        icon: <ActivityIcon width={16} height={16} />,
+      },
+      {
+        title: 'Opinions',
+        icon: <OpinionIcon width={16} height={16} />,
+      },
+    ]
+    if (market?.tradeType !== 'amm') {
+      tabs.push({ title: 'Top Holders', icon: <TopHolders width={16} height={16} /> })
+    }
+    return tabs
+  }, [])
 
   const tabPanels = useMemo(() => {
-    return [
+    const panels = [
       <MarketOverviewTab market={market} key={uuidv4()} />,
       <MarketActivityTab key={uuidv4()} isActive={true} />,
       <CommentTab key={uuidv4()} />,
     ]
+    if (market?.tradeType !== 'amm') {
+      panels.push(<TopHoldersTab key={uuidv4()} />)
+    }
+    return panels
   }, [market])
 
   useEffect(() => {
@@ -312,10 +326,40 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                 <Skeleton height={120} />
               </Box>
             ) : (
-              <Tabs position='relative' variant='common' mx={isMobile ? '16px' : 0}>
-                <TabList>
-                  {tabs.map((tab) => (
-                    <Tab key={tab.title}>
+              <Tabs
+                position='relative'
+                variant='common'
+                mx={isMobile ? '16px' : 0}
+                onChange={(index) => {
+                  trackClicked(ClickEvent.TopHoldersTabClicked, {
+                    page: pageName,
+                  })
+
+                  setActiveTabIndex(index)
+                }}
+                index={activeTabIndex}
+              >
+                <TabList
+                  overflowX='auto'
+                  overflowY='hidden'
+                  css={{
+                    '&::-webkit-scrollbar': {
+                      display: 'none',
+                    },
+                    scrollbarWidth: 'none',
+                    '-ms-overflow-style': 'none',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {tabs.map((tab, index) => (
+                    <Tab
+                      key={tab.title}
+                      borderBottom={
+                        activeTabIndex === index ? '2px solid black' : '2px solid transparent'
+                      }
+                      _selected={{ borderBottom: '2px solid black' }}
+                      minW='auto'
+                    >
                       <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
                         {tab.icon}
                         <>{tab.title}</>
@@ -323,12 +367,7 @@ export default function GroupMarketPage({ fetchMarketLoading }: MarketPageProps)
                     </Tab>
                   ))}
                 </TabList>
-                <TabIndicator
-                  mt='-2px'
-                  height='2px'
-                  bg='grey.800'
-                  transitionDuration='200ms !important'
-                />
+
                 <TabPanels>
                   {tabPanels.map((panel, index) => (
                     <TabPanel key={index}>{panel}</TabPanel>

@@ -196,7 +196,7 @@ const CategoryMarketsPage = ({ categoryId, categoryName }: CategoryMarketsPagePr
                         isLoading={isFetching && !isFetchingNextPage}
                         sort={selectedSort.sort}
                         categoryName={categoryName}
-                        withChat={false}
+                        withChat
                       />
                     </InfiniteScroll>
                   </Box>
