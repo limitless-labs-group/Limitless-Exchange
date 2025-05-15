@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import React, { useState } from 'react'
 import { Toast } from '@/components/common/toast'
 import { AdminMarketCard } from '@/app/adminka/components/market-card'
+import { AdminActionButton } from './atoms/action-button'
 import { useToast } from '@/hooks'
 import { useCreateMarketModal } from '@/hooks/use-create-market-modal'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
@@ -119,16 +120,22 @@ export const AdminDraftMarkets = () => {
         })}
 
         {selectedMarkets.length > 0 && (
-          <Button
-            colorScheme='blue'
-            mt='16px'
-            w='fit-content'
-            onClick={createMarketsBatch}
-            style={{ width: '100%', maxWidth: '868px', position: 'fixed', bottom: 20 }}
-            isDisabled={isCreating}
-          >
-            {isCreating ? <Spinner /> : 'Create Markets Batch'}
-          </Button>
+          <AdminActionButton
+            selectedMarkets={selectedMarkets}
+            createAction={createMarketsBatch}
+            isLoading={isCreating}
+          />
+
+          // <Button
+          //   colorScheme='blue'
+          //   mt='16px'
+          //   w='fit-content'
+          //   onClick={createMarketsBatch}
+          //   style={{ width: '100%', maxWidth: '868px', position: 'fixed', bottom: 20 }}
+          //   isDisabled={isCreating}
+          // >
+          //   {isCreating ? <Spinner /> : 'Create Markets Batch'}
+          // </Button>
         )}
       </VStack>
     </Flex>

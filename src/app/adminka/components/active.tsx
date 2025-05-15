@@ -9,14 +9,18 @@ import {
   useDisclosure,
   useToast,
   HStack,
+  Box,
 } from '@chakra-ui/react'
 import { useQueryClient } from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
 import { title } from 'process'
 import { useMemo, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Loader from '@/components/common/loader'
 import { Modal } from '@/components/common/modals/modal'
 import { Toast } from '@/components/common/toast'
+import { AdminActionButton } from './atoms/action-button'
+import { SelectedMarketsList } from './atoms/selected-markets'
 import { AdminMarketCard } from './market-card'
 import { Resolve, ResolveModal } from './resolve-modal'
 import { useCreateMarketModal } from '@/hooks/use-create-market-modal'
@@ -42,6 +46,7 @@ export const AdminActiveMarkets = () => {
   const toast = useToast()
   const privateClient = useAxiosPrivateClient()
   const queryClient = useQueryClient()
+  const router = useRouter()
 
   const markets: Market[] = useMemo(() => {
     const allMarkets = data?.pages.flatMap((page) => page.data.markets) || []
@@ -201,6 +206,29 @@ export const AdminActiveMarkets = () => {
     }
   }
 
+  const duplicateMarkets = async () => {
+    setIsCreating(true)
+    privateClient
+      .post(`/markets/drafts/duplicate`, {
+        marketsIds: selectedMarkets.map((m) => m.id),
+      })
+      .then(async (res) => {
+        const id = toast({
+          render: () => <Toast title={`Markets are duplicated`} id={id} />,
+        })
+        router.push('/adminka?tab=drafts')
+        await queryClient.invalidateQueries({ queryKey: ['allDraftMarkets'] })
+      })
+      .catch((res) => {
+        const id = toast({
+          render: () => <Toast title={`Error: ${res.message}`} id={id} />,
+        })
+      })
+      .finally(() => {
+        setIsCreating(false)
+      })
+  }
+
   return (
     <Flex justifyContent={'center'} position='relative'>
       <VStack w='868px' spacing={4} mb='66px'>
@@ -227,17 +255,25 @@ export const AdminActiveMarkets = () => {
         </InfiniteScroll>
 
         {selectedMarkets.length > 0 ? (
-          <Button
-            colorScheme='blue'
-            mt='16px'
-            w='fit-content'
-            onClick={triggerResolveModal}
-            style={{ width: '100%', maxWidth: '868px', position: 'fixed', bottom: 20 }}
-          >
-            {'Resolve Selected Markets'}
-          </Button>
+          <AdminActionButton
+            selectedMarkets={selectedMarkets}
+            resolveAction={triggerResolveModal}
+            duplicateAction={duplicateMarkets}
+            isLoading={isLoading || isCreating}
+          />
         ) : null}
       </VStack>
+      <Box
+        position='fixed'
+        right='24px'
+        top='100px'
+        maxWidth='350px'
+        w='full'
+        display={selectedMarkets.length > 0 ? 'block' : 'none'}
+      >
+        <SelectedMarketsList markets={selectedMarkets} />
+      </Box>
+
       <Modal
         title='Market resolution'
         maxWidth='max-content'
