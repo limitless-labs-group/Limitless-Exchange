@@ -46,10 +46,7 @@ export function useMarketFeed(market: Market | null) {
     queryKey: ['market-feed', market?.slug],
     queryFn: async () => {
       const client = web3Wallet ? privateClient : limitlessApi
-      const url =
-        market?.tradeType === 'clob'
-          ? `/markets/${market.slug}/events`
-          : `/markets/${market?.address}/get-feed-events`
+      const url = `/markets/${market?.slug}/get-feed-events`
       return client.get(url)
     },
     refetchInterval: pathname === '/' ? 10000 : false,
@@ -86,15 +83,15 @@ export function useMarketClobInfinityFeed(marketSlug?: string) {
   })
 }
 
-export function useMarketInfinityFeed(marketAddress?: string | null, isActive = false) {
+export function useMarketInfinityFeed(marketSlug?: string | null, isActive = false) {
   const { web3Wallet } = useAccount()
   const privateClient = useAxiosPrivateClient()
   return useInfiniteQuery<AMMActivityResponse, Error>({
-    queryKey: ['market-page-feed', marketAddress],
+    queryKey: ['market-page-feed', marketSlug],
     // @ts-ignore
     queryFn: async ({ pageParam = 1 }) => {
       const client = web3Wallet ? privateClient : limitlessApi
-      const baseUrl = `/markets/${marketAddress}/get-feed-events`
+      const baseUrl = `/markets/${marketSlug}/get-feed-events`
       const response: AxiosResponse<AMMActivityResponse> = await client.get(baseUrl, {
         params: {
           page: pageParam,
@@ -110,6 +107,6 @@ export function useMarketInfinityFeed(marketAddress?: string | null, isActive = 
     },
     refetchOnWindowFocus: false,
     placeholderData: (placeholder) => placeholder,
-    enabled: !!marketAddress && isActive,
+    enabled: !!marketSlug && isActive,
   })
 }

@@ -1,4 +1,5 @@
 import { Box, HStack, Text, VStack } from '@chakra-ui/react'
+import { AxiosResponse } from 'axios'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -8,7 +9,7 @@ import { MarketCardLink } from '@/components/common/markets/market-cards/market-
 import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import { MIN_CARD_HEIGHT } from '@/components/common/markets/market-cards/market-single-card'
 import MarketGroupRow from '@/components/common/markets/market-group-row'
-import { useMarketFeed } from '@/hooks/use-market-feed'
+import { MarketFeedData, useMarketFeed } from '@/hooks/use-market-feed'
 import { useUniqueUsersTrades } from '@/hooks/use-unique-users-trades'
 import {
   ClickEvent,
@@ -37,8 +38,9 @@ export const MarketGroupCard = ({
     setClobOutcome,
     setMarketPageOpened,
   } = useTradingService()
-  const { data: marketFeedData } = useMarketFeed(market)
-  const uniqueUsersTrades = useUniqueUsersTrades(marketFeedData)
+  const uniqueUsersTrades = useUniqueUsersTrades({
+    data: market.feedEvents ?? [],
+  } as AxiosResponse<MarketFeedData[]>)
   const router = useRouter()
   const { trackClicked } = useAmplitude()
   const { closeAllAuthSidebarPages } = useAccount()

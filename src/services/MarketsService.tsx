@@ -6,6 +6,7 @@ import { Address, formatUnits, getContract, parseUnits } from 'viem'
 import { defaultChain, newSubgraphURI } from '@/constants'
 import { LIMIT_PER_PAGE, POLLING_INTERVAL } from '@/constants/application'
 import { fixedProductMarketMakerABI } from '@/contracts'
+import useClient from '@/hooks/use-client'
 import { publicClient } from '@/providers/Privy'
 import { useAccount } from '@/services/AccountService'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
@@ -22,6 +23,8 @@ import {
 import { calculateMarketPrice, getPrices } from '@/utils/market'
 
 export function useMarkets(topic: Category | null, enabled = true, customHeaders = {}) {
+  const { client } = useClient()
+
   return useInfiniteQuery<MarketPage, Error>({
     queryKey: ['markets', topic?.id, customHeaders],
     queryFn: async ({ pageParam = 1 }) => {
@@ -36,7 +39,7 @@ export function useMarkets(topic: Category | null, enabled = true, customHeaders
             limit: LIMIT_PER_PAGE,
           }
 
-      const { data: response }: AxiosResponse<ApiResponse> = await axios.get(marketBaseUrl, {
+      const { data: response }: AxiosResponse<ApiResponse> = await client.get(marketBaseUrl, {
         params,
         headers: { ...customHeaders },
       })
@@ -94,12 +97,14 @@ export type UseSortedArgs = {
 }
 export function useSortedMarkets(args: UseSortedArgs) {
   const { categoryId, enabled, sortBy } = args
+  const { client } = useClient()
+
   return useInfiniteQuery<MarketPage, Error>({
     queryKey: ['sorted-markets', categoryId, sortBy],
     queryFn: async ({ pageParam = 1 }) => {
       const baseUrl = `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/markets/active`
       const marketBaseUrl = categoryId ? `${baseUrl}/${categoryId}` : baseUrl
-      const { data: response }: AxiosResponse<ApiResponse> = await axios.get(marketBaseUrl, {
+      const { data: response }: AxiosResponse<ApiResponse> = await client.get(marketBaseUrl, {
         params: {
           page: pageParam,
           limit: LIMIT_PER_PAGE,
