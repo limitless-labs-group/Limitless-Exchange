@@ -23,20 +23,7 @@ export const ORDER_STRUCTURE = [
   { name: 'signatureType', type: 'uint8' },
 ]
 
-export const buildOrderTypedData = (
-  order: Order,
-  type: 'common' | 'negRisk',
-  includeFee: boolean
-): EIP712TypedData => {
-  let verifyingContract
-  if (includeFee && type === 'common') {
-    verifyingContract = process.env.NEXT_PUBLIC_CLOB_FEE_MODULE as string
-  } else {
-    verifyingContract =
-      type === 'common'
-        ? (process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as string)
-        : (process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE as string)
-  }
+export const buildOrderTypedData = (order: Order, type: 'common' | 'negRisk'): EIP712TypedData => {
   const result = {
     primaryType: 'Order',
     types: {
@@ -47,7 +34,10 @@ export const buildOrderTypedData = (
       name: 'Limitless CTF Exchange',
       version: PROTOCOL_VERSION,
       chainId: defaultChain.id,
-      verifyingContract,
+      verifyingContract:
+        type === 'common'
+          ? (process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as string)
+          : (process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE as string),
     },
     message: {
       salt: order.salt,
