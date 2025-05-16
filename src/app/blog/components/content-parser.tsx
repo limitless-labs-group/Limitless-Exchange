@@ -70,7 +70,15 @@ export default function ContentParser({ html }: ContentParserProps) {
             )
           case 'li':
             return (
-              <ListItem {...paragraphRegular} color='grey.700' mb='16px'>
+              <ListItem
+                {...paragraphRegular}
+                color='grey.700'
+                sx={{
+                  '& > p': {
+                    marginBottom: 0,
+                  },
+                }}
+              >
                 {domToReact(el.children as DOMNode[], options)}
               </ListItem>
             )
