@@ -748,21 +748,21 @@ export const DraftMarketModal: FC = () => {
             <Button onClick={close} height='32px' px='12px' variant='outlined'>
               Cancel
             </Button>
-            {isCreating ? (
-              <Flex width='full' justifyContent='center' alignItems='center'>
-                <Loader />
-              </Flex>
-            ) : (
-              <Button
-                height='32px'
-                px='12px'
-                variant='contained'
-                onClick={submit}
-                isDisabled={isCreating}
-              >
-                {getButtonText()}
-              </Button>
-            )}
+            <Button
+              height='32px'
+              px='12px'
+              variant='contained'
+              onClick={submit}
+              isDisabled={isCreating}
+            >
+              {isCreating ? (
+                <Flex width='full' justifyContent='center' alignItems='center'>
+                  <Loader />
+                </Flex>
+              ) : (
+                <Text>{getButtonText()}</Text>
+              )}
+            </Button>
           </HStack>
         </HStack>
       </VStack>

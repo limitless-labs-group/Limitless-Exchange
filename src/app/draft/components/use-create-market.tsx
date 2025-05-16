@@ -72,7 +72,6 @@ export const useCreateMarket = () => {
 
   const populateDraftMarketData = (draftMarket: any) => {
     if (!draftMarket) return
-    console.log('draft', draftMarket)
 
     setFormData((prevFormData) => ({
       ...prevFormData,
@@ -113,7 +112,8 @@ export const useCreateMarket = () => {
           }
         : {}),
     }))
-    if (isGroup && draftMarket.markets?.length > 0) {
+    if (draftMarket.type === 'group' && draftMarket.markets?.length > 0) {
+      console.log('draftMarket', draftMarket.markets)
       setMarketType('group')
       setMarkets(
         draftMarket.markets.map((market: MarketInput) => ({

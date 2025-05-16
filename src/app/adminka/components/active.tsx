@@ -155,15 +155,24 @@ export const AdminActiveMarkets = () => {
       const indexes = markets.map((m) => ({ ...m, winningIndex: m.winningIndex === 0 ? 1 : 0 }))
       switch (marketType) {
         case 'clob':
-          return { url: `/markets/clob/propose/batch-resolve`, payload: indexes }
+          return {
+            // url: `/markets/clob/propose/batch-resolve`,
+            url: 'markets/clob/propose/batch-resolve',
+            payload: indexes,
+          }
         case 'group':
           return {
-            url: `/markets/group/${selectedMarkets[0].id}/propose/resolve`,
+            // url: `/markets/group//propose/resolve`,
+            url: `markets/group/${selectedMarkets[0].id}/propose/resolve/execute`,
             payload: indexes,
           }
         case 'amm':
         default:
-          return { url: `markets/propose/batch-resolve`, payload: indexes }
+          return {
+            // url: `markets/propose/batch-resolve`,
+            url: 'markets/amm/propose/batch-resolve',
+            payload: indexes,
+          }
       }
     }
 
