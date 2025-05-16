@@ -1,4 +1,4 @@
-import { Box, Flex, FormControl, Text, FormLabel, Input, Button } from '@chakra-ui/react'
+import { Box, Flex, FormControl, Text, FormLabel, Input, Button, Center } from '@chakra-ui/react'
 import { htmlToText } from 'html-to-text'
 import { useAtom } from 'jotai'
 import debounce from 'lodash/debounce'
@@ -8,6 +8,7 @@ import { AdjustableNumberInput } from './number-inputs'
 import { dailyToEpochRewards, epochToDailyRewards } from './use-create-market'
 import { defaultGroupMarkets, groupMarketsAtom } from '@/atoms/draft'
 import CloseIcon from '@/resources/icons/close-icon.svg'
+import { paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 export const GroupForm = () => {
   const [markets, setMarkets] = useAtom(groupMarketsAtom)
@@ -94,26 +95,35 @@ export const GroupForm = () => {
   return (
     <>
       {markets.map((market, index) => (
-        <Box key={market.id} borderWidth={1} p={4} borderRadius='md' width='100%'>
-          <Flex justify='space-between' align='center' mb={2}>
-            <Text fontWeight='bold'>
-              sub-Market #{index + 1} {market.id ? `- id: ${market.id}` : ''}
-            </Text>
-            {markets.length > 2 ? (
-              <Box
-                cursor='pointer'
-                onClick={() => {
-                  const updatedMarkets = [...markets]
-                  updatedMarkets.splice(index, 1)
-                  setMarkets(updatedMarkets)
-                }}
-              >
-                <CloseIcon color='red' height={24} width={24} />
-              </Box>
-            ) : null}
-          </Flex>
+        <Box
+          key={market.id}
+          borderWidth={1}
+          p={4}
+          borderRadius='md'
+          width='100%'
+          borderColor='grey.200'
+          bg='grey.100'
+        >
           <FormControl>
-            <FormLabel htmlFor={`market${index}_title`}>Title</FormLabel>
+            <FormLabel htmlFor={`market${index}_title`}>
+              <Flex justify='space-between' align='center' mb={2}>
+                <Text>
+                  #{index + 1} title {market.id ? `- id: ${market.id}` : ''}
+                </Text>
+                {markets.length > 2 ? (
+                  <Box
+                    cursor='pointer'
+                    onClick={() => {
+                      const updatedMarkets = [...markets]
+                      updatedMarkets.splice(index, 1)
+                      setMarkets(updatedMarkets)
+                    }}
+                  >
+                    <CloseIcon height={16} width={16} />
+                  </Box>
+                ) : null}
+              </Flex>
+            </FormLabel>
             <Input
               type='text'
               id={`market${index}_title`}
@@ -145,8 +155,8 @@ export const GroupForm = () => {
               style={{ wordBreak: 'break-word' }}
             />
           </FormControl>
-          <Flex w='full' direction='row' gap={2} flexWrap='wrap' alignItems='start'>
-            <Box flex='1' minW='120px' maxW='200px'>
+          <Flex w='full' direction='row' gap={4} flexWrap='wrap' alignItems='center' mt='8px'>
+            <Box flex='0 0 auto' w='auto'>
               <AdjustableNumberInput
                 label='Min size'
                 value={getCurrentValue(index, 'minSize', market.settings?.minSize)}
@@ -154,9 +164,11 @@ export const GroupForm = () => {
                 min={0}
                 max={1000}
                 step={1}
+                compact
+                width='60px'
               />
             </Box>
-            <Box flex='1' minW='120px' maxW='200px'>
+            <Box flex='0 0 auto' w='auto'>
               <AdjustableNumberInput
                 label='Max spread'
                 value={getCurrentValue(index, 'maxSpread', market.settings?.maxSpread)}
@@ -164,9 +176,11 @@ export const GroupForm = () => {
                 min={0}
                 max={99}
                 step={0.1}
+                compact
+                width='60px'
               />
             </Box>
-            <Box flex='1' minW='120px' maxW='200px'>
+            <Box flex='0 0 auto' w='auto'>
               <AdjustableNumberInput
                 label='C'
                 value={getCurrentValue(index, 'c', market.settings?.c)}
@@ -174,11 +188,13 @@ export const GroupForm = () => {
                 min={0}
                 max={1000}
                 step={1}
+                compact
+                width='60px'
               />
             </Box>
-            <Box flex='1' minW='150px' maxW='250px'>
+            <Box flex='0 0 auto' w='auto'>
               <AdjustableNumberInput
-                label='Rewards per day'
+                label='Rewards'
                 value={getCurrentValue(
                   index,
                   'maxDailyReward',
@@ -189,19 +205,25 @@ export const GroupForm = () => {
                 max={1000}
                 step={0.1}
                 prefix='US$'
-                additionalInfo={
-                  <Text fontSize='xs' color='gray.500'>
-                    Per Epoch: {market.settings?.rewardsEpoch?.toFixed(5)}
-                  </Text>
-                }
+                compact
+                width='80px'
               />
             </Box>
           </Flex>
         </Box>
       ))}
-      <Button onClick={addMarket} colorScheme='blue'>
-        Add Another Market
-      </Button>
+      <Center
+        p='16px'
+        mt='24px'
+        border='1px dashed'
+        borderColor='grey.200'
+        w='full'
+        borderRadius='6px'
+      >
+        <Button onClick={addMarket} variant='ghost'>
+          <Text {...paragraphRegular}>+ Add Market</Text>
+        </Button>
+      </Center>
     </>
   )
 }

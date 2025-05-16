@@ -312,6 +312,7 @@ export type OddsData = {
 export interface ColorScheme {
   white: string
   black: string
+  mono: string
   grey: {
     50: string
     100: string
@@ -496,6 +497,7 @@ export interface ColorScheme {
     widgetBgGrey: string
   }
   draftCard: {
+    background: string
     bg: string
     border: string
     selectedBg: string

@@ -48,7 +48,7 @@
 }
 
 .draft .ql-editor {
-  background: var(--chakra-colors-grey-100) !important;
+  background: var(--chakra-colors-draftCard-background) !important;
   min-height: unset;
   font-size: 16px;
 }
@@ -58,7 +58,7 @@
 }
 
 .draft.checked .ql-editor {
-  background: var(--chakra-colors-draftCard-bg) !important;
+  background: var(--chakra-colors-grey-200) !important;
 }
 
 .draft.checked.hover .ql-editor {

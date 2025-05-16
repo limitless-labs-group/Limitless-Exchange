@@ -12,7 +12,7 @@ export type DraftMarket = {
   tags: any
   collateralToken: Token
   categories: Category[]
-  creator: DraftCreator
+  creator: Creator
   type: DraftMarketType
   draftMetadata: DraftMetadata
   markets?: MarketInput[]

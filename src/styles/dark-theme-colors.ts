@@ -3,6 +3,7 @@ import { ColorScheme } from '@/types'
 export const darkThemeColors: ColorScheme = {
   white: '#FFFFFF',
   black: '#000000',
+  mono: 'black',
   grey: {
     50: '#030712',
     100: '#111827',
@@ -15,8 +16,8 @@ export const darkThemeColors: ColorScheme = {
     800: '#F9FAFB',
   },
   red: {
-    50: '#FF3756',
-    100: '#FF3756',
+    50: '#fef2f2',
+    100: '#fee2e2',
     200: '#FF3756',
     300: '#FF3756',
     400: '#FF3756',
@@ -70,8 +71,8 @@ export const darkThemeColors: ColorScheme = {
     800: '#97EE2B',
   },
   green: {
-    50: '#0FC591',
-    100: '#0FC591',
+    50: '#f0fdf4',
+    100: '#dcfce7',
     200: '#0FC591',
     300: '#0FC591',
     400: '#0FC591',
@@ -187,6 +188,7 @@ export const darkThemeColors: ColorScheme = {
     widgetBgGrey: '#52525b',
   },
   draftCard: {
+    background: 'black',
     bg: '#03190c',
     border: '#bbf7d0',
     selectedBg: '#03190c',
