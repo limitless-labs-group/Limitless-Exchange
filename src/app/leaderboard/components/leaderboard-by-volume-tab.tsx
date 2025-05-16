@@ -1,5 +1,5 @@
 import { Box, Button, ButtonGroup, HStack, Text } from '@chakra-ui/react'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { v4 as uuidv4 } from 'uuid'
 import Skeleton from '@/components/common/skeleton'
@@ -8,7 +8,7 @@ import LeaderboardTable from '@/app/leaderboard/components/leaderboard-table'
 import Leaders from '@/app/leaderboard/components/leaders'
 import { leaderboardSortOptions } from '@/app/leaderboard/utils'
 import { useDateRanges } from '@/hooks/use-date-range'
-import { useLeaderboard, useTopThreeLeaders } from '@/hooks/use-leaderboard'
+import { LeaderboardEntity, useLeaderboard } from '@/hooks/use-leaderboard'
 import { ChangeEvent, useAmplitude } from '@/services'
 import { headlineRegular, paragraphMedium } from '@/styles/fonts/fonts.styles'
 import { LeaderboardSort } from '@/types'
@@ -18,6 +18,8 @@ export default function LeaderboardByVolumeTab() {
     (window.sessionStorage.getItem('LEADERBOARD_SORT') as LeaderboardSort) ??
       LeaderboardSort.ALL_TIME
   )
+
+  const [topThreeLeaders, setTopThreeLeaders] = useState<LeaderboardEntity[]>([])
 
   const { MONTHLY_LEADERBOARD_PERIOD, WEEKLY_LEADERBOARD_PERIOD } = useDateRanges()
 
@@ -42,10 +44,11 @@ export default function LeaderboardByVolumeTab() {
     'volume'
   )
 
-  const { data: topThreeLeaders, isLoading: topThreeLoading } = useTopThreeLeaders(
-    selectedSortFilter,
-    'volume'
-  )
+  useEffect(() => {
+    if (topThreeLeaders.length < 3 && currentPage === 1 && leaderboardStats) {
+      setTopThreeLeaders(leaderboardStats.data.slice(0, 4))
+    }
+  }, [currentPage, leaderboardStats, topThreeLeaders.length])
 
   const totalPages = Math.ceil(leaderboardStats ? leaderboardStats.totalPages : 0)
 
@@ -66,13 +69,6 @@ export default function LeaderboardByVolumeTab() {
     setSelectedSortFilter(option)
     setCurrentPage(1)
   }
-
-  const renderLeaders = useMemo(() => {
-    if (!topThreeLeaders?.data.data.length) {
-      return null
-    }
-    return <Leaders data={topThreeLeaders?.data.data} />
-  }, [topThreeLeaders?.data.data])
 
   return (
     <LeaderboardTabContainer heading='Volume Leaderboard'>
@@ -121,7 +117,7 @@ export default function LeaderboardByVolumeTab() {
             ))}
           </ButtonGroup>
         </HStack>
-        {isLoading ? (
+        {isLoading && currentPage === 1 ? (
           <Box w='160px' px={isMobile ? '16px' : 0}>
             <Skeleton height={20} />
           </Box>
@@ -132,12 +128,12 @@ export default function LeaderboardByVolumeTab() {
           </Text>
         )}
       </HStack>
-      {topThreeLoading ? (
+      {isLoading && currentPage === 1 ? (
         <Box my='16px' px={isMobile ? '16px' : 0}>
           <Skeleton height={132} />
         </Box>
       ) : (
-        renderLeaders
+        <Leaders data={topThreeLeaders} />
       )}
       <LeaderboardTable
         leaderboardStats={leaderboardStats}
