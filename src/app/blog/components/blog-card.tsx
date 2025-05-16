@@ -29,11 +29,11 @@ export default function BlogCard({ post }: BlogCardProps) {
             <Box transform='rotate(270deg)' color='grey.500'>
               <ChevronDownIcon height={16} width={16} />
             </Box>
-            {/*{post.tag.map((tag) => (*/}
-            {/*  <Text {...paragraphRegular} color='grey.500' key={tag.tags}>*/}
-            {/*    #{tag.tags}*/}
-            {/*  </Text>*/}
-            {/*))}*/}
+            {post.tags?.split(',').map((tag) => (
+              <Text {...paragraphRegular} color='grey.500' key={tag}>
+                #{tag}
+              </Text>
+            ))}
           </HStack>
           <Text {...h3Bold} w={isMobile ? 'full' : '80%'}>
             {post.title}

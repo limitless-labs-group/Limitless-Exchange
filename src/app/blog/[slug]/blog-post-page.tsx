@@ -82,11 +82,11 @@ export default function BlogPostPage({ slug }: BlogPostPageProps) {
           <Box transform='rotate(270deg)' color='grey.500'>
             <ChevronDownIcon height={16} width={16} />
           </Box>
-          {/*{data?.data[0].tag.map((tag) => (*/}
-          {/*  <Text {...paragraphRegular} color='grey.500' key={tag.tags}>*/}
-          {/*    #{tag.tags}*/}
-          {/*  </Text>*/}
-          {/*))}*/}
+          {data?.data[0].tags?.split(',')?.map((tag) => (
+            <Text {...paragraphRegular} color='grey.500' key={tag}>
+              #{tag}
+            </Text>
+          ))}
         </HStack>
       )}
       {isMobile && (
