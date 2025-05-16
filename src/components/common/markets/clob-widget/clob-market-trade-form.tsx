@@ -669,6 +669,11 @@ export default function ClobMarketTradeForm() {
           </Text>
         </HStack>
       </VStack>
+      {market?.metadata.fee && (
+        <Text {...paragraphRegular} fontSize='12px' color='grey.500' textAlign='center' mb='8px'>
+          (This market takes fees)
+        </Text>
+      )}
       {profileLoading ? (
         <Box w='full'>
           <Skeleton height={64} />
