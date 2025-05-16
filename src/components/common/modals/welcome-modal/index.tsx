@@ -13,7 +13,7 @@ import {
 import React from 'react'
 import { isMobile } from 'react-device-detect'
 import BlueCircleIcon from '@/resources/icons/blue-circle-icon.svg'
-import { ClickEvent, useAccount, useAmplitude } from '@/services'
+import { ClickEvent, useAmplitude } from '@/services'
 import { captionRegular, h3Bold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { WELCOME } from '@/utils/consts'
 
@@ -22,14 +22,12 @@ interface WelcomeModalProps {
 }
 
 export default function WelcomeModal({ onClose }: WelcomeModalProps) {
-  const { loginToPlatform } = useAccount()
   const { trackClicked } = useAmplitude()
 
   const onSignUp = () => {
     localStorage.setItem(WELCOME, 'true')
     trackClicked(ClickEvent.WelcomeModalSignUpButtonClicked)
     onClose()
-    loginToPlatform()
   }
 
   const steps = [
