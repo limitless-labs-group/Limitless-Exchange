@@ -14,6 +14,10 @@ import {
   Textarea,
   VStack,
   Text,
+  FormLabel,
+  Divider,
+  Grid,
+  GridItem,
 } from '@chakra-ui/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
@@ -30,6 +34,7 @@ import TimezoneSelect, {
   ITimezoneOption,
   useTimezoneSelect,
 } from 'react-timezone-select'
+import Loader from '@/components/common/loader'
 import TextEditor from '@/components/common/text-editor'
 import { Toast } from '@/components/common/toast'
 import { tokenLimits, selectStyles, defaultFormData } from '@/app/draft/components'
@@ -53,8 +58,16 @@ import { useCreateMarketModal } from '@/hooks/use-create-market-modal'
 import { useLimitlessApi } from '@/services'
 import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useMarket } from '@/services/MarketsService'
-import { paragraphBold, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { headline, paragraphBold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Token, SelectOption, DraftCreator, DraftMarketType } from '@/types/draft'
+
+const LabelField: FC<{ children: React.ReactNode }> = ({ children }) => (
+  <GridItem alignSelf='center'>
+    <FormLabel mb={0}>
+      <Text {...paragraphRegular}>{children}</Text>
+    </FormLabel>
+  </GridItem>
+)
 
 export const DraftMarketModal: FC = () => {
   const [formData, setFormData] = useAtom(formDataAtom)
@@ -295,43 +308,48 @@ export const DraftMarketModal: FC = () => {
   }
 
   const getButtonText = () => {
-    if (draftMarketId) return 'Save'
+    if (draftMarketId) return 'Save editing'
     if (activeMarketId) return 'Update active market'
-    return 'Draft'
+    return 'Save draft'
   }
 
   return (
     <Flex justifyContent='center'>
       <VStack w='full' spacing={4}>
         <FormControl>
-          {!activeMarketId ? (
-            <MarketTypeSelector
-              value={modalMarketType ?? 'amm'}
-              onChange={(value) => setMarketType(value as DraftMarketType)}
-            />
-          ) : null}
           <HStack
             w='full'
             maxW='1200px'
             mx='auto'
-            gap={10}
+            gap={4}
             justifyContent='space-between'
-            alignItems='flex-start'
+            alignItems='stretch'
+            minH='800px'
+            h='full'
           >
             <VStack w='full' flex='1.2'>
+              {!activeMarketId ? (
+                <MarketTypeSelector
+                  value={modalMarketType ?? 'amm'}
+                  onChange={(value) => setMarketType(value as DraftMarketType)}
+                />
+              ) : null}
+
               <FormField label='Title'>
                 <Textarea
                   resize='none'
                   rows={1}
                   overflow='hidden'
                   height='auto'
+                  backgroundColor='transparent'
+                  borderColor='grey.200'
                   onInput={resizeTextareaHeight}
                   value={formData.title}
                   onChange={(e) => handleChange('title', e.target.value)}
                   maxLength={70}
                 />
                 <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
-                  {formData.title?.length}/70 characters
+                  <Text {...paragraphRegular}>{formData.title?.length}/70 characters</Text>
                 </FormHelperText>
               </FormField>
 
@@ -348,154 +366,156 @@ export const DraftMarketModal: FC = () => {
                     style={{ wordBreak: 'break-word' }}
                   />
                   <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
-                    {getPlainTextLength(formData.description)}/3000 characters
+                    <Text {...paragraphRegular}>
+                      {getPlainTextLength(formData.description)}/3000 characters
+                    </Text>
                   </FormHelperText>
                 </FormField>
               ) : (
                 <GroupForm />
               )}
-
-              {!activeMarketId && isAmm ? (
-                <FormField label='Token'>
-                  <HStack>
-                    <Select value={formData.token.id} onChange={handleTokenSelect}>
-                      {supportedTokens?.map((token: Token) => (
-                        <option key={token.id} value={token.id} data-name={token.symbol}>
-                          {token.symbol}
-                        </option>
-                      ))}
-                    </Select>
-                  </HStack>
-                </FormField>
-              ) : null}
-
-              {isClob ? (
-                <HStack w='full' alignItems='start' spacing={6}>
-                  <VStack w='full'>
-                    <AdjustableNumberInput
-                      label='Min size'
-                      value={formData.minSize}
-                      onChange={(value) => handleChange('minSize', value)}
-                      min={0}
-                      max={1000}
-                      step={1}
-                    />
-
-                    <AdjustableNumberInput
-                      label='Max spread'
-                      value={formData.maxSpread}
-                      onChange={(value) => handleChange('maxSpread', value)}
-                      min={0}
-                      max={99}
-                      step={0.1}
-                    />
-                  </VStack>
-                  <VStack w='full'>
-                    <AdjustableNumberInput
-                      label='C'
-                      value={formData.c}
-                      onChange={(value) => handleChange('c', value)}
-                      min={0}
-                      max={1000}
-                      step={1}
-                    />
-
-                    <AdjustableNumberInput
-                      label='Rewards per day'
-                      value={Number(epochToDailyRewards(formData.rewardsEpoch ?? 0))}
-                      onChange={(value) => handleChange('rewardsEpoch', dailyToEpochRewards(value))}
-                      min={0}
-                      max={1000}
-                      step={0.1}
-                      prefix='US$'
-                      additionalInfo={
-                        <HStack>
-                          <Text {...paragraphBold}>Per Epoch:</Text>
-                          <Text>
-                            {formData.rewardsEpoch ? Number(formData?.rewardsEpoch).toFixed(5) : ''}
-                          </Text>
-                        </HStack>
-                      }
-                    />
-                  </VStack>
-                </HStack>
-              ) : null}
-
-              {isAmm && !activeMarketId ? (
-                <>
-                  <AdjustableNumberInput
-                    label={`${formData.token.symbol} Liquidity`}
-                    value={formData.liquidity}
-                    onChange={(value) => handleChange('liquidity', value)}
-                    min={tokenLimits[formData.token.symbol]?.min}
-                    max={tokenLimits[formData.token.symbol]?.max}
-                    step={tokenLimits[formData.token.symbol]?.step}
-                  />
-
-                  <AdjustableNumberInput
-                    label='Starting YES Probability'
-                    value={formData.probability}
-                    onChange={(value) => handleChange('probability', value)}
-                    min={1}
-                    max={99}
-                    step={1}
-                  />
-                </>
-              ) : null}
             </VStack>
 
-            <VStack w={'full'} flex='0.8' h='full'>
-              <HStack w='full' spacing='6' alignItems='start' justifyContent='start'>
-                <VStack>
-                  <FormField label='Is Bannered'>
-                    <HStack gap='8px'>
-                      <Box
-                        w='16px'
-                        h='16px'
-                        borderColor='grey.500'
-                        border='1px solid'
-                        borderRadius='2px'
-                        cursor='pointer'
-                        bg={formData.isBannered ? 'grey.800' : 'unset'}
-                        onClick={() => {
-                          handleChange('isBannered', !formData.isBannered)
-                        }}
-                      />
-                      <Text {...paragraphRegular}>Add market to big banner</Text>
-                    </HStack>
-                  </FormField>
-                </VStack>
-                <VStack>
-                  <AdjustableNumberInput
-                    label='Priority index'
-                    value={formData.priorityIndex}
-                    onChange={(value) => handleChange('priorityIndex', value)}
-                    min={1}
-                    max={1000}
-                    step={1}
-                  />
-                </VStack>
-              </HStack>
-              {!activeMarketId ? (
-                <FormField label='Creator'>
-                  <HStack>
-                    <Select
-                      value={formData.creatorId}
-                      onChange={(e) => handleChange('creatorId', e.target.value)}
-                    >
-                      {creators?.map((creator: DraftCreator) => (
-                        <option key={creator.id} value={creator.id}>
-                          {creator?.name ?? ''}
-                        </option>
-                      ))}
-                    </Select>
-                  </HStack>
-                </FormField>
-              ) : null}
+            <Divider
+              orientation='vertical'
+              alignSelf='stretch'
+              bg='grey.200'
+              borderColor='grey.200'
+            />
 
-              <FormField label='Categories'>
-                <HStack w={'full'}>
-                  <Box width='full'>
+            <VStack w={'full'} flex='0.8' h='full'>
+              <Flex alignItems='start' w='full' mb='24px'>
+                <Text {...headline}> Attributes</Text>
+              </Flex>
+
+              <Box w='full'>
+                <Grid templateColumns='minmax(120px, auto) 1fr' gap={4} w='full'>
+                  {!activeMarketId && (
+                    <>
+                      <LabelField>Creator</LabelField>
+                      <GridItem>
+                        <Select
+                          value={formData.creatorId}
+                          onChange={(e) => handleChange('creatorId', e.target.value)}
+                          backgroundColor='transparent'
+                          borderColor='grey.200'
+                        >
+                          {creators?.map((creator: DraftCreator) => (
+                            <option key={creator.id} value={creator.id}>
+                              {creator?.name ?? ''}
+                            </option>
+                          ))}
+                        </Select>
+                      </GridItem>
+                    </>
+                  )}
+
+                  {!activeMarketId && isAmm && (
+                    <>
+                      <LabelField>Token</LabelField>
+                      <GridItem>
+                        <Select
+                          value={formData.token.id}
+                          onChange={handleTokenSelect}
+                          backgroundColor='transparent'
+                          borderColor='grey.200'
+                        >
+                          {supportedTokens?.map((token: Token) => (
+                            <option key={token.id} value={token.id} data-name={token.symbol}>
+                              {token.symbol}
+                            </option>
+                          ))}
+                        </Select>
+                      </GridItem>
+                    </>
+                  )}
+
+                  {isClob && (
+                    <>
+                      <LabelField>Min size</LabelField>
+                      <GridItem>
+                        <AdjustableNumberInput
+                          hideLabel
+                          value={formData.minSize}
+                          onChange={(value) => handleChange('minSize', value)}
+                          min={0}
+                          max={1000}
+                          step={1}
+                        />
+                      </GridItem>
+
+                      <LabelField>Max spread</LabelField>
+                      <GridItem>
+                        <AdjustableNumberInput
+                          hideLabel
+                          value={formData.maxSpread}
+                          onChange={(value) => handleChange('maxSpread', value)}
+                          min={0}
+                          max={99}
+                          step={0.1}
+                        />
+                      </GridItem>
+
+                      <LabelField>C</LabelField>
+                      <GridItem>
+                        <AdjustableNumberInput
+                          hideLabel
+                          value={formData.c}
+                          onChange={(value) => handleChange('c', value)}
+                          min={0}
+                          max={1000}
+                          step={1}
+                        />
+                      </GridItem>
+
+                      <LabelField>Rewards</LabelField>
+                      <GridItem>
+                        <AdjustableNumberInput
+                          hideLabel
+                          value={Number(epochToDailyRewards(formData.rewardsEpoch ?? 0))}
+                          onChange={(value) =>
+                            handleChange('rewardsEpoch', dailyToEpochRewards(value))
+                          }
+                          min={0}
+                          max={1000}
+                          step={0.1}
+                          prefix='US$'
+                        />
+                      </GridItem>
+                    </>
+                  )}
+
+                  {isAmm && !activeMarketId && (
+                    <>
+                      <LabelField>{`${formData.token.symbol} Liquidity`}</LabelField>
+                      <GridItem>
+                        <AdjustableNumberInput
+                          hideLabel
+                          value={formData.liquidity}
+                          onChange={(value) => handleChange('liquidity', value)}
+                          min={tokenLimits[formData.token.symbol]?.min}
+                          max={tokenLimits[formData.token.symbol]?.max}
+                          step={tokenLimits[formData.token.symbol]?.step}
+                        />
+                      </GridItem>
+
+                      <LabelField>Starting YES Probability</LabelField>
+                      <GridItem>
+                        <AdjustableNumberInput
+                          hideLabel
+                          value={formData.probability}
+                          onChange={(value) => handleChange('probability', value)}
+                          min={1}
+                          max={99}
+                          step={1}
+                        />
+                      </GridItem>
+                    </>
+                  )}
+
+                  <LabelField>Categories</LabelField>
+
+                  <GridItem>
                     <MultiSelect
                       isMulti
                       closeMenuOnSelect={false}
@@ -519,22 +539,20 @@ export const DraftMarketModal: FC = () => {
                         control: (provided) => ({
                           ...provided,
                           ...selectStyles.control,
+                          backgroundColor: 'transparent',
+                          borderColor: 'var(--chakra-colors-grey-200)',
                         }),
                       }}
                     />
-                  </Box>
-                </HStack>
-              </FormField>
+                  </GridItem>
 
-              <FormField label='Tags'>
-                <HStack w={'full'}>
-                  <Box width='full'>
+                  <LabelField>Tags</LabelField>
+                  <GridItem>
                     <CreatableSelect
                       isMulti
                       closeMenuOnSelect={false}
                       onCreateOption={handleTagCreation}
-                      //@ts-ignore
-                      onChange={(option) => handleChange('tag', option)}
+                      onChange={(option: readonly SelectOption[]) => handleChange('tag', option)}
                       value={formData.tag}
                       options={tagOptions}
                       styles={{
@@ -554,154 +572,198 @@ export const DraftMarketModal: FC = () => {
                         control: (provided) => ({
                           ...provided,
                           ...selectStyles.control,
+                          backgroundColor: 'transparent',
+                          borderColor: 'var(--chakra-colors-grey-200)',
                         }),
                       }}
                     />
-                  </Box>
-                </HStack>
-              </FormField>
+                  </GridItem>
+                </Grid>
 
-              <FormField label='Deadline'>
-                <Box position='relative' w='full'>
-                  <HStack w='full' spacing={4} alignItems='flex-start'>
-                    <VStack w='full' alignItems='flex-start'>
-                      <Text fontSize='sm' fontWeight='medium'>
-                        UTC
-                      </Text>
-                      <Box w='full' h='40px'>
-                        <DatePicker
-                          id='utc-input'
-                          selected={formData.deadline ? new Date(formData.deadline) : null}
-                          onChange={(date: Date | null) => {
-                            if (date) {
-                              handleChange('deadline', date)
-                            }
-                          }}
-                          minDate={new Date()}
-                          showTimeSelect
-                          timeIntervals={60}
-                          dateFormat='Pp'
-                          calendarStartDay={1}
-                          popperPlacement='bottom-start'
-                          customInput={
-                            <Input
-                              cursor='pointer'
-                              backgroundColor='grey.100'
-                              color='grey.900'
-                              _hover={{ backgroundColor: 'grey.200' }}
-                              _focus={{ backgroundColor: 'gray.300', borderColor: 'gray.500' }}
-                              padding='8px'
-                              borderRadius='md'
-                              height='40px'
-                            />
+                <Box mt={6}>
+                  <Text {...paragraphRegular} mb={2}>
+                    Deadline
+                  </Text>
+                  <Grid templateColumns='minmax(120px, auto) 1fr' gap={4} w='full'>
+                    <LabelField>UTC</LabelField>
+                    <GridItem>
+                      <DatePicker
+                        id='utc-input'
+                        selected={formData.deadline ? new Date(formData.deadline) : null}
+                        onChange={(date: Date | null) => {
+                          if (date) {
+                            handleChange('deadline', date)
                           }
-                        />
-                      </Box>
-                    </VStack>
+                        }}
+                        minDate={new Date()}
+                        showTimeSelect
+                        timeIntervals={60}
+                        dateFormat='Pp'
+                        calendarStartDay={1}
+                        popperPlacement='bottom-start'
+                        customInput={
+                          <Input
+                            cursor='pointer'
+                            backgroundColor='transparent'
+                            color='grey.900'
+                            borderColor='grey.200'
+                            _hover={{ borderColor: 'grey.300' }}
+                            _focus={{ borderColor: 'grey.400' }}
+                            padding='8px'
+                            borderRadius='md'
+                            height='40px'
+                            width='100%'
+                          />
+                        }
+                      />
+                    </GridItem>
 
-                    <VStack w='full' alignItems='flex-start'>
-                      <Text fontSize='sm' fontWeight='medium'>
-                        ET (Eastern Time)
-                      </Text>
-                      <Box w='full' h='40px'>
-                        <DatePicker
-                          id='et-input'
-                          selected={toZonedTime(
-                            calculateZonedTime(formData.deadline, 'Gtm/utc'),
-                            'America/New_York'
-                          )}
-                          onChange={(date: Date | null) => {
-                            if (date) {
-                              const utcDate = fromZonedTime(
-                                calculateZonedTime(date, 'Europe/Belgrade'),
-                                'America/New_York'
-                              )
-                              handleChange('deadline', utcDate)
-                            }
-                          }}
-                          minDate={new Date()}
-                          showTimeSelect
-                          timeIntervals={60}
-                          dateFormat='Pp'
-                          calendarStartDay={1}
-                          popperPlacement='bottom-start'
-                          customInput={
-                            <Input
-                              cursor='pointer'
-                              backgroundColor='grey.100'
-                              color='grey.900'
-                              _hover={{ backgroundColor: 'grey.200' }}
-                              _focus={{ backgroundColor: 'gray.300', borderColor: 'gray.500' }}
-                              padding='8px'
-                              borderRadius='md'
-                              height='40px'
-                            />
+                    <LabelField>ET</LabelField>
+                    <GridItem>
+                      <DatePicker
+                        id='et-input'
+                        selected={toZonedTime(
+                          calculateZonedTime(formData.deadline, 'Gtm/utc'),
+                          'America/New_York'
+                        )}
+                        onChange={(date: Date | null) => {
+                          if (date) {
+                            const utcDate = fromZonedTime(
+                              calculateZonedTime(date, 'Europe/Belgrade'),
+                              'America/New_York'
+                            )
+                            handleChange('deadline', utcDate)
                           }
-                        />
-                      </Box>
-                    </VStack>
-                  </HStack>
+                        }}
+                        minDate={new Date()}
+                        showTimeSelect
+                        timeIntervals={60}
+                        dateFormat='Pp'
+                        calendarStartDay={1}
+                        popperPlacement='bottom-start'
+                        customInput={
+                          <Input
+                            cursor='pointer'
+                            backgroundColor='transparent'
+                            color='grey.900'
+                            borderColor='grey.200'
+                            _hover={{ borderColor: 'grey.300' }}
+                            _focus={{ borderColor: 'grey.400' }}
+                            padding='8px'
+                            borderRadius='md'
+                            height='40px'
+                            width='100%'
+                          />
+                        }
+                      />
+                    </GridItem>
 
-                  <Box mt={4} h='40px'>
-                    <TimezoneSelect
-                      value={formData.timezone}
-                      onChange={(timezone: ITimezoneOption) => {
-                        handleChange('timezone', timezone.value)
-                      }}
-                      styles={{
-                        option: (provided, state) => ({
-                          ...provided,
-                          backgroundColor: state.isFocused
-                            ? 'var(--chakra-colors-blue-50)'
-                            : 'var(--chakra-colors-grey-300)',
-                          color: state.isFocused
-                            ? 'var(--chakra-colors-blue-900)'
-                            : 'var(--chakra-colors-grey-900)',
-                        }),
-                        menu: (provided) => ({
-                          ...provided,
-                          ...selectStyles.menu,
-                        }),
-                        control: (provided) => ({
-                          ...provided,
-                          ...selectStyles.control,
-                          minHeight: '40px',
-                          height: '40px',
-                        }),
-                        singleValue: (provided) => ({
-                          ...provided,
-                          ...selectStyles.singleValue,
-                        }),
-                        container: (provided) => ({
-                          ...provided,
-                          height: '40px',
-                        }),
-                      }}
-                    />
-                  </Box>
+                    <LabelField>Timezone</LabelField>
+                    <GridItem>
+                      <TimezoneSelect
+                        value={formData.timezone}
+                        onChange={(timezone: ITimezoneOption) => {
+                          handleChange('timezone', timezone.value)
+                        }}
+                        styles={{
+                          option: (provided, state) => ({
+                            ...provided,
+                            backgroundColor: state.isFocused
+                              ? 'var(--chakra-colors-blue-50)'
+                              : 'var(--chakra-colors-grey-300)',
+                            color: state.isFocused
+                              ? 'var(--chakra-colors-blue-900)'
+                              : 'var(--chakra-colors-grey-900)',
+                          }),
+                          menu: (provided) => ({
+                            ...provided,
+                            ...selectStyles.menu,
+                          }),
+                          control: (provided) => ({
+                            ...provided,
+                            ...selectStyles.control,
+                            minHeight: '40px',
+                            height: '40px',
+                            backgroundColor: 'transparent',
+                            borderColor: 'var(--chakra-colors-grey-200)',
+                          }),
+                          singleValue: (provided) => ({
+                            ...provided,
+                            ...selectStyles.singleValue,
+                          }),
+                          container: (provided) => ({
+                            ...provided,
+                            height: '40px',
+                            width: '100%',
+                          }),
+                        }}
+                      />
+                    </GridItem>
+
+                    <LabelField>Is bannered</LabelField>
+                    <GridItem>
+                      <HStack gap='8px' alignItems='center'>
+                        <Box
+                          w='16px'
+                          h='16px'
+                          borderColor='grey.200'
+                          border='1px solid'
+                          borderRadius='2px'
+                          cursor='pointer'
+                          bg={formData.isBannered ? 'grey.800' : 'transparent'}
+                          onClick={() => {
+                            handleChange('isBannered', !formData.isBannered)
+                          }}
+                        />
+                        <Text {...paragraphRegular}>Add to banner</Text>
+                      </HStack>
+                    </GridItem>
+
+                    <LabelField>Priority index</LabelField>
+                    <GridItem>
+                      <AdjustableNumberInput
+                        hideLabel
+                        value={formData.priorityIndex}
+                        onChange={(value) => handleChange('priorityIndex', value)}
+                        min={1}
+                        max={1000}
+                        step={1}
+                        compact
+                        width='40px'
+                      />
+                    </GridItem>
+                  </Grid>
                 </Box>
-              </FormField>
-
-              <ButtonGroup spacing='6' mt={5} w='full'>
-                {isCreating ? (
-                  <Flex width='full' justifyContent='center' alignItems='center'>
-                    <Spinner />
-                  </Flex>
-                ) : (
-                  <Button
-                    colorScheme='green'
-                    w='full'
-                    height='52px'
-                    onClick={submit}
-                    isDisabled={isCreating}
-                  >
-                    {getButtonText()}
-                  </Button>
-                )}
-              </ButtonGroup>
+              </Box>
             </VStack>
           </HStack>
         </FormControl>
+        <Divider />
+        <HStack w='full' justifyContent='space-between'>
+          <Button height='32px' px='12px' variant='outlined' isDisabled={true}>
+            Review by AI
+          </Button>
+          <HStack>
+            <Button onClick={close} height='32px' px='12px' variant='outlined'>
+              Cancel
+            </Button>
+            <Button
+              height='32px'
+              px='12px'
+              variant='contained'
+              onClick={submit}
+              isDisabled={isCreating}
+            >
+              {isCreating ? (
+                <Flex width='full' justifyContent='center' alignItems='center'>
+                  <Loader />
+                </Flex>
+              ) : (
+                <Text>{getButtonText()}</Text>
+              )}
+            </Button>
+          </HStack>
+        </HStack>
       </VStack>
     </Flex>
   )

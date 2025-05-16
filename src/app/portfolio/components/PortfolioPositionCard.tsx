@@ -8,6 +8,7 @@ import ClaimButton from '@/components/common/markets/claim-button'
 import MarketCountdown from '@/components/common/markets/market-cards/market-countdown'
 import MarketPage from '@/components/common/markets/market-page'
 import Skeleton from '@/components/common/skeleton'
+import { ShareWinningButton } from './share-winning-button'
 import ActiveIcon from '@/resources/icons/active-icon.svg'
 import ArrowRightIcon from '@/resources/icons/arrow-right-icon.svg'
 import CalendarIcon from '@/resources/icons/calendar-icon.svg'
@@ -210,18 +211,28 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
                 showDays={false}
                 hideText
                 color={position?.market?.closed ? 'whiteAlpha.70' : 'grey.500'}
+                ended={position?.market?.closed || false}
               />
             </HStack>
             <HStack>
               {position.market?.closed && (
-                <ClaimButton
-                  conditionId={position.market.conditionId as Address}
-                  collateralAddress={position.market.collateralToken?.id as Address}
-                  marketAddress={position.market.id}
-                  marketType='amm'
-                  amountToClaim={position.outcomeTokenAmount as string}
-                  symbol={position.market.collateralToken?.symbol as string}
-                />
+                <VStack gap='8px' w='full'>
+                  {/*TODO: needs BE implementation for amm*/}
+                  {/* <ShareWinningButton */}
+                  {/*   amountToClaim={position.outcomeTokenAmount as string} */}
+                  {/*   symbol={position.market.collateralToken?.symbol as string} */}
+                  {/*   slug={position.market.slug ?? ''} */}
+                  {/*   width='full' */}
+                  {/* /> */}
+                  <ClaimButton
+                    conditionId={position.market.conditionId as Address}
+                    collateralAddress={position.market.collateralToken?.id as Address}
+                    marketAddress={position.market.id}
+                    marketType='amm'
+                    amountToClaim={position.outcomeTokenAmount as string}
+                    symbol={position.market.collateralToken?.symbol as string}
+                  />
+                </VStack>
               )}
             </HStack>
           </Stack>
@@ -283,14 +294,22 @@ const PortfolioPositionCard = ({ position, prices }: IPortfolioPositionCard) => 
 
           <HStack>
             {position.market?.closed ? (
-              <ClaimButton
-                conditionId={position.market.conditionId as Address}
-                collateralAddress={position.market.collateralToken?.id as Address}
-                marketAddress={position.market.id}
-                marketType='amm'
-                amountToClaim={position.outcomeTokenAmount as string}
-                symbol={position.market.collateralToken?.symbol as string}
-              />
+              <HStack gap='8px'>
+                {/*TODO: needs BE implementation for amm*/}
+                {/* <ShareWinningButton */}
+                {/*   amountToClaim={position.outcomeTokenAmount as string} */}
+                {/*   symbol={position.market.collateralToken?.symbol as string} */}
+                {/*   slug={position.market.slug ?? ''} */}
+                {/* /> */}
+                <ClaimButton
+                  conditionId={position.market.conditionId as Address}
+                  collateralAddress={position.market.collateralToken?.id as Address}
+                  marketAddress={position.market.id}
+                  marketType='amm'
+                  amountToClaim={position.outcomeTokenAmount as string}
+                  symbol={position.market.collateralToken?.symbol as string}
+                />
+              </HStack>
             ) : (
               <>
                 {!position || !prices ? (

@@ -87,6 +87,7 @@ export default function MyMarketCard({ market }: MyMarketCardProps) {
             deadlineText={formatMarketDeadline()}
             {...paragraphRegular}
             color='grey.500'
+            ended={market.status === MarketStatus.RESOLVED}
           />
           <HStack gap='4px'>
             <Box w='6px' h='6px' bg={statusColor} borderRadius='100%' />

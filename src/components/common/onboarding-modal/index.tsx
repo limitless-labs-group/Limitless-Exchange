@@ -5,7 +5,7 @@ import { OnboardingList } from './onboarding-list'
 import { onboardingStepsAtom, onboardModalAtom } from '@/atoms/onboard'
 import { usePointsActions } from '@/hooks/use-onboarding-points'
 import RoundCheckIcon from '@/resources/icons/round-check-icon.svg'
-import { useAccount } from '@/services'
+import { ChangeEvent, useAccount, useAmplitude } from '@/services'
 import { CircularProgress } from '../circle-progress'
 
 export const OnboardingModal = () => {
@@ -13,13 +13,14 @@ export const OnboardingModal = () => {
   const [steps, setSteps] = useAtom(onboardingStepsAtom)
   const { data: points } = usePointsActions()
   const { updateOnboardingStatus } = useAccount()
+  const { trackChanged } = useAmplitude()
 
   useEffect(() => {
     if (points) {
       setSteps((prevSteps) =>
         prevSteps.map((step) => ({
           ...step,
-          isChecked: points[step.id] || false,
+          isChecked: points[step.id] ?? false,
         }))
       )
     }
@@ -32,6 +33,7 @@ export const OnboardingModal = () => {
   const finish = async () => {
     await updateOnboardingStatus.mutateAsync(true)
     setIsMenuOpen(false)
+    trackChanged(ChangeEvent.FinishedOnboarding)
   }
 
   return (
@@ -54,7 +56,10 @@ export const OnboardingModal = () => {
         p='12px'
         display='flex'
         flexDirection='column'
-        bg={isFinished ? 'green.500' : 'grey.100'}
+        border='1px solid'
+        borderRadius='8px'
+        borderColor={isFinished ? 'green.500' : 'grey.100'}
+        bg={isFinished ? 'green.500' : 'grey.50'}
       >
         <OnboardingList isFinished={isFinished} onFinish={finish} />
       </MenuList>

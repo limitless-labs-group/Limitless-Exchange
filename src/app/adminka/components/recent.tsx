@@ -1,11 +1,12 @@
 'use client'
 
-import { Box, Button, Flex, Spinner, Text, VStack } from '@chakra-ui/react'
+import { Box, Flex, Spinner, Text, VStack } from '@chakra-ui/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import Loader from '@/components/common/loader'
 import { Toast } from '@/components/common/toast'
+import { AdminActionButton } from './atoms/action-button'
 import { AdminMarketCard } from './market-card'
 import { useToast } from '@/hooks/ui/useToast'
 import { useUrlParams } from '@/hooks/use-url-param'
@@ -39,7 +40,7 @@ export const AdminRecentMarkets = () => {
     })
   }
 
-  const duplicateMarkets = () => {
+  const duplicateMarkets = async () => {
     setIsCreating(true)
     privateClient
       .post(`/markets/drafts/duplicate`, {
@@ -88,11 +89,11 @@ export const AdminRecentMarkets = () => {
         ) : null}
 
         {selectedMarkets.length > 0 ? (
-          <Box style={{ width: '100%', maxWidth: '868px', position: 'fixed', bottom: 20 }}>
-            <Button colorScheme='green' mt='16px' w={'full'} onClick={duplicateMarkets}>
-              Duplicate Markets to Draft
-            </Button>
-          </Box>
+          <AdminActionButton
+            selectedMarkets={selectedMarkets}
+            duplicateAction={duplicateMarkets}
+            isLoading={isCreating}
+          />
         ) : null}
       </VStack>
     </Flex>

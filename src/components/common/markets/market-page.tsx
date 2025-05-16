@@ -6,7 +6,6 @@ import {
   Image as ChakraImage,
   Link,
   Tab,
-  TabIndicator,
   TabList,
   TabPanel,
   TabPanels,
@@ -31,7 +30,6 @@ import TradingWidgetSimple from '@/components/common/markets/trading-widgets/tra
 import WinnerTakeAllTooltip from '@/components/common/markets/winner-take-all-tooltip'
 import SideBarPage from '@/components/common/side-bar-page'
 import Skeleton from '@/components/common/skeleton'
-import { MarketPriceChart } from '@/app/(markets)/markets/[address]/components'
 import ClobPositions from '@/app/(markets)/markets/[address]/components/clob/clob-positions'
 import Orderbook from '@/app/(markets)/markets/[address]/components/clob/orderbook'
 import GroupMarketsSection from '@/app/(markets)/markets/[address]/components/group-markets-section'
@@ -39,6 +37,7 @@ import { PriceChartContainer } from '@/app/(markets)/markets/[address]/component
 import { LUMY_TOKENS } from '@/app/draft/components'
 import CommentTab from './comment-tab'
 import { MarketProgressBar } from './market-cards/market-progress-bar'
+import { TopHoldersTab } from './top-holders'
 import { UniqueTraders } from './unique-traders'
 import usePageName from '@/hooks/use-page-name'
 import { useUrlParams } from '@/hooks/use-url-param'
@@ -50,6 +49,7 @@ import LineChartIcon from '@/resources/icons/line-chart-icon.svg'
 import OpinionIcon from '@/resources/icons/opinion-icon.svg'
 import OrderbookIcon from '@/resources/icons/orderbook.svg'
 import ResolutionIcon from '@/resources/icons/resolution-icon.svg'
+import TopHolders from '@/resources/icons/top-holders-icon.svg'
 import VolumeIcon from '@/resources/icons/volume-icon.svg'
 import {
   ChangeEvent,
@@ -61,6 +61,7 @@ import {
 } from '@/services'
 import { useMarket } from '@/services/MarketsService'
 import { h2Bold, h2Medium, paragraphRegular } from '@/styles/fonts/fonts.styles'
+import { MarketStatus } from '@/types'
 import { NumberUtil } from '@/utils'
 import { ReferralLink } from '../referral-link'
 
@@ -79,6 +80,7 @@ export default function MarketPage() {
   } = useTradingService()
 
   const { updateParams } = useUrlParams()
+  const pageName = usePageName()
 
   const { trackClicked, trackOpened, trackChanged } = useAmplitude()
 
@@ -134,8 +136,15 @@ export default function MarketPage() {
   }, [isLivePriceSupportedMarket, market?.tradeType])
 
   const priceChart = useMemo(() => {
-    return <MarketPriceChart key={uuidv4()} />
-  }, [])
+    return (
+      <PriceChartContainer
+        key={uuidv4()}
+        slug={market?.slug}
+        marketType={market?.marketType}
+        ended={market?.status === MarketStatus.RESOLVED || false}
+      />
+    )
+  }, [market?.slug])
 
   const chartsTabPanels = useMemo(() => {
     const tabPanels = [priceChart]
@@ -153,28 +162,45 @@ export default function MarketPage() {
     return tabPanels
   }, [isLivePriceSupportedMarket, market?.title, market?.tradeType])
 
-  const tabs = [
-    {
-      title: 'Resolution',
-      icon: <ResolutionIcon width={16} height={16} />,
-    },
-    {
-      title: 'Activity',
-      icon: <ActivityIcon width={16} height={16} />,
-    },
-    {
-      title: 'Opinions',
-      icon: <OpinionIcon width={16} height={16} />,
-    },
-  ]
+  const tabs = useMemo(() => {
+    const tabsArray = [
+      {
+        title: 'Resolution',
+        icon: <ResolutionIcon width={16} height={16} />,
+      },
+      {
+        title: 'Activity',
+        icon: <ActivityIcon width={16} height={16} />,
+      },
+      {
+        title: 'Opinions',
+        icon: <OpinionIcon width={16} height={16} />,
+      },
+    ]
+
+    if (market?.tradeType !== 'amm') {
+      tabsArray.push({
+        title: 'Top Holders',
+        icon: <TopHolders width={16} height={16} />,
+      })
+    }
+
+    return tabsArray
+  }, [market?.tradeType])
 
   const tabPanels = useMemo(() => {
-    return [
+    const panels = [
       <MarketPageOverviewTab key={uuidv4()} />,
       <MarketActivityTab key={uuidv4()} isActive={activeActionsTabIndex === 1} />,
       <CommentTab key={uuidv4()} />,
     ]
-  }, [activeActionsTabIndex])
+
+    if (market?.tradeType !== 'amm') {
+      panels.push(<TopHoldersTab key={uuidv4()} />)
+    }
+
+    return panels
+  }, [activeActionsTabIndex, market?.tradeType])
 
   const handleCloseMarketPageClicked = () => {
     setMarket(null)
@@ -219,7 +245,11 @@ export default function MarketPage() {
   const chart = useMemo(() => {
     return groupMarket?.negRiskMarketId ? (
       <Box mb='24px'>
-        <PriceChartContainer />
+        <PriceChartContainer
+          slug={groupMarket.slug}
+          marketType='group'
+          ended={market?.status === MarketStatus.RESOLVED || false}
+        />
       </Box>
     ) : null
   }, [groupMarket?.negRiskMarketId])
@@ -244,7 +274,7 @@ export default function MarketPage() {
   useEffect(() => {
     setActiveActionsTabIndex(0)
     setActiveChartTabIndex(0)
-  }, [market])
+  }, [market?.slug, market?.tradeType])
 
   return (
     <SideBarPage>
@@ -278,6 +308,7 @@ export default function MarketPage() {
             deadlineText={market.expirationDate}
             {...paragraphRegular}
             color='grey.500'
+            ended={market.status === MarketStatus.RESOLVED}
           />
         )}
         <HStack gap='6px' flexWrap='wrap'>
@@ -379,25 +410,39 @@ export default function MarketPage() {
           onChange={(index) => setActiveChartTabIndex(index)}
           index={activeChartTabIndex}
         >
-          <TabList>
-            {chartTabs.map((tab) => (
-              <Tab key={tab.title} onClick={() => handleChartTabClicked(tab.title)}>
-                <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
-                  {tab.icon}
-                  <>{tab.title}</>
-                </HStack>
-              </Tab>
-            ))}
-          </TabList>
-          <TabIndicator
-            mt='-2px'
-            height='2px'
-            bg='grey.800'
-            transitionDuration='200ms !important'
-          />
+          <Box
+            overflowX='auto'
+            css={{
+              '&::-webkit-scrollbar': {
+                display: 'none',
+              },
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+            }}
+          >
+            <TabList whiteSpace='nowrap' width='max-content' minWidth='100%'>
+              {chartTabs.map((tab, index) => (
+                <Tab
+                  key={tab.title}
+                  onClick={() => handleChartTabClicked(tab.title)}
+                  borderBottom={
+                    activeChartTabIndex === index ? '2px solid black' : '2px solid transparent'
+                  }
+                  _selected={{ borderBottom: '2px solid black' }}
+                >
+                  <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
+                    {tab.icon}
+                    <>{tab.title}</>
+                  </HStack>
+                </Tab>
+              ))}
+            </TabList>
+          </Box>
           <TabPanels>
             {chartsTabPanels.map((panel, index) => (
-              <TabPanel key={index}>{panel}</TabPanel>
+              <TabPanel key={index} px='0'>
+                {panel}
+              </TabPanel>
             ))}
           </TabPanels>
         </Tabs>
@@ -415,23 +460,46 @@ export default function MarketPage() {
       <Tabs
         position='relative'
         variant='common'
-        onChange={(index) => setActiveActionsTabIndex(index)}
+        onChange={(index) => {
+          trackClicked(ClickEvent.TopHoldersTabClicked, {
+            page: pageName,
+          })
+          setActiveActionsTabIndex(index)
+        }}
         index={activeActionsTabIndex}
       >
-        <TabList>
-          {tabs.map((tab) => (
-            <Tab key={tab.title}>
-              <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
-                {tab.icon}
-                <>{tab.title}</>
-              </HStack>
-            </Tab>
-          ))}
-        </TabList>
-        <TabIndicator mt='-2px' height='2px' bg='grey.800' transitionDuration='200ms !important' />
+        <Box
+          overflowX='auto'
+          css={{
+            '&::-webkit-scrollbar': {
+              display: 'none',
+            },
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+          }}
+        >
+          <TabList whiteSpace='nowrap' width='max-content' minWidth='100%'>
+            {tabs.map((tab, index) => (
+              <Tab
+                key={tab.title}
+                borderBottom={
+                  activeActionsTabIndex === index ? '2px solid black' : '2px solid transparent'
+                }
+                _selected={{ borderBottom: '2px solid black' }}
+              >
+                <HStack gap={isMobile ? '8px' : '4px'} w='fit-content'>
+                  {tab.icon}
+                  <>{tab.title}</>
+                </HStack>
+              </Tab>
+            ))}
+          </TabList>
+        </Box>
         <TabPanels>
           {tabPanels.map((panel, index) => (
-            <TabPanel key={index}>{panel}</TabPanel>
+            <TabPanel key={index} px='0'>
+              {panel}
+            </TabPanel>
           ))}
         </TabPanels>
       </Tabs>

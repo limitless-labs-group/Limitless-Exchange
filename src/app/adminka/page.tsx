@@ -131,13 +131,13 @@ export default function AdminPage() {
 
       <Box flex='1' pl='250px'>
         <HStack justifyContent='space-between'>
-          <Text>Drafts</Text>
+          <Text>{tabs[activeIndex].title}</Text>
           <Button size='sm' variant='white' onClick={onCreateToggle}>
             <PlusIcon />
             <Text>Create market</Text>
           </Button>
         </HStack>
-        <Modal isOpen={isCreateOpen} onClose={onCreateToggle} maxW='1080px' minH='700px'>
+        <Modal isOpen={isCreateOpen} onClose={onCreateToggle} maxW='1080px' minH='700px' bg='mono'>
           <DraftMarketModal />
         </Modal>
         <Box minH='800px'>

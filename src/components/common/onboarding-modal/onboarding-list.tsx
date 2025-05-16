@@ -58,10 +58,10 @@ export const OnboardingList = ({ isFinished, onFinish, mobile }: OnboardingListP
       borderRadius={mobile ? '8px' : 'unset'}
     >
       <Text {...headlineBold} color='white'>
-        {`🎉 You are all set!`}
+        {` 🎉 You're all set!`}
       </Text>
       <Text {...paragraphRegular} color='white'>
-        {`You have completed onboarding and earned +5 points.`}
+        {`You've completed onboarding and earned +10 points.`}
       </Text>
       <Text {...paragraphRegular} color='white'>
         Keep exploring to sharpen your forecasting skills—and invite others to join too!
@@ -74,6 +74,10 @@ export const OnboardingList = ({ isFinished, onFinish, mobile }: OnboardingListP
           borderColor='white'
           color='black'
           onClick={onFinish}
+          _hover={{
+            bg: '#E5E7EB',
+            borderColor: '#E5E7EB',
+          }}
         >
           <Text {...paragraphMedium} color='black'>
             Finish onboarding
@@ -87,6 +91,10 @@ export const OnboardingList = ({ isFinished, onFinish, mobile }: OnboardingListP
           borderColor='white'
           color='black'
           onClick={onRefLinkCopy}
+          _hover={{
+            bg: '#E5E7EB',
+            borderColor: '#E5E7EB',
+          }}
         >
           <CopyIcon width='16px' height='16px' cursor='pointer' />
           {hasCopied ? (
@@ -102,11 +110,11 @@ export const OnboardingList = ({ isFinished, onFinish, mobile }: OnboardingListP
       </HStack>
     </Stack>
   ) : (
-    <Stack p={mobile ? '8px 12px' : '0px'}>
+    <Stack p={mobile ? '8px 12px' : '0px'} borderColor='grey.100'>
       <Stack>
         <HStack alignItems='start'>
           <Stack>
-            <Text {...paragraphBold}>Get started and earn points</Text>
+            <Text {...headlineBold}>Get started and earn points</Text>
             <Text {...paragraphRegular}>
               Complete these simple steps to unlock rewards for you and your inviter
             </Text>
@@ -129,7 +137,6 @@ export const OnboardingList = ({ isFinished, onFinish, mobile }: OnboardingListP
             />
           )
         })}
-        <OnboardRow title='Finish onboarding and get +5 points' />
       </Stack>
     </Stack>
   )

@@ -5,12 +5,12 @@ import { Profile } from './profiles'
 
 export type { Hash, Address }
 
-// TRADE_VOLUME: true - 2nd step
-// REFERRAL_ONBOARD: true - 3rd step
 export enum PointsActionType {
   ENROLL_IN_PROGRAM = 'ENROLL_IN_PROGRAM',
   TRADE_VOLUME = 'TRADE_VOLUME',
   REFERRAL_ONBOARD = 'REFERRAL_ONBOARD',
+  HAS_TRADED = 'HAS_TRADED',
+  HOLDING_TILL_RESOLVED = 'HOLDING_TILL_RESOLVED',
 }
 
 export type Token = {
@@ -27,6 +27,13 @@ export type Category = {
   id: number
   name: string
   priority?: number | null
+}
+
+export interface CategoryCountResponse {
+  category: {
+    [key: string]: number
+  }
+  totalCount: number
 }
 
 export type Dashboard = 'marketwatch'
@@ -305,6 +312,7 @@ export type OddsData = {
 export interface ColorScheme {
   white: string
   black: string
+  mono: string
   grey: {
     50: string
     100: string
@@ -454,6 +462,7 @@ export interface ColorScheme {
     50: string
     30: string
     20: string
+    10: string
   }
   blackAlpha: {
     70: string
@@ -558,4 +567,12 @@ export interface MarketRewardsResponse {
   totalUnpaidReward: string
   unpaidRecords: string
   userId: string
+}
+
+export interface PriceHistory {
+  title: string
+  prices: {
+    timestamp: number
+    price: number
+  }[]
 }

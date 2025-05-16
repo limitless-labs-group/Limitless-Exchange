@@ -38,7 +38,7 @@ export const OnboardRow = ({
           <HStack justifyContent='space-between'>
             <Text
               {...paragraphMedium}
-              color={!!isChecked ? 'grey.500' : undefined}
+              color={isChecked ? 'grey.500' : undefined}
               textDecoration={!!isChecked ? 'line-through' : undefined}
               pl={!withCheckbox ? '23px' : 0}
             >
