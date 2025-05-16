@@ -16,6 +16,8 @@ import {
   Text,
   FormLabel,
   Divider,
+  Grid,
+  GridItem,
 } from '@chakra-ui/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
@@ -58,6 +60,14 @@ import { useAxiosPrivateClient } from '@/services/AxiosPrivateClient'
 import { useMarket } from '@/services/MarketsService'
 import { headline, paragraphBold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 import { Token, SelectOption, DraftCreator, DraftMarketType } from '@/types/draft'
+
+const LabelField: FC<{ children: React.ReactNode }> = ({ children }) => (
+  <GridItem alignSelf='center'>
+    <FormLabel mb={0}>
+      <Text {...paragraphRegular}>{children}</Text>
+    </FormLabel>
+  </GridItem>
+)
 
 export const DraftMarketModal: FC = () => {
   const [formData, setFormData] = useAtom(formDataAtom)
@@ -311,7 +321,7 @@ export const DraftMarketModal: FC = () => {
             w='full'
             maxW='1200px'
             mx='auto'
-            gap={10}
+            gap={4}
             justifyContent='space-between'
             alignItems='stretch'
             minH='800px'
@@ -377,281 +387,280 @@ export const DraftMarketModal: FC = () => {
               <Flex alignItems='start' w='full' mb='24px'>
                 <Text {...headline}> Attributes</Text>
               </Flex>
-              {!activeMarketId ? (
-                <HStack w='full' alignItems='center' spacing={4}>
-                  <FormLabel mb={0} minW='80px'>
-                    <Text>Creator</Text>
-                  </FormLabel>
-                  <Box flex={1}>
-                    <Select
-                      value={formData.creatorId}
-                      onChange={(e) => handleChange('creatorId', e.target.value)}
-                      backgroundColor='transparent'
-                      borderColor='grey.200'
-                    >
-                      {creators?.map((creator: DraftCreator) => (
-                        <option key={creator.id} value={creator.id}>
-                          {creator?.name ?? ''}
-                        </option>
-                      ))}
-                    </Select>
-                  </Box>
-                </HStack>
-              ) : null}
 
-              {!activeMarketId && isAmm ? (
-                <HStack w='full' alignItems='center' spacing={4}>
-                  <FormLabel mb={0} minW='80px'>
-                    <Text>Token</Text>
-                  </FormLabel>
-                  <Box flex={1}>
-                    <Select
-                      value={formData.token.id}
-                      onChange={handleTokenSelect}
-                      backgroundColor='transparent'
-                      borderColor='grey.200'
-                    >
-                      {supportedTokens?.map((token: Token) => (
-                        <option key={token.id} value={token.id} data-name={token.symbol}>
-                          {token.symbol}
-                        </option>
-                      ))}
-                    </Select>
-                  </Box>
-                </HStack>
-              ) : null}
+              <Box w='full'>
+                <Grid templateColumns='minmax(120px, auto) 1fr' gap={4} w='full'>
+                  {!activeMarketId && (
+                    <>
+                      <LabelField>Creator</LabelField>
+                      <GridItem>
+                        <Select
+                          value={formData.creatorId}
+                          onChange={(e) => handleChange('creatorId', e.target.value)}
+                          backgroundColor='transparent'
+                          borderColor='grey.200'
+                        >
+                          {creators?.map((creator: DraftCreator) => (
+                            <option key={creator.id} value={creator.id}>
+                              {creator?.name ?? ''}
+                            </option>
+                          ))}
+                        </Select>
+                      </GridItem>
+                    </>
+                  )}
 
-              {isClob ? (
-                <VStack w='full' alignItems='start' spacing={6}>
-                  <AdjustableNumberInput
-                    label='Min size'
-                    value={formData.minSize}
-                    onChange={(value) => handleChange('minSize', value)}
-                    min={0}
-                    max={1000}
-                    step={1}
-                  />
-                  <AdjustableNumberInput
-                    label='Max spread'
-                    value={formData.maxSpread}
-                    onChange={(value) => handleChange('maxSpread', value)}
-                    min={0}
-                    max={99}
-                    step={0.1}
-                  />
-                  <VStack w='full'>
-                    <AdjustableNumberInput
-                      label='C'
-                      value={formData.c}
-                      onChange={(value) => handleChange('c', value)}
-                      min={0}
-                      max={1000}
-                      step={1}
-                    />
+                  {!activeMarketId && isAmm && (
+                    <>
+                      <LabelField>Token</LabelField>
+                      <GridItem>
+                        <Select
+                          value={formData.token.id}
+                          onChange={handleTokenSelect}
+                          backgroundColor='transparent'
+                          borderColor='grey.200'
+                        >
+                          {supportedTokens?.map((token: Token) => (
+                            <option key={token.id} value={token.id} data-name={token.symbol}>
+                              {token.symbol}
+                            </option>
+                          ))}
+                        </Select>
+                      </GridItem>
+                    </>
+                  )}
 
-                    <AdjustableNumberInput
-                      label='Rewards'
-                      value={Number(epochToDailyRewards(formData.rewardsEpoch ?? 0))}
-                      onChange={(value) => handleChange('rewardsEpoch', dailyToEpochRewards(value))}
-                      min={0}
-                      max={1000}
-                      step={0.1}
-                      prefix='US$'
-                      // additionalInfo={
-                      //   <HStack>
-                      //     <Text {...paragraphBold}>Per Epoch:</Text>
-                      //     <Text>
-                      //       {formData.rewardsEpoch ? Number(formData?.rewardsEpoch).toFixed(5) : ''}
-                      //     </Text>
-                      //   </HStack>
-                      // }
-                    />
-                  </VStack>
-                </VStack>
-              ) : null}
-
-              {isAmm && !activeMarketId ? (
-                <>
-                  <AdjustableNumberInput
-                    label={`${formData.token.symbol} Liquidity`}
-                    value={formData.liquidity}
-                    onChange={(value) => handleChange('liquidity', value)}
-                    min={tokenLimits[formData.token.symbol]?.min}
-                    max={tokenLimits[formData.token.symbol]?.max}
-                    step={tokenLimits[formData.token.symbol]?.step}
-                  />
-
-                  <AdjustableNumberInput
-                    label='Starting YES Probability'
-                    value={formData.probability}
-                    onChange={(value) => handleChange('probability', value)}
-                    min={1}
-                    max={99}
-                    step={1}
-                  />
-                </>
-              ) : null}
-
-              <HStack w='full' alignItems='center' spacing={4} mt={2}>
-                <FormLabel mb={0} minW='80px'>
-                  <Text>Categories</Text>
-                </FormLabel>
-                <Box flex={1}>
-                  <MultiSelect
-                    isMulti
-                    closeMenuOnSelect={false}
-                    onChange={(option) => handleChange('categories', option)}
-                    value={formData.categories}
-                    options={categoriesOptions}
-                    styles={{
-                      option: (provided, state) => ({
-                        ...provided,
-                        backgroundColor: state.isFocused
-                          ? 'var(--chakra-colors-blue-50)'
-                          : 'var(--chakra-colors-grey-300)',
-                        color: state.isFocused
-                          ? 'var(--chakra-colors-blue-900)'
-                          : 'var(--chakra-colors-grey-900)',
-                      }),
-                      menu: (provided) => ({
-                        ...provided,
-                        ...selectStyles.menu,
-                      }),
-                      control: (provided) => ({
-                        ...provided,
-                        ...selectStyles.control,
-                        backgroundColor: 'transparent',
-                        borderColor: 'var(--chakra-colors-grey-200)',
-                      }),
-                    }}
-                  />
-                </Box>
-              </HStack>
-
-              <HStack w='full' alignItems='center' spacing={4} mt={2}>
-                <FormLabel mb={0} minW='80px'>
-                  <Text>Tags</Text>
-                </FormLabel>
-                <Box flex={1}>
-                  <CreatableSelect
-                    isMulti
-                    closeMenuOnSelect={false}
-                    onCreateOption={handleTagCreation}
-                    //@ts-ignore
-                    onChange={(option) => handleChange('tag', option)}
-                    value={formData.tag}
-                    options={tagOptions}
-                    styles={{
-                      option: (provided, state) => ({
-                        ...provided,
-                        backgroundColor: state.isFocused
-                          ? 'var(--chakra-colors-blue-50)'
-                          : 'var(--chakra-colors-grey-300)',
-                        color: state.isFocused
-                          ? 'var(--chakra-colors-blue-900)'
-                          : 'var(--chakra-colors-grey-900)',
-                      }),
-                      menu: (provided) => ({
-                        ...provided,
-                        ...selectStyles.menu,
-                      }),
-                      control: (provided) => ({
-                        ...provided,
-                        ...selectStyles.control,
-                      }),
-                    }}
-                  />
-                </Box>
-              </HStack>
-
-              <FormField label='Deadline'>
-                <Box position='relative' w='full'>
-                  <VStack w='full' spacing={4} alignItems='flex-start'>
-                    <HStack w='full' alignItems='center' spacing={4}>
-                      <FormLabel mb={0} minW='80px'>
-                        <Text>UTC</Text>
-                      </FormLabel>
-                      <Flex flex={1} h='40px' justifyContent='end'>
-                        <DatePicker
-                          id='utc-input'
-                          selected={formData.deadline ? new Date(formData.deadline) : null}
-                          onChange={(date: Date | null) => {
-                            if (date) {
-                              handleChange('deadline', date)
-                            }
-                          }}
-                          minDate={new Date()}
-                          showTimeSelect
-                          timeIntervals={60}
-                          dateFormat='Pp'
-                          calendarStartDay={1}
-                          popperPlacement='bottom-start'
-                          customInput={
-                            <Input
-                              cursor='pointer'
-                              backgroundColor='transparent'
-                              color='grey.900'
-                              borderColor='grey.200'
-                              _hover={{ borderColor: 'grey.300' }}
-                              _focus={{ borderColor: 'grey.400' }}
-                              padding='8px'
-                              borderRadius='md'
-                              height='40px'
-                            />
-                          }
+                  {isClob && (
+                    <>
+                      <LabelField>Min size</LabelField>
+                      <GridItem>
+                        <AdjustableNumberInput
+                          hideLabel
+                          value={formData.minSize}
+                          onChange={(value) => handleChange('minSize', value)}
+                          min={0}
+                          max={1000}
+                          step={1}
                         />
-                      </Flex>
-                    </HStack>
+                      </GridItem>
 
-                    <HStack w='full' alignItems='center' spacing={4}>
-                      <FormLabel mb={0} minW='80px'>
-                        <Text>ET</Text>
-                      </FormLabel>
-                      <Flex flex={1} h='40px' justifyContent='end'>
-                        <DatePicker
-                          id='et-input'
-                          selected={toZonedTime(
-                            calculateZonedTime(formData.deadline, 'Gtm/utc'),
-                            'America/New_York'
-                          )}
-                          onChange={(date: Date | null) => {
-                            if (date) {
-                              const utcDate = fromZonedTime(
-                                calculateZonedTime(date, 'Europe/Belgrade'),
-                                'America/New_York'
-                              )
-                              handleChange('deadline', utcDate)
-                            }
-                          }}
-                          minDate={new Date()}
-                          showTimeSelect
-                          timeIntervals={60}
-                          dateFormat='Pp'
-                          calendarStartDay={1}
-                          popperPlacement='bottom-start'
-                          customInput={
-                            <Input
-                              cursor='pointer'
-                              backgroundColor='transparent'
-                              color='grey.900'
-                              borderColor='grey.200'
-                              _hover={{ borderColor: 'grey.300' }}
-                              _focus={{ borderColor: 'grey.400' }}
-                              padding='8px'
-                              borderRadius='md'
-                              height='40px'
-                            />
-                          }
+                      <LabelField>Max spread</LabelField>
+                      <GridItem>
+                        <AdjustableNumberInput
+                          hideLabel
+                          value={formData.maxSpread}
+                          onChange={(value) => handleChange('maxSpread', value)}
+                          min={0}
+                          max={99}
+                          step={0.1}
                         />
-                      </Flex>
-                    </HStack>
-                  </VStack>
+                      </GridItem>
 
-                  <HStack w='full' alignItems='center' spacing={4} mt={4}>
-                    <FormLabel mb={0} minW='80px'>
-                      <Text>Timezone</Text>
-                    </FormLabel>
-                    <Flex flex={1} h='40px' justifyContent='end'>
+                      <LabelField>C</LabelField>
+                      <GridItem>
+                        <AdjustableNumberInput
+                          hideLabel
+                          value={formData.c}
+                          onChange={(value) => handleChange('c', value)}
+                          min={0}
+                          max={1000}
+                          step={1}
+                        />
+                      </GridItem>
+
+                      <LabelField>Rewards</LabelField>
+                      <GridItem>
+                        <AdjustableNumberInput
+                          hideLabel
+                          value={Number(epochToDailyRewards(formData.rewardsEpoch ?? 0))}
+                          onChange={(value) =>
+                            handleChange('rewardsEpoch', dailyToEpochRewards(value))
+                          }
+                          min={0}
+                          max={1000}
+                          step={0.1}
+                          prefix='US$'
+                        />
+                      </GridItem>
+                    </>
+                  )}
+
+                  {isAmm && !activeMarketId && (
+                    <>
+                      <LabelField>{`${formData.token.symbol} Liquidity`}</LabelField>
+                      <GridItem>
+                        <AdjustableNumberInput
+                          hideLabel
+                          value={formData.liquidity}
+                          onChange={(value) => handleChange('liquidity', value)}
+                          min={tokenLimits[formData.token.symbol]?.min}
+                          max={tokenLimits[formData.token.symbol]?.max}
+                          step={tokenLimits[formData.token.symbol]?.step}
+                        />
+                      </GridItem>
+
+                      <LabelField>Starting YES Probability</LabelField>
+                      <GridItem>
+                        <AdjustableNumberInput
+                          hideLabel
+                          value={formData.probability}
+                          onChange={(value) => handleChange('probability', value)}
+                          min={1}
+                          max={99}
+                          step={1}
+                        />
+                      </GridItem>
+                    </>
+                  )}
+
+                  <LabelField>Categories</LabelField>
+
+                  <GridItem>
+                    <MultiSelect
+                      isMulti
+                      closeMenuOnSelect={false}
+                      onChange={(option) => handleChange('categories', option)}
+                      value={formData.categories}
+                      options={categoriesOptions}
+                      styles={{
+                        option: (provided, state) => ({
+                          ...provided,
+                          backgroundColor: state.isFocused
+                            ? 'var(--chakra-colors-blue-50)'
+                            : 'var(--chakra-colors-grey-300)',
+                          color: state.isFocused
+                            ? 'var(--chakra-colors-blue-900)'
+                            : 'var(--chakra-colors-grey-900)',
+                        }),
+                        menu: (provided) => ({
+                          ...provided,
+                          ...selectStyles.menu,
+                        }),
+                        control: (provided) => ({
+                          ...provided,
+                          ...selectStyles.control,
+                          backgroundColor: 'transparent',
+                          borderColor: 'var(--chakra-colors-grey-200)',
+                        }),
+                      }}
+                    />
+                  </GridItem>
+
+                  <LabelField>Tags</LabelField>
+                  <GridItem>
+                    <CreatableSelect
+                      isMulti
+                      closeMenuOnSelect={false}
+                      onCreateOption={handleTagCreation}
+                      //@ts-ignore
+                      onChange={(option) => handleChange('tag', option)}
+                      value={formData.tag}
+                      options={tagOptions}
+                      styles={{
+                        option: (provided, state) => ({
+                          ...provided,
+                          backgroundColor: state.isFocused
+                            ? 'var(--chakra-colors-blue-50)'
+                            : 'var(--chakra-colors-grey-300)',
+                          color: state.isFocused
+                            ? 'var(--chakra-colors-blue-900)'
+                            : 'var(--chakra-colors-grey-900)',
+                        }),
+                        menu: (provided) => ({
+                          ...provided,
+                          ...selectStyles.menu,
+                        }),
+                        control: (provided) => ({
+                          ...provided,
+                          ...selectStyles.control,
+                          backgroundColor: 'transparent',
+                          borderColor: 'var(--chakra-colors-grey-200)',
+                        }),
+                      }}
+                    />
+                  </GridItem>
+                </Grid>
+
+                <Box mt={6}>
+                  <Text {...paragraphRegular} mb={2}>
+                    Deadline
+                  </Text>
+                  <Grid templateColumns='minmax(120px, auto) 1fr' gap={4} w='full'>
+                    <LabelField>UTC</LabelField>
+                    <GridItem>
+                      <DatePicker
+                        id='utc-input'
+                        selected={formData.deadline ? new Date(formData.deadline) : null}
+                        onChange={(date: Date | null) => {
+                          if (date) {
+                            handleChange('deadline', date)
+                          }
+                        }}
+                        minDate={new Date()}
+                        showTimeSelect
+                        timeIntervals={60}
+                        dateFormat='Pp'
+                        calendarStartDay={1}
+                        popperPlacement='bottom-start'
+                        customInput={
+                          <Input
+                            cursor='pointer'
+                            backgroundColor='transparent'
+                            color='grey.900'
+                            borderColor='grey.200'
+                            _hover={{ borderColor: 'grey.300' }}
+                            _focus={{ borderColor: 'grey.400' }}
+                            padding='8px'
+                            borderRadius='md'
+                            height='40px'
+                            width='100%'
+                          />
+                        }
+                      />
+                    </GridItem>
+
+                    <LabelField>ET</LabelField>
+                    <GridItem>
+                      <DatePicker
+                        id='et-input'
+                        selected={toZonedTime(
+                          calculateZonedTime(formData.deadline, 'Gtm/utc'),
+                          'America/New_York'
+                        )}
+                        onChange={(date: Date | null) => {
+                          if (date) {
+                            const utcDate = fromZonedTime(
+                              calculateZonedTime(date, 'Europe/Belgrade'),
+                              'America/New_York'
+                            )
+                            handleChange('deadline', utcDate)
+                          }
+                        }}
+                        minDate={new Date()}
+                        showTimeSelect
+                        timeIntervals={60}
+                        dateFormat='Pp'
+                        calendarStartDay={1}
+                        popperPlacement='bottom-start'
+                        customInput={
+                          <Input
+                            cursor='pointer'
+                            backgroundColor='transparent'
+                            color='grey.900'
+                            borderColor='grey.200'
+                            _hover={{ borderColor: 'grey.300' }}
+                            _focus={{ borderColor: 'grey.400' }}
+                            padding='8px'
+                            borderRadius='md'
+                            height='40px'
+                            width='100%'
+                          />
+                        }
+                      />
+                    </GridItem>
+
+                    <LabelField>Timezone</LabelField>
+                    <GridItem>
                       <TimezoneSelect
                         value={formData.timezone}
                         onChange={(timezone: ITimezoneOption) => {
@@ -690,61 +699,41 @@ export const DraftMarketModal: FC = () => {
                           }),
                         }}
                       />
-                    </Flex>
-                  </HStack>
-                </Box>
+                    </GridItem>
 
-                <HStack w='full' alignItems='center' spacing={4} mt={4}>
-                  <FormLabel mb={0} minW='80px'>
-                    <Text>Is Bannered</Text>
-                  </FormLabel>
-                  <Flex flex={1} justifyContent='end'>
-                    <HStack gap='8px'>
-                      <Box
-                        w='16px'
-                        h='16px'
-                        borderColor='grey.200'
-                        border='1px solid'
-                        borderRadius='2px'
-                        cursor='pointer'
-                        bg={formData.isBannered ? 'grey.800' : 'transparent'}
-                        onClick={() => {
-                          handleChange('isBannered', !formData.isBannered)
-                        }}
+                    <LabelField>Is bannered</LabelField>
+                    <GridItem>
+                      <HStack gap='8px' alignItems='center'>
+                        <Box
+                          w='16px'
+                          h='16px'
+                          borderColor='grey.200'
+                          border='1px solid'
+                          borderRadius='2px'
+                          cursor='pointer'
+                          bg={formData.isBannered ? 'grey.800' : 'transparent'}
+                          onClick={() => {
+                            handleChange('isBannered', !formData.isBannered)
+                          }}
+                        />
+                        <Text {...paragraphRegular}>Add to banner</Text>
+                      </HStack>
+                    </GridItem>
+
+                    <LabelField>Priority index</LabelField>
+                    <GridItem>
+                      <AdjustableNumberInput
+                        hideLabel
+                        value={formData.priorityIndex}
+                        onChange={(value) => handleChange('priorityIndex', value)}
+                        min={1}
+                        max={1000}
+                        step={1}
                       />
-                      <Text {...paragraphRegular}>Add market to big banner</Text>
-                    </HStack>
-                  </Flex>
-                </HStack>
-                <VStack>
-                  <AdjustableNumberInput
-                    label='Priority index'
-                    value={formData.priorityIndex}
-                    onChange={(value) => handleChange('priorityIndex', value)}
-                    min={1}
-                    max={1000}
-                    step={1}
-                  />
-                </VStack>
-              </FormField>
-
-              {/* <ButtonGroup spacing='6' mt={5} w='full'> */}
-              {/*   {isCreating ? ( */}
-              {/*     <Flex width='full' justifyContent='center' alignItems='center'> */}
-              {/*       <Spinner /> */}
-              {/*     </Flex> */}
-              {/*   ) : ( */}
-              {/*     <Button */}
-              {/*       colorScheme='green' */}
-              {/*       w='full' */}
-              {/*       height='52px' */}
-              {/*       onClick={submit} */}
-              {/*       isDisabled={isCreating} */}
-              {/*     > */}
-              {/*       {getButtonText()} */}
-              {/*     </Button> */}
-              {/*   )} */}
-              {/* </ButtonGroup> */}
+                    </GridItem>
+                  </Grid>
+                </Box>
+              </Box>
             </VStack>
           </HStack>
         </FormControl>

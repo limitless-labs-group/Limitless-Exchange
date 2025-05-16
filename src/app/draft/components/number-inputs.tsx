@@ -1,8 +1,9 @@
 import { Flex, Box, NumberInput, NumberInputField, HStack, FormLabel, Text } from '@chakra-ui/react'
 import { FC } from 'react'
+import { paragraphBold } from '@/styles/fonts/fonts.styles'
 
 interface AdjustableNumberInputProps {
-  label: string
+  label?: string
   value: number | undefined
   onChange: (value: number) => void
   min?: number
@@ -66,7 +67,7 @@ export const AdjustableNumberInput: FC<AdjustableNumberInputProps> = ({
   return (
     <HStack w='full' alignItems='center' spacing={4} mt={2}>
       <FormLabel mb={0} minW='80px'>
-        <Text>{label}</Text>
+        <Text {...paragraphBold}>{label}</Text>
       </FormLabel>
       <Box flex={1}>
         <HStack alignItems='flex-start'>
