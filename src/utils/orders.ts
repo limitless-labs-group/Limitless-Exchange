@@ -28,11 +28,15 @@ export const buildOrderTypedData = (
   type: 'common' | 'negRisk',
   includeFee: boolean
 ): EIP712TypedData => {
-  const verifyingContract = includeFee
-    ? (process.env.NEXT_PUBLIC_CLOB_FEE_MODULE as string)
-    : type === 'common'
-    ? (process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as string)
-    : (process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE as string)
+  let verifyingContract
+  if (includeFee && type === 'common') {
+    verifyingContract = process.env.NEXT_PUBLIC_CLOB_FEE_MODULE as string
+  } else {
+    verifyingContract =
+      type === 'common'
+        ? (process.env.NEXT_PUBLIC_CTF_EXCHANGE_ADDR as string)
+        : (process.env.NEXT_PUBLIC_NEGRISK_CTF_EXCHANGE as string)
+  }
   const result = {
     primaryType: 'Order',
     types: {
