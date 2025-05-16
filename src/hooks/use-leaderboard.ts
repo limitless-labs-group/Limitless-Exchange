@@ -48,32 +48,3 @@ export function useLeaderboard(param: LeaderboardSort, page: number, metric: str
     },
   })
 }
-
-export function useTopThreeLeaders(param: LeaderboardSort, metric: string) {
-  return useQuery({
-    queryKey: ['leaderboard', param, 'top-three', metric],
-    queryFn: async (): Promise<AxiosResponse<LeaderboardResponse>> => {
-      let route
-      switch (param) {
-        case LeaderboardSort.MONTHLY:
-          route = 'month'
-          break
-        case LeaderboardSort.WEEKLY:
-          route = 'week'
-          break
-        case LeaderboardSort.DAILY:
-          route = 'day'
-          break
-        default:
-          route = 'all-time'
-          break
-      }
-      return limitlessApi.get(`/leaderboard/${route}?metric=${metric}`, {
-        params: {
-          page: 1,
-          limit: 3,
-        },
-      })
-    },
-  })
-}
