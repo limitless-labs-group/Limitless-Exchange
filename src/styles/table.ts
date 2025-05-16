@@ -114,17 +114,13 @@ const grey = definePartsStyle({
       borderColor: 'grey.300 !important',
       bg: 'grey.100',
       textTransform: 'unset',
-      // '&[data-is-numeric=true]': {
-      //   textAlign: 'end',
-      // },
-      // '&:first-child': {
-      //   paddingLeft: 0,
-      // },
       '&:not(:last-child)': { borderRight: '1px solid', borderColor: 'grey.300' },
-      // '&:last-child': {
-      //   paddingRight: 0,
-      // },
       borderBottom: '1px solid',
+      '& p': {
+        mb: 0,
+        fontWeight: 500,
+      },
+      whiteSpace: isMobile ? 'nowrap' : 'normal',
     },
   },
   tbody: {
@@ -146,6 +142,10 @@ const grey = definePartsStyle({
       color: 'grey.700',
       '&:not(:last-child)': { borderRight: '1px solid', borderColor: 'grey.300' },
       padding: isMobile ? '12px' : '7.5px 8px',
+      '& p': {
+        mb: 0,
+      },
+      whiteSpace: isMobile ? 'nowrap' : 'normal',
     },
   },
 })

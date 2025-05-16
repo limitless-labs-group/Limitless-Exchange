@@ -68,6 +68,7 @@
     "highcharts": "^11.4.1",
     "highcharts-react-official": "^3.2.1",
     "hono": "^4",
+    "html-react-parser": "^5.2.5",
     "html-to-text": "^9.0.5",
     "html2canvas": "^1.4.1",
     "jotai": "^2.12.1",

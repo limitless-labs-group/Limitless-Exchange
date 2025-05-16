@@ -2,9 +2,9 @@
 
 import { Box, VStack, Text, HStack, Image } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
-import Avatar from '@/components/common/avatar'
 import Skeleton from '@/components/common/skeleton'
 import BlogShareLinks from '@/app/blog/components/blog-share-links'
+import ContentParser from '@/app/blog/components/content-parser'
 import { MainLayout } from '@/components'
 import { useBlogPost } from '@/hooks/use-blog-articles'
 import ChevronDownIcon from '@/resources/icons/chevron-down-icon.svg'
@@ -89,6 +89,31 @@ export default function BlogPostPage({ slug }: BlogPostPageProps) {
           {/*))}*/}
         </HStack>
       )}
+      {isMobile && (
+        <Box mt='12px' mb='32px'>
+          <BlogShareLinks slug={slug} />
+        </Box>
+      )}
+      <Box mt={isMobile ? '32px' : '54px'} maxW='640px' m='auto'>
+        {isLoading ? (
+          <VStack gap='48px' w={isMobile ? 'full' : '640px'}>
+            <VStack gap='24px' w='full'>
+              <Skeleton height={28} />
+              <Skeleton height={60} />
+              <Skeleton height={60} />
+            </VStack>
+            <Skeleton height={isMobile ? 276 : 368} />
+            <VStack gap='24px' w='full'>
+              <Skeleton height={28} />
+              <Skeleton height={60} />
+              <Skeleton height={60} />
+            </VStack>
+          </VStack>
+        ) : (
+          <ContentParser html={data?.data[0].content || ''} />
+        )}
+        <BlogShareLinks slug={slug} />
+      </Box>
     </MainLayout>
   )
 }
