@@ -118,8 +118,10 @@ const SearchPage = () => {
     setSort({ sort: options ?? Sort.DEFAULT })
   }
 
-  const isLoading = isAllMarketsLoading || isSearchMarketsLoading
-  const hasNoResults = !isLoading && searchQuery
+  const isInitialLoading = (isAllMarketsLoading || isSearchMarketsLoading) && markets.length === 0
+  const isPaginationLoading = (isAllMarketsLoading || isSearchMarketsLoading) && markets.length > 0
+  const hasNoResults =
+    !isInitialLoading && !isPaginationLoading && searchQuery && markets.length === 0
 
   return (
     <VStack
@@ -129,7 +131,7 @@ const SearchPage = () => {
       alignItems='center'
       justifyContent='center'
       gap='16px'
-      margin='auto'
+      mx='auto'
     >
       <SearchInput
         value={search}
@@ -138,7 +140,7 @@ const SearchPage = () => {
         placeholder={isMobile ? 'Search' : 'Search for any markets'}
         inputRef={inputRef}
       />
-      {markets.length > 0 && !isLoading ? (
+      {markets.length > 0 ? (
         <>
           {' '}
           <Flex justifyContent='start' width='100%' mt='16px'>
@@ -153,8 +155,7 @@ const SearchPage = () => {
           </Flex>
         </>
       ) : null}
-
-      {isLoading ? (
+      {isInitialLoading ? (
         <>
           {[...Array(6)].map((_, index) => (
             <Box key={`skeleton-straight-${index}`} w='full'>
@@ -163,8 +164,7 @@ const SearchPage = () => {
           ))}
         </>
       ) : null}
-
-      {markets.length > 0 && !isLoading ? (
+      {markets.length > 0 ? (
         <Box className='full-container' w='full'>
           <InfiniteScroll
             dataLength={markets.length}
@@ -176,6 +176,7 @@ const SearchPage = () => {
                 <Text {...paragraphRegular}>Loading more markets</Text>
               </HStack>
             }
+            scrollThreshold={0.8}
           >
             <VStack w='full' spacing={4}>
               {markets?.map((market: Market, index: number) => {
@@ -198,7 +199,8 @@ const SearchPage = () => {
             </VStack>
           </InfiniteScroll>
         </Box>
-      ) : hasNoResults ? (
+      ) : null}
+      {hasNoResults ? (
         <VStack alignItems={isMobile ? 'center' : 'start'} w='full' py='40px' spacing='16px'>
           <Text {...h3Bold} color='grey.800'>
             {`No search results found for "${searchQuery}"`}
