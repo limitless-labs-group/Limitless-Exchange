@@ -3,6 +3,7 @@ import { ColorScheme } from '@/types'
 export const lightThemeColors: ColorScheme = {
   white: '#FFFFFF',
   black: '#000000',
+  mono: 'white',
   grey: {
     50: '#FFFFFF',
     100: '#F3F4F6',

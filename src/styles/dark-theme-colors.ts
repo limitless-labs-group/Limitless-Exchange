@@ -3,6 +3,7 @@ import { ColorScheme } from '@/types'
 export const darkThemeColors: ColorScheme = {
   white: '#FFFFFF',
   black: '#000000',
+  mono: 'black',
   grey: {
     50: '#030712',
     100: '#111827',

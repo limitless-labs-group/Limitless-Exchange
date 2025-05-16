@@ -137,7 +137,7 @@ export default function AdminPage() {
             <Text>Create market</Text>
           </Button>
         </HStack>
-        <Modal isOpen={isCreateOpen} onClose={onCreateToggle} maxW='1080px' minH='700px'>
+        <Modal isOpen={isCreateOpen} onClose={onCreateToggle} maxW='1080px' minH='700px' bg='mono'>
           <DraftMarketModal />
         </Modal>
         <Box minH='800px'>

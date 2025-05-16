@@ -2,6 +2,7 @@
 
 import { HStack, Text, Box, useRadioGroup, useRadio, UseRadioProps } from '@chakra-ui/react'
 import { FC } from 'react'
+import { paragraphMedium } from '@/styles/fonts/fonts.styles'
 
 interface RadioCardProps extends UseRadioProps {
   children: React.ReactNode
@@ -18,16 +19,13 @@ const RadioCard: FC<RadioCardProps> = (props) => {
       <Box
         {...checkbox}
         cursor='pointer'
-        borderWidth='1px'
-        borderRadius='md'
-        boxShadow='md'
+        borderRadius='6px'
+        px='12px'
+        py='2px'
         _checked={{
-          bg: 'blue.400',
-          color: 'white',
-          borderColor: 'blue.400',
+          bg: 'grey.100',
+          color: 'black',
         }}
-        px='6px'
-        py='4px'
       >
         {props.children}
       </Box>
@@ -53,18 +51,22 @@ export const MarketTypeSelector: FC<MarketTypeSelectorProps> = ({ value, onChang
   const group = getRootProps()
 
   return (
-    <Box maxW='1200px' w='full' justifySelf='center'>
-      <Text mb={2}>Market type</Text>
-      <HStack {...group} spacing={2}>
+    <HStack maxW='1200px' w='full' justifyContent='space-between'>
+      <Text {...paragraphMedium} mb={2}>
+        Market type
+      </Text>
+      <HStack {...group} spacing={2} bg='grey.200' w='fit-content' p='2px' borderRadius='8px'>
         {(isEdit ? options.filter((option) => option === value) : options).map((option) => {
           const radio = getRadioProps({ value: option })
           return (
             <RadioCard key={option} {...radio} isDisabled={isEdit}>
-              <Text fontSize='10px'>{option}</Text>
+              <Text {...paragraphMedium} textTransform='uppercase'>
+                {option}
+              </Text>
             </RadioCard>
           )
         })}
       </HStack>
-    </Box>
+    </HStack>
   )
 }
