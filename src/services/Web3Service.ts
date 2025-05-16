@@ -232,7 +232,7 @@ export function useWeb3Service(): Web3Service {
       side, // buy 0, sell 1
       signatureType: web3Client === 'etherspot' ? 2 : 0,
     }
-    const order = buildOrderTypedData(orderData, type, includeFee)
+    const order = buildOrderTypedData(orderData, type)
 
     const signature = await externalWalletService.signTypedData(order)
     return {
@@ -268,7 +268,7 @@ export function useWeb3Service(): Web3Service {
       side, // buy 0, sell 1
       signatureType: web3Client === 'etherspot' ? 2 : 0,
     }
-    const order = buildOrderTypedData(orderData, type, includeFee)
+    const order = buildOrderTypedData(orderData, type)
 
     const signature = await externalWalletService.signTypedData(order)
     return {
