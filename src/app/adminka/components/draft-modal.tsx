@@ -315,6 +315,7 @@ export const DraftMarketModal: FC = () => {
             justifyContent='space-between'
             alignItems='stretch'
             minH='800px'
+            h='full'
           >
             <VStack w='full' flex='1.2'>
               {!activeMarketId ? (
@@ -330,13 +331,15 @@ export const DraftMarketModal: FC = () => {
                   rows={1}
                   overflow='hidden'
                   height='auto'
+                  backgroundColor='transparent'
+                  borderColor='grey.200'
                   onInput={resizeTextareaHeight}
                   value={formData.title}
                   onChange={(e) => handleChange('title', e.target.value)}
                   maxLength={70}
                 />
                 <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
-                  {formData.title?.length}/70 characters
+                  <Text {...paragraphRegular}>{formData.title?.length}/70 characters</Text>
                 </FormHelperText>
               </FormField>
 
@@ -353,7 +356,9 @@ export const DraftMarketModal: FC = () => {
                     style={{ wordBreak: 'break-word' }}
                   />
                   <FormHelperText textAlign='end' style={{ fontSize: '10px', color: 'spacegray' }}>
-                    {getPlainTextLength(formData.description)}/3000 characters
+                    <Text {...paragraphRegular}>
+                      {getPlainTextLength(formData.description)}/3000 characters
+                    </Text>
                   </FormHelperText>
                 </FormField>
               ) : (
@@ -381,6 +386,8 @@ export const DraftMarketModal: FC = () => {
                     <Select
                       value={formData.creatorId}
                       onChange={(e) => handleChange('creatorId', e.target.value)}
+                      backgroundColor='transparent'
+                      borderColor='grey.200'
                     >
                       {creators?.map((creator: DraftCreator) => (
                         <option key={creator.id} value={creator.id}>
@@ -398,7 +405,12 @@ export const DraftMarketModal: FC = () => {
                     <Text>Token</Text>
                   </FormLabel>
                   <Box flex={1}>
-                    <Select value={formData.token.id} onChange={handleTokenSelect}>
+                    <Select
+                      value={formData.token.id}
+                      onChange={handleTokenSelect}
+                      backgroundColor='transparent'
+                      borderColor='grey.200'
+                    >
                       {supportedTokens?.map((token: Token) => (
                         <option key={token.id} value={token.id} data-name={token.symbol}>
                           {token.symbol}
@@ -508,6 +520,8 @@ export const DraftMarketModal: FC = () => {
                       control: (provided) => ({
                         ...provided,
                         ...selectStyles.control,
+                        backgroundColor: 'transparent',
+                        borderColor: 'var(--chakra-colors-grey-200)',
                       }),
                     }}
                   />
@@ -575,10 +589,11 @@ export const DraftMarketModal: FC = () => {
                           customInput={
                             <Input
                               cursor='pointer'
-                              backgroundColor='grey.100'
+                              backgroundColor='transparent'
                               color='grey.900'
-                              _hover={{ backgroundColor: 'grey.200' }}
-                              _focus={{ backgroundColor: 'gray.300', borderColor: 'gray.500' }}
+                              borderColor='grey.200'
+                              _hover={{ borderColor: 'grey.300' }}
+                              _focus={{ borderColor: 'grey.400' }}
                               padding='8px'
                               borderRadius='md'
                               height='40px'
@@ -617,10 +632,11 @@ export const DraftMarketModal: FC = () => {
                           customInput={
                             <Input
                               cursor='pointer'
-                              backgroundColor='grey.100'
+                              backgroundColor='transparent'
                               color='grey.900'
-                              _hover={{ backgroundColor: 'grey.200' }}
-                              _focus={{ backgroundColor: 'gray.300', borderColor: 'gray.500' }}
+                              borderColor='grey.200'
+                              _hover={{ borderColor: 'grey.300' }}
+                              _focus={{ borderColor: 'grey.400' }}
                               padding='8px'
                               borderRadius='md'
                               height='40px'
@@ -660,6 +676,8 @@ export const DraftMarketModal: FC = () => {
                             ...selectStyles.control,
                             minHeight: '40px',
                             height: '40px',
+                            backgroundColor: 'transparent',
+                            borderColor: 'var(--chakra-colors-grey-200)',
                           }),
                           singleValue: (provided) => ({
                             ...provided,
@@ -685,11 +703,11 @@ export const DraftMarketModal: FC = () => {
                       <Box
                         w='16px'
                         h='16px'
-                        borderColor='grey.500'
+                        borderColor='grey.200'
                         border='1px solid'
                         borderRadius='2px'
                         cursor='pointer'
-                        bg={formData.isBannered ? 'grey.800' : 'unset'}
+                        bg={formData.isBannered ? 'grey.800' : 'transparent'}
                         onClick={() => {
                           handleChange('isBannered', !formData.isBannered)
                         }}
@@ -732,15 +750,25 @@ export const DraftMarketModal: FC = () => {
         </FormControl>
         <Divider />
         <HStack w='full' justifyContent='space-between'>
-          <Button variant='outlined'>Review by AI</Button>
+          <Button height='32px' px='12px' variant='outlined'>
+            Review by AI
+          </Button>
           <HStack>
-            <Button variant='outlined'>Cancel</Button>
+            <Button height='32px' px='12px' variant='outlined'>
+              Cancel
+            </Button>
             {isCreating ? (
               <Flex width='full' justifyContent='center' alignItems='center'>
                 <Loader />
               </Flex>
             ) : (
-              <Button variant='contained' onClick={submit} isDisabled={isCreating}>
+              <Button
+                height='32px'
+                px='12px'
+                variant='contained'
+                onClick={submit}
+                isDisabled={isCreating}
+              >
                 {getButtonText()}
               </Button>
             )}
