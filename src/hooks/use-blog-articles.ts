@@ -10,7 +10,7 @@ async function getBlogArticles() {
 }
 
 async function getBlogPost(slug: string) {
-  const response = await axios.get(
+  const response: AxiosResponse<BlogPostsResponse> = await axios.get(
     `${process.env.NEXT_PUBLIC_BLOG_URL}/items/posts?filter[slug][_eq]=${slug}&fields=*,author.*,cover.*,tag.*,blocks.*`
   )
   return response.data

@@ -10,7 +10,7 @@ export default async function PostPage({ params }: { params: { slug: string } })
 
   return (
     <HydrationBoundary state={dehydratedState}>
-      <BlogPostPage />
+      <BlogPostPage slug={params.slug} />
     </HydrationBoundary>
   )
 }
