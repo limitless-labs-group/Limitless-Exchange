@@ -30,7 +30,7 @@ export default function ContentParser({ html }: ContentParserProps) {
         switch (el.name) {
           case 'h1':
             return (
-              <Text {...(isMobile ? { ...h2Bold } : { ...h1Bold })} mb='24px'>
+              <Text {...(isMobile ? { ...h2Bold } : { ...h1Bold })} mb='24px' mt='48px'>
                 {domToReact(el.children as DOMNode[], options)}
               </Text>
             )
@@ -104,7 +104,7 @@ export default function ContentParser({ html }: ContentParserProps) {
             return <Th bg='grey.300'>{domToReact(el.children as DOMNode[], options)}</Th>
           case 'img':
             return (
-              <Box marginBottom='24px'>
+              <Box mx='48px'>
                 <img
                   src={el.attribs.src}
                   alt={el.attribs.alt || ''}
