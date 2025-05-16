@@ -729,6 +729,8 @@ export const DraftMarketModal: FC = () => {
                         min={1}
                         max={1000}
                         step={1}
+                        compact
+                        width='40px'
                       />
                     </GridItem>
                   </Grid>
@@ -743,7 +745,7 @@ export const DraftMarketModal: FC = () => {
             Review by AI
           </Button>
           <HStack>
-            <Button height='32px' px='12px' variant='outlined'>
+            <Button onClick={close} height='32px' px='12px' variant='outlined'>
               Cancel
             </Button>
             {isCreating ? (

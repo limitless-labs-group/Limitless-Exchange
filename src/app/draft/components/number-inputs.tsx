@@ -1,6 +1,6 @@
 import { Flex, Box, NumberInput, NumberInputField, HStack, FormLabel, Text } from '@chakra-ui/react'
 import { FC } from 'react'
-import { paragraphBold } from '@/styles/fonts/fonts.styles'
+import { paragraphBold, paragraphRegular } from '@/styles/fonts/fonts.styles'
 
 interface AdjustableNumberInputProps {
   label?: string
@@ -13,6 +13,7 @@ interface AdjustableNumberInputProps {
   width?: string
   additionalInfo?: React.ReactNode
   hideLabel?: boolean
+  compact?: boolean
 }
 
 export const AdjustableNumberInput: FC<AdjustableNumberInputProps> = ({
@@ -26,7 +27,50 @@ export const AdjustableNumberInput: FC<AdjustableNumberInputProps> = ({
   width = '120px',
   additionalInfo,
   hideLabel = false,
+  compact = false,
 }) => {
+  if (compact) {
+    return (
+      <HStack alignItems='center' spacing={1} w='auto'>
+        {label && (
+          <FormLabel mb={0} w='auto' mr='2px' whiteSpace='nowrap'>
+            <Text {...paragraphRegular}>{label}:</Text>
+          </FormLabel>
+        )}
+        <Flex position='relative' alignItems='center' w='auto'>
+          {prefix && (
+            <Box
+              position='absolute'
+              left='8px'
+              zIndex='1'
+              pointerEvents='none'
+              color='gray.500'
+              bg='gray.200'
+            >
+              {prefix}
+            </Box>
+          )}
+          <NumberInput
+            value={value}
+            onChange={(value) => onChange(Number(value))}
+            min={min}
+            max={max}
+            step={step}
+            w='auto'
+          >
+            <NumberInputField
+              type='number'
+              w={width}
+              min={min.toString()}
+              p='5px'
+              pl={prefix ? '40px' : undefined}
+            />
+          </NumberInput>
+        </Flex>
+        {additionalInfo}
+      </HStack>
+    )
+  }
   if (hideLabel) {
     return (
       <HStack alignItems='flex-start'>
