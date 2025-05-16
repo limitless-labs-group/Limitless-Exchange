@@ -131,7 +131,7 @@ export default function AdminPage() {
 
       <Box flex='1' pl='250px'>
         <HStack justifyContent='space-between'>
-          <Text>Drafts</Text>
+          <Text>{tabs[activeIndex].title}</Text>
           <Button size='sm' variant='white' onClick={onCreateToggle}>
             <PlusIcon />
             <Text>Create market</Text>

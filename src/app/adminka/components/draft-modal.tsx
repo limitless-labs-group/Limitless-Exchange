@@ -552,8 +552,7 @@ export const DraftMarketModal: FC = () => {
                       isMulti
                       closeMenuOnSelect={false}
                       onCreateOption={handleTagCreation}
-                      //@ts-ignore
-                      onChange={(option) => handleChange('tag', option)}
+                      onChange={(option: readonly SelectOption[]) => handleChange('tag', option)}
                       value={formData.tag}
                       options={tagOptions}
                       styles={{
@@ -741,7 +740,7 @@ export const DraftMarketModal: FC = () => {
         </FormControl>
         <Divider />
         <HStack w='full' justifyContent='space-between'>
-          <Button height='32px' px='12px' variant='outlined'>
+          <Button height='32px' px='12px' variant='outlined' isDisabled={true}>
             Review by AI
           </Button>
           <HStack>
